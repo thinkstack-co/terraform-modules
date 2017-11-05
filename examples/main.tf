@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket         = "thinkstack-terraform"
-    key            = "solarity/terraform.tfstate"
+    key            = "dev/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
     dynamodb_table = "terraform_state_lock"
@@ -11,14 +11,14 @@ terraform {
 
 provider "aws" {
     region  = "us-west-2"
-    profile = "solarity"
+    profile = "dev"
 }
 
-data "terraform_remote_state" "solarity" {
+data "terraform_remote_state" "dev" {
   backend       = "s3"
   config {
     bucket      = "thinkstack-terraform"
-    key         = "solarity/terraform.tfstate"
+    key         = "dev/terraform.tfstate"
     region      = "us-east-1"
     encrypt     = true
     acl         = "private"
@@ -74,7 +74,7 @@ module "sms_connector_user" {
 module "s3_admin_bucket" {
     source = "./modules/aws_s3"
 
-    s3_bucket_prefix    =   "solarity-admin-"
+    s3_bucket_prefix    =   "dev-admin-"
     s3_bucket_region    =   "us-west-2"
     s3_bucket_acl       =   "private"
 }
@@ -143,7 +143,7 @@ module "vpn_route_192_168_0_0" {
 module "cloudtrail" {
     source              = "./modules/aws_cloudtrail"
     
-    s3_bucket_prefix    =   "solarity-cloudtrail-"
+    s3_bucket_prefix    =   "dev-cloudtrail-"
     s3_bucket_region    =   "us-west-2"
     s3_bucket_acl       =   "private"
     s3_mfa_delete       =   true
@@ -227,7 +227,7 @@ module "aws_ec2_domain_controllers" {
     subnet_id               = "${module.vpc.private_subnet_ids}"
     ami_id                  = "ami-b672b2ce"
     number_of_instances     = 2
-    domain_name             = "solaritycu.org"
+    domain_name             = "dev.local"
     sg_cidr_blocks          = "${
         list(
         module.vpc.vpc_cidr_block,
