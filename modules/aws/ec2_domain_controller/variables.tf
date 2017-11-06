@@ -23,7 +23,7 @@ variable "ami_id" {
 
 variable "number_of_instances" {
   description = "number of instances to make"
-  default = 2
+  default     = 2
 }
 
 variable "subnet_id" {
@@ -33,16 +33,17 @@ variable "subnet_id" {
 
 variable "instance_type" {
     description = "Select the instance type. Set in main.tf"
-    default = "t2.medium"
+    default     = "t2.medium"
 }
 
 variable "key_name" {
     description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
 }
 
-#variable "user_data" {
-#  description = "The path to a file with user_data for the instances"
-#}
+variable "user_data" {
+ description = "The path to a file with user_data for the instances"
+ default     = ""
+}
 
 #variable "security_group_ids" {
 #  description = "Lits of security group ids to attach to the instance"
@@ -89,7 +90,7 @@ variable "tags" {
 
 variable "instance_name_prefix" {
   description = "Used to populate the Name tag. Set in main.tf"
-  default   = "aws_dc"
+  default     = "aws_dc"
 }
 
 variable "instance_role" {

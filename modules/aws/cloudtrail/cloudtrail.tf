@@ -23,7 +23,7 @@ resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
     }
 
     tags {
-        terraform    = "yes"
+        terraform    = "true"
     }
 }
 
