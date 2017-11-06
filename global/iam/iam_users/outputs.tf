@@ -1,11 +1,11 @@
-output "iam_user_arn" {
+output "arn" {
     value = "${aws_iam_user.user.arn}"
 }
 
-output "iam_user_name" {
+output "name" {
     value = "${aws_iam_user.user.name}"
 }
 
-output "iam_user_unique_id" {
+output "unique_id" {
     value = "${aws_iam_user.user.unique_id}"
 }
