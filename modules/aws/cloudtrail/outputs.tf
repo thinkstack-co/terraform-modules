@@ -18,14 +18,6 @@ output "s3_bucket_region" {
     value = "${aws_s3_bucket.cloudtrail_s3_bucket.region}"
 }
 
-output "s3_bucket_website_endpoint" {
-    value = "${aws_s3_bucket.cloudtrail_s3_bucket.website_endpoint}"
-}
-
-output "s3_bucket_website_domain" {
-    value = "${aws_s3_bucket.cloudtrail_s3_bucket.website_domain}"
-}
-
 output "cloudtrail_id" {
     value = "${aws_cloudtrail.cloudtrail.id}"
 }

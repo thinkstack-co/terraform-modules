@@ -14,7 +14,7 @@ output "key_name" {
 }
 
 output "public_dns" {
-  description = "List of public DNS names assigned to the instances. For EC2-VPC, this is only available if you've enabled DNS hostnames for your VPC"
+  description = "List of public DNS names assigned to the instances. For EC2-VPC, ec2 is only available if you've enabled DNS hostnames for your VPC"
   value       = ["${aws_instance.ec2.*.public_dns}"]
 }
 

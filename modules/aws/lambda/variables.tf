@@ -1,8 +1,8 @@
-variable "lambda_description" {
+variable "description" {
     description = "Description of the lambda function"
 }
 
-variable "lambda_filename" {
+variable "filename" {
     description = "Filename to upload to lambda"
 }
 
@@ -10,30 +10,36 @@ variable "source_code_hash" {
     description = "Hash of the source code file"
 }
 
-variable "lambda_function_name" {
+variable "function_name" {
     description = "Name of your lambda function"
 }
 
-variable "lambda_role" {
+variable "role" {
     description = "Role the lambda function will use"
 }
 
-variable "lambda_handler" {
+variable "handler" {
     description = "Entrypoint to the lambda function"
     default     = "main.handler"
 }
 
-variable "lambda_runtime" {
+variable "memory_size" {
+    type = "string"
+    description = "amount of memory to allocate to the function in 64MB increments"
+    default = 128
+}
+
+variable "runtime" {
     description = "Lambda runtime"
     default     = "python3.6"
 }
 
-variable "lambda_timeout" {
+variable "timeout" {
     description = "Timeout of the lambda function in seconds"
     default     = 180
 }
 
-variable "statement_id" {
+/*variable "statement_id" {
     description = "A unique statement identifier"
 }
 
@@ -50,3 +56,4 @@ variable "principal" {
 variable "source_arn" {
     description = "arn of the resource to allow permission to run the lambda function"
 }
+*/

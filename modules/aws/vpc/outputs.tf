@@ -49,3 +49,7 @@ output "natgw_ids" {
 output "igw_id" {
   value = "${aws_internet_gateway.igw.id}"
 }
+
+output "availability_zone" {
+  value = ["${aws_subnet.private_subnets.*.availability_zone}"]
+}

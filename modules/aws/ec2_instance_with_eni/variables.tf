@@ -70,10 +70,10 @@ variable "associate_public_ip_address" {
   default     = false
 }
 
-variable "private_ip" {
-  description = "Private IP address to associate with the instance in a VPC"
-  default     = ""
-}
+# variable "private_ip" {
+#   description = "Private IP address to associate with the instance in a VPC"
+#   default     = ""
+# }
 
 variable "source_dest_check" {
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
@@ -110,27 +110,9 @@ variable "volume_tags" {
   default     = {}
 }
 
-variable "root_volume_type" {
-  type        = "string"
-  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
-  default     = ""
-}
-
-variable "root_volume_size" {
-  type        = "string"
-  description = "(Optional) The size of the volume in gigabytes."
-  default     = ""
-}
-
-variable "root_iops" {
-  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = ""
-}
-
-variable "root_delete_on_termination" {
-  type        = "string"
-  description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
-  default     = true
+variable "root_block_device" {
+  description = "Customize details about the root block device of the instance. See Block Devices below for details"
+  default     = []
 }
 
 variable "ebs_block_device" {
@@ -146,4 +128,28 @@ variable "ephemeral_block_device" {
 variable "network_interface" {
   description = "Customize network interfaces to be attached at instance boot time"
   default     = []
+}
+
+# variable "private_ips" {
+#   description = "Private IP to assign to the eni"
+#   default     = []
+# }
+
+variable "private_ips_count" {
+  description = "Number of private IPs to assign to the eni"
+  default     = 0
+}
+
+variable "attachment" {
+  description = "Attachment block for assigning the eni to an instance"
+  default     = []
+}
+
+variable "device_index" {
+  description = "eni index to attach the eni to on the instance"
+}
+
+variable "delete_on_termination" {
+  description = "whether or not to delete the eni on instance termination"
+  default = false
 }
