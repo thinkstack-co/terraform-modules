@@ -1,5 +1,5 @@
 ######
-# EC2 instance
+# EC2 instance Module
 ######
 resource "aws_instance" "ec2" {
   ami                                  = "${var.ami}"
