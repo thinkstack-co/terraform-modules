@@ -6,7 +6,7 @@ resource "aws_vpc" "vpc" {
   tags                 = "${merge(var.tags, map("Name", format("%s", var.name)))}"
 
   lifecycle {
-    prevent_destroy   = true
+    prevent_destroy   = false
   }
 }
 
