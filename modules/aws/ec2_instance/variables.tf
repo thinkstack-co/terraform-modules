@@ -1,68 +1,5 @@
-variable "name" {
-  description = "Name to be used on all resources as prefix"
-}
-
-variable "count" {
-  description = "Number of instances to launch"
-  default     = 1
-}
-
 variable "ami" {
   description = "ID of AMI to use for the instance"
-}
-
-variable "availability_zone" {
-  description = "The AZ to start the instance in"
-  default     = ""
-}
-
-variable "placement_group" {
-  description = "The Placement Group to start the instance in"
-  default     = ""
-}
-
-variable "tenancy" {
-  description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
-  default     = "default"
-}
-
-variable "ebs_optimized" {
-  description = "If true, the launched EC2 instance will be EBS-optimized"
-  default     = false
-}
-
-variable "disable_api_termination" {
-  description = "If true, enables EC2 Instance Termination Protection"
-  default     = false
-}
-
-variable "instance_initiated_shutdown_behavior" {
-  description = "Shutdown behavior for the instance" # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
-  default     = ""
-}
-
-variable "instance_type" {
-  description = "The type of instance to start"
-}
-
-variable "key_name" {
-  description = "The key name to use for the instance"
-  default     = ""
-}
-
-variable "monitoring" {
-  description = "If true, the launched EC2 instance will have detailed monitoring enabled"
-  default     = false
-}
-
-variable "vpc_security_group_ids" {
-  description = "A list of security group IDs to associate with"
-  type        = "list"
-}
-
-variable "subnet_id" {
-  description = "The VPC Subnet ID to launch in"
-  default     = ""
 }
 
 variable "associate_public_ip_address" {
@@ -70,24 +7,49 @@ variable "associate_public_ip_address" {
   default     = false
 }
 
-variable "private_ip" {
-  description = "Private IP address to associate with the instance in a VPC"
+variable "availability_zone" {
+  description = "The AZ to start the instance in"
   default     = ""
 }
 
-variable "source_dest_check" {
-  description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
-  default     = true
+variable "count" {
+  description = "Number of instances to launch"
+  default     = 1
 }
 
-variable "user_data" {
-  description = "The user data to provide when launching the instance"
-  default     = ""
+variable "disable_api_termination" {
+  description = "If true, enables EC2 Instance Termination Protection"
+  default     = false
+}
+
+variable "ebs_block_device" {
+  description = "Additional EBS block devices to attach to the instance"
+  default     = []
+}
+
+variable "ebs_optimized" {
+  description = "If true, the launched EC2 instance will be EBS-optimized"
+  default     = false
+}
+
+variable "ephemeral_block_device" {
+  description = "Customize Ephemeral (also known as Instance Store) volumes on the instance"
+  default     = []
 }
 
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
+}
+
+variable "instance_initiated_shutdown_behavior" {
+  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
+  description = "Shutdown behavior for the instance"
+  default     = ""
+}
+
+variable "instance_type" {
+  description = "The type of instance to start"
 }
 
 variable "ipv6_address_count" {
@@ -100,30 +62,27 @@ variable "ipv6_addresses" {
   default     = []
 }
 
-variable "tags" {
-  description = "A mapping of tags to assign to the resource"
-  default     = {}
-}
-
-variable "volume_tags" {
-  description = "A mapping of tags to assign to the devices created by the instance at launch time"
-  default     = {}
-}
-
-variable "root_volume_type" {
-  type        = "string"
-  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
+variable "key_name" {
+  description = "The key name to use for the instance"
   default     = ""
 }
 
-variable "root_volume_size" {
-  type        = "string"
-  description = "(Optional) The size of the volume in gigabytes."
+variable "monitoring" {
+  description = "If true, the launched EC2 instance will have detailed monitoring enabled"
+  default     = false
+}
+
+variable "name" {
+  description = "Name to be used on all resources as prefix"
+}
+
+variable "placement_group" {
+  description = "The Placement Group to start the instance in"
   default     = ""
 }
 
-variable "root_iops" {
-  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
+variable "private_ip" {
+  description = "Private IP address to associate with the instance in a VPC"
   default     = ""
 }
 
@@ -133,17 +92,54 @@ variable "root_delete_on_termination" {
   default     = true
 }
 
-variable "ebs_block_device" {
-  description = "Additional EBS block devices to attach to the instance"
-  default     = []
+variable "root_volume_size" {
+  type        = "string"
+  description = "(Optional) The size of the volume in gigabytes."
+  default     = "100"
 }
 
-variable "ephemeral_block_device" {
-  description = "Customize Ephemeral (also known as Instance Store) volumes on the instance"
-  default     = []
+variable "root_volume_type" {
+  type        = "string"
+  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
+  default     = "gp2"
 }
 
-variable "network_interface" {
-  description = "Customize network interfaces to be attached at instance boot time"
-  default     = []
+variable "root_iops" {
+  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
+  default     = ""
+}
+
+variable "source_dest_check" {
+  description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
+  default     = true
+}
+
+variable "subnet_id" {
+  description = "The VPC Subnet ID to launch in"
+  default     = ""
+}
+
+variable "tags" {
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
+}
+
+variable "tenancy" {
+  description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
+  default     = "default"
+}
+
+variable "user_data" {
+  description = "The user data to provide when launching the instance"
+  default     = ""
+}
+
+variable "volume_tags" {
+  description = "A mapping of tags to assign to the devices created by the instance at launch time"
+  default     = {}
+}
+
+variable "vpc_security_group_ids" {
+  description = "A list of security group IDs to associate with"
+  type        = "list"
 }

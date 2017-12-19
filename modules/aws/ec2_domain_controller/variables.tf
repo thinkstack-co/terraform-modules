@@ -1,34 +1,40 @@
-variable "vpc_id" {
-  description = "The VPC id to add the security group"
-}
-
-variable "sg_name" {
-  description = "Name of the security group"
-  default     = "domain_controller_sg"
-}
-
-variable "sg_cidr_blocks" {
-  description = "security group allowed cidr blocks"
-  type        = "list"
-}
-
-variable "security_group_name" {
-  description = "Name of the security group"
-  default     = "domain_controller_sg"
-}
-
-variable "ami_id" {
+variable "ami" {
   description = "The AMI to use"
 }
 
-variable "number_of_instances" {
+variable "availability_zone" {
+  description = "The AZ to start the instance in"
+  default     = ""
+}
+
+variable "count" {
   description = "number of instances to make"
   default = 2
 }
 
-variable "subnet_id" {
-  description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = "list"
+variable "domain_name" {
+  description = "Domain name suffix to add to DHCP DNS"
+}
+
+variable "disable_api_termination" {
+  description = "If true, enables EC2 Instance Termination Protection"
+  default     = false
+}
+
+variable "ebs_optimized" {
+  description = "If true, the launched EC2 instance will be EBS-optimized"
+  default     = false
+}
+
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = ""
+}
+
+variable "instance_initiated_shutdown_behavior" {
+  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
+  description = "Shutdown behavior for the instance"
+  default     = ""
 }
 
 variable "instance_type" {
@@ -38,65 +44,77 @@ variable "instance_type" {
 
 variable "key_name" {
     description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
+    default     = ""
 }
 
-#variable "user_data" {
-#  description = "The path to a file with user_data for the instances"
-#}
-
-#variable "security_group_ids" {
-#  description = "Lits of security group ids to attach to the instance"
-#}
-
-variable "root_volume_type" {
-  description = "Root volume EBS type"
-  default     = "gp2"
+variable "monitoring" {
+  description = "If true, the launched EC2 instance will have detailed monitoring enabled"
+  default     = false
 }
 
-variable "root_volume_size" {
-  description = "root volume disk size"
-  default     = "60"
+variable "placement_group" {
+  description = "The Placement Group to start the instance in"
+  default     = ""
 }
 
-variable "ebs_device_name" {
-  description = "ebs volume mount name"
-  default     = "/dev/xvdf"
-}
-
-variable "ebs_volume_type" {
-  description = "ebs volume type"
-  default     = "gp2"
-}
-
-variable "ebs_volume_size" {
-  description = "ebs volume disk size"
-  default     = "8"
-}
-
-variable "ebs_volume_encrypted" {
-  description = "Boolean whether or not the ebs volume is encrypted"
+variable "root_delete_on_termination" {
+  type        = "string"
+  description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
 }
 
+variable "root_volume_size" {
+  type        = "string"
+  description = "(Optional) The size of the volume in gigabytes."
+  default     = "100"
+}
+
+variable "root_volume_type" {
+  type        = "string"
+  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
+  default     = "gp2"
+}
+
+variable "root_iops" {
+  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
+  default     = ""
+}
+
+variable "source_dest_check" {
+  description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
+  default     = true
+}
+
+variable "subnet_id" {
+  description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
+  default     = []
+}
+
+variable "tenancy" {
+  description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
+  default     = "default"
+}
+
 variable "tags" {
-  default = {
-    created_by  = "terraform"
-    terraform   = "yes"
-    environment = "dev"
-    role        = "domain_controller"
-  }
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
 }
 
-variable "instance_name_prefix" {
-  description = "Used to populate the Name tag. Set in main.tf"
-  default   = "aws_dc"
+variable "user_data" {
+  description = "The user data to provide when launching the instance"
+  default     = ""
 }
 
-variable "instance_role" {
-    description = "Describe the role your instance will have"
-    default     = "domain_controller"
+variable "volume_tags" {
+  description = "A mapping of tags to assign to the devices created by the instance at launch time"
+  default     = {}
 }
 
-variable "domain_name" {
-  description = "Domain name suffix to add to DHCP DNS"
+variable "vpc_id" {
+  description = "The VPC id to add the security group"
+}
+
+variable "vpc_security_group_ids" {
+  description = "A list of security group IDs to associate with"
+  type        = "list"
 }
