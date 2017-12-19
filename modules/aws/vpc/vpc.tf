@@ -68,7 +68,7 @@ resource "aws_route" "private_default_route" {
   count                  = "${length(var.azs)}"
   route_table_id         = "${element(aws_route_table.private_route_table.*.id, count.index)}"
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${var.fw_network_interface_id ? (element(aws_nat_gateway.natgw.*.id, count.index)}"
+  nat_gateway_id         = "${element(aws_nat_gateway.natgw.*.id, count.index)}"
   network_interface_id   = "${var.enable_firewall ? (element(var.fw_network_interface_id, count.index)) : 0}"
   # count                   = "${var.enable_nat_gateway ? length(var.azs) : 0}"
 }
