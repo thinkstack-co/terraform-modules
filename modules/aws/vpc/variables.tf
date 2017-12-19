@@ -53,6 +53,11 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+variable "enable_firewall" {
+  description = "should be true if you are using a firewall to NAT traffic for the private subnets"
+  default     = false
+}
+
 variable "single_nat_gateway" {
   description = "should be true if you want to provision a single shared NAT Gateway across all of your private networks"
   default     = false
@@ -65,7 +70,7 @@ variable "private_propagating_vgws" {
 
 variable "fw_network_interface_id" {
   description = "Firewall network interface id"
-  type        = "list"
+  default     = []
 }
 
 variable "enable_s3_endpoint" {
@@ -75,15 +80,5 @@ variable "enable_s3_endpoint" {
 
 variable "tags" {
   description = "A map of tags to add to all resources"
-  default     = {}
-}
-
-variable "public_subnet_tags" {
-  description = "Additional tags for the public subnets"
-  default     = {}
-}
-
-variable "private_subnet_tags" {
-  description = "Additional tags for the public subnets"
   default     = {}
 }
