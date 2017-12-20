@@ -40,7 +40,7 @@ variable "network_interface_id" {
 }
 
 variable "route_table_id" {
-  type = "list"
+  type = "string"
   description = "(Required) The ID of the routing table."
 }
 
