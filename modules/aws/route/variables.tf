@@ -10,33 +10,33 @@ variable "destination_ipv6_cidr_block" {
 }
 
 variable "egress_only_gateway_id" {
-  type = "list"
+  type = "string"
   description = "(Optional) An ID of a VPC Egress Only Internet Gateway."
-  default = []
+  default = ""
 }
 
 variable "gateway_id" {
-  type = "list"
+  type = "string"
   description = "(Optional) An ID of a VPC internet gateway or a virtual private gateway."
-  default = []
+  default = ""
 }
 
 variable "instance_id" {
-  type = "list"
+  type = "string"
   description = "(Optional) An ID of an EC2 instance."
-  default = []
+  default = ""
 }
 
 variable "nat_gateway_id" {
-  type = "list"
+  type = "string"
   description = "(Optional) An ID of a VPC NAT gateway."
-  default = []
+  default = ""
 }
 
 variable "network_interface_id" {
-  type = "list"
+  type = "string"
   description = "(Optional) An ID of a network interface."
-  default = []
+  default = ""
 }
 
 variable "route_table_id" {
