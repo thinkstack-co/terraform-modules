@@ -34,13 +34,13 @@ variable "nat_gateway_id" {
 }
 
 variable "network_interface_id" {
-  type = "string"
+  type = "list"
   description = "(Optional) An ID of a network interface."
-  default = ""
+  default = []
 }
 
 variable "route_table_id" {
-  type = "string"
+  type = "list"
   description = "(Required) The ID of the routing table."
 }
 
