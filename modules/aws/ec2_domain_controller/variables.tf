@@ -52,6 +52,10 @@ variable "monitoring" {
   default     = false
 }
 
+variable "name" {
+  description = "Name of the instance"
+}
+
 variable "placement_group" {
   description = "The Placement Group to start the instance in"
   default     = ""

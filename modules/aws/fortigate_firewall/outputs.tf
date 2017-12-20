@@ -18,10 +18,10 @@ output "ec2_instance_id" {
   value = ["${aws_instance.ec2_instance.*.id}"]
 }
 
-output "ec2_instance_network_id" {
+output "network_interface_id" {
     value = ["${aws_instance.ec2_instance.*.network_interface_id}"]
 }
 
-output "fw_private_nic_id" {
+output "private_network_interface_id" {
     value = ["${aws_network_interface.fw_private_nic.*.id}"]
 }
