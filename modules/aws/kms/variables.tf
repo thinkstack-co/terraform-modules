@@ -1,9 +1,45 @@
-variable "kms_key_description" {
-    description = "The description"
-    default     = "KMS key for encrypting and decrypting resources"
+variable "description" {
+    description = "(Optional) The description of the key as viewed in AWS console."
+    default     = ""
 }
 
-variable "kms_key_deletion_window" {
-    description = "How long before the key is deleted when resources are deleted"
+variable "deletion_window_in_days" {
+    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
     default     = 30
+}
+
+variable "enable_key_rotation" {
+  description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
+  default     = false
+}
+
+variable "key_usage" {
+  type        = "string"
+  description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
+  default     = ""
+}
+
+variable "is_enabled" {
+  type        = "string"
+  description = "(Optional) Specifies whether the key is enabled. Defaults to true."
+  default     = true
+}
+
+variable "name" {
+  type        = "string"
+  description = "(Optional) The display name of the alias. The name must start with the word "alias" followed by a forward slash (alias/)"
+}
+
+variable "policy" {
+  type        = "string"
+  description = "(Optional) A valid policy JSON document."
+  default     = ""
+}
+
+variable "tags" {
+  description = "describe your variable"
+  default     = {
+    terraform  = "true"
+    created_by = "terraform"
+  }
 }
