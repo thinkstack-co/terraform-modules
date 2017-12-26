@@ -16,7 +16,7 @@ variable "enable_key_rotation" {
 variable "key_usage" {
   type        = "string"
   description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
-  default     = ""
+  default     = "ENCRYPT_DECRYPT"
 }
 
 variable "is_enabled" {
