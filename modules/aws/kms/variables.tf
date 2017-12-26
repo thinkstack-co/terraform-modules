@@ -10,7 +10,7 @@ variable "deletion_window_in_days" {
 
 variable "enable_key_rotation" {
   description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
-  default     = false
+  default     = true
 }
 
 variable "key_usage" {
@@ -27,7 +27,7 @@ variable "is_enabled" {
 
 variable "name" {
   type        = "string"
-  description = "(Optional) The display name of the alias. The name must start with the word "alias" followed by a forward slash (alias/)"
+  description = "(Optional) The display name of the alias. The name must start with the word 'alias' followed by a forward slash"
 }
 
 variable "policy" {
