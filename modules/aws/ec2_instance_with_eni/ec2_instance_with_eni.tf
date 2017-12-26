@@ -49,4 +49,8 @@ resource "aws_instance" "ec2" {
         device_index            = "${var.device_index}"
         delete_on_termination   = "${var.delete_on_termination}"
   }
+
+  lifecycle {
+    ignore_changes  = ["volume_tags"]
+  }
 }

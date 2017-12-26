@@ -1,29 +1,29 @@
 resource "aws_cloudtrail" "cloudtrail" {
-    name                            =   "${var.cloudtrail_name}"
+    enable_log_file_validation      =   "${var.enable_log_file_validation}"
+    include_global_service_events   =   "${var.include_global_service_events}"
+    is_multi_region_trail           =   "${var.is_multi_region_trail}"
+    kms_key_id                      =   "${var.kms_key_id}"
+    name                            =   "${var.name}"
     s3_bucket_name                  =   "${aws_s3_bucket.cloudtrail_s3_bucket.id}"
-    s3_key_prefix                   =   "${var.cloudtrail_s3_key_prefix}"
-    include_global_service_events   =   "${var.cloudtrail_global_service_events}"
-    is_multi_region_trail           =   "${var.cloudtrail_multi_region}"
-    kms_key_id                      =   "${var.cloudtrail_kms_key}"
-    enable_log_file_validation      =   "${var.cloudtrail_log_file_validation}"
+    s3_key_prefix                   =   "${var.s3_key_prefix}"
 }
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
+    acl             = "${var.s3_bucket_acl}"
     bucket_prefix   = "${var.s3_bucket_prefix}"
     region          = "${var.s3_bucket_region}"
-    acl             = "${var.s3_bucket_acl}"
 
     versioning {
         enabled     = "${var.s3_versioning}"
         mfa_delete  = "${var.s3_mfa_delete}"
     }
 
-    lifecycle {
-        prevent_destroy = true
-    }
-
     tags {
         terraform    = "yes"
+    }
+
+    lifecycle {
+        prevent_destroy = true
     }
 }
 

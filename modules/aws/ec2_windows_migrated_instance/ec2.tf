@@ -17,4 +17,9 @@ resource "aws_instance" "ec2_instance" {
         volume_type = "${var.ebs_volume_type}"
         volume_size = "${var.ebs_volume_size}"
         }*/
+    
+    lifecycle {
+        ignore_changes  = ["volume_tags"]
+    }
+
 }

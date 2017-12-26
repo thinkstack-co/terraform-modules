@@ -10,7 +10,7 @@ output "s3_bucket_domain_name" {
     value = "${aws_s3_bucket.cloudtrail_s3_bucket.bucket_domain_name}"
 }
 
-output "s3_hosted_zone_id" {
+output "hosted_zone_id" {
     value = "${aws_s3_bucket.cloudtrail_s3_bucket.hosted_zone_id}"
 }
 
