@@ -61,6 +61,11 @@ variable "placement_group" {
   default     = ""
 }
 
+variable "private_ip" {
+  description = "Private IP address to associate with the instance in a VPC"
+  default     = []
+}
+
 variable "root_delete_on_termination" {
   type        = "string"
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
