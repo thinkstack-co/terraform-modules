@@ -9,13 +9,13 @@ resource "aws_cloudtrail" "cloudtrail" {
 }
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-    acl             = "${var.s3_bucket_acl}"
-    bucket_prefix   = "${var.s3_bucket_prefix}"
-    region          = "${var.s3_bucket_region}"
+    acl             = "${var.acl}"
+    bucket_prefix   = "${var.bucket_prefix}"
+    region          = "${var.region}"
 
     versioning {
-        enabled     = "${var.s3_versioning}"
-        mfa_delete  = "${var.s3_mfa_delete}"
+        enabled     = "${var.enabled}"
+        mfa_delete  = "${var.mfa_delete}"
     }
 
     tags {
