@@ -1,12 +1,15 @@
 resource "aws_lambda_function" "lambda_function" {
     description         = "${var.description}"
+    environment         = {
+        variables   = "${var.variables}"
+        }
     filename            = "${var.filename}"
-    source_code_hash    = "${var.source_code_hash}"
     function_name       = "${var.function_name}"
-    role                = "${var.role}"
     handler             = "${var.handler}"
     memory_size         = "${var.memory_size}"
+    role                = "${var.role}"
     runtime             = "${var.runtime}"
+    source_code_hash    = "${var.source_code_hash}"
     timeout             = "${var.timeout}"
 }
 
