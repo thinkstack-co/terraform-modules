@@ -1,7 +1,9 @@
 resource "aws_network_interface" "eni" {
+  description         = "${var.description}"
   subnet_id           = "${var.subnet_id}"
+  private_ips         = "${var.private_ips}"
   private_ips_count   = "${var.private_ips_count}"
-  security_groups     = ["${var.vpc_security_group_ids}"]
+  security_groups     = "${var.vpc_security_group_ids}"
   source_dest_check   = "${var.source_dest_check}"
   tags                = "${var.tags}"
 
@@ -17,21 +19,21 @@ resource "aws_network_interface" "eni" {
 }
 
 resource "aws_instance" "ec2" {
-  count                                = "${var.count}"
-
   ami                                  = "${var.ami}"
+  # associate_public_ip_address          = "${var.associate_public_ip_address}"
   availability_zone                    = "${var.availability_zone}"
-  placement_group                      = "${var.placement_group}"
-  tenancy                              = "${var.tenancy}"
-  ebs_optimized                        = "${var.ebs_optimized}"
+  count                                = "${var.count}"
   disable_api_termination              = "${var.disable_api_termination}"
-  instance_initiated_shutdown_behavior = "${var.instance_initiated_shutdown_behavior}"
-  instance_type                        = "${var.instance_type}"
+  ebs_optimized                        = "${var.ebs_optimized}"
+  # ebs_block_device                     = "${var.ebs_block_device}"
+  # ephemeral_block_device               = "${var.ephemeral_block_device}"
   key_name                             = "${var.key_name}"
   monitoring                           = "${var.monitoring}"
-  # vpc_security_group_ids               = ["${var.vpc_security_group_ids}"]
+  placement_group                      = "${var.placement_group}"
+  tenancy                              = "${var.tenancy}"
+  instance_initiated_shutdown_behavior = "${var.instance_initiated_shutdown_behavior}"
+  instance_type                        = "${var.instance_type}"
   # subnet_id                            = "${var.subnet_id}"
-  # associate_public_ip_address        = "${var.associate_public_ip_address}"
   # private_ip                           = "${var.private_ip}"
   # source_dest_check                    = "${var.source_dest_check}"
   user_data                            = "${var.user_data}"
@@ -41,14 +43,15 @@ resource "aws_instance" "ec2" {
   tags                                 = "${merge(var.tags, map("Name", format("%s_%01d", var.name, count.index + 1)))}"
   volume_tags                          = "${merge(var.tags, map("Name", format("%s_%01d", var.name, count.index + 1)))}"
   # root_block_device                    = "${var.root_block_device}"
-  # ebs_block_device                     = "${var.ebs_block_device}"
-  # ephemeral_block_device               = "${var.ephemeral_block_device}"
+  
 
   network_interface {
         network_interface_id    = "${aws_network_interface.eni.id}"
         device_index            = "${var.device_index}"
         delete_on_termination   = "${var.delete_on_termination}"
   }
+
+  # vpc_security_group_ids               = "${var.vpc_security_group_ids}"
 
   lifecycle {
     ignore_changes  = ["volume_tags"]

@@ -1,14 +1,10 @@
-variable "name" {
-  description = "Name to be used on all resources as prefix"
-}
-
-variable "count" {
-  description = "Number of instances to launch"
-  default     = 1
-}
-
 variable "ami" {
   description = "ID of AMI to use for the instance"
+}
+
+variable "associate_public_ip_address" {
+  description = "If true, the EC2 instance will have associated public IP address"
+  default     = false
 }
 
 variable "availability_zone" {
@@ -16,19 +12,14 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "placement_group" {
-  description = "The Placement Group to start the instance in"
-  default     = ""
+variable "count" {
+  description = "Number of instances to launch"
+  default     = 1
 }
 
-variable "tenancy" {
-  description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
-  default     = "default"
-}
-
-variable "ebs_optimized" {
-  description = "If true, the launched EC2 instance will be EBS-optimized"
-  default     = false
+variable "description" {
+  type = "string"
+  description = "(Optional) A description for the network interface"
 }
 
 variable "disable_api_termination" {
@@ -36,13 +27,9 @@ variable "disable_api_termination" {
   default     = false
 }
 
-variable "instance_initiated_shutdown_behavior" {
-  description = "Shutdown behavior for the instance" # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
-  default     = ""
-}
-
-variable "instance_type" {
-  description = "The type of instance to start"
+variable "ebs_optimized" {
+  description = "If true, the launched EC2 instance will be EBS-optimized"
+  default     = false
 }
 
 variable "key_name" {
@@ -55,19 +42,42 @@ variable "monitoring" {
   default     = false
 }
 
+variable "name" {
+  description = "Name to be used on all resources as prefix"
+}
+
+variable "placement_group" {
+  description = "The Placement Group to start the instance in"
+  default     = ""
+}
+
+variable "private_ips" {
+  type        = "list"
+  description = "(Optional) List of private IPs to assign to the ENI."
+}
+
+variable "tenancy" {
+  description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
+  default     = "default"
+}
+
+variable "instance_initiated_shutdown_behavior" {
+  description = "Shutdown behavior for the instance" # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
+  default     = ""
+}
+
+variable "instance_type" {
+  description = "The type of instance to start"
+}
+
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
   type        = "list"
 }
 
 variable "subnet_id" {
-  description = "The VPC Subnet ID to launch in"
+  description = "(Required) Subnet ID to create the ENI and EC2 instance in."
   default     = ""
-}
-
-variable "associate_public_ip_address" {
-  description = "If true, the EC2 instance will have associated public IP address"
-  default     = false
 }
 
 # variable "private_ip" {
