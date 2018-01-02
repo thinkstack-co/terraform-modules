@@ -41,7 +41,9 @@ variable "timeout" {
 
 variable "variables" {
     description = "(Optional) A map that defines environment variables for the Lambda function."
-    default     = {}
+    default     = {
+        lambda = "true"
+    }
 }
 
 /*variable "statement_id" {
