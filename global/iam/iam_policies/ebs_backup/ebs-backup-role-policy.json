@@ -27,7 +27,15 @@
                 "ec2:CreateTags",
                 "ec2:ModifySnapshotAttribute",
                 "ec2:ResetSnapshotAttribute",
-                "iam:ListAccountAliases"
+                "iam:ListAccountAliases",
+                "sqs:ListQueues",
+                "sqs:GetQueueUrl",
+                "sqs:SendMessageBatch",
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:ListQueueTags",
+                "sqs:ListDeadLetterSourceQueues",
+                "sqs:SetQueueAttributes"
             ],
             "Resource": ["*"]
         }

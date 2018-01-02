@@ -1,0 +1,36 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CopySnapshot",
+                "ec2:DescribeSnapshotAttribute",
+                "ec2:ModifySnapshotAttribute",
+                "ec2:CreateTags",
+                "ec2:ResetSnapshotAttribute",
+                "ec2:DescribeSnapshots",
+                "logs:DescribeLogStreams",
+                "logs:DescribeLogGroups",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents",
+                "logs:CreateLogStream",
+                "logs:TagLogGroup",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueUrl",
+                "sqs:ListDeadLetterSourceQueues",
+                "sqs:ChangeMessageVisibility",
+                "sqs:DeleteMessageBatch",
+                "sqs:SendMessageBatch",
+                "sqs:ListQueues",
+                "sqs:ReceiveMessage",
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:ListQueueTags",
+                "sqs:ChangeMessageVisibilityBatch"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
