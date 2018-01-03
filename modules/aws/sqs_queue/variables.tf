@@ -11,7 +11,7 @@ variable "fifo_queue" {
 
 variable "message_retention_seconds" {
   description = "(Optional) The number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days)."
-  default     = ""
+  default     = 345600
 }
 
 variable "name" {
