@@ -23,7 +23,7 @@ resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
     }
 
     lifecycle {
-        prevent_destroy = true
+        prevent_destroy = "${var.prevent_destroy}"
     }
 }
 
