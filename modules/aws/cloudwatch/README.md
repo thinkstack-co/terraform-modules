@@ -1,7 +1,7 @@
 CloudWatch Module
 =================
 
-This module sets up a CLoudWatch event trigger
+This module sets up a CloudWatch event trigger
 
 Variables
 

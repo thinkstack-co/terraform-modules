@@ -1,5 +1,5 @@
-module "sql_server" {
-    source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance?ref=v0.4.5"
+module "aws_sql" {
+    source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
     
     ami                    = "ami-ffffffff"
     availability_zone      = "${module.vpc.availability_zone[0]}"
@@ -24,7 +24,7 @@ module "sql_server" {
         backup      = "true"
     }
     tags                    = {
-        terraform        = "yes"
+        terraform        = "true"
         created_by       = "terraform"
         environment      = "prod"
         role             = "sql"
