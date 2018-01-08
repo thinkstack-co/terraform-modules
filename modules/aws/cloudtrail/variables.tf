@@ -28,7 +28,7 @@ variable "name" {
 
 variable "prevent_destroy" {
     description = "(bool) - This flag provides extra protection against the destruction of a given resource. When this is set to true, any plan that includes a destroy of this resource will return an error message."
-    default     = true
+    default     = false
 }
 
 variable "s3_key_prefix" {
