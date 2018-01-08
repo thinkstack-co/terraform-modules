@@ -1,4 +1,4 @@
-resource "aws_security_group" "domain_controller_sg" {
+resource "aws_security_group" "security_group" {
     description = "${var.description}"
     name        = "${var.name}"
     tags        = "${var.tags}"
