@@ -21,10 +21,6 @@ resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
     tags {
         terraform    = "true"
     }
-
-    lifecycle {
-        prevent_destroy = "${var.prevent_destroy}"
-    }
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
