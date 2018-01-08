@@ -75,7 +75,7 @@ module "app_server" {
 }
 
 module "app_server_d_drive" {
-    source = "github.com/thinkstack-co/terraform-modules//modules/aws/aws_ebs_volume"
+    source = "github.com/thinkstack-co/terraform-modules//modules/aws/ebs_volume"
 
     availability_zone   = "${module.vpc.availability_zone[0]}"
     size                = "50"

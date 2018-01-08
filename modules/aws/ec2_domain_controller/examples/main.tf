@@ -1,5 +1,5 @@
 module "aws_ec2_domain_controllers" {
-    source                  = "github.com/thinkstack-co/terraform-modules//modules/aws/aws_ec2_domain_controller"
+    source                  = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_domain_controller"
 
     vpc_id                  = "${module.vpc.vpc_id}"
     key_name                = "${module.keypair.key_name}"
