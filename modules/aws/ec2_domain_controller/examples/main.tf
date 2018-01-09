@@ -3,18 +3,14 @@ module "aws_ec2_domain_controllers" {
 
     vpc_id                  = "${module.vpc.vpc_id}"
     key_name                = "${module.keypair.key_name}"
-    instance_name_prefix    = "aws-dc"
+    name                    = "aws-dc"
     instance_type           = "t2.small"
     subnet_id               = "${module.vpc.private_subnet_ids}"
     ami_id                  = "ami-ffffffff"
-    number_of_instances     = 2
+    count                   = 2
     domain_name             = "ad.yourdomain.com"
-    sg_cidr_blocks          = "${
-        list(
-        module.vpc.vpc_cidr_block,
-        "0.0.0.0/0"
-        )
-    }"
+    vpc_security_group_ids  = ["${module.domain_controller_sg.id}"]
+
     tags                    = {
         terraform   = "true"
         created_by  = "terraform"
