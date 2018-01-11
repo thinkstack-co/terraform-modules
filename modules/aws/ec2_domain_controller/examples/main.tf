@@ -6,7 +6,7 @@ module "aws_ec2_domain_controllers" {
     name                    = "aws-dc"
     instance_type           = "t2.small"
     subnet_id               = "${module.vpc.private_subnet_ids}"
-    ami_id                  = "ami-ffffffff"
+    ami                     = "ami-ffffffff"
     count                   = 2
     domain_name             = "ad.yourdomain.com"
     vpc_security_group_ids  = ["${module.domain_controller_sg.id}"]
