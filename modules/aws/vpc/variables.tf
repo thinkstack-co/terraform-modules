@@ -23,6 +23,16 @@ variable "enable_dns_support" {
   default     = true
 }
 
+variable "db_subnets_list" {
+  description = "A list of database subnets inside the VPC."
+  default     = ["10.11.11.0/24", "10.11.12.0/24", "10.11.13.0/24"]
+}
+
+variable "db_propagating_vgws" {
+  description = "A list of VGWs the db route table should propagate."
+  default     = []
+}
+
 variable "private_subnets_list" {
   description = "A list of private subnets inside the VPC."
   default     = ["10.11.1.0/24", "10.11.2.0/24", "10.11.3.0/24"]

@@ -27,6 +27,14 @@ resource "aws_subnet" "public_subnets" {
   tags                    = "${merge(var.tags, map("Name", format("%s-subnet-public-%s", var.name, element(var.azs, count.index))))}"
 }
 
+resource "aws_subnet" "db_subnets" {
+  vpc_id            = "${aws_vpc.vpc.id}"
+  cidr_block        = "${var.db_subnets_list[count.index]}"
+  availability_zone = "${element(var.azs, count.index)}"
+  count             = "${length(var.db_subnets_list)}"
+  tags              = "${merge(var.tags, map("Name", format("%s-subnet-db-%s", var.name, element(var.azs, count.index))))}"
+}
+
 resource "aws_internet_gateway" "igw" {
   tags   = "${merge(var.tags, map("Name", format("%s-igw", var.name)))}"
   vpc_id = "${aws_vpc.vpc.id}"
@@ -78,6 +86,13 @@ resource "aws_route" "private_default_route_fw" {
   route_table_id         = "${element(aws_route_table.private_route_table.*.id, count.index)}"
 }
 
+resource "aws_route_table" "db_route_table" {
+  count            = "${length(var.azs)}"
+  propagating_vgws = ["${var.db_propagating_vgws}"]
+  tags             = "${merge(var.tags, map("Name", format("%s-rt-db-%s", var.name, element(var.azs, count.index))))}"
+  vpc_id           = "${aws_vpc.vpc.id}"
+}
+
 
 data "aws_vpc_endpoint_service" "s3" {
   service = "s3"
@@ -111,4 +126,10 @@ resource "aws_route_table_association" "public" {
   count          = "${length(var.public_subnets_list)}"
   route_table_id = "${aws_route_table.public_route_table.id}"
   subnet_id      = "${element(aws_subnet.public_subnets.*.id, count.index)}"
+}
+
+resource "aws_route_table_association" "db" {
+  count          = "${length(var.db_subnets_list)}"
+  route_table_id = "${element(aws_route_table.db_route_table.*.id, count.index)}"
+  subnet_id      = "${element(aws_subnet.db_subnets.*.id, count.index)}"
 }
