@@ -6,6 +6,10 @@ output "public_subnet_ids" {
   value = ["${aws_subnet.public_subnets.*.id}"]
 }
 
+output "db_subnet_ids" {
+  value = ["${aws_subnet.db_subnets.*.id}"]
+}
+
 output "private_subnets" {
   value = ["${aws_subnet.private_subnets.*.cidr_block}"]
 }
