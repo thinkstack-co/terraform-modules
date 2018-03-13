@@ -25,6 +25,11 @@ variable "user_data" {
   default     = ""
 }
 
+variable "private_ip" {
+  description = "Private IP address to associate with the instance in a VPC"
+  default     = ""
+}
+
 variable "security_group_ids" {
   description = "Lits of security group ids to attach to the instance"
 }
