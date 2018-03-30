@@ -10,6 +10,10 @@ output "db_subnet_ids" {
   value = ["${aws_subnet.db_subnets.*.id}"]
 }
 
+output "dmz_subnet_ids" {
+  value = ["${aws_subnet.dmz_subnets.*.id}"]
+}
+
 output "private_subnets" {
   value = ["${aws_subnet.private_subnets.*.cidr_block}"]
 }
@@ -36,6 +40,10 @@ output "private_route_table_ids" {
 
 output "db_route_table_ids" {
   value = ["${aws_route_table.db_route_table.*.id}"]
+}
+
+output "dmz_route_table_ids" {
+  value = ["${aws_route_table.dmz_route_table.*.id}"]
 }
 
 output "default_security_group_id" {
