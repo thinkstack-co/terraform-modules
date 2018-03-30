@@ -27,6 +27,14 @@ resource "aws_subnet" "public_subnets" {
   tags                    = "${merge(var.tags, map("Name", format("%s-subnet-public-%s", var.name, element(var.azs, count.index))))}"
 }
 
+resource "aws_subnet" "dmz_subnets" {
+  vpc_id            = "${aws_vpc.vpc.id}"
+  cidr_block        = "${var.dmz_subnets_list[count.index]}"
+  availability_zone = "${element(var.azs, count.index)}"
+  count             = "${length(var.dmz_subnets_list)}"
+  tags              = "${merge(var.tags, map("Name", format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index))))}"
+}
+
 resource "aws_subnet" "db_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
   cidr_block        = "${var.db_subnets_list[count.index]}"
@@ -93,6 +101,26 @@ resource "aws_route_table" "db_route_table" {
   vpc_id           = "${aws_vpc.vpc.id}"
 }
 
+resource "aws_route" "db_default_route_natgw" {
+  count                  = "${var.enable_firewall ? 0 : length(var.azs)}"
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = "${element(aws_nat_gateway.natgw.*.id, count.index)}"
+  route_table_id         = "${element(aws_route_table.db_route_table.*.id, count.index)}"
+}
+
+resource "aws_route" "db_default_route_fw" {
+  count                  = "${var.enable_firewall ? length(var.azs) : 0}"
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = "${element(var.fw_network_interface_id, count.index)}"
+  route_table_id         = "${element(aws_route_table.db_route_table.*.id, count.index)}"
+}
+
+resource "aws_route_table" "dmz_route_table" {
+  count            = "${length(var.azs)}"
+  propagating_vgws = ["${var.dmz_propagating_vgws}"]
+  tags             = "${merge(var.tags, map("Name", format("%s-rt-dmz-%s", var.name, element(var.azs, count.index))))}"
+  vpc_id           = "${aws_vpc.vpc.id}"
+}
 
 data "aws_vpc_endpoint_service" "s3" {
   service = "s3"
@@ -132,4 +160,10 @@ resource "aws_route_table_association" "db" {
   count          = "${length(var.db_subnets_list)}"
   route_table_id = "${element(aws_route_table.db_route_table.*.id, count.index)}"
   subnet_id      = "${element(aws_subnet.db_subnets.*.id, count.index)}"
+}
+
+resource "aws_route_table_association" "dmz" {
+  count          = "${length(var.dmz_subnets_list)}"
+  route_table_id = "${element(aws_route_table.dmz_route_table.*.id, count.index)}"
+  subnet_id      = "${element(aws_subnet.dmz_subnets.*.id, count.index)}"
 }

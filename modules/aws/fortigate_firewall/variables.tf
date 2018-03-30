@@ -12,7 +12,7 @@ variable "tags" {
     created_by  = "terraform"
     terraform   = "yes"
     environment = "dev"
-    role        = "domain_controller"
+    role        = "fortigate_firewall"
   }
 }
 

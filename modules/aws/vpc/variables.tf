@@ -33,6 +33,16 @@ variable "db_propagating_vgws" {
   default     = []
 }
 
+variable "dmz_subnets_list" {
+  description = "A list of DMZ subnets inside the VPC."
+  default     = ["10.11.101.0/24", "10.11.102.0/24"]
+}
+
+variable "dmz_propagating_vgws" {
+  description = "A list of VGWs the DMZ route table should propagate."
+  default     = []
+}
+
 variable "private_subnets_list" {
   description = "A list of private subnets inside the VPC."
   default     = ["10.11.1.0/24", "10.11.2.0/24", "10.11.3.0/24"]
