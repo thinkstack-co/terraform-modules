@@ -39,7 +39,7 @@ variable "type" {
 }
 
 variable "customer_dns_ips" {
-  type = "list"
+  # type = "list"
   description = "(Required) The DNS IP addresses of the domain to connect to."
 }
 
@@ -49,7 +49,7 @@ variable "customer_username" {
 }
 
 variable "subnet_ids" {
-  type = "list"
+  # type = "list"
   description = "(Required) The identifiers of the subnets for the directory servers (2 subnets in 2 different AZs)."
 }
 
