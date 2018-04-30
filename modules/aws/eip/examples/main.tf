@@ -4,7 +4,7 @@
 module "public_ip" {
     source   = "github.com/thinkstack-co/terraform-modules//modules/aws/eip"
     
-    instance = "${module.web_server.id}"
+    instance = "${module.web_server.id[0]}"
     vpc      = true
 }
 
@@ -15,6 +15,6 @@ module "public_ip" {
 module "website_eip" {
     source            = "github.com/thinkstack-co/terraform-modules//modules/aws/eip"
     
-    network_interface = "${module.fw.private_nic.id}"
+    network_interface = "${module.fw.private_nic.id[0]}"
     vpc               = true
 }
