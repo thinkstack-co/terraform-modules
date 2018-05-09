@@ -70,8 +70,9 @@ variable "statistic" {
 }
 
 variable "threshold" {
-  type = "string"
+  type        = "string"
   description = "(Required) The value against which the specified statistic is compared."
+  default     = 1.0
 }
 
 variable "treat_missing_data" {
