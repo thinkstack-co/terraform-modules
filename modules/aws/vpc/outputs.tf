@@ -22,6 +22,10 @@ output "public_subnets" {
   value = ["${aws_subnet.public_subnets.*.cidr_block}"]
 }
 
+output "workspaces_subnet_ids" {
+  value = ["${aws_subnet.workspaces_subnets.*.id}"]
+}
+
 output "vpc_id" {
   value = "${aws_vpc.vpc.id}"
 }
@@ -44,6 +48,10 @@ output "db_route_table_ids" {
 
 output "dmz_route_table_ids" {
   value = ["${aws_route_table.dmz_route_table.*.id}"]
+}
+
+output "workspaces_route_table_ids" {
+  value = ["${aws_route_table.workspaces_route_table.*.id}"]
 }
 
 output "default_security_group_id" {

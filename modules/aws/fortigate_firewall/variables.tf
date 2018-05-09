@@ -41,6 +41,18 @@ variable "public_nic_description" {
   default     = "Fortigate FW public nic"
 }
 
+variable "wan_private_ip" {
+  type = "list"
+  description = "(Optional) Private IP address to associate with the instance in a VPC."
+  default     = ["10.11.201.10", "10.11.202.10"]
+}
+
+variable "lan_private_ips" {
+  type = "list"
+  description = "(Optional) List of private IPs to assign to the ENI."
+  default     = ["10.11.1.10", "10.11.2.10"]
+}
+
 variable "source_dest_check" {
   description = "Boolean for source and destination checking on the nics"
   default     = false

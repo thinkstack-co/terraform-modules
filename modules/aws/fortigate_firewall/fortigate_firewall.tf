@@ -31,10 +31,11 @@ resource "aws_eip" "external_ip" {
 
 resource "aws_network_interface" "fw_private_nic" {
     count               = "${var.number_of_instances}"
-    subnet_id           = "${element(var.private_subnet_id, count.index)}"
     description         = "${var.private_nic_description}"
-    source_dest_check   = "${var.source_dest_check}"
+    private_ips         = "${element(var.lan_private_ips, count.index)}"
     security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]
+    source_dest_check   = "${var.source_dest_check}"
+    subnet_id           = "${element(var.private_subnet_id, count.index)}"
     tags                = "${merge(var.tags, map("Name", format("%s_%01d_private", var.instance_name_prefix, count.index + 1)))}"
 
     attachment {
@@ -55,6 +56,7 @@ resource "aws_instance" "ec2_instance" {
     subnet_id                   = "${element(var.public_subnet_id, count.index)}"
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
+    private_ip                  = "${element(var.wan_private_ip, count.index)}"
     source_dest_check           = "${var.source_dest_check}"
     vpc_security_group_ids      = ["${aws_security_group.fortigate_fw_sg.id}"]
     volume_tags                 = "${merge(var.tags, map("Name", format("%s_%01d", var.instance_name_prefix, count.index + 1)))}"
