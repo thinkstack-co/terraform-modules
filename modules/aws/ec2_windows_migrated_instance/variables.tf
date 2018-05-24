@@ -2,6 +2,11 @@ variable "ami_id" {
   description = "The AMI to use"
 }
 
+variable "ebs_optimized" {
+  description = "If true, the launched EC2 instance will be EBS-optimized"
+  default     = false
+}
+
 variable "number_of_instances" {
   description = "number of instances to make"
   default = 2
