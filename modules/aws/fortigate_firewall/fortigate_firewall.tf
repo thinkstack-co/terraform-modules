@@ -87,7 +87,7 @@ resource "aws_instance" "ec2_instance" {
     key_name                    = "${var.key_name}"
     monitoring                  = "${var.monitoring}"
     # private_ip                  = "${element(var.wan_private_ips, count.index)}"
-    source_dest_check           = "${var.source_dest_check}"
+    # source_dest_check           = "${var.source_dest_check}"
     # subnet_id                   = "${element(var.public_subnet_id, count.index)}"
     # vpc_security_group_ids      = ["${aws_security_group.fortigate_fw_sg.id}"]
     volume_tags                 = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
