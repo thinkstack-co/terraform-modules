@@ -48,6 +48,11 @@ variable "enable_s3_endpoint" {
   default     = false
 }
 
+variable "fw_dmz_network_interface_id" {
+  type = "list"
+  description = "Firewall DMZ eni id"
+}
+
 variable "fw_network_interface_id" {
   description = "Firewall network interface id"
   default     = []
