@@ -44,6 +44,21 @@ resource "aws_network_interface" "fw_private_nic" {
     }
 }
 
+resource "aws_network_interface" "fw_dmz_nic" {
+    count               = "${var.number_of_instances}"
+    description         = "${var.dmz_nic_description}"
+    private_ips         = ["${element(var.dmz_private_ips, count.index)}"]
+    security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]
+    source_dest_check   = "${var.source_dest_check}"
+    subnet_id           = "${element(var.dmz_subnet_id, count.index)}"
+    tags                = "${merge(var.tags, map("Name", format("%s%d_dmz", var.instance_name_prefix, count.index + 1)))}"
+
+    attachment {
+        instance        = "${element(aws_instance.ec2_instance.*.id, count.index)}"
+        device_index    = 2
+    }
+}
+
 resource "aws_eip_association" "fw_external_ip" {
     count                   = "${var.number_of_instances}"
     allocation_id           = "${element(aws_eip.external_ip.*.id, count.index)}"
@@ -52,12 +67,13 @@ resource "aws_eip_association" "fw_external_ip" {
 
 resource "aws_instance" "ec2_instance" {
     ami                         = "${var.ami_id}"
-    count                       = "${var.number_of_instances}"
-    subnet_id                   = "${element(var.public_subnet_id, count.index)}"
+    count                       = "${var.count}"
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
+    monitoring                  = "${var.monitoring}"
     private_ip                  = "${element(var.wan_private_ip, count.index)}"
     source_dest_check           = "${var.source_dest_check}"
+    subnet_id                   = "${element(var.public_subnet_id, count.index)}"
     vpc_security_group_ids      = ["${aws_security_group.fortigate_fw_sg.id}"]
     volume_tags                 = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
     tags                        = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"

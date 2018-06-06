@@ -1,3 +1,19 @@
+variable "dmz_nic_description" {
+  description = "Description of the dmz network interface"
+  default     = "Fortigate FW DMZ nic"
+}
+
+variable "dmz_private_ips" {
+  type = "list"
+  description = "(Optional) List of private IPs to assign to the ENI."
+  default     = ["10.11.101.10", "10.11.102.10"]
+}
+
+variable "dmz_subnet_id" {
+  description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
+  type        = "list"
+}
+
 variable "sg_name" {
   description = "Name of the security group"
   default     = "fortigate_fw_sg"
@@ -16,7 +32,7 @@ variable "tags" {
   }
 }
 
-variable "number_of_instances" {
+variable "count" {
   description = "number of instances to make"
   default     = 2
 }
@@ -51,6 +67,11 @@ variable "lan_private_ips" {
   type = "list"
   description = "(Optional) List of private IPs to assign to the ENI."
   default     = ["10.11.1.10", "10.11.2.10"]
+}
+
+variable "monitoring" {
+  description = "If true, the launched EC2 instance will have detailed monitoring enabled"
+  default     = true
 }
 
 variable "source_dest_check" {
