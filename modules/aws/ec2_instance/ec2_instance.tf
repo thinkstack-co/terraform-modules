@@ -27,7 +27,7 @@ resource "aws_instance" "ec2" {
   # ebs_block_device     = "${var.ebs_block_device}"
   source_dest_check      = "${var.source_dest_check}"
   subnet_id              = "${var.subnet_id}"
-  tags                   = "${merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))}"
+  tags                   = "${merge(var.tags, map("Name", format(var.count > 1 "%s%d", var.name, count.index + 1 : "%s")))}"
   tenancy                = "${var.tenancy}"
   user_data              = "${var.user_data}"
   volume_tags            = "${merge(var.volume_tags, map("Name", format("%s%d", var.name, count.index + 1)))}"
