@@ -57,9 +57,9 @@ variable "public_nic_description" {
   default     = "Fortigate FW public nic"
 }
 
-variable "wan_private_ip" {
+variable "wan_private_ips" {
   type = "list"
-  description = "(Optional) Private IP address to associate with the instance in a VPC."
+  description = "(Optional) Private IP addresses to associate with the instance in a VPC."
   default     = ["10.11.201.10", "10.11.202.10"]
 }
 

@@ -22,7 +22,7 @@ resource "aws_security_group" "fortigate_fw_sg" {
 
 resource "aws_eip" "external_ip" {
   vpc   = true
-  count = "${var.number_of_instances}"
+  count = "${var.count}"
 
   lifecycle {
     prevent_destroy = true
@@ -30,7 +30,7 @@ resource "aws_eip" "external_ip" {
 }
 
 resource "aws_network_interface" "fw_private_nic" {
-    count               = "${var.number_of_instances}"
+    count               = "${var.count}"
     description         = "${var.private_nic_description}"
     private_ips         = ["${element(var.lan_private_ips, count.index)}"]
     security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]
@@ -45,7 +45,7 @@ resource "aws_network_interface" "fw_private_nic" {
 }
 
 resource "aws_network_interface" "fw_dmz_nic" {
-    count               = "${var.number_of_instances}"
+    count               = "${var.count}"
     description         = "${var.dmz_nic_description}"
     private_ips         = ["${element(var.dmz_private_ips, count.index)}"]
     security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]
@@ -60,7 +60,7 @@ resource "aws_network_interface" "fw_dmz_nic" {
 }
 
 resource "aws_eip_association" "fw_external_ip" {
-    count                   = "${var.number_of_instances}"
+    count                   = "${var.count}"
     allocation_id           = "${element(aws_eip.external_ip.*.id, count.index)}"
     network_interface_id    = "${element(aws_instance.ec2_instance.*.network_interface_id, count.index)}"
 }
