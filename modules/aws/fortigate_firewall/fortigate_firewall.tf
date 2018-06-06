@@ -45,7 +45,7 @@ resource "aws_network_interface" "fw_private_nic" {
 }
 
 resource "aws_network_interface" "fw_dmz_nic" {
-    count               = "${var.count}"
+    count               = "${var.enable_dmz ? var.count : 0}"
     description         = "${var.dmz_nic_description}"
     private_ips         = ["${element(var.dmz_private_ips, count.index)}"]
     security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]

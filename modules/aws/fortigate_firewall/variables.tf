@@ -14,6 +14,11 @@ variable "dmz_subnet_id" {
   type        = "list"
 }
 
+variable "enable_dmz" {
+  description = "describe your variable"
+  default     = true
+}
+
 variable "sg_name" {
   description = "Name of the security group"
   default     = "fortigate_fw_sg"
