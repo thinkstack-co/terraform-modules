@@ -43,11 +43,6 @@ resource "aws_network_interface" "fw_public_nic" {
     source_dest_check   = "${var.source_dest_check}"
     subnet_id           = "${element(var.public_subnet_id, count.index)}"
     tags                = "${merge(var.tags, map("Name", format("%s%d_public", var.instance_name_prefix, count.index + 1)))}"
-
-    # attachment {
-    #     instance        = "${element(aws_instance.ec2_instance.*.id, count.index)}"
-    #     device_index    = 0
-    # }
 }
 
 resource "aws_network_interface" "fw_private_nic" {
@@ -86,10 +81,6 @@ resource "aws_instance" "ec2_instance" {
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
     monitoring                  = "${var.monitoring}"
-    # private_ip                  = "${element(var.wan_private_ips, count.index)}"
-    # source_dest_check           = "${var.source_dest_check}"
-    # subnet_id                   = "${element(var.public_subnet_id, count.index)}"
-    # vpc_security_group_ids      = ["${aws_security_group.fortigate_fw_sg.id}"]
     volume_tags                 = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
     tags                        = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
 
