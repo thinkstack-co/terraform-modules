@@ -25,3 +25,7 @@ output "network_interface_id" {
 output "private_network_interface_id" {
     value = ["${aws_network_interface.fw_private_nic.*.id}"]
 }
+
+output "dmz_network_interface_id" {
+    value = ["${aws_network_interface.fw_dmz_nic.*.id}"]
+}
