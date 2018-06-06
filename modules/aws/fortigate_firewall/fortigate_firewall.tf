@@ -38,7 +38,7 @@ resource "aws_eip_association" "fw_external_ip" {
 resource "aws_network_interface" "fw_public_nic" {
     count               = "${var.count}"
     description         = "${var.public_nic_description}"
-    private_ips         = ["${element(var.wan_private_ips, count.index)}"]
+    private_ips         = "${var.wan_private_ips}"
     security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]
     source_dest_check   = "${var.source_dest_check}"
     subnet_id           = "${element(var.public_subnet_id, count.index)}"
