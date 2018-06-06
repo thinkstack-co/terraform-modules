@@ -29,6 +29,22 @@ resource "aws_eip" "external_ip" {
   }
 }
 
+resource "aws_eip_association" "fw_external_ip" {
+    count                   = "${var.count}"
+    allocation_id           = "${element(aws_eip.external_ip.*.id, count.index)}"
+    network_interface_id    = "${element(aws_network_interface.fw_public_nic.*.id, count.index)}"
+}
+
+resource "aws_network_interface" "fw_public_nic" {
+    count               = "${var.count}"
+    description         = "${var.public_nic_description}"
+    private_ips         = "${var.wan_private_ips}"
+    security_groups     = ["${aws_security_group.fortigate_fw_sg.id}"]
+    source_dest_check   = "${var.source_dest_check}"
+    subnet_id           = "${element(var.public_subnet_id, count.index)}"
+    tags                = "${merge(var.tags, map("Name", format("%s%d_public", var.instance_name_prefix, count.index + 1)))}"
+}
+
 resource "aws_network_interface" "fw_private_nic" {
     count               = "${var.count}"
     description         = "${var.private_nic_description}"
@@ -59,24 +75,19 @@ resource "aws_network_interface" "fw_dmz_nic" {
     }
 }
 
-resource "aws_eip_association" "fw_external_ip" {
-    count                   = "${var.count}"
-    allocation_id           = "${element(aws_eip.external_ip.*.id, count.index)}"
-    network_interface_id    = "${element(aws_instance.ec2_instance.*.network_interface_id, count.index)}"
-}
-
 resource "aws_instance" "ec2_instance" {
     ami                         = "${var.ami_id}"
     count                       = "${var.count}"
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
     monitoring                  = "${var.monitoring}"
-    private_ip                  = "${element(var.wan_private_ips, count.index)}"
-    source_dest_check           = "${var.source_dest_check}"
-    subnet_id                   = "${element(var.public_subnet_id, count.index)}"
-    vpc_security_group_ids      = ["${aws_security_group.fortigate_fw_sg.id}"]
     volume_tags                 = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
     tags                        = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
+
+    network_interface {
+        network_interface_id = "${aws_network_interface.fw_public_nic.id}"
+        device_index         = 0
+    }
 
     root_block_device {
         volume_type = "${var.root_volume_type}"
