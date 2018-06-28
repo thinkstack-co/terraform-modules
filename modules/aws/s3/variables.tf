@@ -1,22 +1,27 @@
-variable "s3_bucket_prefix" {
-    description = "Prefix of the S3 bucket used to store terraform state files"
-}
-
-variable "s3_bucket_region" {
-    description = "Region that the S3 bucket is located"
-}
-
-variable "s3_bucket_acl" {
-    description = "Bucket ACL"
+variable "acl" {
+    description = "(Optional) The canned ACL to apply. Defaults to private."
     default     = "private"
 }
 
-variable "s3_versioning" {
-    description = "S3 bucket versioning"
+variable "bucket_prefix" {
+    description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
+}
+
+variable "policy" {
+  description = "(Optional) A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy."
+  default     = {}
+}
+
+variable "region" {
+    description = "(Optional) If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee."
+}
+
+variable "versioning" {
+    description = "(Optional) A state of versioning (documented below)"
     default     = true
 }
 
-variable "s3_mfa_delete" {
-    description = "Require MFA to delete objects"
+variable "mfa_delete" {
+    description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
     default     = false
 }

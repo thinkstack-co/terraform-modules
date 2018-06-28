@@ -1,11 +1,12 @@
 resource "aws_s3_bucket" "s3_bucket" {
-    bucket_prefix   = "${var.s3_bucket_prefix}"
-    region          = "${var.s3_bucket_region}"
-    acl             = "${var.s3_bucket_acl}"
+    acl             = "${var.acl}"
+    bucket_prefix   = "${var.bucket_prefix}"
+    policy          = "${var.policy}"
+    region          = "${var.region}"
 
     versioning {
-        enabled     = "${var.s3_versioning}"
-        mfa_delete  = "${var.s3_mfa_delete}"
+        enabled     = "${var.versioning}"
+        mfa_delete  = "${var.mfa_delete}"
     }
 
     lifecycle {
