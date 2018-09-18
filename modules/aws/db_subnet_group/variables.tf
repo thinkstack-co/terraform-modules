@@ -9,8 +9,8 @@ variable "name" {
 }
 
 variable "subnet_ids" {
-  type = "list"
   description = "(Required) A list of VPC subnet IDs."
+  default = ""
 }
 
 variable "tags" {
