@@ -10,7 +10,7 @@ variable "name" {
 
 variable "subnet_ids" {
   description = "(Required) A list of VPC subnet IDs."
-  default = ""
+  default = []
 }
 
 variable "tags" {
