@@ -9,7 +9,7 @@ resource "aws_rds_cluster" "cluster" {
   engine                              = "${var.engine}"
   engine_mode                         = "${var.engine_mode}"
   engine_version                      = "${var.engine_version}"
-  final_snapshot_identifier           = "${var.final_snapshot_identifier}"
+  # final_snapshot_identifier           = "${var.final_snapshot_identifier}"
   iam_roles                           = "${var.iam_roles}"
   iam_database_authentication_enabled = "${var.iam_database_authentication_enabled}"
   kms_key_id                          = "${var.kms_key_id}"
