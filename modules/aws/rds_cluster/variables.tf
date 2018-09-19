@@ -51,11 +51,13 @@ variable "engine_version" {
 variable "final_snapshot_identifier" {
   type        = "string"
   description = "(Optional) The name of your final DB snapshot when this DB cluster is deleted. If omitted, no final snapshot will be made."
+  default     = ""
 }
 
 variable "iam_roles" {
   type        = "list"
   description = "(Optional) A List of ARNs for the IAM roles to associate to the RDS Cluster."
+  default     = []
 }
 
 variable "iam_database_authentication_enabled" {
@@ -66,6 +68,7 @@ variable "iam_database_authentication_enabled" {
 variable "kms_key_id" {
   type        = "string"
   description = "(Optional) The ARN for the KMS encryption key. When specifying kms_key_id, storage_encrypted needs to be set to true."
+  default     = ""
 }
 
 variable "master_password" {
@@ -102,11 +105,13 @@ variable "scaling_configuration" {
 variable "skip_final_snapshot" {
   type        = "string"
   description = "(Optional) Determines whether a final DB snapshot is created before the DB cluster is deleted. If true is specified, no DB snapshot is created. If false is specified, a DB snapshot is created before the DB cluster is deleted, using the value from final_snapshot_identifier. Default is false."
+  default     = false
 }
 
 variable "snapshot_identifier" {
   type        = "string"
   description = "(Optional) Specifies whether or not to create this cluster from a snapshot. This correlates to the snapshot ID you'd find in the RDS console, e.g: rds:production-2015-06-26-06-05."
+  default     = ""
 }
 
 variable "storage_encrypted" {
