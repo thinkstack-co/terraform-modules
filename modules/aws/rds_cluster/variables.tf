@@ -51,7 +51,7 @@ variable "engine_version" {
 variable "final_snapshot_identifier" {
   type        = "string"
   description = "(Optional) The name of your final DB snapshot when this DB cluster is deleted. If omitted, no final snapshot will be made."
-  default     = ""
+  default     = []
 }
 
 variable "iam_roles" {
@@ -97,9 +97,9 @@ variable "preferred_maintenance_window" {
 }
 
 variable "scaling_configuration" {
-  type        = "map"
+  type        = "list"
   description = "(Optional) Nested attribute with scaling properties. Only valid when engine_mode is set to serverless. More details below."
-  default     = {}
+  default     = []
 }
 
 variable "skip_final_snapshot" {

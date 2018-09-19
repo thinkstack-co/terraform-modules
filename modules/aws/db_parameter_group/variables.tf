@@ -14,9 +14,9 @@ variable "name" {
 }
 
 variable "parameter" {
-  type        = "map"
+  type        = "list"
   description = "(Optional) A list of DB parameters to apply. Note that parameters may differ from a family to an other. Full list of all parameters can be discovered via aws rds describe-db-parameters after initial creation of the group."
-  default     = {}
+  default     = []
 }
 
 variable "tags" {
