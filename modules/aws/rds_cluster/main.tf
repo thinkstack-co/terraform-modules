@@ -22,5 +22,5 @@ resource "aws_rds_cluster" "cluster" {
   skip_final_snapshot                 = "${var.skip_final_snapshot}"
   snapshot_identifier                 = "${var.snapshot_identifier}"
   storage_encrypted                   = "${var.storage_encrypted}"
-  vpc_security_group_ids              = "${var.vpc_security_group_ids}"
+  vpc_security_group_ids              = ["${var.vpc_security_group_ids}"]
 }

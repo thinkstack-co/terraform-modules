@@ -83,17 +83,6 @@ variable "performance_insights_kms_key_id" {
   default     = ""
 }
 
-/*variable "preferred_backup_window" {
-  type        = "string"
-  description = "(Optional) The daily time range during which automated backups are created if automated backups are enabled. Eg: '04:00-09:00'"
-  default     = ""
-}*/
-
-/*variable "preferred_maintenance_window" {
-  type        = "string"
-  description = "(Optional) The window to perform maintenance in. Syntax: 'ddd:hh24:mi-ddd:hh24:mi'. Eg: 'Mon:00:00-Mon:03:00'."
-}*/
-
 variable "promotion_tier" {
   type        = "string"
   description = "(Optional) Default 0. Failover Priority setting on instance level. The reader who has lower tier has higher priority to get promoter to writer."
