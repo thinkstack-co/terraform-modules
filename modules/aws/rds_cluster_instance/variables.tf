@@ -54,20 +54,7 @@ variable "identifier" {
 
 variable "instance_class" {
   type        = "string"
-  description = "(Required) The instance class to use. For details on CPU and memory, see Scaling Aurora DB Instances. Aurora currently supports the below instance classes. Please see AWS Documentation for complete details.
-    db.t2.small
-    db.t2.medium
-    db.r3.large
-    db.r3.xlarge
-    db.r3.2xlarge
-    db.r3.4xlarge
-    db.r3.8xlarge
-    db.r4.large
-    db.r4.xlarge
-    db.r4.2xlarge
-    db.r4.4xlarge
-    db.r4.8xlarge
-    db.r4.16xlarge"
+  description = "(Required) The instance class to use. For details on CPU and memory, see Scaling Aurora DB Instances. Aurora currently supports the below instance classes. Please see AWS Documentation for complete details. db.t2.small db.t2.medium db.r3.large db.r3.xlarge db.r3.2xlarge db.r3.4xlarge db.r3.8xlarge db.r4.large db.r4.xlarge db.r4.2xlarge db.r4.4xlarge db.r4.8xlarge db.r4.16xlarge"
 }
 
 variable "monitoring_interval" {
