@@ -8,7 +8,7 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   db_parameter_group_name         = "${var.db_parameter_group_name}"
   engine                          = "${var.engine}"
   engine_version                  = "${var.engine_version}"
-  identifier                      = "${var.identifier}"
+  identifier                      = "${format("%s-%d", var.identifier, count.index + 1)}"
   instance_class                  = "${var.instance_class}"
   monitoring_interval             = "${var.monitoring_interval}"
   monitoring_role_arn             = "${var.monitoring_role_arn}"
