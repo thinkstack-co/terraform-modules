@@ -39,7 +39,7 @@ variable "db_parameter_group_name" {
 variable "engine" {
   type        = "string"
   description = "(Optional) The name of the database engine to be used for the RDS instance. Defaults to aurora. Valid Values: aurora, aurora-mysql, aurora-postgresql. For information on the difference between the available Aurora MySQL engines see Comparison between Aurora MySQL 1 and Aurora MySQL 2 in the Amazon RDS User Guide."
-  engine      = ""
+  default     = ""
 }
 
 variable "engine_version" {
