@@ -86,6 +86,7 @@ variable "performance_insights_kms_key_id" {
 variable "preferred_backup_window" {
   type        = "string"
   description = "(Optional) The daily time range during which automated backups are created if automated backups are enabled. Eg: '04:00-09:00'"
+  default     = ""
 }
 
 variable "preferred_maintenance_window" {
