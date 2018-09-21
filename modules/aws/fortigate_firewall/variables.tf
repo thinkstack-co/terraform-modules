@@ -19,6 +19,11 @@ variable "enable_dmz" {
   default     = true
 }
 
+variable "ebs_optimized" {
+  description = "If true, the launched EC2 instance will be EBS-optimized"
+  default     = false
+}
+
 variable "sg_name" {
   description = "Name of the security group"
   default     = "fortigate_fw_sg"
