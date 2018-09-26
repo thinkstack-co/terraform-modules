@@ -1,3 +1,8 @@
 data "aws_iam_role" "this" {
-  name = "${var.name}"
+  assume_role_policy    = "${var.assume_role_policy}"
+  description           = "${var.description}"
+  force_detach_policies = "${var.force_detach_policies}"
+  max_session_duration  = "${var.max_session_duration}"
+  name                  = "${var.name}"
+  permissions_boundary  = "${var.permissions_boundary}"
 }
