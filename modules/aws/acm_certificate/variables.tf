@@ -10,9 +10,9 @@ variable "validation_method" {
 }
 
 variable "subject_alternative_names" {
-  type = "string"
+  type = "list"
   description = "(Optional) A list of domains that should be SANs in the issued certificate"
-  default = ""
+  default = []
 }
 
 variable "tags" {
