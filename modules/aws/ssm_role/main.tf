@@ -21,3 +21,8 @@ resource "aws_iam_role_policy_attachment" "this_attach" {
   role       = "${aws_iam_role.this.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
+
+resource "aws_iam_instance_profile" "this" {
+  name = "ssm-service-role"
+  role = "${aws_iam_role.this.name}"
+}
