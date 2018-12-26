@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "thinkstack_azure_ad_assume_policy" {
 ##################################
 
 resource "aws_iam_role" "role_admins" {
-  assume_role_policy    = "${data.aws_iam_policy_document.thinkstack_azure_ad_assume_policy.id}"
+  assume_role_policy    = "${data.aws_iam_policy_document.thinkstack_azure_ad_assume_policy.json}"
   description           = "${var.role_admins_description}"
   force_detach_policies = "${var.role_admins_force_detach_policies}"
   max_session_duration  = "${var.role_admins_max_session_duration}"
@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "admin_policy_attach" {
 ##################################
 
 resource "aws_iam_role" "role_sysadmins" {
-  assume_role_policy    = "${data.aws_iam_policy_document.thinkstack_azure_ad_assume_policy.id}"
+  assume_role_policy    = "${data.aws_iam_policy_document.thinkstack_azure_ad_assume_policy.json}"
   description           = "${var.role_sysadmins_description}"
   force_detach_policies = "${var.role_sysadmins_force_detach_policies}"
   max_session_duration  = "${var.role_sysadmins_max_session_duration}"
@@ -91,7 +91,7 @@ resource "aws_iam_role_policy_attachment" "sysadmins_policy_attach" {
 ##################################
 
 resource "aws_iam_role" "role_read_only" {
-  assume_role_policy    = "${data.aws_iam_policy_document.thinkstack_azure_ad_assume_policy.id}"
+  assume_role_policy    = "${data.aws_iam_policy_document.thinkstack_azure_ad_assume_policy.json}"
   description           = "${var.role_read_only_description}"
   force_detach_policies = "${var.role_read_only_force_detach_policies}"
   max_session_duration  = "${var.role_read_only_max_session_duration}"
