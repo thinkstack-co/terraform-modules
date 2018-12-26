@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "thinkstack_azure_ad_assume_policy" {
 
     principals {
       type        = "Federated"
-      identifiers = ["${aws_iam_saml_provider.this.arn}"]
+      identifiers = ["${aws_iam_saml_provider.this.identity_provider_arn}"]
     }
 
     condition {

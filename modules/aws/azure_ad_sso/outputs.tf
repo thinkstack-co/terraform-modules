@@ -18,11 +18,11 @@ output "policy_name" {
 # AWS iam user - role reading user
 ##################################
 
-output "arn" {
+output "reading_user_arn" {
   value = "${aws_iam_user.role_reading_user.arn}"
 }
 
-output "unique_id" {
+output "reading_user_unique_id" {
   value = "${aws_iam_user.role_reading_user.unique_id}"
 }
 
@@ -30,6 +30,6 @@ output "unique_id" {
 # AWS iam saml provider - saml identify provider
 ##################################
 
-output "identify_provider_arn" {
+output "identity_provider_arn" {
   value = "${aws_iam_saml_provider.this.arn}"
 }
