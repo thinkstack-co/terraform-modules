@@ -34,7 +34,7 @@ resource "aws_iam_saml_provider" "this" {
 
 data "aws_iam_policy_document" "thinkstack_azure_ad_assume_policy" {
   statement {
-    sid     = "ThinkStack Azure AD"
+    sid     = "ThinkStackAzureAD"
     actions = ["sts:AssumeRoleWithSAML"]
 
     principals {
