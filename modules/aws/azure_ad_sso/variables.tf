@@ -143,7 +143,7 @@ variable "role_sysadmins_permissions_boundary" {
   default     = ""
 }
 
-variable "sysadmin_policy_arn" {
+variable "sysadmins_policy_arn" {
   type        = "string"
   description = "(Required) - The ARN of the policy you want to apply"
   default     = "arn:aws:iam::aws:policy/job-function/SystemAdministrator"
