@@ -19,6 +19,11 @@ resource "aws_iam_user" "role_reading_user" {
   permissions_boundary = "${var.user_permissions_boundary}"
 }
 
+resource "aws_iam_user_policy_attachment" "reading_user_attach" {
+  user       = "${aws_iam_user.role_reading_user.name}"
+  policy_arn = "${aws_iam_policy.role_reading_policy.arn}"
+}
+
 ##################################
 # AWS iam saml provider - saml identify provider
 ##################################
