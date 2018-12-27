@@ -14,6 +14,11 @@ variable "dmz_subnet_id" {
   type        = "list"
 }
 
+variable "ebs_optimized" {
+  description = "If true, the launched EC2 instance will be EBS-optimized"
+  default     = false
+}
+
 variable "enable_dmz" {
   description = "describe your variable"
   default     = true

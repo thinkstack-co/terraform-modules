@@ -68,6 +68,7 @@ resource "aws_eip_association" "fw_external_ip" {
 resource "aws_instance" "ec2_instance" {
     ami                         = "${var.ami_id}"
     count                       = "${var.count}"
+    ebs_optimized               = "${var.ebs_optimized}"
     instance_type               = "${var.instance_type}"
     key_name                    = "${var.key_name}"
     monitoring                  = "${var.monitoring}"
