@@ -44,6 +44,12 @@ variable "user_permissions_boundary" {
   default     = ""
 }
 
+variable "pgp_key" {
+  type        = "string"
+  description = "(Optional) Either a base-64 encoded PGP public key, or a keybase username in the form keybase:some_person_that_exists."
+  default     = ""
+}
+
 ##################################
 # AWS iam saml provider - saml identify provider
 ##################################
