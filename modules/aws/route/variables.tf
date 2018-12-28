@@ -28,9 +28,9 @@ variable "instance_id" {
 }
 
 variable "nat_gateway_id" {
-  type = "list"
+  type = "string"
   description = "(Optional) An ID of a VPC NAT gateway."
-  default = []
+  default = ""
 }
 
 variable "network_interface_id" {
