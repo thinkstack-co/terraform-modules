@@ -30,9 +30,9 @@ output "reading_user_unique_id" {
   value = "${aws_iam_access_key.read_user_key.encrypted_secret}"
 }*/
 
-output "secret" {
+/*output "secret" {
   value = "${aws_iam_access_key.read_user_key.secret}"
-}
+}*/
 
 ##################################
 # AWS iam saml provider - saml identify provider
