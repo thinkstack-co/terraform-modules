@@ -30,6 +30,10 @@ output "encrypted_secret" {
   value = "${aws_iam_access_key.read_user_key.encrypted_secret}"
 }
 
+output "read_user_id" {
+  value = "${aws_iam_access_key.read_user_key.id}"
+}
+
 ##################################
 # AWS iam saml provider - saml identify provider
 ##################################
