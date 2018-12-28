@@ -26,6 +26,10 @@ output "reading_user_unique_id" {
   value = "${aws_iam_user.role_reading_user.unique_id}"
 }
 
+output "encrypted_secret" {
+  value = "${aws_iam_access_key.read_user_key.encrypted_secret}"
+}
+
 ##################################
 # AWS iam saml provider - saml identify provider
 ##################################
