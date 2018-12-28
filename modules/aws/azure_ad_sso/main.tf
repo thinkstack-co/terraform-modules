@@ -24,10 +24,10 @@ resource "aws_iam_user_policy_attachment" "reading_user_attach" {
   policy_arn = "${aws_iam_policy.role_reading_policy.arn}"
 }
 
-/*resource "aws_iam_access_key" "read_user_key" {
+resource "aws_iam_access_key" "read_user_key" {
   user    = "${aws_iam_user.role_reading_user.name}"
   pgp_key = "${var.pgp_key}"
-}*/
+}
 
 ##################################
 # AWS iam saml provider - saml identify provider
