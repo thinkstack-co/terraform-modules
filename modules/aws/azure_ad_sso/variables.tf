@@ -12,10 +12,6 @@ variable "policy_description" {
     default     = "This policy will allow to fetch the roles from AWS accounts."
 }
 
-/*variable "policy" {
-    description = "Policy document"
-}*/
-
 ##################################
 # AWS iam user - role reading user
 ##################################
@@ -69,11 +65,6 @@ variable "saml_metadata_document" {
 # AWS iam role - admins role
 ##################################
 
-/*variable "assume_role_policy" {
-  type        = "string"
-  description = "(Required) The policy that grants an entity permission to assume the role."
-}*/
-
 variable "role_admins_description" {
   type        = "string"
   description = "(Optional) The description of the role."
@@ -114,11 +105,6 @@ variable "admin_policy_arn" {
 # AWS iam role - sysadmins role
 ##################################
 
-/*variable "assume_role_policy" {
-  type        = "string"
-  description = "(Required) The policy that grants an entity permission to assume the role."
-}*/
-
 variable "role_sysadmins_description" {
   type        = "string"
   description = "(Optional) The description of the role."
@@ -158,11 +144,6 @@ variable "sysadmins_policy_arn" {
 ##################################
 # AWS iam role - admins role
 ##################################
-
-/*variable "assume_role_policy" {
-  type        = "string"
-  description = "(Required) The policy that grants an entity permission to assume the role."
-}*/
 
 variable "role_read_only_description" {
   type        = "string"
