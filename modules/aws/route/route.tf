@@ -7,7 +7,7 @@ resource "aws_route" "route" {
   # Causing resources to recompute the id when using a network interface
   # instance_id                 = "${var.instance_id}"
   nat_gateway_id              = "${var.nat_gateway_id}"
-  network_interface_id        = "${var.network_interface_id == true ? element(concat(var.network_interface_id, list("")), count.index) : ""}"
+  network_interface_id        = "${length(var.network_interface_id) > 0 ? element(concat(var.network_interface_id, list("")), count.index) : ""}"
   route_table_id              = "${element(var.route_table_id, count.index)}"
   vpc_peering_connection_id   = "${var.vpc_peering_connection_id}"
 }
