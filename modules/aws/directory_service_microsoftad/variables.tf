@@ -32,6 +32,11 @@ variable "password" {
   description = "(Required) The password for the directory administrator or connector user."
 }
 
+variable "short_name" {
+  type        = "string"
+  description = "(Optional) The short name of the directory, such as CORP."
+}
+
 variable "size" {
   type        = "string"
   description = "(Required for SimpleAD and ADConnector) The size of the directory (Small or Large are accepted values)."
