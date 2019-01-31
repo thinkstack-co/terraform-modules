@@ -14,6 +14,10 @@ output "dmz_subnet_ids" {
   value = ["${aws_subnet.dmz_subnets.*.id}"]
 }
 
+output "mgmt_subnet_ids" {
+  value = ["${aws_subnet.mgmt_subnets.*.id}"]
+}
+
 output "private_subnets" {
   value = ["${aws_subnet.private_subnets.*.cidr_block}"]
 }
@@ -48,6 +52,10 @@ output "db_route_table_ids" {
 
 output "dmz_route_table_ids" {
   value = ["${aws_route_table.dmz_route_table.*.id}"]
+}
+
+output "mgmt_route_table_ids" {
+  value = ["${aws_route_table.mgmt_route_table.*.id}"]
 }
 
 output "workspaces_route_table_ids" {
