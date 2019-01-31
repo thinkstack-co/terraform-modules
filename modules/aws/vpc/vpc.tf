@@ -43,6 +43,14 @@ resource "aws_subnet" "db_subnets" {
   tags              = "${merge(var.tags, map("Name", format("%s-subnet-db-%s", var.name, element(var.azs, count.index))))}"
 }
 
+resource "aws_subnet" "mgmt_subnets" {
+  vpc_id            = "${aws_vpc.vpc.id}"
+  cidr_block        = "${var.mgmt_subnets_list[count.index]}"
+  availability_zone = "${element(var.azs, count.index)}"
+  count             = "${length(var.mgmt_subnets_list)}"
+  tags              = "${merge(var.tags, map("Name", format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index))))}"
+}
+
 resource "aws_subnet" "workspaces_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
   cidr_block        = "${var.workspaces_subnets_list[count.index]}"
@@ -142,6 +150,27 @@ resource "aws_route" "dmz_default_route_fw" {
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = "${element(var.fw_dmz_network_interface_id, count.index)}"
   route_table_id         = "${element(aws_route_table.dmz_route_table.*.id, count.index)}"
+}
+
+resource "aws_route_table" "mgmt_route_table" {
+  count            = "${length(var.azs)}"
+  propagating_vgws = ["${var.mgmt_propagating_vgws}"]
+  tags             = "${merge(var.tags, map("Name", format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index))))}"
+  vpc_id           = "${aws_vpc.vpc.id}"
+}
+
+resource "aws_route" "mgmt_default_route_natgw" {
+  count                  = "${var.enable_firewall ? 0 : length(var.azs)}"
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = "${element(aws_nat_gateway.natgw.*.id, count.index)}"
+  route_table_id         = "${element(aws_route_table.mgmt_route_table.*.id, count.index)}"
+}
+
+resource "aws_route" "mgmt_default_route_fw" {
+  count                  = "${var.enable_firewall ? length(var.azs) : 0}"
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = "${element(var.fw_network_interface_id, count.index)}"
+  route_table_id         = "${element(aws_route_table.mgmt_route_table.*.id, count.index)}"
 }
 
 resource "aws_route_table" "workspaces_route_table" {
