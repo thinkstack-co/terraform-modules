@@ -69,6 +69,16 @@ variable "map_public_ip_on_launch" {
   default     = true
 }
 
+variable "mgmt_subnets_list" {
+  description = "A list of mgmt subnets inside the VPC."
+  default     = ["10.11.61.0/24", "10.11.62.0/24", "10.11.63.0/24"]
+}
+
+variable "mgmt_propagating_vgws" {
+  description = "A list of VGWs the mgmt route table should propagate."
+  default     = []
+}
+
 variable "name" {
   description = "Name to be used on all the resources as identifier"
   default     = "terraform"
