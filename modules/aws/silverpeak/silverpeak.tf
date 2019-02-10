@@ -64,7 +64,7 @@ resource "aws_network_interface" "mgmt0_nic" {
     private_ips         = "${var.mgmt0_private_ips}"
     security_groups     = ["${aws_security_group.silverpeak_sg.id}"]
     source_dest_check   = "${var.source_dest_check}"
-    subnet_id           = "${element(var.dmz_subnet_id, count.index)}"
+    subnet_id           = "${element(var.mgmt_subnet_id, count.index)}"
     tags                = "${merge(var.tags, map("Name", format("%s%d_mgmt0", var.name, count.index + 1)))}"
 }
 
@@ -73,7 +73,6 @@ resource "aws_network_interface" "mgmt0_nic" {
 #######################
 resource "aws_instance" "ec2" {
   ami                                  = "${var.ami}"
-  associate_public_ip_address          = "${var.associate_public_ip_address}"
   availability_zone                    = "${var.availability_zone}"
   count                                = "${var.count}"
   disable_api_termination              = "${var.disable_api_termination}"
