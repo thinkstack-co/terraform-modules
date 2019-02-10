@@ -141,6 +141,7 @@ variable "tags" {
   description = "(Optional) A mapping of tags to assign to the resource."
   default     = {
     created_by  = "terraform"
+    backup      = "true"
     terraform   = "true"
     environment = "prod"
     role        = "silverpeak_sdwan"
