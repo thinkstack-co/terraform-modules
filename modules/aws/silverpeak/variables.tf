@@ -64,7 +64,7 @@ variable "lan0_description" {
 }
 
 variable "lan0_private_ips" {
-  type        = "string"
+  type        = "list"
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
@@ -74,7 +74,7 @@ variable "mgmt0_description" {
 }
 
 variable "mgmt0_private_ips" {
-  type        = "string"
+  type        = "list"
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
@@ -163,7 +163,7 @@ variable "wan0_description" {
 }
 
 variable "wan0_private_ips" {
-  type        = "string"
+  type        = "list"
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
