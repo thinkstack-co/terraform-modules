@@ -1,4 +1,4 @@
-resource "aws_instance" "ec2_instance" {
+resource "aws_instance" "ec2" {
     ami                                  = "${var.ami}"
     # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone
     # availability_zone                    = "${element(var.availability_zone, count.index)}"
@@ -32,7 +32,7 @@ resource "aws_instance" "ec2_instance" {
 }
 
 resource "aws_vpc_dhcp_options" "dc_dns" {
-    domain_name_servers = ["${aws_instance.ec2_instance.*.private_ip}"]
+    domain_name_servers = ["${aws_instance.ec2.*.private_ip}"]
     domain_name         = "${var.domain_name}"
     tags                = "${merge(var.tags, map("Name", format("%s-dhcp-options", var.name)))}"
 }
@@ -40,4 +40,63 @@ resource "aws_vpc_dhcp_options" "dc_dns" {
 resource "aws_vpc_dhcp_options_association" "dc_dns" {
     dhcp_options_id = "${aws_vpc_dhcp_options.dc_dns.id}"
     vpc_id          = "${var.vpc_id}"
+}
+
+
+###################################################
+# CloudWatch Alarms
+###################################################
+
+#####################
+# Status Check Failed Instance Metric
+#####################
+
+resource "aws_cloudwatch_metric_alarm" "instance" {
+  actions_enabled           = true
+  alarm_actions             = []
+  alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
+  alarm_name                = "${format("%s-instance-alarm", element(aws_instance.ec2.*.id, count.index))}"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  count                     = "${var.count}"
+  datapoints_to_alarm       = 2
+  dimensions                = {
+    InstanceId = "${element(aws_instance.ec2.*.id, count.index)}"
+  }
+  evaluation_periods        = "2"
+  insufficient_data_actions = []
+  metric_name               = "StatusCheckFailed_Instance"
+  namespace                 = "AWS/EC2"
+  ok_actions                = []
+  period                    = "60"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  treat_missing_data        = "missing"
+  #unit                      = "${var.unit}"
+}
+
+#####################
+# Status Check Failed System Metric
+#####################
+
+resource "aws_cloudwatch_metric_alarm" "system" {
+  actions_enabled           = true
+  alarm_actions             = ["arn:aws:automate:${var.region}:ec2:recover"]
+  alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
+  alarm_name                = "${format("%s-system-alarm", element(aws_instance.ec2.*.id, count.index))}"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  count                     = "${var.count}"
+  datapoints_to_alarm       = 2
+  dimensions                = {
+    InstanceId = "${element(aws_instance.ec2.*.id, count.index)}"
+  }
+  evaluation_periods        = "2"
+  insufficient_data_actions = []
+  metric_name               = "StatusCheckFailed_System"
+  namespace                 = "AWS/EC2"
+  ok_actions                = []
+  period                    = "60"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  treat_missing_data        = "missing"
+  #unit                      = "${var.unit}"
 }
