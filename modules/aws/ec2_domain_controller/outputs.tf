@@ -10,9 +10,11 @@ output "ec2_instance_pub_ip" {
     value = ["${aws_instance.ec2_instance.*.public_ip}"]
 }
 
+/*
+This is now breaking things
 output "ec2_instance_network_id" {
     value = ["${aws_instance.ec2_instance.*.network_interface_id}"]
-}
+}*/
 
 output "ec2_instance_subnet_id" {
     value = ["${aws_instance.ec2_instance.*.subnet_id}"]
