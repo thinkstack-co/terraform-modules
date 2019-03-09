@@ -120,6 +120,11 @@ variable "volume_tags" {
   default     = {}
 }
 
+variable "region" {
+  type        = "string"
+  description = "(Required) VPC Region the resources exist in"
+}
+
 variable "root_block_device" {
   description = "Customize details about the root block device of the instance. See Block Devices below for details"
   default     = []

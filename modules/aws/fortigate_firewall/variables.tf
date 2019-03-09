@@ -107,6 +107,11 @@ variable "instance_name_prefix" {
   default     = "aws_fw"
 }
 
+variable "region" {
+  type        = "string"
+  description = "(Required) VPC Region the resources exist in"
+}
+
 variable "root_volume_type" {
   description = "Root volume EBS type"
   default     = "gp2"
