@@ -66,6 +66,11 @@ variable "private_ip" {
   default     = []
 }
 
+variable "region" {
+  type        = "string"
+  description = "(Required) VPC Region the resources exist in"
+}
+
 variable "root_delete_on_termination" {
   type        = "string"
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
