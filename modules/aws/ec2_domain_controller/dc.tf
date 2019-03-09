@@ -1,4 +1,4 @@
-resource "aws_instance" "ec2" {
+resource "aws_instance" "ec2_instance" {
     ami                                  = "${var.ami}"
     # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone
     # availability_zone                    = "${element(var.availability_zone, count.index)}"
@@ -32,7 +32,7 @@ resource "aws_instance" "ec2" {
 }
 
 resource "aws_vpc_dhcp_options" "dc_dns" {
-    domain_name_servers = ["${aws_instance.ec2.*.private_ip}"]
+    domain_name_servers = ["${aws_instance.ec2_instance.*.private_ip}"]
     domain_name         = "${var.domain_name}"
     tags                = "${merge(var.tags, map("Name", format("%s-dhcp-options", var.name)))}"
 }
@@ -60,7 +60,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   count                     = "${var.count}"
   datapoints_to_alarm       = 2
   dimensions                = {
-    InstanceId = "${element(aws_instance.ec2.*.id, count.index)}"
+    InstanceId = "${element(aws_instance.ec2_instance.*.id, count.index)}"
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -87,7 +87,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   count                     = "${var.count}"
   datapoints_to_alarm       = 2
   dimensions                = {
-    InstanceId = "${element(aws_instance.ec2.*.id, count.index)}"
+    InstanceId = "${element(aws_instance.ec2_instance.*.id, count.index)}"
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
