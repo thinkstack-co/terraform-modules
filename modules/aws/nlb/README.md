@@ -14,7 +14,7 @@ Utilized to create an Network Load Balancer
         created_by  = "Zachary Hill"
         environment = "prod"
         project     = "app_dev"
-        role        = "application_load_balancer"
+        role        = "network_load_balancer"
       }
     }
 
