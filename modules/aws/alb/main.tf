@@ -15,8 +15,4 @@ resource "aws_lb" "this" {
     enabled = "${var.access_logs_enabled}"
     prefix  = "${var.access_logs_prefix}"
   }
-
-  subnet_mapping = {
-    subnet_id = "${var.subnet_id}"
-  }
 }

@@ -38,11 +38,6 @@ variable "subnets" {
   description = "(Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource."
 }
 
-variable "subnet_id" {
-  type        = "string"
-  description = "(Required) The id of the subnet of which to attach to the load balancer. You can specify only one subnet per Availability Zone."
-}
-
 variable "tags" {
   type        = "map"
   description = "(Optional) A mapping of tags to assign to the resource."

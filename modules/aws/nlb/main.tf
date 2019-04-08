@@ -7,8 +7,4 @@ resource "aws_lb" "this" {
   load_balancer_type               = "${var.load_balancer_type}"
   subnets                          = "${var.subnets}"
   tags                             = "${var.tags}"
-  
-  subnet_mapping                   = {
-    subnet_id = "${var.subnet_id}"
-  }
 }
