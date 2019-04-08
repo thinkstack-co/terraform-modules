@@ -11,8 +11,12 @@ resource "aws_lb" "this" {
   tags                       = "${var.tags}"
 
   access_logs {
-    bucket  = "${var.bucket}"
-    enabled = "${var.enabled}"
-    prefix  = "${var.prefix}"
+    bucket  = "${var.access_logs_bucket}"
+    enabled = "${var.access_logs_enabled}"
+    prefix  = "${var.access_logs_prefix}"
+  }
+
+  subnet_mapping = {
+    subnet_id = "${var.subnet_id}"
   }
 }
