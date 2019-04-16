@@ -7,7 +7,7 @@ resource "aws_vpn_gateway" "vpn_gateway" {
 resource "aws_customer_gateway" "customer_gateway" {
   bgp_asn       = "${var.bgp_asn}"
   count         = "${length(var.ip_address)}"
-  ip_address    = "${var.ip_address}"
+  ip_address    = "${var.ip_address[count.index]}"
   type          = "${var.vpn_type}"
   tags          = "${merge(var.tags, map("Name", format("%s_customer_gateway", var.name)))}"
 }
