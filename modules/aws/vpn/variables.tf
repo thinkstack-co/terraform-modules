@@ -23,6 +23,7 @@ variable "bgp_asn" {
 }
 
 variable "ip_address" {
+    type        = "list"
     description = "Customer gateway external IP address"
 }
 
