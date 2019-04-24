@@ -13,7 +13,8 @@ resource "aws_customer_gateway" "customer_gateway" {
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
-  customer_gateway_id   = "${aws_customer_gateway.customer_gateway.*.id}"
+  count                 = "${length(var.ip_address)}"
+  customer_gateway_id   = "${aws_customer_gateway.customer_gateway.id[count.index]}"
   static_routes_only    = "${var.static_routes_only}"
   tags                  = "${merge(var.tags, map("Name", format("%s", var.name)))}"
   type                  = "${var.vpn_type}"
