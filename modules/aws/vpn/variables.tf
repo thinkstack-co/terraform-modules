@@ -7,6 +7,11 @@ variable "availability_zone" {
     default     = ""
 }
 
+variable "customer_gw_name" {
+    type = "list"
+    description = "(Required) List of names to use for the customer gateways"
+}
+
 variable "tags" {
     description = "Tags assigned to all created resources"
     default     = {}
