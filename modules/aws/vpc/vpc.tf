@@ -4,10 +4,6 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = "${var.enable_dns_support}"
   instance_tenancy     = "${var.instance_tenancy}"
   tags                 = "${merge(var.tags, map("Name", format("%s", var.name)))}"
-
-  lifecycle {
-    prevent_destroy   = false
-  }
 }
 
 resource "aws_subnet" "private_subnets" {
