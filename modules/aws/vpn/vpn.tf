@@ -9,7 +9,7 @@ resource "aws_customer_gateway" "customer_gateway" {
   count            = "${length(var.ip_address)}"
   ip_address       = "${var.ip_address[count.index]}"
   type             = "${var.vpn_type}"
-  tags             = "${merge(var.tags, map("Name", format("%s_customer_gateway_%s", var.customer_gw_name, count.index + 1)))}"
+  tags             = "${merge(var.tags, map("Name", format("%s_customer_gateway", var.customer_gw_name[count.index])))}"
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
