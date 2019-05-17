@@ -1,7 +1,7 @@
 resource "aws_vpn_gateway" "vpn_gateway" {
   vpc_id            = "${var.vpc_id}"
   # availability_zone = "${var.availability_zone}"
-  tags              = "${merge(var.tags, map("Name", format("%s_vpn_gateway", var.name)))}"
+  tags              = "${merge(var.tags, map("Name", format("%s_vpn_gw", var.name)))}"
 }
 
 resource "aws_customer_gateway" "customer_gateway" {
@@ -9,7 +9,7 @@ resource "aws_customer_gateway" "customer_gateway" {
   count            = "${length(var.ip_address)}"
   ip_address       = "${var.ip_address[count.index]}"
   type             = "${var.vpn_type}"
-  tags             = "${merge(var.tags, map("Name", format("%s_customer_gateway", var.customer_gw_name[count.index])))}"
+  tags             = "${merge(var.tags, map("Name", format("%s_customer_gw", var.customer_gw_name[count.index])))}"
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
