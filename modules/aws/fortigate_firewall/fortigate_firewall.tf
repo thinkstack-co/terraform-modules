@@ -86,7 +86,7 @@ resource "aws_instance" "ec2_instance" {
     tags          = "${merge(var.tags, map("Name", format("%s%d", var.instance_name_prefix, count.index + 1)))}"
 
     network_interface {
-        network_interface_id = "${aws_network_interface.fw_public_nic.id}"
+        network_interface_id = "${element(aws_network_interface.fw_public_nic.*.id, count.index)}"
         device_index         = 0
     }
 
