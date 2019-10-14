@@ -1,0 +1,52 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "xray:GetGroups",
+                "sqs:DeleteMessage",
+                "xray:UpdateSamplingRule",
+                "xray:PutTelemetryRecords",
+                "ec2:DeleteSnapshot",
+                "sqs:SendMessageBatch",
+                "sqs:UntagQueue",
+                "sqs:ReceiveMessage",
+                "sqs:ListQueueTags",
+                "xray:CreateGroup",
+                "xray:GetSamplingTargets",
+                "xray:GetGroup",
+                "xray:PutTraceSegments",
+                "logs:CreateLogStream",
+                "sqs:DeleteMessageBatch",
+                "xray:GetTraceSummaries",
+                "sqs:ChangeMessageVisibilityBatch",
+                "sqs:SetQueueAttributes",
+                "xray:GetSamplingStatisticSummaries",
+                "sqs:GetQueueUrl",
+                "sqs:ListQueues",
+                "xray:DeleteSamplingRule",
+                "sqs:ChangeMessageVisibility",
+                "xray:GetTraceGraph",
+                "xray:GetServiceGraph",
+                "sqs:SendMessage",
+                "xray:DeleteGroup",
+                "sqs:GetQueueAttributes",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents",
+                "xray:BatchGetTraces",
+                "sqs:TagQueue",
+                "xray:GetTimeSeriesServiceStatistics",
+                "sqs:ListDeadLetterSourceQueues",
+                "sqs:PurgeQueue",
+                "xray:GetSamplingRules",
+                "sqs:DeleteQueue",
+                "xray:UpdateGroup",
+                "sqs:CreateQueue",
+                "xray:CreateSamplingRule"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
