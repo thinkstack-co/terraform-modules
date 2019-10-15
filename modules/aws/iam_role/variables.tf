@@ -6,6 +6,7 @@ variable "assume_role_policy" {
 variable "description" {
   type        = "string"
   description = "(Optional) The description of the role."
+  default     = ""
 }
 
 variable "force_detach_policies" {
