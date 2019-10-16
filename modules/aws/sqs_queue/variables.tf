@@ -23,3 +23,9 @@ variable "tags" {
   description = "(Optional) A mapping of tags to assign to the queue."
   default     = {}
 }
+
+variable "visibility_timeout_seconds" {
+  type        = "string"
+  description = "(Optional) The visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see AWS docs."
+  default     = 30
+}
