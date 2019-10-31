@@ -65,7 +65,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_route_table" "public_route_table" {
-  propagating_vgws = ["${var.public_propagating_vgws}"]
+  propagating_vgws = var.public_propagating_vgws
   tags             = "${merge(var.tags, map("Name", format("%s-rt-public", var.name)))}"
   vpc_id           = "${aws_vpc.vpc.id}"
 }
