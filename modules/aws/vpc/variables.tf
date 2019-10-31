@@ -45,7 +45,8 @@ variable "enable_nat_gateway" {
 
 variable "enable_s3_endpoint" {
   description = "should be true if you want to provision an S3 endpoint to the VPC"
-  default     = 0
+  default     = false
+  type        = bool
 }
 
 variable "fw_dmz_network_interface_id" {
