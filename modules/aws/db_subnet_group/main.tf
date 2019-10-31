@@ -1,5 +1,5 @@
 terraform {
-  required_version >= 0.12.0
+  required_version = ">= 0.12.0"
 }
 
 resource "aws_db_subnet_group" "group" {

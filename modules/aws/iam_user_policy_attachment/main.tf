@@ -1,5 +1,5 @@
 terraform {
-  required_version >= 0.12.0
+  required_version = ">= 0.12.0"
 }
 
 resource "aws_iam_user_policy_attachment" "test-attach" {
