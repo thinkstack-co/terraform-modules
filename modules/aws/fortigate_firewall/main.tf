@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_security_group" "fortigate_fw_sg" {
     name    = "${var.sg_name}"
     description = "Security group applied to all fortigate firewalls"

@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_network_interface" "eni" {
   attachment          = "${var.attachment}"
   private_ips         = "${var.private_ips}"

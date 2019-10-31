@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_kms_key" "key" {
     description             = "${var.description}"
     deletion_window_in_days = "${var.deletion_window_in_days}"

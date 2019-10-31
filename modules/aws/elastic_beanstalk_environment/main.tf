@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_elastic_beanstalk_environment" "this" {
   application             = "${var.application}"
   cname_prefix            = "${var.cname_prefix}"

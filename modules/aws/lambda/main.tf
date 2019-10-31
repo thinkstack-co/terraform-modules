@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_lambda_function" "lambda_function" {
     description         = "${var.description}"
     environment         = {

@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_directory_service_directory" "connector" {
   alias       = "${var.alias}"
   description = "${var.description}"

@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_lambda_event_source_mapping" "this" {
   batch_size                  = "${var.batch_size}"
   enabled                     = "${var.enabled}"

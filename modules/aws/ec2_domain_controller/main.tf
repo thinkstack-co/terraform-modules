@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_instance" "ec2_instance" {
     ami                                  = "${var.ami}"
     # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone

@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_dynamodb_table" "this" {
   attribute              = "${var.attribute}"
   global_secondary_index = "${var.global_secondary_index}"

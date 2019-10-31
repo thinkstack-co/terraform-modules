@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_rds_cluster_instance" "cluster_instances" {
   apply_immediately               = "${var.apply_immediately}"
   auto_minor_version_upgrade      = "${var.auto_minor_version_upgrade}"

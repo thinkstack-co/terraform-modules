@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_route" "route" {
   count                       = "${length(var.route_table_id)}"
   destination_cidr_block      = "${var.destination_cidr_block}"

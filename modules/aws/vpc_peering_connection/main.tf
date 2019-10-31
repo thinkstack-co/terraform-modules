@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_vpc_peering_connection" "this" {
   auto_accept   = "${var.auto_accept}"
   peer_owner_id = "${var.peer_owner_id}"

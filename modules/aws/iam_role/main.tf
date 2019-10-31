@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 data "aws_iam_role" "this" {
   assume_role_policy    = "${var.assume_role_policy}"
   description           = "${var.description}"

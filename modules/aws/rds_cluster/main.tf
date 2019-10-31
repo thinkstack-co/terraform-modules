@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_rds_cluster" "cluster" {
   apply_immediately                   = "${var.apply_immediately}"
   availability_zones                  = "${var.availability_zones}"

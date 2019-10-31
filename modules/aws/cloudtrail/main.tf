@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_cloudtrail" "cloudtrail" {
     enable_log_file_validation      =   "${var.enable_log_file_validation}"
     include_global_service_events   =   "${var.include_global_service_events}"

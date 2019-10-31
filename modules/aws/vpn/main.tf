@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_vpn_gateway" "vpn_gateway" {
   vpc_id            = "${var.vpc_id}"
   # availability_zone = "${var.availability_zone}"

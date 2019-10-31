@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_ebs_volume" "vol" {
   availability_zone = "${var.availability_zone}"
   encrypted         = "${var.encrypted}"

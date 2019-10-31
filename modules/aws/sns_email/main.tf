@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_sns_topic" "topic" {
   display_name = "${var.display_name}"
   name         = "${var.name}"

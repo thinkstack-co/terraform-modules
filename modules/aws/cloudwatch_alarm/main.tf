@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_cloudwatch_metric_alarm" "alarm" {
   actions_enabled           = "${var.actions_enabled}"
   alarm_actions             = "${var.alarm_actions}"

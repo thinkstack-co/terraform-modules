@@ -1,3 +1,7 @@
+terraform {
+  required_version >= 0.12.0
+}
+
 resource "aws_iam_role" "this" {
   name               = "ssm-service-role"
   assume_role_policy = <<EOF
