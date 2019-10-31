@@ -3,16 +3,16 @@ terraform {
 }
 
 resource "aws_vpc" "vpc" {
-  cidr_block           = "${var.vpc_cidr}"
-  enable_dns_hostnames = "${var.enable_dns_hostnames}"
-  enable_dns_support   = "${var.enable_dns_support}"
-  instance_tenancy     = "${var.instance_tenancy}"
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = var.enable_dns_hostnames
+  enable_dns_support   = var.enable_dns_support
+  instance_tenancy     = var.instance_tenancy
   tags                 = "${merge(var.tags, map("Name", format("%s", var.name)))}"
 }
 
 resource "aws_subnet" "private_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
-  cidr_block        = "${var.private_subnets_list[count.index]}"
+  cidr_block        = var.private_subnets_list[count.index]
   availability_zone = "${element(var.azs, count.index)}"
   count             = "${length(var.private_subnets_list)}"
   tags              = "${merge(var.tags, map("Name", format("%s-subnet-private-%s", var.name, element(var.azs, count.index))))}"
@@ -20,16 +20,16 @@ resource "aws_subnet" "private_subnets" {
 
 resource "aws_subnet" "public_subnets" {
   vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.public_subnets_list[count.index]}"
+  cidr_block              = var.public_subnets_list[count.index]
   availability_zone       = "${element(var.azs, count.index)}"
-  map_public_ip_on_launch = "${var.map_public_ip_on_launch}"
+  map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = "${length(var.public_subnets_list)}"
   tags                    = "${merge(var.tags, map("Name", format("%s-subnet-public-%s", var.name, element(var.azs, count.index))))}"
 }
 
 resource "aws_subnet" "dmz_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
-  cidr_block        = "${var.dmz_subnets_list[count.index]}"
+  cidr_block        = var.dmz_subnets_list[count.index]
   availability_zone = "${element(var.azs, count.index)}"
   count             = "${length(var.dmz_subnets_list)}"
   tags              = "${merge(var.tags, map("Name", format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index))))}"
@@ -37,7 +37,7 @@ resource "aws_subnet" "dmz_subnets" {
 
 resource "aws_subnet" "db_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
-  cidr_block        = "${var.db_subnets_list[count.index]}"
+  cidr_block        = var.db_subnets_list[count.index]
   availability_zone = "${element(var.azs, count.index)}"
   count             = "${length(var.db_subnets_list)}"
   tags              = "${merge(var.tags, map("Name", format("%s-subnet-db-%s", var.name, element(var.azs, count.index))))}"
@@ -45,7 +45,7 @@ resource "aws_subnet" "db_subnets" {
 
 resource "aws_subnet" "mgmt_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
-  cidr_block        = "${var.mgmt_subnets_list[count.index]}"
+  cidr_block        = var.mgmt_subnets_list[count.index]
   availability_zone = "${element(var.azs, count.index)}"
   count             = "${length(var.mgmt_subnets_list)}"
   tags              = "${merge(var.tags, map("Name", format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index))))}"
@@ -53,7 +53,7 @@ resource "aws_subnet" "mgmt_subnets" {
 
 resource "aws_subnet" "workspaces_subnets" {
   vpc_id            = "${aws_vpc.vpc.id}"
-  cidr_block        = "${var.workspaces_subnets_list[count.index]}"
+  cidr_block        = var.workspaces_subnets_list[count.index]
   availability_zone = "${element(var.azs, count.index)}"
   count             = "${length(var.workspaces_subnets_list)}"
   tags              = "${merge(var.tags, map("Name", format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index))))}"
@@ -91,7 +91,7 @@ resource "aws_nat_gateway" "natgw" {
 
 resource "aws_route_table" "private_route_table" {
   count            = "${length(var.azs)}"
-  propagating_vgws = ["${var.private_propagating_vgws}"]
+  propagating_vgws = var.private_propagating_vgws
   tags             = "${merge(var.tags, map("Name", format("%s-rt-private-%s", var.name, element(var.azs, count.index))))}"
   vpc_id           = "${aws_vpc.vpc.id}"
 }
@@ -112,7 +112,7 @@ resource "aws_route" "private_default_route_fw" {
 
 resource "aws_route_table" "db_route_table" {
   count            = "${length(var.azs)}"
-  propagating_vgws = ["${var.db_propagating_vgws}"]
+  propagating_vgws = var.db_propagating_vgws
   tags             = "${merge(var.tags, map("Name", format("%s-rt-db-%s", var.name, element(var.azs, count.index))))}"
   vpc_id           = "${aws_vpc.vpc.id}"
 }
@@ -133,7 +133,7 @@ resource "aws_route" "db_default_route_fw" {
 
 resource "aws_route_table" "dmz_route_table" {
   count            = "${length(var.azs)}"
-  propagating_vgws = ["${var.dmz_propagating_vgws}"]
+  propagating_vgws = var.dmz_propagating_vgws
   tags             = "${merge(var.tags, map("Name", format("%s-rt-dmz-%s", var.name, element(var.azs, count.index))))}"
   vpc_id           = "${aws_vpc.vpc.id}"
 }
@@ -154,7 +154,7 @@ resource "aws_route" "dmz_default_route_fw" {
 
 resource "aws_route_table" "mgmt_route_table" {
   count            = "${length(var.azs)}"
-  propagating_vgws = ["${var.mgmt_propagating_vgws}"]
+  propagating_vgws = var.mgmt_propagating_vgws
   tags             = "${merge(var.tags, map("Name", format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index))))}"
   vpc_id           = "${aws_vpc.vpc.id}"
 }
@@ -175,7 +175,7 @@ resource "aws_route" "mgmt_default_route_fw" {
 
 resource "aws_route_table" "workspaces_route_table" {
   count            = "${length(var.azs)}"
-  propagating_vgws = ["${var.workspaces_propagating_vgws}"]
+  propagating_vgws = var.workspaces_propagating_vgws
   tags             = "${merge(var.tags, map("Name", format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index))))}"
   vpc_id           = "${aws_vpc.vpc.id}"
 }
@@ -199,7 +199,7 @@ data "aws_vpc_endpoint_service" "s3" {
 }
 
 resource "aws_vpc_endpoint" "ep" {
-  count        = "${var.enable_s3_endpoint}"
+  count        = var.enable_s3_endpoint
   vpc_id       = "${aws_vpc.vpc.id}"
   service_name = "${data.aws_vpc_endpoint_service.s3.service_name}"
 }
