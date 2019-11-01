@@ -3,32 +3,32 @@ terraform {
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
-    enable_log_file_validation      =   "${var.enable_log_file_validation}"
-    include_global_service_events   =   "${var.include_global_service_events}"
-    is_multi_region_trail           =   "${var.is_multi_region_trail}"
-    kms_key_id                      =   "${var.kms_key_id}"
-    name                            =   "${var.name}"
-    s3_bucket_name                  =   "${aws_s3_bucket.cloudtrail_s3_bucket.id}"
-    s3_key_prefix                   =   "${var.s3_key_prefix}"
+    enable_log_file_validation      =   var.enable_log_file_validation
+    include_global_service_events   =   var.include_global_service_events
+    is_multi_region_trail           =   var.is_multi_region_trail
+    kms_key_id                      =   var.kms_key_id
+    name                            =   var.name
+    s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
+    s3_key_prefix                   =   var.s3_key_prefix
 }
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-    acl             = "${var.acl}"
-    bucket_prefix   = "${var.bucket_prefix}"
-    region          = "${var.region}"
+    acl             = var.acl
+    bucket_prefix   = var.bucket_prefix
+    region          = var.region
 
     versioning {
-        enabled     = "${var.enabled}"
-        mfa_delete  = "${var.mfa_delete}"
+        enabled     = var.enabled
+        mfa_delete  = var.mfa_delete
     }
 
-    tags {
+    tags = {
         terraform    = "true"
     }
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
-    bucket  = "${aws_s3_bucket.cloudtrail_s3_bucket.id}"
+    bucket  = aws_s3_bucket.cloudtrail_s3_bucket.id
     policy  = <<POLICY
 {
     "Version": "2012-10-17",
