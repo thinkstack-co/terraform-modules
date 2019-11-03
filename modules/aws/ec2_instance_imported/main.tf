@@ -9,7 +9,7 @@ resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = var.availability_zone
-  count                                = var.count
+  count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   ephemeral_block_device               = var.ephemeral_block_device

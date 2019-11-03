@@ -12,7 +12,7 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "count" {
+variable "instance_count" {
   description = "Number of instances to launch"
   default     = 1
 }
