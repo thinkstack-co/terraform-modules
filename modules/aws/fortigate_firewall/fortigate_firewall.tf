@@ -25,7 +25,7 @@ resource "aws_eip" "external_ip" {
   count = "${var.count}"
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
