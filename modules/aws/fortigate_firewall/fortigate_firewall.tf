@@ -43,6 +43,10 @@ resource "aws_network_interface" "fw_public_nic" {
     source_dest_check   = "${var.source_dest_check}"
     subnet_id           = "${element(var.public_subnet_id, count.index)}"
     tags                = "${merge(var.tags, map("Name", format("%s%d_public", var.instance_name_prefix, count.index + 1)))}"
+
+    lifecycle {
+      ignore_changes  = ["subnet_id"]
+    }
 }
 
 resource "aws_network_interface" "fw_private_nic" {
@@ -58,6 +62,10 @@ resource "aws_network_interface" "fw_private_nic" {
         instance        = "${element(aws_instance.ec2_instance.*.id, count.index)}"
         device_index    = 1
     }
+
+    lifecycle {
+      ignore_changes  = ["subnet_id"]
+    }
 }
 
 resource "aws_network_interface" "fw_dmz_nic" {
@@ -72,6 +80,10 @@ resource "aws_network_interface" "fw_dmz_nic" {
     attachment {
         instance        = "${element(aws_instance.ec2_instance.*.id, count.index)}"
         device_index    = 2
+    }
+
+    lifecycle {
+      ignore_changes  = ["subnet_id"]
     }
 }
 
