@@ -170,7 +170,7 @@ resource "aws_key_pair" "deployer_key" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = aws_subnet.private_subnets.availability_zone[count.index]
+  availability_zone                    = element(aws_subnet.private_subnets.*.availability_zone, count.index)
   count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
