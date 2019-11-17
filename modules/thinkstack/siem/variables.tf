@@ -198,10 +198,10 @@ variable "region" {
 variable "tags" {
   description = "A map of tags to add to all resources"
   default     = {
-    created_by  = var.created_by
+    created_by  = "Your Name"
     terraform   = "true"
     environment = "prod"
-    project     = "core_infrastructure"
+    project     = "SIEM Implementation"
     team        = "security_team"
     used_by     = "organization"
   }
