@@ -39,6 +39,11 @@ resource "aws_subnet" "public_subnets" {
 # VPC - Gateways
 ###########################
 
+resource "aws_eip" "nateip" {
+  count = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
+  vpc   = true
+}
+
 resource "aws_internet_gateway" "igw" {
   tags   = merge(var.tags, map("Name", format("%s-igw", var.name)))
   vpc_id = aws_vpc.vpc.id
