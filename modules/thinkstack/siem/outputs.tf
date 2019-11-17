@@ -98,19 +98,9 @@ output "key_name" {
     value = aws_key_pair.deployer_key.key_name
 }
 
-output "id" {
+output "instance_id" {
   description = "List of IDs of instances"
   value       = [aws_instance.ec2.*.id]
-}
-
-output "availability_zone" {
-  description = "List of availability zones of instances"
-  value       = [aws_instance.ec2.*.availability_zone]
-}
-
-output "key_name" {
-  description = "List of key names of instances"
-  value       = [aws_instance.ec2.*.key_name]
 }
 
 output "public_dns" {
