@@ -17,11 +17,6 @@ variable "bgp_asn" {
     default     = 65001
 }
 
-variable "count" {
-  description = "Number of instances to launch"
-  default     = 1
-}
-
 variable "customer_gw_name" {
     type        = list
     description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
@@ -65,6 +60,11 @@ variable "enable_nat_gateway" {
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
+}
+
+variable "instance_count" {
+  description = "Number of instances to launch"
+  default     = 1
 }
 
 variable "instance_initiated_shutdown_behavior" {
