@@ -55,11 +55,11 @@ output "availability_zone" {
 }
 
 output "accept_status" {
-  value = aws_vpc_peering_connection.peer.accept_status
+  value = aws_vpc_peering_connection.peer.*.accept_status
 }
 
 output "vpc_peering_id" {
-  value = aws_vpc_peering_connection.peer.id
+  value = aws_vpc_peering_connection.peer.*.id
 }
 
 output "vpn_gateway_id" {
