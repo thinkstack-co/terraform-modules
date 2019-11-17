@@ -150,7 +150,7 @@ resource "aws_vpn_connection" "vpn_connection" {
 
 resource "aws_vpn_connection_route" "vpn_route" {
   count                  = length(var.vpn_route_cidr_blocks)
-  destination_cidr_block = var.vpn_route_cidr_blocks
+  destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
   vpn_connection_id      = aws_vpn_connection.vpn_connection[count.index]
 }
 
