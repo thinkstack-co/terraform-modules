@@ -183,7 +183,7 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
-  root_block_device                    = {
+  root_block_device {
     delete_on_termination = var.root_delete_on_termination
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
