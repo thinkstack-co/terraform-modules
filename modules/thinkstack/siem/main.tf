@@ -170,7 +170,7 @@ resource "aws_key_pair" "deployer_key" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = var.availability_zone
+  availability_zone                    = aws_subnet.availability_zone[count.index]
   count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
@@ -194,7 +194,7 @@ resource "aws_instance" "ec2" {
   tenancy                = var.tenancy
   user_data              = var.user_data
   volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
-  vpc_security_group_ids = [var.vpc_security_group_ids]
+  vpc_security_group_ids = [aws_security_group.sg.id]
 }
 
 ###################################################
@@ -263,7 +263,6 @@ resource "aws_security_group" "sg" {
     tags        = merge(var.tags, map("Name", format("%s", var.security_group_name)))
     vpc_id      = aws_vpc.vpc.id
 }
-
 
 ###########################
 # EC2 - Security Group Rules
