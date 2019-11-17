@@ -23,12 +23,12 @@ variable "count" {
 }
 
 variable "customer_gw_name" {
-    type = "list"
+    type        = list
     description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
 }
 
 variable "created_by" {
-  type = "string"
+  type        = string
   description = "(Required) the full name of the person who is created the resource in terraform"
 }
 
@@ -148,19 +148,19 @@ variable "public_subnets_list" {
 }
 
 variable "root_delete_on_termination" {
-  type        = "string"
+  type        = string
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
 }
 
 variable "root_volume_size" {
-  type        = "string"
+  type        = string
   description = "(Optional) The size of the volume in gigabytes."
   default     = "100"
 }
 
 variable "root_volume_type" {
-  type        = "string"
+  type        = string
   description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
   default     = "gp2"
 }
@@ -191,7 +191,7 @@ variable "static_routes_only" {
 }
 
 variable "region" {
-  type        = "string"
+  type        = string
   description = "(Required) AWS region in which the VPC and all rersources will be created in"
 }
 
@@ -223,12 +223,12 @@ variable "vpc_cidr" {
 }
 
 variable "vpn_peer_ip_address" {
-    type        = "list"
+    type        = list
     description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
 }
 
 variable "vpn_route_cidr_blocks" {
-    type        = "list"
+    type        = list
     description = "(Required) CIDR block of the VPN subnets"
 }
 
