@@ -151,7 +151,7 @@ resource "aws_vpn_connection" "vpn_connection" {
 resource "aws_vpn_connection_route" "vpn_route" {
   count                  = length(var.vpn_route_cidr_blocks)
   destination_cidr_block = var.vpn_route_cidr_blocks
-  vpn_connection_id      = aws_vpn_connection.vpn_connection.id
+  vpn_connection_id      = aws_vpn_connection.vpn_connection[count.index]
 }
 
 ###########################
@@ -189,7 +189,7 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
   source_dest_check      = var.source_dest_check
-  subnet_id              = aws_subnet.private_subnets.id[count.index]
+  subnet_id              = aws_subnet.private_subnets[count.index]
   tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   tenancy                = var.tenancy
   user_data              = var.user_data
@@ -284,7 +284,7 @@ resource "aws_security_group_rule" "allow_icmp_inbound" {
     from_port           = -1
     to_port             = -1
     protocol            = "icmp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -294,7 +294,7 @@ resource "aws_security_group_rule" "tcp_22_inbound" {
     from_port           = 22
     to_port             = 22
     protocol            = "tcp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -304,7 +304,7 @@ resource "aws_security_group_rule" "udp_161_inbound" {
     from_port           = 161
     to_port             = 161
     protocol            = "udp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -314,7 +314,7 @@ resource "aws_security_group_rule" "udp_162_inbound" {
     from_port           = 162
     to_port             = 162
     protocol            = "udp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -324,7 +324,7 @@ resource "aws_security_group_rule" "tcp_135_inbound" {
     from_port           = 135
     to_port             = 135
     protocol            = "tcp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -334,7 +334,7 @@ resource "aws_security_group_rule" "tcp_443_inbound" {
     from_port           = 443
     to_port             = 443
     protocol            = "tcp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -344,7 +344,7 @@ resource "aws_security_group_rule" "udp_514_inbound" {
     from_port           = 514
     to_port             = 514
     protocol            = "udp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -354,7 +354,7 @@ resource "aws_security_group_rule" "udp_5480_inbound" {
     from_port           = 5480
     to_port             = 5480
     protocol            = "udp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }
@@ -364,7 +364,7 @@ resource "aws_security_group_rule" "tcp_5480_inbound" {
     from_port           = 5480
     to_port             = 5480
     protocol            = "tcp"
-    cidr_blocks         = var.cidr_blocks
+    cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
 }

@@ -271,3 +271,8 @@ variable "peer_vpc_id" {
   description = "(Required) The ID of the VPC with which you are creating the VPC Peering Connection."
   default     = ""
 }
+
+variable "sg_cidr_blocks" {
+  description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
+  type        = list
+}
