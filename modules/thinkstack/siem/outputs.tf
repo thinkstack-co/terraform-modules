@@ -58,7 +58,7 @@ output "accept_status" {
   value = aws_vpc_peering_connection.this.accept_status
 }
 
-output "id" {
+output "vpc_peering_id" {
   value = aws_vpc_peering_connection.this.id
 }
 
@@ -94,10 +94,6 @@ output "vpn_connection_tunnel2_address" {
     value = aws_vpn_connection.vpn_connection.*.tunnel2_address
 }
 
-output "key_name" {
-    value = aws_key_pair.deployer_key.key_name
-}
-
 output "instance_id" {
   description = "List of IDs of instances"
   value       = [aws_instance.ec2.*.id]
@@ -126,19 +122,4 @@ output "private_dns" {
 output "private_ip" {
   description = "List of private IP addresses assigned to the instances"
   value       = [aws_instance.ec2.*.private_ip]
-}
-
-output "security_groups" {
-  description = "List of associated security groups of instances"
-  value       = [aws_instance.ec2.*.security_groups]
-}
-
-output "vpc_security_group_ids" {
-  description = "List of associated security groups of instances, if running in non-default VPC"
-  value       = [aws_instance.ec2.*.vpc_security_group_ids]
-}
-
-output "subnet_id" {
-  description = "List of IDs of VPC subnets of instances"
-  value       = [aws_instance.ec2.*.subnet_id]
 }
