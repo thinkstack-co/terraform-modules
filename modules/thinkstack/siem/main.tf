@@ -83,20 +83,20 @@ resource "aws_route_table" "private_route_table" {
 resource "aws_route" "private_default_route_natgw" {
   count                  = var.enable_firewall ? 0 : length(var.azs)
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
+  nat_gateway_id         = aws_nat_gateway.natgw[count.index].id
+  route_table_id         = aws_route_table.private_route_table[count.index].id
 }
 
 resource "aws_route_table_association" "private" {
   count          = length(var.private_subnets_list)
-  route_table_id = element(aws_route_table.private_route_table.*.id, count.index)
-  subnet_id      = element(aws_subnet.private_subnets.*.id, count.index)
+  route_table_id = aws_route_table.private_route_table[count.index].id
+  subnet_id      = aws_subnet.private_subnets[count.index].id
 }
 
 resource "aws_route_table_association" "public" {
   count          = length(var.public_subnets_list)
   route_table_id = aws_route_table.public_route_table.id
-  subnet_id      = element(aws_subnet.public_subnets.*.id, count.index)
+  subnet_id      = aws_subnet.public_subnets[count.index].id
 }
 
 ###########################
@@ -141,7 +141,7 @@ resource "aws_customer_gateway" "customer_gateway" {
 
 resource "aws_vpn_connection" "vpn_connection" {
   count                 = length(var.vpn_peer_ip_address)
-  customer_gateway_id   = element(aws_customer_gateway.customer_gateway.*.id, count.index)
+  customer_gateway_id   = aws_customer_gateway.customer_gateway[count.index].id
   static_routes_only    = var.static_routes_only
   tags                  = merge(var.tags, map("Name", format("%s_vpn_connection", var.name)))
   type                  = var.vpn_type
@@ -209,12 +209,12 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled           = true
   alarm_actions             = []
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2.*.id, count.index))
+  alarm_name                = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   count                     = length(aws_instance.ec2)
   datapoints_to_alarm       = 2
   dimensions                = {
-    InstanceId = element(aws_instance.ec2.*.id, count.index)
+    InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -235,12 +235,12 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled           = true
   alarm_actions             = ["arn:aws:automate:${var.region}:ec2:recover"]
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name                = format("%s-system-alarm", element(aws_instance.ec2.*.id, count.index))
+  alarm_name                = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   count                     = length(aws_instance.ec2)
   datapoints_to_alarm       = 2
   dimensions                = {
-    InstanceId = element(aws_instance.ec2.*.id, count.index)
+    InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
