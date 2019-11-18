@@ -104,7 +104,7 @@ resource "aws_route_table_association" "public" {
 ###########################
 
 resource "aws_vpc_peering_connection" "peer" {
-  count         = var.enable_vpc_peering
+  count         = var.enable_vpc_peering ? 0 : length(var.peer_vpc_id)
   auto_accept   = var.auto_accept
   peer_owner_id = var.peer_owner_id
   peer_region   = var.peer_region
@@ -151,7 +151,7 @@ resource "aws_vpn_connection" "vpn_connection" {
 resource "aws_vpn_connection_route" "vpn_route" {
   count                  = length(var.vpn_route_cidr_blocks)
   destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
-  vpn_connection_id      = aws_vpn_connection.vpn_connection[count.index]
+  vpn_connection_id      = aws_vpn_connection.vpn_connection[count.index].id
 }
 
 ###########################
@@ -189,7 +189,7 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
   source_dest_check      = var.source_dest_check
-  subnet_id              = aws_subnet.private_subnets[count.index]
+  subnet_id              = aws_subnet.private_subnets[count.index].id
   tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   tenancy                = var.tenancy
   user_data              = var.user_data
