@@ -262,13 +262,91 @@ resource "aws_security_group" "sg" {
     name        = var.security_group_name
     tags        = merge(var.tags, map("Name", format("%s", var.security_group_name)))
     vpc_id      = aws_vpc.vpc.id
+
+    ingress {
+        from_port   = -1
+        to_port     = -1
+        protocol    = "icmp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Allow ICMP"
+    }
+
+    ingress {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Allow SSH"
+    }
+
+    ingress {
+        from_port   = 161
+        to_port     = 161
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = ""
+    }
+
+    ingress {
+        from_port   = 162
+        to_port     = 162
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = ""
+    }
+
+    ingress {
+        from_port   = 135
+        to_port     = 135
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = ""
+    }
+
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Allow HTTPS"
+    }
+
+    ingress {
+        from_port   = 514
+        to_port     = 514
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = ""
+    }
+
+    ingress {
+        from_port   = 5480
+        to_port     = 5480
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = ""
+    }
+    ingress {
+        from_port   = 5480
+        to_port     = 5480
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = ""
+    }
+
+    egress {
+      from_port       = 0
+      to_port         = 0
+      protocol        = "-1"
+      cidr_blocks     = ["0.0.0.0/0"]
+    }
 }
 
 ###########################
 # EC2 - Security Group Rules
 ###########################
 
-resource "aws_security_group_rule" "allow_all_outbound" {
+/*resource "aws_security_group_rule" "allow_all_outbound" {
     type                = "egress"
     from_port           = 0
     to_port             = 0
@@ -286,9 +364,9 @@ resource "aws_security_group_rule" "allow_icmp_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "tcp_22_inbound" {
+/*resource "aws_security_group_rule" "tcp_22_inbound" {
     type                = "ingress"
     from_port           = 22
     to_port             = 22
@@ -296,9 +374,9 @@ resource "aws_security_group_rule" "tcp_22_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "udp_161_inbound" {
+/*resource "aws_security_group_rule" "udp_161_inbound" {
     type                = "ingress"
     from_port           = 161
     to_port             = 161
@@ -306,9 +384,9 @@ resource "aws_security_group_rule" "udp_161_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "udp_162_inbound" {
+/*resource "aws_security_group_rule" "udp_162_inbound" {
     type                = "ingress"
     from_port           = 162
     to_port             = 162
@@ -316,9 +394,9 @@ resource "aws_security_group_rule" "udp_162_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "tcp_135_inbound" {
+/*resource "aws_security_group_rule" "tcp_135_inbound" {
     type                = "ingress"
     from_port           = 135
     to_port             = 135
@@ -326,9 +404,9 @@ resource "aws_security_group_rule" "tcp_135_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "tcp_443_inbound" {
+/*resource "aws_security_group_rule" "tcp_443_inbound" {
     type                = "ingress"
     from_port           = 443
     to_port             = 443
@@ -336,9 +414,9 @@ resource "aws_security_group_rule" "tcp_443_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "udp_514_inbound" {
+/*resource "aws_security_group_rule" "udp_514_inbound" {
     type                = "ingress"
     from_port           = 514
     to_port             = 514
@@ -346,9 +424,9 @@ resource "aws_security_group_rule" "udp_514_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "udp_5480_inbound" {
+/*resource "aws_security_group_rule" "udp_5480_inbound" {
     type                = "ingress"
     from_port           = 5480
     to_port             = 5480
@@ -356,9 +434,9 @@ resource "aws_security_group_rule" "udp_5480_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
+}*/
 
-resource "aws_security_group_rule" "tcp_5480_inbound" {
+/*resource "aws_security_group_rule" "tcp_5480_inbound" {
     type                = "ingress"
     from_port           = 5480
     to_port             = 5480
@@ -366,5 +444,4 @@ resource "aws_security_group_rule" "tcp_5480_inbound" {
     cidr_blocks         = var.sg_cidr_blocks
 
     security_group_id   = aws_security_group.sg.id
-}
-
+}*/
