@@ -170,7 +170,7 @@ resource "aws_key_pair" "deployer_key" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = element(aws_subnet.private_subnets.*.availability_zone, count.index)
+  availability_zone                    = aws_subnet.private_subnets[count.index].availability_zone
   count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
@@ -211,7 +211,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = length(aws_instance.ec2.id)
+  count                     = length(aws_instance.ec2)
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2.*.id, count.index)
@@ -237,7 +237,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", element(aws_instance.ec2.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = length(aws_instance.ec2.id)
+  count                     = length(aws_instance.ec2)
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2.*.id, count.index)
