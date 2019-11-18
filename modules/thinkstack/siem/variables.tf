@@ -192,7 +192,7 @@ variable "source_dest_check" {
 
 variable "static_routes_only" {
     description = "Flag to determine whether or not dynamic or static routing is enabled"
-    default     = false
+    default     = true
 }
 
 variable "region" {
