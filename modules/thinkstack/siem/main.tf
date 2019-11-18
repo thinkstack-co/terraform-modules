@@ -104,7 +104,7 @@ resource "aws_route_table_association" "public" {
 ###########################
 
 resource "aws_vpc_peering_connection" "peer" {
-  count         = var.enable_vpc_peering ? 0 : length(var.peer_vpc_id)
+  count         = var.enable_vpc_peering ? 0 : 1
   auto_accept   = var.auto_accept
   peer_owner_id = var.peer_owner_id
   peer_region   = var.peer_region
