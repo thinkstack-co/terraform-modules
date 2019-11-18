@@ -125,7 +125,7 @@ variable "placement_group" {
 
 variable "private_ip" {
   description = "Private IP address to associate with the instance in a VPC"
-  default     = "10.77.1.12"
+  default     = "10.77.1.70"
 }
 
 variable "private_propagating_vgws" {
