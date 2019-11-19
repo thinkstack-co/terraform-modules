@@ -272,6 +272,12 @@ variable "peer_vpc_id" {
   default     = ""
 }
 
+variable "peer_vpc_subnet" {
+  type        = string
+  description = "(Optional) The subnet cidr block of the VPC which will be a peer"
+  default     = ""
+}
+
 variable "sg_cidr_blocks" {
   description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
   type        = list
