@@ -245,7 +245,7 @@ variable "vpn_type" {
 variable "allow_remote_vpc_dns_resolution" {
   type        = string
   description = "(Optional) Allow a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. This is not supported for inter-region VPC peering."
-  default     = ""
+  default     = true
 }
 
 variable "auto_accept" {
