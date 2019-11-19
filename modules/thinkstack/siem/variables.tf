@@ -266,10 +266,10 @@ variable "peer_region" {
   default     = ""
 }
 
-variable "peer_vpc_id" {
-  type        = string
+variable "peer_vpc_ids" {
+  type        = list
   description = "(Required) The ID of the VPC with which you are creating the VPC Peering Connection."
-  default     = ""
+  default     = []
 }
 
 variable "peer_vpc_subnet" {
