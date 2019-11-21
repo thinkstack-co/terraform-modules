@@ -65,6 +65,11 @@ variable "ebs_volume_size" {
   default     = "8"
 }*/
 
+variable "region" {
+  type        = "string"
+  description = "(Required) VPC Region the resources exist in"
+}
+
 variable "tags" {
   default = {
     created_by  = "terraform"
