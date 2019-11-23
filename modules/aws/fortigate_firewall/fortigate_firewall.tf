@@ -112,6 +112,10 @@ resource "aws_instance" "ec2_instance" {
         volume_size = "${var.ebs_volume_size}"
         encrypted   = "${var.ebs_volume_encrypted}"
     }
+
+    lifecycle {
+      ignore_changes  = ["ebs_block_device"]
+    }
 }
 
 ###################################################
