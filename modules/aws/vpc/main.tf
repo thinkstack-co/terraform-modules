@@ -82,7 +82,7 @@ resource "aws_eip" "nateip" {
 }
 
 resource "aws_nat_gateway" "natgw" {
-  depends_on    = ["aws_internet_gateway.igw"]
+  depends_on    = [aws_internet_gateway.igw]
 
   allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0

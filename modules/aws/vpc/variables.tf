@@ -50,7 +50,7 @@ variable "enable_s3_endpoint" {
 }
 
 variable "fw_dmz_network_interface_id" {
-  type        = "list"
+  type        = list
   description = "Firewall DMZ eni id"
   default     = []
 }
