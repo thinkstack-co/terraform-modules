@@ -316,6 +316,7 @@ resource "aws_security_group" "sg" {
         cidr_blocks = var.sg_cidr_blocks
         description = ""
     }
+    
     ingress {
         from_port   = 5480
         to_port     = 5480
@@ -331,6 +332,7 @@ resource "aws_security_group" "sg" {
         cidr_blocks = var.sg_cidr_blocks
         description = "Firewall Syslog Ingester Port"
     }
+
     ingress {
         from_port   = 13001
         to_port     = 13001
@@ -346,6 +348,7 @@ resource "aws_security_group" "sg" {
         cidr_blocks = var.sg_cidr_blocks
         description = "Access Point Syslog Ingester Port"
     }
+
     ingress {
         from_port   = 13002
         to_port     = 13002
@@ -361,6 +364,7 @@ resource "aws_security_group" "sg" {
         cidr_blocks = var.sg_cidr_blocks
         description = "Windows Syslog Ingester Port"
     }
+
     ingress {
         from_port   = 13003
         to_port     = 13003
@@ -376,12 +380,29 @@ resource "aws_security_group" "sg" {
         cidr_blocks = var.sg_cidr_blocks
         description = "Routers and Switches Syslog Ingester Port"
     }
+
     ingress {
         from_port   = 13004
         to_port     = 13004
         protocol    = "tcp"
         cidr_blocks = var.sg_cidr_blocks
         description = "Routers and Switches Syslog Ingester Port"
+    }
+
+    ingress {
+        from_port   = 13022
+        to_port     = 13022
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
+    }
+
+    ingress {
+        from_port   = 13022
+        to_port     = 13022
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
     }
 
     egress {
