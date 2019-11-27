@@ -310,22 +310,6 @@ resource "aws_security_group" "sg" {
     }
 
     ingress {
-        from_port   = 443
-        to_port     = 443
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Allow HTTPS"
-    }
-
-    ingress {
-        from_port   = 514
-        to_port     = 514
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = ""
-    }
-
-    ingress {
         from_port   = 5480
         to_port     = 5480
         protocol    = "udp"
