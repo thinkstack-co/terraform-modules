@@ -340,6 +340,66 @@ resource "aws_security_group" "sg" {
         description = ""
     }
 
+    ingress {
+        from_port   = 13001
+        to_port     = 13001
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Firewall Syslog Ingester Port"
+    }
+    ingress {
+        from_port   = 13001
+        to_port     = 13001
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Firewall Syslog Ingester Port"
+    }
+
+    ingress {
+        from_port   = 13002
+        to_port     = 13002
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Access Point Syslog Ingester Port"
+    }
+    ingress {
+        from_port   = 13002
+        to_port     = 13002
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Access Point Syslog Ingester Port"
+    }
+
+    ingress {
+        from_port   = 13003
+        to_port     = 13003
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Windows Syslog Ingester Port"
+    }
+    ingress {
+        from_port   = 13003
+        to_port     = 13003
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Windows Syslog Ingester Port"
+    }
+
+    ingress {
+        from_port   = 13004
+        to_port     = 13004
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Routers and Switches Syslog Ingester Port"
+    }
+    ingress {
+        from_port   = 13004
+        to_port     = 13004
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Routers and Switches Syslog Ingester Port"
+    }
+
     egress {
       from_port       = 0
       to_port         = 0
