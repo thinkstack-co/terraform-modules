@@ -282,3 +282,8 @@ variable "sg_cidr_blocks" {
   description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
   type        = list
 }
+
+variable "mgmt_sg_cidr_blocks" {
+  description = "(Requirerd) Security group allowed cidr blocks which will allow ssh management of the SIEM collector"
+  type        = list
+}
