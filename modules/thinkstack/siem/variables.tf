@@ -14,7 +14,7 @@ variable "azs" {
 
 variable "bgp_asn" {
     description = "BGP ASN used for dynamic routing between the customer gateway and AWS gateway"
-    default     = 65001
+    default     = 65077
 }
 
 variable "customer_gw_name" {
