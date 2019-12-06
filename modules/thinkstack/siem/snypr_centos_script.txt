@@ -4,7 +4,7 @@ sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/late
 sudo systemctl enable amazon-ssm-agent
 sudo systemctl start amazon-ssm-agent
 sudo yum install -y wget
-sudo adduser securonix
-sudo usermod -aG wheel securonix
-sudo mkdir /Securonix
-sudo chown securonix:securonix /Securonix
+# sudo adduser securonix
+# sudo usermod -aG wheel securonix
+# sudo mkdir /Securonix
+# sudo chown securonix:securonix /Securonix
