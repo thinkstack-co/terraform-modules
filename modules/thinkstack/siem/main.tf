@@ -209,6 +209,10 @@ resource "aws_instance" "ec2" {
   user_data              = data.template_file.user_data.rendered
   volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   vpc_security_group_ids = [aws_security_group.sg.id]
+
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 }
 
 ###################################################
