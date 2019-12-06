@@ -203,6 +203,7 @@ variable "region" {
 variable "tags" {
   description = "A map of tags to add to all resources"
   default     = {
+    backup      = "true"
     created_by  = "Your Name"
     terraform   = "true"
     environment = "prod"
