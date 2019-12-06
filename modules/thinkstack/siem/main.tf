@@ -170,6 +170,14 @@ resource "aws_key_pair" "deployer_key" {
 }
 
 ###########################
+# EC2 - User Data
+###########################
+
+data "template_file" "user_data" {
+  template = "${file("./snypr_centos_script.txt")}"
+}
+
+###########################
 # EC2 - Instance
 ###########################
 

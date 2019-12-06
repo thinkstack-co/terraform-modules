@@ -64,7 +64,7 @@ variable "enable_vpc_peering" {
 
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
-  default     = ""
+  default     = "ssm-service-role"
 }
 
 variable "instance_count" {
@@ -219,7 +219,7 @@ variable "tenancy" {
 
 variable "user_data" {
   description = "The user data to provide when launching the instance"
-  default     = ""
+  default     = "data.template_file.user_data.rendered"
 }
 
 variable "vpc_cidr" {
