@@ -218,11 +218,6 @@ variable "tenancy" {
   default     = "default"
 }
 
-variable "user_data" {
-  description = "The user data to provide when launching the instance"
-  default     = data.template_file.user_data.rendered
-}
-
 variable "vpc_cidr" {
   description = "The CIDR block for the VPC"
   default     = "10.77.1.0/24"

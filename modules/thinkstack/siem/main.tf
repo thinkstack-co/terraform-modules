@@ -206,7 +206,7 @@ resource "aws_instance" "ec2" {
   subnet_id              = aws_subnet.private_subnets[count.index].id
   tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   tenancy                = var.tenancy
-  user_data              = var.user_data
+  user_data              = data.template_file.user_data.rendered
   volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   vpc_security_group_ids = [aws_security_group.sg.id]
 }
