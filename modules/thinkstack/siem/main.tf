@@ -174,7 +174,7 @@ resource "aws_key_pair" "deployer_key" {
 ###########################
 
 data "template_file" "user_data" {
-  template = "file("${path.module}/snypr_centos_script.txt")"
+  template = file("${path.module}/snypr_centos_script.txt")
 }
 
 ###########################
