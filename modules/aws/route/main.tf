@@ -3,7 +3,7 @@ terraform {
 }
 
 resource "aws_route" "route" {
-  count                       = length(var.route_table_id)
+  count                       = length(flatten(var.route_table_id))
   destination_cidr_block      = var.destination_cidr_block
   destination_ipv6_cidr_block = var.destination_ipv6_cidr_block
   egress_only_gateway_id      = var.egress_only_gateway_id
