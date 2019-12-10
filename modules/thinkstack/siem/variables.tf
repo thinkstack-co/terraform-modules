@@ -208,6 +208,7 @@ variable "tags" {
     terraform   = "true"
     environment = "prod"
     project     = "SIEM Implementation"
+    service     = "soc"
     team        = "Security Team"
     used_by     = "ThinkStack"
   }
