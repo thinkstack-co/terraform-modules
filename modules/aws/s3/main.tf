@@ -8,6 +8,11 @@ resource "aws_s3_bucket" "s3_bucket" {
     policy          = var.policy
     region          = var.region
 
+    logging {
+        target_bucket = var.target_bucket
+        target_prefix = var.target_prefix
+    }
+
     versioning {
         enabled     = var.versioning
         mfa_delete  = var.mfa_delete
