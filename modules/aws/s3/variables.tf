@@ -38,6 +38,18 @@ variable "tags" {
     }
 }
 
+variable "target_bucket" {
+    type        = "string"
+    description = "(Required) The name of the bucket that will receive the log objects."
+    default     = ""
+}
+
+variable "target_prefix" {
+    type        = "string"
+    description = "(Optional) To specify a key prefix for log objects."
+    default     = "log/"
+}
+
 variable "versioning" {
     description = "(Optional) A state of versioning (documented below)"
     default     = true
