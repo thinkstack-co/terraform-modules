@@ -161,7 +161,7 @@ variable "root_delete_on_termination" {
 variable "root_volume_size" {
   type        = string
   description = "(Optional) The size of the volume in gigabytes."
-  default     = "100"
+  default     = "300"
 }
 
 variable "root_volume_type" {
