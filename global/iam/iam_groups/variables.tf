@@ -41,3 +41,13 @@ variable "sms_connector_policy_arn" {
     description = "AWS Server Migration Service policy"
     default     = "arn:aws:iam::aws:policy/ServerMigrationConnector"
 }
+
+variable "system_admins_group_name" {
+    description = "IAM group for System Admins which allows access to EC2, RDS, S3, VPC, and Systems Manager"
+    default     = "system_admins"
+}
+
+variable "system_admins_policy_arn" {
+    description = "IAM System Admins group arn"
+    default     = "arn:aws:iam::aws:policy/PowerUserAccess"
+}

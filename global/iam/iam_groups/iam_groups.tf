@@ -48,3 +48,17 @@ resource "aws_iam_group_policy_attachment" "sms_connector_policy" {
     group       = aws_iam_group.sms_connector.name
     policy_arn  = var.sms_connector_policy_arn
 }
+
+resource "aws_iam_group" "system_admins" {
+  name          = var.system_admins_group_name
+}
+
+resource "aws_iam_group_policy_attachment" "system_admins" {
+    group       = aws_iam_group.system_admins.name
+    policy_arn  = var.system_admins_policy_arn
+}
+
+resource "aws_iam_group_policy_attachment" "system_admins_mfa" {
+    group       = aws_iam_group.system_admins.name
+    policy_arn  = var.mfa_policy_arn
+}
