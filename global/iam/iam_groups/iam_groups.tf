@@ -55,7 +55,7 @@ resource "aws_iam_group" "system_admins" {
 
 resource "aws_iam_group_policy_attachment" "system_admins" {
     group       = aws_iam_group.system_admins.name
-    policy_arn  = file(./iam_policies/system_admins/system-admins-policy.json)
+    policy_arn  = file("${path.module}/iam_policies/system_admins/system-admins-policy.json")
 }
 
 resource "aws_iam_group_policy_attachment" "system_admins_mfa" {
