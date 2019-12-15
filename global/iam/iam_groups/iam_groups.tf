@@ -1,5 +1,5 @@
 resource "aws_iam_group" "powerusers" {
-    name          = var.powerusers_group_name
+    name    = var.powerusers_group_name
 }
 
 resource "aws_iam_group_policy_attachment" "powerusers" {

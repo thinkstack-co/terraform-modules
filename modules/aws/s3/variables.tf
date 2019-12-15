@@ -39,21 +39,13 @@ variable "tags" {
 }
 
 variable "target_bucket" {
-<<<<<<< HEAD
     type        = string
-=======
-    type        = "string"
->>>>>>> master
     description = "(Required) The name of the bucket that will receive the log objects."
     default     = ""
 }
 
 variable "target_prefix" {
-<<<<<<< HEAD
     type        = string
-=======
-    type        = "string"
->>>>>>> master
     description = "(Optional) To specify a key prefix for log objects."
     default     = "log/"
 }
