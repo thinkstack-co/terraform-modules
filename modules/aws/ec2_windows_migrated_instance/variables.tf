@@ -1,5 +1,5 @@
-variable "ami_id" {
-  description = "The AMI to use"
+variable "ami" {
+  description = "ID of AMI to use for the instance"
 }
 
 variable "ebs_optimized" {
@@ -7,9 +7,9 @@ variable "ebs_optimized" {
   default     = false
 }
 
-variable "number_of_instances" {
-  description = "number of instances to make"
-  default = 2
+variable "count" {
+  description = "Number of instances to launch"
+  default     = 1
 }
 
 variable "subnet_id" {
@@ -36,6 +36,7 @@ variable "private_ip" {
 }
 
 variable "security_group_ids" {
+  type        = "list"
   description = "Lits of security group ids to attach to the instance"
 }
 
@@ -63,6 +64,11 @@ variable "ebs_volume_size" {
   description = "ebs volume disk size"
   default     = "8"
 }*/
+
+variable "region" {
+  type        = "string"
+  description = "(Required) VPC Region the resources exist in"
+}
 
 variable "tags" {
   default = {
