@@ -12,7 +12,7 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "count" {
+variable "instance_count" {
   description = "Number of instances to launch"
   default     = 1
 }
@@ -30,6 +30,12 @@ variable "ebs_block_device" {
 variable "ebs_optimized" {
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
+}
+
+variable "encrypted" {
+  type        = boolean
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
 }
 
 variable "ephemeral_block_device" {
@@ -137,11 +143,6 @@ variable "tenancy" {
 variable "user_data" {
   description = "The user data to provide when launching the instance"
   default     = ""
-}
-
-variable "volume_tags" {
-  description = "A mapping of tags to assign to the devices created by the instance at launch time"
-  default     = {}
 }
 
 variable "vpc_security_group_ids" {

@@ -26,6 +26,12 @@ variable "ebs_optimized" {
   default     = false
 }
 
+variable "encrypted" {
+  type        = boolean
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
+}
+
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
@@ -117,11 +123,6 @@ variable "tags" {
 variable "user_data" {
   description = "The user data to provide when launching the instance"
   default     = ""
-}
-
-variable "volume_tags" {
-  description = "A mapping of tags to assign to the devices created by the instance at launch time"
-  default     = {}
 }
 
 variable "vpc_id" {

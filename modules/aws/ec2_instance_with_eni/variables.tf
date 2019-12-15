@@ -115,11 +115,6 @@ variable "tags" {
   default     = {}
 }
 
-variable "volume_tags" {
-  description = "A mapping of tags to assign to the devices created by the instance at launch time"
-  default     = {}
-}
-
 variable "region" {
   type        = "string"
   description = "(Required) VPC Region the resources exist in"

@@ -14,6 +14,13 @@ variable "azs" {
 
 variable "bgp_asn" {
     description = "BGP ASN used for dynamic routing between the customer gateway and AWS gateway"
+<<<<<<< HEAD
+    default     = 65077
+}
+
+variable "customer_gw_name" {
+    type        = list
+=======
     default     = 65001
 }
 
@@ -24,11 +31,16 @@ variable "count" {
 
 variable "customer_gw_name" {
     type = "list"
+>>>>>>> master
     description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
 }
 
 variable "created_by" {
+<<<<<<< HEAD
+  type        = string
+=======
   type = "string"
+>>>>>>> master
   description = "(Required) the full name of the person who is created the resource in terraform"
 }
 
@@ -62,9 +74,25 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+<<<<<<< HEAD
+variable "enable_vpc_peering" {
+  description = "Boolean which should be set to true if you want to enable and set up vpc peering"
+  default     = false
+}
+
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = "ssm-service-role"
+}
+
+variable "instance_count" {
+  description = "Number of instances to launch"
+  default     = 1
+=======
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
+>>>>>>> master
 }
 
 variable "instance_initiated_shutdown_behavior" {
@@ -120,7 +148,11 @@ variable "placement_group" {
 
 variable "private_ip" {
   description = "Private IP address to associate with the instance in a VPC"
+<<<<<<< HEAD
+  default     = "10.77.1.70"
+=======
   default     = "10.77.1.12"
+>>>>>>> master
 }
 
 variable "private_propagating_vgws" {
@@ -148,12 +180,25 @@ variable "public_subnets_list" {
 }
 
 variable "root_delete_on_termination" {
+<<<<<<< HEAD
+  type        = string
+=======
   type        = "string"
+>>>>>>> master
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
 }
 
 variable "root_volume_size" {
+<<<<<<< HEAD
+  type        = string
+  description = "(Optional) The size of the volume in gigabytes."
+  default     = "300"
+}
+
+variable "root_volume_type" {
+  type        = string
+=======
   type        = "string"
   description = "(Optional) The size of the volume in gigabytes."
   default     = "100"
@@ -161,6 +206,7 @@ variable "root_volume_size" {
 
 variable "root_volume_type" {
   type        = "string"
+>>>>>>> master
   description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
   default     = "gp2"
 }
@@ -187,23 +233,42 @@ variable "source_dest_check" {
 
 variable "static_routes_only" {
     description = "Flag to determine whether or not dynamic or static routing is enabled"
+<<<<<<< HEAD
+    default     = true
+}
+
+variable "region" {
+  type        = string
+=======
     default     = false
 }
 
 variable "region" {
   type        = "string"
+>>>>>>> master
   description = "(Required) AWS region in which the VPC and all rersources will be created in"
 }
 
 variable "tags" {
   description = "A map of tags to add to all resources"
   default     = {
+<<<<<<< HEAD
+    backup      = "true"
+    created_by  = "Your Name"
+    terraform   = "true"
+    environment = "prod"
+    project     = "SIEM Implementation"
+    service     = "soc"
+    team        = "Security Team"
+    used_by     = "ThinkStack"
+=======
     created_by  = var.created_by
     terraform   = "true"
     environment = "prod"
     project     = "core_infrastructure"
     team        = "security_team"
     used_by     = "organization"
+>>>>>>> master
   }
 }
 
@@ -212,23 +277,34 @@ variable "tenancy" {
   default     = "default"
 }
 
+<<<<<<< HEAD
+=======
 variable "user_data" {
   description = "The user data to provide when launching the instance"
   default     = ""
 }
 
+>>>>>>> master
 variable "vpc_cidr" {
   description = "The CIDR block for the VPC"
   default     = "10.77.1.0/24"
 }
 
 variable "vpn_peer_ip_address" {
+<<<<<<< HEAD
+    type        = list
+=======
     type        = "list"
+>>>>>>> master
     description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
 }
 
 variable "vpn_route_cidr_blocks" {
+<<<<<<< HEAD
+    type        = list
+=======
     type        = "list"
+>>>>>>> master
     description = "(Required) CIDR block of the VPN subnets"
 }
 
@@ -236,3 +312,47 @@ variable "vpn_type" {
     description = "Type of VPN tunnel. Currently only supports ipsec.1"
     default     = "ipsec.1"
 }
+<<<<<<< HEAD
+
+variable "allow_remote_vpc_dns_resolution" {
+  type        = string
+  description = "(Optional) Allow a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. This is not supported for inter-region VPC peering."
+  default     = true
+}
+
+variable "auto_accept" {
+  type        = string
+  description = "(Optional) Accept the peering (both VPCs need to be in the same AWS account)."
+  default     = true
+}
+
+variable "peer_owner_id" {
+  type        = string
+  description = "(Optional) The AWS account ID of the owner of the peer VPC. Defaults to the account ID the AWS provider is currently connected to."
+  default     = ""
+}
+
+variable "peer_region" {
+  type        = string
+  description = "(Optional) The region of the accepter VPC of the [VPC Peering Connection]. auto_accept must be false, and use the aws_vpc_peering_connection_accepter to manage the accepter side."
+  default     = ""
+}
+
+variable "peer_vpc_ids" {
+  type        = list
+  description = "(Required) The ID of the VPC with which you are creating the VPC Peering Connection."
+  default     = []
+}
+
+variable "peer_vpc_subnet" {
+  type        = string
+  description = "(Optional) The subnet cidr block of the VPC which will be a peer"
+  default     = ""
+}
+
+variable "sg_cidr_blocks" {
+  description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
+  type        = list
+}
+=======
+>>>>>>> master

@@ -32,6 +32,12 @@ variable "ebs_optimized" {
   default     = false
 }
 
+variable "encrypted" {
+  type        = boolean
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
+}
+
 variable "ephemeral_block_device" {
   description = "Customize Ephemeral (also known as Instance Store) volumes on the instance"
   default     = []
@@ -137,11 +143,6 @@ variable "tenancy" {
 variable "user_data" {
   description = "The user data to provide when launching the instance"
   default     = ""
-}
-
-variable "volume_tags" {
-  description = "A mapping of tags to assign to the devices created by the instance at launch time"
-  default     = {}
 }
 
 variable "vpc_security_group_ids" {

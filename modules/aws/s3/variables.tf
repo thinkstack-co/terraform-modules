@@ -8,7 +8,7 @@ variable "bucket_prefix" {
 }
 
 variable "kms_master_key_id" {
-    type        = "string"
+    type        = string
     description = "(optional) The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
     default     = ""
 }
@@ -23,13 +23,13 @@ variable "region" {
 }
 
 variable "sse_algorithm" {
-    type        = "string"
+    type        = string
     description = "(required) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
     default     = "aws:kms"
 }
 
 variable "tags" {
-    type        = "map"
+    type        = map
     description = "(Optional) A mapping of tags to assign to the bucket."
     default     = {
         created_by  = "Zachary Hill"
@@ -39,13 +39,21 @@ variable "tags" {
 }
 
 variable "target_bucket" {
+<<<<<<< HEAD
+    type        = string
+=======
     type        = "string"
+>>>>>>> master
     description = "(Required) The name of the bucket that will receive the log objects."
     default     = ""
 }
 
 variable "target_prefix" {
+<<<<<<< HEAD
+    type        = string
+=======
     type        = "string"
+>>>>>>> master
     description = "(Optional) To specify a key prefix for log objects."
     default     = "log/"
 }
