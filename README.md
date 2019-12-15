@@ -12,5 +12,3 @@ When I began developing these modules, my initial design direction was to pre-pa
 - EC2 instance
 - Security group
 - Directory integration
-
-After spending time living and working with Terraform the design approach has changed. The most recent design approach is each module should be in bite size chunks allowing for easy plug and play.
