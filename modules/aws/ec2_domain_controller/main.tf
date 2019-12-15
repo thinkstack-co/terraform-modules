@@ -29,7 +29,7 @@ resource "aws_instance" "ec2_instance" {
     tags                   = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
     user_data              = var.user_data
     volume_tags            = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
-    vpc_security_group_ids = [var.vpc_security_group_ids]
+    vpc_security_group_ids = var.vpc_security_group_ids
 
     lifecycle {
         ignore_changes  = ["user_data"]
