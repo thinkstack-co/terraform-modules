@@ -9,7 +9,7 @@ terraform {
 resource "aws_iam_policy" "role_reading_policy" {
     name        = var.policy_name
     description = var.policy_description
-    policy      = file(path.module/azure-ad-sso-policy.json)
+    policy      = file("${path.module}"/azure-ad-sso-policy.json)
 }
 
 ##################################
