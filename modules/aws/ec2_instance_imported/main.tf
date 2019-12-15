@@ -24,6 +24,7 @@ resource "aws_instance" "ec2" {
   private_ip                           = var.private_ip
   root_block_device                    = {
     delete_on_termination = var.root_delete_on_termination
+    encrypted             = var.encrypted
     # iops                  = var.root_iops
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size

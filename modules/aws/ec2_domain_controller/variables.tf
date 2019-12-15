@@ -26,6 +26,12 @@ variable "ebs_optimized" {
   default     = false
 }
 
+variable "encrypted" {
+  type        = boolean
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
+}
+
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""

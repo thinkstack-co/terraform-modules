@@ -32,6 +32,12 @@ variable "ebs_optimized" {
   default     = false
 }
 
+variable "encrypted" {
+  type        = boolean
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
+}
+
 variable "ephemeral_block_device" {
   description = "Customize Ephemeral (also known as Instance Store) volumes on the instance"
   default     = []
