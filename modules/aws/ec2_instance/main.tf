@@ -9,7 +9,7 @@ resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = var.availability_zone
-  count                                = var.count
+  count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   ephemeral_block_device               = var.ephemeral_block_device
@@ -56,7 +56,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = aws_instance.ec2[count.index].id
@@ -83,7 +83,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = aws_instance.ec2[count.index].id
