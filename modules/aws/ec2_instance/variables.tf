@@ -33,7 +33,7 @@ variable "ebs_optimized" {
 }
 
 variable "encrypted" {
-  type        = boolean
+  type        = bool
   description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
   default     = true
 }
