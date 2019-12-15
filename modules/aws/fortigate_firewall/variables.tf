@@ -42,8 +42,8 @@ variable "tags" {
   }
 }
 
-variable "count" {
-  description = "number of instances to make"
+variable "number" {
+  description = "number of resources to make"
   default     = 2
 }
 

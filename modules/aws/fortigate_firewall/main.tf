@@ -26,7 +26,7 @@ resource "aws_security_group" "fortigate_fw_sg" {
 
 resource "aws_eip" "external_ip" {
   vpc   = true
-  count = var.count
+  count = var.number
 
   lifecycle {
     prevent_destroy = true
@@ -34,13 +34,13 @@ resource "aws_eip" "external_ip" {
 }
 
 resource "aws_eip_association" "fw_external_ip" {
-    count                   = var.count
+    count                   = var.number
     allocation_id           = element(aws_eip.external_ip.*.id, count.index)
     network_interface_id    = element(aws_network_interface.fw_public_nic.*.id, count.index)
 }
 
 resource "aws_network_interface" "fw_public_nic" {
-    count               = var.count
+    count               = var.number
     description         = var.public_nic_description
     private_ips         = var.wan_private_ips
     security_groups     = [aws_security_group.fortigate_fw_sg.id]
@@ -54,7 +54,7 @@ resource "aws_network_interface" "fw_public_nic" {
 }
 
 resource "aws_network_interface" "fw_private_nic" {
-    count               = var.count
+    count               = var.number
     description         = var.private_nic_description
     private_ips         = [element(var.lan_private_ips, count.index)]
     security_groups     = [aws_security_group.fortigate_fw_sg.id]
@@ -73,7 +73,7 @@ resource "aws_network_interface" "fw_private_nic" {
 }
 
 resource "aws_network_interface" "fw_dmz_nic" {
-    count               = var.enable_dmz ? var.count : 0
+    count               = var.enable_dmz ? var.number : 0
     description         = var.dmz_nic_description
     private_ips         = [element(var.dmz_private_ips, count.index)]
     security_groups     = [aws_security_group.fortigate_fw_sg.id]
@@ -93,7 +93,7 @@ resource "aws_network_interface" "fw_dmz_nic" {
 
 resource "aws_instance" "ec2_instance" {
     ami           = var.ami_id
-    count         = var.count
+    count         = var.number
     ebs_optimized = var.ebs_optimized
     instance_type = var.instance_type
     key_name      = var.key_name
@@ -136,7 +136,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
@@ -163,7 +163,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
