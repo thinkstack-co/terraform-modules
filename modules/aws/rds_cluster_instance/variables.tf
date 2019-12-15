@@ -16,9 +16,9 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "count" {
+variable "number" {
   type        = "string"
-  description = "The number of instances to create"
+  description = "The number of resources to create"
 }
 
 variable "cluster_identifier" {

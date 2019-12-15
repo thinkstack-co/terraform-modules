@@ -6,7 +6,7 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   apply_immediately               = var.apply_immediately
   auto_minor_version_upgrade      = var.auto_minor_version_upgrade
   availability_zone               = var.availability_zone
-  count                           = var.count
+  count                           = var.number
   cluster_identifier              = var.cluster_identifier
   db_subnet_group_name            = var.db_subnet_group_name
   db_parameter_group_name         = var.db_parameter_group_name
