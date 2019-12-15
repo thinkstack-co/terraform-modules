@@ -119,11 +119,6 @@ variable "user_data" {
   default     = ""
 }
 
-variable "volume_tags" {
-  description = "A mapping of tags to assign to the devices created by the instance at launch time"
-  default     = {}
-}
-
 variable "vpc_id" {
   description = "The VPC id to add the security group"
 }
