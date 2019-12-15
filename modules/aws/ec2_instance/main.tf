@@ -12,7 +12,7 @@ resource "aws_instance" "ec2" {
   count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
-  ephemeral_block_device               = var.ephemeral_block_device
+  # ephemeral_block_device               = var.ephemeral_block_device
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
