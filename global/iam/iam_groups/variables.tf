@@ -11,7 +11,7 @@ variable "name" {
 
 variable "path" {
     type        = string
-    description = "(Optional, default "/") Path in which to create the policy. See IAM Identifiers for more information."
+    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
     default     = "/"
 }
 
