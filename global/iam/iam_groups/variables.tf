@@ -1,3 +1,20 @@
+variable "description" {
+    type        = string
+    description = "(Optional, Forces new resource) Description of the IAM policy."
+}
+
+variable "name" {
+    type        = string
+    description = "(Optional, Forces new resource) The name of the policy. If omitted, Terraform will assign a random, unique name."
+    default     = "system_admins_policy"
+}
+
+variable "path" {
+    type        = string
+    description = "(Optional, default "/") Path in which to create the policy. See IAM Identifiers for more information."
+    default     = "/"
+}
+
 variable "powerusers_group_name" {
     description = "IAM group using the powerusers policy"
     default     = "power_users"
