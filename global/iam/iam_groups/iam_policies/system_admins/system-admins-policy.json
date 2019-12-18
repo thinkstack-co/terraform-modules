@@ -62,7 +62,7 @@
                 "s3:HeadBucket",
                 "ssm:*",
                 "trustedadvisor:*",
-                "workspaces:*",
+                "workspaces:*"
             ],
             "Resource": "*"
         }
