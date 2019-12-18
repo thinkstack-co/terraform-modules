@@ -1,5 +1,5 @@
 variable "delay_seconds" {
-  type        = "string"
+  type = string
   description = "(Optional) The time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds."
   default     = 0
 }
@@ -15,7 +15,7 @@ variable "message_retention_seconds" {
 }
 
 variable "name" {
-  type        = "string"
+  type = string
   description = "(Optional) This is the human-readable name of the queue. If omitted, Terraform will assign a random name."
 }
 
@@ -25,7 +25,7 @@ variable "tags" {
 }
 
 variable "visibility_timeout_seconds" {
-  type        = "string"
+  type = string
   description = "(Optional) The visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see AWS docs."
   default     = 30
 }

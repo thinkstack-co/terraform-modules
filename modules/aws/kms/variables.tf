@@ -14,24 +14,24 @@ variable "enable_key_rotation" {
 }
 
 variable "key_usage" {
-  type        = "string"
+  type = string
   description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
   default     = "ENCRYPT_DECRYPT"
 }
 
 variable "is_enabled" {
-  type        = "string"
+  type = string
   description = "(Optional) Specifies whether the key is enabled. Defaults to true."
   default     = true
 }
 
 variable "name" {
-  type        = "string"
+  type = string
   description = "(Optional) The display name of the alias. The name must start with the word 'alias' followed by a forward slash"
 }
 
 variable "policy" {
-  type        = "string"
+  type = string
   description = "(Optional) A valid policy JSON document."
   default     = ""
 }
