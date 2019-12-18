@@ -1,6 +1,7 @@
 variable "description" {
     type        = string
     description = "(Optional, Forces new resource) Description of the IAM policy."
+    default     = "System Admins Policy which allows for EC2 management, RDS management, snapshot management, and systems manager to name a few."
 }
 
 variable "name" {
