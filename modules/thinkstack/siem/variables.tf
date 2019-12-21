@@ -62,6 +62,12 @@ variable "enable_vpc_peering" {
   default     = false
 }
 
+variable "encrypted" {
+  type        = string
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
+}
+
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = "ssm-service-role"
@@ -100,7 +106,25 @@ variable "ipv6_addresses" {
 
 variable "key_name_prefix" {
     description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
-    default = "siem_keypair"
+    default     = "siem_keypair"
+}
+
+variable "log_volume_device_name" {
+  type        = string
+  description = "(Required) The device name to expose to the instance (for example, /dev/sdh or xvdh). See Device Naming on Linux Instances and Device Naming on Windows Instances for more information."
+  default     = "/dev/sdf"
+}
+
+variable "log_volume_size" {
+  type        = string
+  description = "(Optional) The size of the drive in GiBs."
+  default     = 300
+}
+
+variable "log_volume_type" {
+  type        = string
+  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
+  default     = "gp2"
 }
 
 variable "map_public_ip_on_launch" {

@@ -200,6 +200,7 @@ resource "aws_instance" "ec2" {
 
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
+    encrypted             = var.encrypted
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }
@@ -214,6 +215,26 @@ resource "aws_instance" "ec2" {
   lifecycle {
     ignore_changes = [user_data]
   }
+}
+
+######################
+# EBS Volume for logs
+######################
+
+resource "aws_ebs_volume" "log_volume" {
+  availability_zone = aws_subnet.private_subnets[count.index].availability_zone
+  count             = var.instance_count
+  encrypted         = var.encrypted
+  size              = var.log_volume_size
+  type              = var.log_volume_type
+  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+}
+
+resource "aws_volume_attachment" "log_volume_attachment" {
+  count       = var.instance_count
+  device_name = var.log_volume_device_name
+  instance_id = aws_instance.ec2[cound.index].id
+  volume_id   = aws_ebs_volume.log_volume[cound.index].id
 }
 
 ###################################################
