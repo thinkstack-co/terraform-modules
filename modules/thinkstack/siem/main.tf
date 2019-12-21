@@ -233,8 +233,8 @@ resource "aws_ebs_volume" "log_volume" {
 resource "aws_volume_attachment" "log_volume_attachment" {
   count       = var.instance_count
   device_name = var.log_volume_device_name
-  instance_id = aws_instance.ec2[cound.index].id
-  volume_id   = aws_ebs_volume.log_volume[cound.index].id
+  instance_id = aws_instance.ec2[count.index].id
+  volume_id   = aws_ebs_volume.log_volume[count.index].id
 }
 
 ###################################################
