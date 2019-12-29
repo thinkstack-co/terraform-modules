@@ -11,7 +11,7 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
         created_by            = "Zachary Hill"
         public_key            = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
         region                = var.aws_region
-        sg_cidr_blocks        = ["192.168.1.0/24", "10.1.1.0/24, "10.11.0.0/16"]
+        sg_cidr_blocks        = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
 
         customer_gw_name      = ["hq_edge"]
         vpn_peer_ip_address   = ["1.1.1.1"]
