@@ -58,7 +58,7 @@ variable "enable_nat_gateway" {
 }
 
 variable "enable_vpc_peering" {
-  description = "Boolean which should be set to true if you want to enable and set up vpc peering"
+  description = "(Required)Boolean which should be set to true if you want to enable and set up vpc peering"
   default     = false
 }
 
