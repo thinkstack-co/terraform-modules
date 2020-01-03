@@ -36,6 +36,7 @@ variable "private_ip" {
 }
 
 variable "security_group_ids" {
+  type = "list"
   description = "Lits of security group ids to attach to the instance"
 }
 
