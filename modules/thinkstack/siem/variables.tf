@@ -305,7 +305,7 @@ variable "sg_cidr_blocks" {
 }
 
 variable "iam_role_name" {
-  type        = "string"
+  type        = string
   description = "(Optional, Forces new resource) The name of the role. If omitted, Terraform will assign a random, unique name."
   default     = "siem-ssm-service-role"
 }
