@@ -55,6 +55,7 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
     enable_vpc_peering
     encrypted
     iam_instance_profile
+    iam_role_name
     instance_count
     instance_initiated_shutdown_behavior
     instance_type
