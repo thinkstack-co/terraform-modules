@@ -49,7 +49,7 @@ resource "aws_network_interface" "fw_public_nic" {
     tags                = merge(var.tags, map("Name", format("%s%d_public", var.instance_name_prefix, count.index + 1)))
 
     lifecycle {
-      ignore_changes  = ["subnet_id"]
+      ignore_changes  = [subnet_id]
     }
 }
 
