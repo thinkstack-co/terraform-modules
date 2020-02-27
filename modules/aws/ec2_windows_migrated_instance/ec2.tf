@@ -21,7 +21,7 @@ resource "aws_instance" "ec2_instance" {
         }*/
     
     lifecycle {
-        ignore_changes  = ["volume_tags"]
+        ignore_changes  = [volume_tags]
     }
 
 }
