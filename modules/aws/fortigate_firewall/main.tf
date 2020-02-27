@@ -68,7 +68,7 @@ resource "aws_network_interface" "fw_private_nic" {
     }
 
     lifecycle {
-          ignore_changes  = ["subnet_id"]
+          ignore_changes  = [subnet_id]
         }
 }
 
@@ -87,7 +87,7 @@ resource "aws_network_interface" "fw_dmz_nic" {
     }
 
     lifecycle {
-      ignore_changes  = ["subnet_id"]
+      ignore_changes  = [subnet_id]
     }
 }
 
@@ -118,7 +118,7 @@ resource "aws_instance" "ec2_instance" {
     }
 
     lifecycle {
-      ignore_changes  = ["ebs_block_device"]
+      ignore_changes  = [ebs_block_device]
     }
 }
 
