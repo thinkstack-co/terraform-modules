@@ -16,6 +16,11 @@ variable "subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
 }
 
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = ""
+}
+
 variable "instance_type" {
     description = "Select the instance type. Set in main.tf"
     default = "t2.medium"
