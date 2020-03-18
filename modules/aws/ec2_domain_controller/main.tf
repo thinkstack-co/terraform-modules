@@ -6,7 +6,7 @@ resource "aws_instance" "ec2_instance" {
     ami                                  = var.ami
     # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone
     # availability_zone                    = element(var.availability_zone, count.index)
-    count                                = var.count
+    count                                = var.number_of_instances
     disable_api_termination              = var.disable_api_termination
     ebs_optimized                        = var.ebs_optimized
     iam_instance_profile                 = var.iam_instance_profile

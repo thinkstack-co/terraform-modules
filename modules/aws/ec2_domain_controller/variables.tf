@@ -7,7 +7,7 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "count" {
+variable "number_of_instances" {
   description = "number of instances to make"
   default = 2
 }
