@@ -37,7 +37,7 @@ resource "aws_instance" "ec2_instance" {
 }
 
 resource "aws_vpc_dhcp_options" "dc_dns" {
-    domain_name_servers = [aws_instance.ec2_instance[*].private_ip]
+    domain_name_servers = aws_instance.ec2_instance[*].private_ip
     domain_name         = var.domain_name
     tags                = merge(var.tags, map("Name", format("%s-dhcp-options", var.name)))
 }
