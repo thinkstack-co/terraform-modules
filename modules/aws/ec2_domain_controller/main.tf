@@ -6,7 +6,7 @@ resource "aws_instance" "ec2_instance" {
     ami                                  = var.ami
     # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone
     # availability_zone                    = element(var.availability_zone, count.index)
-    count                                = var.number_of_instances
+    count                                = var.number
     disable_api_termination              = var.disable_api_termination
     ebs_optimized                        = var.ebs_optimized
     iam_instance_profile                 = var.iam_instance_profile
@@ -62,7 +62,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
@@ -89,7 +89,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
