@@ -29,7 +29,7 @@ variable "instance_id" {
 
 variable "manual_count" {
   description = "Overide for count if calculation isn't working"
-  default     = false
+  default     = 0
 }
 
 variable "nat_gateway_id" {

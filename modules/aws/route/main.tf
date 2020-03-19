@@ -1,5 +1,5 @@
 resource "aws_route" "route" {
-  count                       = "${var.manual_count} ? ${var.manual_count} : ${length(var.route_table_id)}"
+  count                       = "${var.manual_count > 0 ? var.manual_count : length(var.route_table_id)}"
   destination_cidr_block      = "${var.destination_cidr_block}"
   destination_ipv6_cidr_block = "${var.destination_ipv6_cidr_block}"
   egress_only_gateway_id      = "${var.egress_only_gateway_id}"
