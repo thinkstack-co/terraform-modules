@@ -27,6 +27,11 @@ variable "instance_id" {
   default = ""
 }
 
+variable "manual_count" {
+  description = "Overide for count if calculation isn't working"
+  default     = false
+}
+
 variable "nat_gateway_id" {
   type = "string"
   description = "(Optional) An ID of a VPC NAT gateway."
