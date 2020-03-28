@@ -1,5 +1,5 @@
 variable "ami" {
-  description = "ID of AMI to use for the instance"
+  description = "(Required) AMI ID to use when launching the instance"
 }
 
 variable "associate_public_ip_address" {
@@ -55,7 +55,7 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "instance_type" {
-  description = "The type of instance to start"
+  description = "The AWS instance type  to utilize for the specifications of the instance"
 }
 
 variable "ipv6_address_count" {

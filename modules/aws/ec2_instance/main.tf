@@ -2,9 +2,9 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
-######
+#############################
 # EC2 instance Module
-######
+#############################
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
