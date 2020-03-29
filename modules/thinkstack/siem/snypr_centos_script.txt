@@ -12,3 +12,9 @@ mount /dev/nvme1n1 /Securonix
 chown securonix:securonix /Securonix
 cp /etc/fstab /etc/fstab.orig
 echo /dev/nvme1n1 /Securonix xfs defaults,nofail 0 2 >> /etc/fstab
+mkdir /Securonix/scripts
+chown securonix:securonix /Securonix/scripts
+chown securonix:securonix /Securonix/scripts/*
+echo "find /Securonix/Ingester/import/in* -mtime +7 -exec rm {} \;" >> /Securonix/scripts/syslog_cleanup.sh
+chmod +x /Securonix/scripts/syslog_cleanup.sh
+crontab -u securonix -l > ~/temp_cron && echo "0 * * * * /Securonix/scripts/syslog_cleanup.sh" >> ~/temp_cron && crontab -u securonix ~/temp_cron && rm ~/temp_cron
