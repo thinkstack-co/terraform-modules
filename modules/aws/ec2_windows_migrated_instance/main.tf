@@ -11,7 +11,7 @@ resource "aws_instance" "ec2_instance" {
     key_name                = var.key_name
     user_data               = var.user_data
     private_ip              = var.private_ip
-    vpc_security_group_ids  = [var.security_group_ids]
+    vpc_security_group_ids  = var.security_group_ids
     volume_tags             = merge(var.tags, map("Name", format("%s%01d", var.instance_name_prefix, count.index + 1)))
     tags                    = merge(var.tags, map("Name", format("%s%01d", var.instance_name_prefix, count.index + 1)))
 /*    root_block_device {
@@ -25,7 +25,7 @@ resource "aws_instance" "ec2_instance" {
         }*/
     
     lifecycle {
-        ignore_changes  = ["user_data"]
+        ignore_changes  = [user_data]
     }
 
 }

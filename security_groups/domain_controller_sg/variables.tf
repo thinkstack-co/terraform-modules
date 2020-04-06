@@ -1,6 +1,6 @@
 variable "cidr_blocks" {
   description = "security group allowed cidr blocks"
-  type        = "list"
+  type        = list
 }
 
 variable "name" {

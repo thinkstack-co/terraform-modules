@@ -1,10 +1,10 @@
 variable "description" {
-  type = "string"
+  type = string
   description = "(Optional) The description of the DB subnet group. Defaults to 'Managed by Terraform'."
 }
 
 variable "name" {
-  type = "string"
+  type = string
   description = "(Optional, Forces new resource) The name of the DB subnet group. If omitted, Terraform will assign a random, unique name."
 }
 
@@ -14,7 +14,7 @@ variable "subnet_ids" {
 }
 
 variable "tags" {
-  type = "map"
+  type = map
   description = "(Optional) A mapping of tags to assign to the resource."
   default = {}
 }

@@ -6,7 +6,7 @@ resource "aws_instance" "ec2_instance" {
     ami                                  = var.ami
     # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone
     # availability_zone                    = element(var.availability_zone, count.index)
-    count                                = var.count
+    count                                = var.number
     disable_api_termination              = var.disable_api_termination
     ebs_optimized                        = var.ebs_optimized
     iam_instance_profile                 = var.iam_instance_profile
@@ -16,7 +16,7 @@ resource "aws_instance" "ec2_instance" {
     monitoring                           = var.monitoring
     placement_group                      = var.placement_group
     private_ip                           = element(var.private_ip, count.index)
-    root_block_device                    = {
+    root_block_device {
         delete_on_termination = var.root_delete_on_termination
         encrypted             = var.encrypted
         # iops                = var.root_iops
@@ -29,15 +29,15 @@ resource "aws_instance" "ec2_instance" {
     tags                   = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
     user_data              = var.user_data
     volume_tags            = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
-    vpc_security_group_ids = [var.vpc_security_group_ids]
+    vpc_security_group_ids = var.vpc_security_group_ids
 
     lifecycle {
-        ignore_changes  = ["user_data"]
+        ignore_changes  = [user_data]
     }
 }
 
 resource "aws_vpc_dhcp_options" "dc_dns" {
-    domain_name_servers = [aws_instance.ec2_instance.*.private_ip]
+    domain_name_servers = aws_instance.ec2_instance[*].private_ip
     domain_name         = var.domain_name
     tags                = merge(var.tags, map("Name", format("%s-dhcp-options", var.name)))
 }
@@ -62,7 +62,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
@@ -89,7 +89,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2_instance.*.id, count.index)

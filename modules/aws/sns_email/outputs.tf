@@ -1,3 +1,3 @@
 output "id" {
-  value = "${aws_sns_topic.topic.id}"
+  value = aws_sns_topic.topic.id
 }

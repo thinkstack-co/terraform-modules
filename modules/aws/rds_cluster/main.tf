@@ -22,7 +22,7 @@ resource "aws_rds_cluster" "cluster" {
   port                                = var.port
   preferred_backup_window             = var.preferred_backup_window
   preferred_maintenance_window        = var.preferred_maintenance_window
-  scaling_configuration               = var.scaling_configuration
+  # scaling_configuration               = var.scaling_configuration
   skip_final_snapshot                 = var.skip_final_snapshot
   snapshot_identifier                 = var.snapshot_identifier
   storage_encrypted                   = var.storage_encrypted

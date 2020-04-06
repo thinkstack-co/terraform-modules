@@ -58,8 +58,14 @@ variable "enable_nat_gateway" {
 }
 
 variable "enable_vpc_peering" {
-  description = "Boolean which should be set to true if you want to enable and set up vpc peering"
+  description = "(Required)Boolean which should be set to true if you want to enable and set up vpc peering"
   default     = false
+}
+
+variable "encrypted" {
+  type        = string
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
 }
 
 variable "iam_instance_profile" {
@@ -100,7 +106,25 @@ variable "ipv6_addresses" {
 
 variable "key_name_prefix" {
     description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
-    default = "siem_keypair"
+    default     = "siem_keypair"
+}
+
+variable "log_volume_device_name" {
+  type        = string
+  description = "(Required) The device name to expose to the instance (for example, /dev/sdh or xvdh). See Device Naming on Linux Instances and Device Naming on Windows Instances for more information."
+  default     = "/dev/sdf"
+}
+
+variable "log_volume_size" {
+  type        = string
+  description = "(Optional) The size of the drive in GiBs."
+  default     = 300
+}
+
+variable "log_volume_type" {
+  type        = string
+  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
+  default     = "gp2"
 }
 
 variable "map_public_ip_on_launch" {
@@ -278,4 +302,10 @@ variable "peer_vpc_subnet" {
 variable "sg_cidr_blocks" {
   description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
   type        = list
+}
+
+variable "iam_role_name" {
+  type        = string
+  description = "(Optional, Forces new resource) The name of the role. If omitted, Terraform will assign a random, unique name."
+  default     = "siem-ssm-service-role"
 }

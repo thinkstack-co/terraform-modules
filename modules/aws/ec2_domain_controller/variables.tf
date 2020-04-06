@@ -7,7 +7,7 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "count" {
+variable "number" {
   description = "number of instances to make"
   default = 2
 }
@@ -27,7 +27,7 @@ variable "ebs_optimized" {
 }
 
 variable "encrypted" {
-  type        = boolean
+  type        = bool
   description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
   default     = true
 }
@@ -73,24 +73,24 @@ variable "private_ip" {
 }
 
 variable "region" {
-  type        = "string"
+  type = string
   description = "(Required) VPC Region the resources exist in"
 }
 
 variable "root_delete_on_termination" {
-  type        = "string"
+  type = string
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
 }
 
 variable "root_volume_size" {
-  type        = "string"
+  type = string
   description = "(Optional) The size of the volume in gigabytes."
   default     = "100"
 }
 
 variable "root_volume_type" {
-  type        = "string"
+  type = string
   description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
   default     = "gp2"
 }
@@ -131,5 +131,5 @@ variable "vpc_id" {
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type        = "list"
+  type = list
 }

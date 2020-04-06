@@ -36,7 +36,7 @@ variable "private_ip" {
 }
 
 variable "security_group_ids" {
-  type        = "list"
+  type = list
   description = "Lits of security group ids to attach to the instance"
 }
 
@@ -66,7 +66,7 @@ variable "ebs_volume_size" {
 }*/
 
 variable "region" {
-  type        = "string"
+  type = string
   description = "(Required) VPC Region the resources exist in"
 }
 

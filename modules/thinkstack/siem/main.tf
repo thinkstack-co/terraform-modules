@@ -62,7 +62,7 @@ resource "aws_nat_gateway" "natgw" {
 ###########################
 
 resource "aws_route_table" "public_route_table" {
-  propagating_vgws = var.public_propagating_vgws
+  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
   tags             = merge(var.tags, map("Name", format("%s-rt-public", var.name)))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -75,7 +75,7 @@ resource "aws_route" "public_default_route" {
 
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
-  propagating_vgws = var.private_propagating_vgws
+  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
   tags             = merge(var.tags, map("Name", format("%s-rt-private-%s", var.name, element(var.azs, count.index))))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -200,6 +200,7 @@ resource "aws_instance" "ec2" {
 
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
+    encrypted             = var.encrypted
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }
@@ -214,6 +215,26 @@ resource "aws_instance" "ec2" {
   lifecycle {
     ignore_changes = [user_data]
   }
+}
+
+######################
+# EBS Volume for logs
+######################
+
+resource "aws_ebs_volume" "log_volume" {
+  availability_zone = aws_subnet.private_subnets[count.index].availability_zone
+  count             = var.instance_count
+  encrypted         = var.encrypted
+  size              = var.log_volume_size
+  type              = var.log_volume_type
+  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+}
+
+resource "aws_volume_attachment" "log_volume_attachment" {
+  count       = var.instance_count
+  device_name = var.log_volume_device_name
+  instance_id = aws_instance.ec2[count.index].id
+  volume_id   = aws_ebs_volume.log_volume[count.index].id
 }
 
 ###################################################
@@ -377,3 +398,60 @@ resource "aws_security_group" "sg" {
       cidr_blocks     = ["0.0.0.0/0"]
     }
 }
+
+###################################################
+# Systems Manager
+###################################################
+
+##################
+# IAM role
+##################
+
+resource "aws_iam_role" "this" {
+  name               = var.iam_role_name
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "this_attach" {
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+##################
+# IAM role profile
+##################
+
+resource "aws_iam_instance_profile" "this" {
+  name = var.iam_role_name
+  role = aws_iam_role.this.name
+}
+
+##################
+# IAM role policy
+##################
+
+/*resource "type" "name" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}*/
+
+##################
+# SSM activation
+##################
+
+##################
+# SSM association
+##################
