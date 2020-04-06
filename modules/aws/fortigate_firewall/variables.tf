@@ -4,14 +4,14 @@ variable "dmz_nic_description" {
 }
 
 variable "dmz_private_ips" {
-  type = "list"
+  type = list
   description = "(Optional) List of private IPs to assign to the ENI."
   default     = ["10.11.101.10", "10.11.102.10"]
 }
 
 variable "dmz_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = "list"
+  type = list
 }
 
 variable "enable_dmz" {
@@ -49,12 +49,12 @@ variable "number" {
 
 variable "public_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = "list"
+  type = list
 }
 
 variable "private_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = "list"
+  type = list
 }
 
 variable "private_nic_description" {
@@ -68,13 +68,13 @@ variable "public_nic_description" {
 }
 
 variable "wan_private_ips" {
-  type = "list"
+  type = list
   description = "(Optional) Private IP addresses to associate with the instance in a VPC."
   default     = ["10.11.201.10", "10.11.202.10"]
 }
 
 variable "lan_private_ips" {
-  type = "list"
+  type = list
   description = "(Optional) List of private IPs to assign to the ENI."
   default     = ["10.11.1.10", "10.11.2.10"]
 }
@@ -108,7 +108,7 @@ variable "instance_name_prefix" {
 }
 
 variable "region" {
-  type        = "string"
+  type = string
   description = "(Required) VPC Region the resources exist in"
 }
 

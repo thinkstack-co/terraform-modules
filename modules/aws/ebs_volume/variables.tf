@@ -13,33 +13,34 @@ variable "iops" {
 }
 
 variable "size" {
-  type = "string"
+  type        = string
   description = "size of the ebs volume"
 }
 
 variable "snapshot_id" {
-  type = "string"
+  type        = string
   description = "snapshot id to base the volume from"
-  default = ""
+  default     = ""
 }
 
 variable "type" {
-  type = "string"
+  type        = string
   description = "ebs volume type (example gp2, io1, standard, sc1, st1)"
-  default = "gp2"
+  default     = "gp2"
 }
 
 variable "tags" {
   description = "tags to assign to the ebs volume"
-  default = {}
+  default     = {}
 }
 
 variable "device_name" {
-  type = "string"
-  description = "The device name to expose to the instance (for example, /dev/sdh or xvdh)"
+  type        = string
+  description = "The device name to expose to the instance (for example, /dev/sdh or xvdf)"
+  default     = "xvdf"
 }
 
 variable "instance_id" {
-  type = "string"
+  type        = string
   description = "ID of the instance to attach to"
 }

@@ -24,7 +24,7 @@ variable "handler" {
 }
 
 variable "memory_size" {
-    type = "string"
+    type = string
     description = "(Optional) Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128. See Limits"
     default = 128
 }

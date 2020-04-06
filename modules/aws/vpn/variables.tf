@@ -8,7 +8,7 @@ variable "availability_zone" {
 }
 
 variable "customer_gw_name" {
-    type = "list"
+    type = list
     description = "(Required) List of names to use for the customer gateways"
 }
 
@@ -28,7 +28,7 @@ variable "bgp_asn" {
 }
 
 variable "ip_address" {
-    type        = "list"
+    type = list
     description = "Customer gateway external IP address"
 }
 

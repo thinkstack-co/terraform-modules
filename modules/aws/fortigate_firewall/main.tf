@@ -49,7 +49,7 @@ resource "aws_network_interface" "fw_public_nic" {
     tags                = merge(var.tags, map("Name", format("%s%d_public", var.instance_name_prefix, count.index + 1)))
 
     lifecycle {
-      ignore_changes  = ["subnet_id"]
+      ignore_changes  = [subnet_id]
     }
 }
 
@@ -68,7 +68,7 @@ resource "aws_network_interface" "fw_private_nic" {
     }
 
     lifecycle {
-          ignore_changes  = ["subnet_id"]
+          ignore_changes  = [subnet_id]
         }
 }
 
@@ -87,7 +87,7 @@ resource "aws_network_interface" "fw_dmz_nic" {
     }
 
     lifecycle {
-      ignore_changes  = ["subnet_id"]
+      ignore_changes  = [subnet_id]
     }
 }
 
@@ -118,7 +118,7 @@ resource "aws_instance" "ec2_instance" {
     }
 
     lifecycle {
-      ignore_changes  = ["ebs_block_device"]
+      ignore_changes  = [ebs_block_device]
     }
 }
 

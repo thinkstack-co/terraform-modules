@@ -4,9 +4,9 @@ terraform {
 
 resource "aws_lambda_function" "lambda_function" {
     description         = var.description
-    environment         = {
+    environment {
         variables   = var.variables
-        }
+    }
     filename            = var.filename
     function_name       = var.function_name
     handler             = var.handler

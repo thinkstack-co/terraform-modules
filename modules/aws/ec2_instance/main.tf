@@ -2,9 +2,9 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
-######
+#############################
 # EC2 instance Module
-######
+#############################
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
@@ -12,7 +12,7 @@ resource "aws_instance" "ec2" {
   count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
-  ephemeral_block_device               = var.ephemeral_block_device
+  # ephemeral_block_device               = var.ephemeral_block_device
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
@@ -22,22 +22,24 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
-  root_block_device                    = {
+  
+  root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }
+
   source_dest_check      = var.source_dest_check
   subnet_id              = var.subnet_id
   tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   tenancy                = var.tenancy
   user_data              = var.user_data
   volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
-  vpc_security_group_ids = [var.vpc_security_group_ids]
+  vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
-    ignore_changes  = ["user_data"]
+    ignore_changes  = [user_data, volume_tags]
   }
 }
 

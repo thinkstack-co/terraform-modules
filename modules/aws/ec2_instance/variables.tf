@@ -1,5 +1,5 @@
 variable "ami" {
-  description = "ID of AMI to use for the instance"
+  description = "(Required) AMI ID to use when launching the instance"
 }
 
 variable "associate_public_ip_address" {
@@ -55,7 +55,7 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "instance_type" {
-  description = "The type of instance to start"
+  description = "The AWS instance type  to utilize for the specifications of the instance"
 }
 
 variable "ipv6_address_count" {
@@ -93,24 +93,24 @@ variable "private_ip" {
 }
 
 variable "region" {
-  type        = "string"
+  type        = string
   description = "(Required) VPC Region the resources exist in"
 }
 
 variable "root_delete_on_termination" {
-  type        = "string"
+  type        = string
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
 }
 
 variable "root_volume_size" {
-  type        = "string"
+  type        = string
   description = "(Optional) The size of the volume in gigabytes."
   default     = "100"
 }
 
 variable "root_volume_type" {
-  type        = "string"
+  type        = string
   description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
   default     = "gp2"
 }
@@ -147,5 +147,5 @@ variable "user_data" {
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type        = "list"
+  type        = list
 }

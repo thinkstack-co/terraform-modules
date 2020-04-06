@@ -8,7 +8,7 @@ variable "action" {
 }
 
 variable "function_name" {
-    type        = "string"
+    type = string
     description = "Name of the lambda function"
 }
 
@@ -19,5 +19,5 @@ variable "principal" {
 
 variable "source_arn" {
     description = "arn of the resource to allow permission to run the lambda function"
-    type        = "string"
+    type = string
 }
