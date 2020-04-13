@@ -3,6 +3,10 @@ variable "acl" {
     default     = "private"
 }
 
+variable "bucket" {
+    description = "(Optional, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name."
+}
+
 variable "bucket_prefix" {
     description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
 }
