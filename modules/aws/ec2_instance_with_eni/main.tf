@@ -3,19 +3,17 @@ terraform {
 }
 
 resource "aws_network_interface" "eni" {
+  count               = var.eni_number
   description         = var.description
-  subnet_id           = var.subnet_id
-  private_ips         = var.private_ips
-  private_ips_count   = var.private_ips_count
+  subnet_id           = element(var.subnet_id, [count.index])
+  private_ips         = element(var.private_ips, [count.index])
+  private_ips_count   = element(var.private_ips_count, [count.index])
   security_groups     = var.vpc_security_group_ids
   source_dest_check   = var.source_dest_check
   tags                = var.tags
 
   # Attachment varaible conflicts with the attachment within the aws_instance resource
   # attachment          = var.attachment
-
-  # Do not need to set the private IPs manually as they will be set automatically via DHCP
-  # private_ips         = var.private_ips
 
   lifecycle           = {
     prevent_destroy   = true
@@ -26,7 +24,7 @@ resource "aws_instance" "ec2" {
   ami                                  = var.ami
   # associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = var.availability_zone
-  count                                = var.count
+  count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   # ebs_block_device                     = var.ebs_block_device
@@ -76,7 +74,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2.*.id, count.index)
@@ -103,7 +101,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", element(aws_instance.ec2.*.id, count.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.count
+  count                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = element(aws_instance.ec2.*.id, count.index)
