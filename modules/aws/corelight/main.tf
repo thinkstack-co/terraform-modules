@@ -50,7 +50,7 @@ resource "aws_lb" "corelight_nlb" {
   enable_deletion_protection = var.enable_deletion_protection
   internal                   = var.internal
   load_balancer_type         = "network"
-  name                       = var.name
+  name                       = var.nlb_name
   subnets                    = var.listener_subnet_ids
   tags                       = var.tags
 }
@@ -113,7 +113,6 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
 
-  source_dest_check      = var.source_dest_check
   tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   tenancy                = var.tenancy
   user_data              = var.user_data

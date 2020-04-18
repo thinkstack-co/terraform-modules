@@ -50,6 +50,12 @@ variable "internal" {
   default     = true
 }
 
+variable "nlb_name" {
+  type        = string
+  description = "(Optional) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb."
+  default     = "aws-prod-corelight-nlb"
+}
+
 variable "number" {
   description = "(Optional) Number of instances and resources to launch"
   default     = 1

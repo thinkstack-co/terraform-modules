@@ -60,6 +60,7 @@ Utilized to deploy a corelight collector
     mgmt_nic_private_ips
     monitoring
     name
+    nlb_name
     number
     placement_group
     root_delete_on_termination
