@@ -127,7 +127,7 @@ resource "aws_ebs_volume" "logs" {
 
 resource "aws_volume_attachment" "log_volume_attach" {
   count       = var.number
-  device_name = var.device_name
+  device_name = var.log_volume_device_name
   instance_id = element(aws_instance.ec2.*.id, count.index)
   volume_id   = element(aws_ebs_volume.vol.*.id, count.index)
 }

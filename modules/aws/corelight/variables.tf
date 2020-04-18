@@ -192,6 +192,12 @@ variable "user_data" {
   description = "(Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421'"
 }
 
+variable "log_volume_device_name" {
+  type        = string
+  description = "The device name to expose to the instance (for example, /dev/sdh or xvdf)"
+  default     = "xvdf"
+}
+
 variable "log_volume_size" {
   type        = string
   description = "(Optional) The size of the volume in gigabytes."
@@ -202,10 +208,4 @@ variable "log_volume_type" {
   type        = string
   description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
   default     = "gp2"
-}
-
-variable "device_name" {
-  type        = string
-  description = "The device name to expose to the instance (for example, /dev/sdh or xvdf)"
-  default     = "xvdf"
 }

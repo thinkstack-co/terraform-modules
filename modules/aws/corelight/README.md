@@ -50,6 +50,9 @@ Utilized to deploy a corelight collector
     key_name
     listener_nic_description
     listener_nic_private_ips
+    log_volume_device_name
+    log_volume_size
+    log_volume_type
     mgmt_cidr_blocks
     mgmt_nic_description
     mgmt_nic_private_ips
