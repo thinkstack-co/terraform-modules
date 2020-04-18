@@ -174,12 +174,10 @@ variable "source_dest_check" {
 }
 
 variable "mgmt_subnet_id" {
-  type        = list
   description = "(Required) The VPC Subnet ID for the mgmt nic"
 }
 
 variable "listener_subnet_id" {
-  type        = list
   description = "(Required) The VPC Subnet ID to launch in"
 }
 
