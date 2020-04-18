@@ -49,7 +49,7 @@ resource "aws_security_group" "corelight_sg" {
 resource "aws_lb" "corelight_nlb" {
   enable_deletion_protection = var.enable_deletion_protection
   internal                   = var.internal
-  load_balancer_type         = var.network
+  load_balancer_type         = "network"
   name                       = var.name
   subnets                    = var.listener_subnet_ids
   tags                       = var.tags

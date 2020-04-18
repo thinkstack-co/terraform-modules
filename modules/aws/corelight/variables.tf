@@ -50,12 +50,6 @@ variable "internal" {
   default     = true
 }
 
-variable "load_balancer_type" {
-  type        = string
-  description = "(Optional) The type of load balancer to create. Possible values are application or network. The default value is application."
-  default     = "network"
-}
-
 variable "number" {
   description = "(Optional) Number of instances and resources to launch"
   default     = 1
