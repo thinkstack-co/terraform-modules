@@ -79,7 +79,7 @@ variable "associate_public_ip_address" {
 }
 
 variable "availability_zone" {
-  type        = list[string]
+  type        = list(string)
   description = "(Required) The AZ to start the instance in"
 }
 
