@@ -38,6 +38,24 @@ variable "tags" {
   }
 }
 
+variable "enable_deletion_protection" {
+  type        = bool
+  description = "(Optional) If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false."
+  default     = false
+}
+
+variable "internal" {
+  type        = bool
+  description = "(Optional) If true, the LB will be internal."
+  default     = true
+}
+
+variable "load_balancer_type" {
+  type        = string
+  description = "(Optional) The type of load balancer to create. Possible values are application or network. The default value is application."
+  default     = "network"
+}
+
 variable "number" {
   description = "(Optional) Number of instances and resources to launch"
   default     = 1
@@ -70,12 +88,6 @@ variable "mgmt_nic_private_ips" {
 variable "ami" {
   type        = string
   description = "(Required) AMI ID to use when launching the instance"
-}
-
-variable "associate_public_ip_address" {
-  type        = bool
-  description = "(Optional) If true, the EC2 instance will have associated public IP address"
-  default     = false
 }
 
 variable "availability_zones" {

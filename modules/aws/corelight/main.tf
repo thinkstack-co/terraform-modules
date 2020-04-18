@@ -43,6 +43,20 @@ resource "aws_security_group" "corelight_sg" {
 }
 
 #######################
+# Network Load Balancer
+#######################
+
+resource "aws_lb" "corelight_nlb" {
+  enable_deletion_protection = var.enable_deletion_protection
+  internal                   = var.internal
+  load_balancer_type         = var.network
+  name                       = var.name
+  subnets                    = var.listener_subnet_ids
+  tags                       = var.tags
+}
+
+
+#######################
 # ENI
 #######################
 
@@ -76,7 +90,6 @@ resource "aws_network_interface" "mgmt_nic" {
 #######################
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
-  associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = element(var.availability_zones, count.index)
   count                                = var.number
   disable_api_termination              = var.disable_api_termination

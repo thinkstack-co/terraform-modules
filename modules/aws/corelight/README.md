@@ -43,13 +43,16 @@ Utilized to deploy a corelight collector
     associate_public_ip_address
     disable_api_termination
     ebs_optimized
+    enable_deletion_protection
     encrypted
     iam_instance_profile
+    internal
     instance_initiated_shutdown_behavior
     instance_type
     key_name
     listener_nic_description
     listener_nic_private_ips
+    load_balancer_type
     log_volume_device_name
     log_volume_size
     log_volume_type
