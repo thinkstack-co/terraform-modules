@@ -52,7 +52,7 @@ resource "aws_network_interface" "listener_nic" {
     private_ips         = var.listener_nic_private_ips
     security_groups     = [aws_security_group.corelight_sg.id]
     source_dest_check   = var.source_dest_check
-    subnet_id           = element(var.listener_subnet_id, count.index)
+    subnet_id           = element(var.listener_subnet_ids, count.index)
     tags                = merge(var.tags, map("Name", format("%s%d_listener", var.name, count.index + 1)))
 
     attachment {
@@ -67,7 +67,7 @@ resource "aws_network_interface" "mgmt_nic" {
     private_ips         = var.mgmt_nic_private_ips
     security_groups     = [aws_security_group.corelight_sg.id]
     source_dest_check   = var.source_dest_check
-    subnet_id           = element(var.mgmt_subnet_id, count.index)
+    subnet_id           = element(var.mgmt_subnet_ids, count.index)
     tags                = merge(var.tags, map("Name", format("%s%d_mgmt", var.name, count.index + 1)))
 }
 
@@ -77,7 +77,7 @@ resource "aws_network_interface" "mgmt_nic" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = element(var.availability_zone, count.index)
+  availability_zone                    = element(var.availability_zones, count.index)
   count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
@@ -117,7 +117,7 @@ resource "aws_instance" "ec2" {
 #######################
 
 resource "aws_ebs_volume" "logs" {
-  availability_zone = element(var.availability_zone, count.index)
+  availability_zone = element(var.availability_zones, count.index)
   count             = var.number
   encrypted         = var.encrypted
   size              = var.log_volume_size

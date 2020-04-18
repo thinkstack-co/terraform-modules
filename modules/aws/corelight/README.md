@@ -7,20 +7,20 @@ Utilized to deploy a corelight collector
 
 # Usage
     module "aws_prod_corelight" {
-      source             = "github.com/thinkstack-co/terraform-modules//modules/aws/corelight"
+      source              = "github.com/thinkstack-co/terraform-modules//modules/aws/corelight"
       
-      ami                = "ami-b7f895cffdsaaafdsa"
-      availability_zone  = [module.vpc.availability_zone[0], module.vpc.availability_zone[1]]
-      number             = 2
-      listener_subnet_id = module.vpc.private_subnet_ids
-      mgmt_subnet_id     = module.vpc.mgmt_subnet_ids
-      name               = "aws_prod_corelight"
-      region             = var.aws_region
-      user_data          = "customer_id_key"
-      vpc_id             = "vpc-222222222"
-      vxlan_cidr_blocks  = ["10.44.1.1/32"]
+      ami                 = "ami-b7f895cffdsaaafdsa"
+      availability_zones  = [module.vpc.availability_zone[0], module.vpc.availability_zone[1]]
+      number              = 2
+      listener_subnet_ids = module.vpc.private_subnet_ids
+      mgmt_subnet_ids     = module.vpc.mgmt_subnet_ids
+      name                = "aws_prod_corelight"
+      region              = var.aws_region
+      user_data           = "customer_id_key"
+      vpc_id              = "vpc-222222222"
+      vxlan_cidr_blocks   = ["10.44.1.1/32"]
       
-      tags               = {
+      tags                = {
         terraform        = "true"
         created_by       = "Zachary Hill"
         environment      = "prod"
@@ -31,9 +31,9 @@ Utilized to deploy a corelight collector
 # Variables
 ## Required
     ami
-    availability_zone
-    listener_subnet_id
-    mgmt_subnet_id
+    availability_zones
+    listener_subnet_ids
+    mgmt_subnet_ids
     region
     user_data
     vpc_id

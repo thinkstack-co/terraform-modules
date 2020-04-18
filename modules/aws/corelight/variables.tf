@@ -78,7 +78,7 @@ variable "associate_public_ip_address" {
   default     = false
 }
 
-variable "availability_zone" {
+variable "availability_zones" {
   type        = list(string)
   description = "(Required) The AZ to start the instance in"
 }
@@ -173,12 +173,12 @@ variable "source_dest_check" {
   default     = true
 }
 
-variable "mgmt_subnet_id" {
+variable "mgmt_subnet_ids" {
   type        = list
   description = "(Required) The VPC Subnet ID for the mgmt nic"
 }
 
-variable "listener_subnet_id" {
+variable "listener_subnet_ids" {
   type        = list
   description = "(Required) The VPC Subnet ID to launch in"
 }
