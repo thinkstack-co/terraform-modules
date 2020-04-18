@@ -12,27 +12,27 @@ resource "aws_security_group" "corelight_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-      description = "VXLAN VPC Mirror Traffic"
-      from_port   = 4789
-      to_port     = 4789
-      protocol    = "udp"
-      cidr_blocks = var.vxlan_cidr_blocks
+    description = "VXLAN VPC Mirror Traffic"
+    from_port   = 4789
+    to_port     = 4789
+    protocol    = "udp"
+    cidr_blocks = var.vxlan_cidr_blocks
   }
 
   ingress {
-      description = "SSH"
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = var.mgmt_cidr_blocks
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.mgmt_cidr_blocks
   }
 
   ingress {
-      description = "HTTPS"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = var.mgmt_cidr_blocks
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = var.mgmt_cidr_blocks
   }
 
   egress {
