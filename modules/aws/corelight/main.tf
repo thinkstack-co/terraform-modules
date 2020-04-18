@@ -63,8 +63,8 @@ resource "aws_network_interface" "listener_nic" {
 
 resource "aws_network_interface" "mgmt_nic" {
     count               = var.number
-    description         = var.mgmt_description
-    private_ips         = var.mgmt_private_ips
+    description         = var.mgmt_nic_description
+    private_ips         = var.mgmt_nic_private_ips
     security_groups     = [aws_security_group.corelight_sg.id]
     source_dest_check   = var.source_dest_check
     subnet_id           = element(var.mgmt_subnet_id, count.index)
