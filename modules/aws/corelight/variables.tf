@@ -55,11 +55,6 @@ variable "listener_nic_private_ips" {
   default     = []
 }
 
-variable "private_subnet_id" {
-  type = list
-  description = "(Required) Subnet ID to create the ENI in."
-}
-
 variable "mgmt_nic_description" {
   type        = string
   description = "(Optional) A description for the network interface."
@@ -183,13 +178,18 @@ variable "source_dest_check" {
   default     = true
 }
 
-variable "subnet_id" {
+variable "mgmt_subnet_id" {
+  type        = list
+  description = "(Required) The VPC Subnet ID for the mgmt nic"
+}
+
+variable "listener_subnet_id" {
   type        = list
   description = "(Required) The VPC Subnet ID to launch in"
 }
 
 variable "tenancy" {
-  description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
+  description = "(Optional) The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
 }
 

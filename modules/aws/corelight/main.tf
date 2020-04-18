@@ -52,7 +52,7 @@ resource "aws_network_interface" "listener_nic" {
     private_ips         = var.listener_nic_private_ips
     security_groups     = [aws_security_group.corelight_sg.id]
     source_dest_check   = var.source_dest_check
-    subnet_id           = element(var.subnet_id, count.index)
+    subnet_id           = element(var.listener_subnet_id, count.index)
     tags                = merge(var.tags, map("Name", format("%s%d_listener", var.name, count.index + 1)))
 
     attachment {
