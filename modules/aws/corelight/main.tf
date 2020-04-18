@@ -89,7 +89,7 @@ resource "aws_instance" "ec2" {
   placement_group                      = var.placement_group
 
   network_interface {
-        network_interface_id = aws_network_interface.mgmt_nic.id
+        network_interface_id = aws_network_interface.mgmt_nic[count.index].id
         device_index         = 0
     }
   
@@ -128,8 +128,8 @@ resource "aws_ebs_volume" "logs" {
 resource "aws_volume_attachment" "log_volume_attach" {
   count       = var.number
   device_name = var.log_volume_device_name
-  instance_id = element(aws_instance.ec2.*.id, count.index)
-  volume_id   = element(aws_ebs_volume.vol.*.id, count.index)
+  instance_id = aws_instance.ec2[count.index].id
+  volume_id   = aws_ebs_volume.vol[count.index].id
 }
 
 
