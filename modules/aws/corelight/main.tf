@@ -77,7 +77,7 @@ resource "aws_network_interface" "mgmt_nic" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = var.availability_zone
+  availability_zone                    = element(var.availability_zone, count.index)
   count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
@@ -109,6 +109,27 @@ resource "aws_instance" "ec2" {
   lifecycle {
     ignore_changes  = [user_data, volume_tags]
   }
+}
+
+
+#######################
+# EBS Volume Module
+#######################
+
+resource "aws_ebs_volume" "logs" {
+  availability_zone = element(var.availability_zone, count.index)
+  count             = var.number
+  encrypted         = var.encrypted
+  size              = var.log_volume_size
+  type              = var.log_volume_type
+  tags              = var.tags
+}
+
+resource "aws_volume_attachment" "log_volume_attach" {
+  count       = var.number
+  device_name = var.device_name
+  instance_id = element(aws_instance.ec2.*.id, count.index)
+  volume_id   = element(aws_ebs_volume.vol.*.id, count.index)
 }
 
 

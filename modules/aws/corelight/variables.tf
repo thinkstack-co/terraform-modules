@@ -167,11 +167,6 @@ variable "root_volume_type" {
   default     = "gp2"
 }
 
-variable "root_iops" {
-  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = ""
-}
-
 variable "source_dest_check" {
   type        = bool
   description = "(Optional) Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
@@ -195,4 +190,22 @@ variable "tenancy" {
 
 variable "user_data" {
   description = "(Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421'"
+}
+
+variable "log_volume_size" {
+  type        = string
+  description = "(Optional) The size of the volume in gigabytes."
+  default     = "200"
+}
+
+variable "log_volume_type" {
+  type        = string
+  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
+  default     = "gp2"
+}
+
+variable "device_name" {
+  type        = string
+  description = "The device name to expose to the instance (for example, /dev/sdh or xvdf)"
+  default     = "xvdf"
 }

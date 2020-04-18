@@ -60,7 +60,6 @@ Utilized to deploy a corelight collector
     root_delete_on_termination
     root_volume_size
     root_volume_type
-    root_iops
     sg_description
     sg_name
     source_dest_check
