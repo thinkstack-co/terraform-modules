@@ -6,7 +6,7 @@ variable "destination_cidr_block" {
 variable "destination_ipv6_cidr_block" {
   type = string
   description = "(Optional) The destination IPv6 CIDR block."
-  default = ""
+  default = null
 }
 
 variable "egress_only_gateway_id" {
