@@ -122,7 +122,7 @@ resource "aws_instance" "ec2" {
   volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
 
   lifecycle {
-    ignore_changes  = [user_data, volume_tags]
+    ignore_changes  = [user_data]
   }
 }
 
@@ -137,7 +137,7 @@ resource "aws_ebs_volume" "logs" {
   encrypted         = var.encrypted
   size              = var.log_volume_size
   type              = var.log_volume_type
-  tags              = var.tags
+  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
 }
 
 resource "aws_volume_attachment" "log_volume_attach" {
