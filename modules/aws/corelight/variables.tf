@@ -170,7 +170,7 @@ variable "encrypted" {
 variable "root_volume_size" {
   type        = string
   description = "(Optional) The size of the volume in gigabytes."
-  default     = "100"
+  default     = "64"
 }
 
 variable "root_volume_type" {
@@ -213,7 +213,7 @@ variable "log_volume_device_name" {
 variable "log_volume_size" {
   type        = string
   description = "(Optional) The size of the volume in gigabytes."
-  default     = "200"
+  default     = "500"
 }
 
 variable "log_volume_type" {
