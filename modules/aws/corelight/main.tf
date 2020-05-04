@@ -71,11 +71,6 @@ resource "aws_network_interface" "listener_nic" {
     source_dest_check   = var.source_dest_check
     subnet_id           = element(var.listener_subnet_ids, count.index)
     tags                = merge(var.tags, map("Name", format("%s%d_listener", var.name, count.index + 1)))
-
-    attachment {
-        instance        = element(aws_instance.ec2.*.id, count.index)
-        device_index    = 1
-    }
 }
 
 resource "aws_network_interface" "mgmt_nic" {
@@ -86,6 +81,11 @@ resource "aws_network_interface" "mgmt_nic" {
     source_dest_check   = var.source_dest_check
     subnet_id           = element(var.mgmt_subnet_ids, count.index)
     tags                = merge(var.tags, map("Name", format("%s%d_mgmt", var.name, count.index + 1)))
+
+    attachment {
+        instance        = element(aws_instance.ec2.*.id, count.index)
+        device_index    = 1
+    }
 }
 
 #######################
@@ -105,7 +105,7 @@ resource "aws_instance" "ec2" {
   placement_group                      = var.placement_group
 
   network_interface {
-        network_interface_id = aws_network_interface.mgmt_nic[count.index].id
+        network_interface_id = aws_network_interface.listener_nic[count.index].id
         device_index         = 0
     }
   
