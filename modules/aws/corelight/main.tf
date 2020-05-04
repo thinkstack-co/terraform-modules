@@ -131,7 +131,8 @@ resource "aws_instance" "ec2" {
 # EBS Volume Module
 #######################
 
-resource "aws_ebs_volume" "logs" {
+# Corelight AMI already includes a 500GB log EBS volume
+/*resource "aws_ebs_volume" "logs" {
   availability_zone = element(var.availability_zones, count.index)
   count             = var.number
   encrypted         = var.encrypted
@@ -145,7 +146,7 @@ resource "aws_volume_attachment" "log_volume_attach" {
   device_name = var.log_volume_device_name
   instance_id = aws_instance.ec2[count.index].id
   volume_id   = aws_ebs_volume.logs[count.index].id
-}
+}*/
 
 
 ###################################################
