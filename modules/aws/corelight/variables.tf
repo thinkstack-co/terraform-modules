@@ -182,7 +182,7 @@ variable "root_volume_type" {
 variable "source_dest_check" {
   type        = bool
   description = "(Optional) Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
-  default     = true
+  default     = false
 }
 
 variable "mgmt_subnet_ids" {
