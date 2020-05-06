@@ -67,24 +67,24 @@ variable "mfa_delete" {
 variable "id" {
     type        = string
     description = "(Optional) Unique identifier for the rule."
-    default     = ""
+    default     = null
 }
 
 variable "days" {
     description = "(Optional) Specifies the number of days after object creation when the specific rule action takes effect."
-    default     = ""
+    default     = null
 }
 
 variable "prefix" {
     type        = string
     description = "(Optional) Object key prefix identifying one or more objects to which the rule applies."
-    default     = ""
+    default     = null
 }
 
 variable "storage_class" {
     type        =   string
     description = "(Required) Specifies the Amazon S3 storage class to which you want the object to transition. Can be ONEZONE_IA, STANDARD_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE."
-    default     = ""
+    default     = null
 }
 
 variable "lifecycle_enabled" {
