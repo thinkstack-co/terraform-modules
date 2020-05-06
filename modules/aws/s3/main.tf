@@ -16,7 +16,7 @@ resource "aws_s3_bucket" "s3_bucket" {
 
     lifecycle_rule {
     id      = var.id
-    enabled = true
+    enabled = var.lifecycle_enabled
 
     prefix = var.prefix
 

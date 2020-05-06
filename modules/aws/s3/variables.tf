@@ -86,3 +86,8 @@ variable "storage_class" {
     description = "(Required) Specifies the Amazon S3 storage class to which you want the object to transition. Can be ONEZONE_IA, STANDARD_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE."
     default     = ""
 }
+
+variable "lifecycle_enabled" {
+    description = "(Required) Specifies lifecycle rule status."
+    default     = false
+}
