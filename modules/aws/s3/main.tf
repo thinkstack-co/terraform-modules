@@ -14,6 +14,29 @@ resource "aws_s3_bucket" "s3_bucket" {
         target_prefix = var.target_prefix
     }*/
 
+    lifecycle_rule {
+    id      = var.id
+    enabled = true
+
+    prefix = var.prefix
+
+    tags = var.tags
+
+    transition {
+      days          = var.days
+      storage_class = var.storage_class # or "ONEZONE_IA"
+    }
+
+    transition {
+      days          = var.days
+      storage_class = var.storage_class
+    }
+
+    expiration {
+      days = var.days
+    }
+  }
+
     versioning {
         enabled     = var.versioning
         mfa_delete  = var.mfa_delete
