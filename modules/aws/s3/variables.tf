@@ -63,3 +63,26 @@ variable "mfa_delete" {
     description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
     default     = false
 }
+
+variable "id" {
+    type        = string
+    description = "(Optional) Unique identifier for the rule."
+    default     = ""
+}
+
+variable "days" {
+    description = "(Optional) Specifies the number of days after object creation when the specific rule action takes effect."
+    default     = ""
+}
+
+variable "prefix" {
+    type        = string
+    description = "(Optional) Object key prefix identifying one or more objects to which the rule applies."
+    default     = ""
+}
+
+variable "storage_class" {
+    type        =   string
+    description = "(Required) Specifies the Amazon S3 storage class to which you want the object to transition. Can be ONEZONE_IA, STANDARD_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE."
+    default     = ""
+}
