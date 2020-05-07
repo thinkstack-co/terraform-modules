@@ -87,3 +87,8 @@ variable "lifecycle_enabled" {
     description = "(Required) Specifies lifecycle rule status."
     default     = false
 }
+
+variable "lifecycle_rule" {
+    description = "(Optional) A configuration of object lifecycle management."
+    default     = false
+}
