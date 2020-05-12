@@ -22,17 +22,22 @@ resource "aws_s3_bucket" "s3_bucket" {
     tags = var.tags
 
     transition {
-      days          = var.days
-      storage_class = var.storage_class # or "ONEZONE_IA"
+      days          = var.transition_days_1
+      storage_class_1 = var.storage_class_1 # or "ONEZONE_IA"
     }
 
     transition {
-      days          = var.days
-      storage_class = var.storage_class
+      days          = var.transition_days_2
+      storage_class = var.storage_class_2
+    }
+
+    transition {
+      days         = var.transition_days_3
+      storage_class = var.storage_class_3
     }
 
     expiration {
-      days = var.days
+      days = var.expiration
     }
   }
 

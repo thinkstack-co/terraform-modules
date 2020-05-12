@@ -66,7 +66,17 @@ variable "id" {
     default     = null
 }
 
-variable "days" {
+variable "transition_days_1" {
+    description = "(Optional) Specifies the number of days after object creation when the specific rule action takes effect."
+    default     = null
+}
+
+variable "transition_days_2" {
+    description = "(Optional) Specifies the number of days after object creation when the specific rule action takes effect."
+    default     = null
+}
+
+variable "transition_days_3" {
     description = "(Optional) Specifies the number of days after object creation when the specific rule action takes effect."
     default     = null
 }
@@ -77,7 +87,21 @@ variable "prefix" {
     default     = null
 }
 
-variable "storage_class" {
+#Only 1 storage class variable is required
+
+variable "storage_class_1" {
+    type        =   string
+    description = "(Required) Specifies the Amazon S3 storage class to which you want the object to transition. Can be ONEZONE_IA, STANDARD_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE."
+    default     = null
+}
+
+variable "storage_class_2" {
+    type        =   string
+    description = "(Required) Specifies the Amazon S3 storage class to which you want the object to transition. Can be ONEZONE_IA, STANDARD_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE."
+    default     = null
+}
+
+variable "storage_class_3" {
     type        =   string
     description = "(Required) Specifies the Amazon S3 storage class to which you want the object to transition. Can be ONEZONE_IA, STANDARD_IA, INTELLIGENT_TIERING, GLACIER, or DEEP_ARCHIVE."
     default     = null
@@ -91,4 +115,10 @@ variable "lifecycle_enabled" {
 variable "lifecycle_rule" {
     description = "(Optional) A configuration of object lifecycle management."
     default     = false
+}
+
+variable "expiration" {
+    type        = string
+    description = "(Optional) Specifies a period in the object's expire. "
+    default     = null
 }
