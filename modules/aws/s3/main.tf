@@ -23,7 +23,7 @@ resource "aws_s3_bucket" "s3_bucket" {
 
     transition {
       days          = var.transition_days_1
-      storage_class = var.storage_class_1 # or "ONEZONE_IA"
+      storage_class = var.storage_class_1
     }
 
     transition {
