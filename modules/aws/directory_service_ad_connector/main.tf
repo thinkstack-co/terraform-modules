@@ -10,6 +10,7 @@ resource "aws_directory_service_directory" "connector" {
   size        = var.size
   tags        = var.tags
   type        = var.type
+  dns_ip_addresses  = var.dns_ip_addresses
 
   connect_settings {
     customer_dns_ips  = var.customer_dns_ips

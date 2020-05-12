@@ -57,3 +57,8 @@ variable "vpc_id" {
   type = string
   description = "(Required) The identifier of the VPC that the directory is in."
 }
+
+variable "dns_ip_addresses" {
+  type = list
+  description = "A list of IP addresses of the DNS servers for the directory/connector."
+}
