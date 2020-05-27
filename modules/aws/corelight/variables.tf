@@ -123,7 +123,7 @@ variable "instance_initiated_shutdown_behavior" {
 variable "instance_type" {
   type        = string
   description = "(Optional) The AWS instance type  to utilize for the specifications of the instance"
-  default     = "m5a.xlarge"
+  default     = "m5.xlarge"
 }
 
 variable "key_name" {
