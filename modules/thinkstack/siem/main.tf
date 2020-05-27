@@ -376,6 +376,22 @@ resource "aws_security_group" "sg" {
     }
 
     ingress {
+        from_port   = 13005
+        to_port     = 13005
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Corelight and Darktrace Syslog Ingester Port"
+    }
+
+    ingress {
+        from_port   = 13005
+        to_port     = 13005
+        protocol    = "tcp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "Corelight and Darktrace Syslog Ingester Port"
+    }
+
+    ingress {
         from_port   = 13022
         to_port     = 13022
         protocol    = "udp"
