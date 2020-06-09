@@ -47,3 +47,13 @@ variable "mfa_delete" {
     description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
     default     = false
 }
+
+variable "index_document" {
+    description = "(Required, unless using redirect_all_requests_to) Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders."
+    default     = "index.html"
+}
+
+variable "error_document" {
+    description = "(Optional) An absolute path to the document to return in case of a 4XX error."
+    default     = "error.html"
+}

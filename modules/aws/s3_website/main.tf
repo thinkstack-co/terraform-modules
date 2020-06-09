@@ -22,5 +22,10 @@ resource "aws_s3_bucket" "s3_bucket" {
         prevent_destroy = true
     }
 
+    website {
+        index_document = var.index_document
+        error_document = var.error_document
+    }
+
     tags            = var.tags
 }
