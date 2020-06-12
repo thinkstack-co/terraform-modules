@@ -3,7 +3,7 @@ variable "acl" {
     default     = "private"
 }
 
-variable "bucket_prefix" {
+variable "bucket" {
     description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
 }
 
