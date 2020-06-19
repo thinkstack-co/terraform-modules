@@ -10,12 +10,6 @@ variable "delegation_set_id" {
   default     = null
 }
 
-variable "force_destroy" {
-  type          = bool
-  description   = "(Optional) Whether to destroy all records (possibly managed outside of Terraform) in the zone when destroying the zone."
-  force_destroy = false
-}
-
 variable "name" {
   type        = string
   description = "(Required) This is the name of the hosted zone."
