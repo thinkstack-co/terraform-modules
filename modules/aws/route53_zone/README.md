@@ -24,9 +24,7 @@ Utilized to create a Route53 Domain Zone
 ## Optional
     comment
     delegation_set_id
-    force_destroy
     tags
-    vpc
 
 # Outputs
     name_servers
