@@ -2,10 +2,6 @@ variable "bucket_prefix" {
     description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
 }
 
-variable "region" {
-    description = "(Optional) If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee."
-}
-
 variable "acl" {
     description = "(Optional) The canned ACL to apply. Defaults to 'private'."
     default     = "private"
