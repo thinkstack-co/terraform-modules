@@ -15,7 +15,6 @@ resource "aws_cloudtrail" "cloudtrail" {
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
     acl             = var.acl
     bucket_prefix   = var.bucket_prefix
-    region          = var.region
 
     versioning {
         enabled     = var.enabled
