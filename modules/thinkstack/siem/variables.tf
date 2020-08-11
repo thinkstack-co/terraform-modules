@@ -20,6 +20,7 @@ variable "bgp_asn" {
 variable "customer_gw_name" {
     type        = list
     description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
+    default     = null
 }
 
 variable "created_by" {
@@ -60,6 +61,11 @@ variable "enable_nat_gateway" {
 variable "enable_vpc_peering" {
   description = "(Required)Boolean which should be set to true if you want to enable and set up vpc peering"
   default     = false
+}
+
+variable "enable_vpn_tunnel" {
+  description = "(Required)Boolean which should be set to true if you want to enable and set up a vpn tunnel"
+  default     = true
 }
 
 variable "encrypted" {
@@ -251,11 +257,13 @@ variable "vpc_cidr" {
 variable "vpn_peer_ip_address" {
     type        = list
     description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
+    default     = null
 }
 
 variable "vpn_route_cidr_blocks" {
     type        = list
     description = "(Required) CIDR block of the VPN subnets"
+    default     = null
 }
 
 variable "vpn_type" {
