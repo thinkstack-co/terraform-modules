@@ -251,7 +251,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = length(aws_instance.ec2)
+  count                     = var.instance_count
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = aws_instance.ec2[count.index].id
@@ -277,7 +277,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name                = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = length(aws_instance.ec2)
+  count                     = var.instance_count
   datapoints_to_alarm       = 2
   dimensions                = {
     InstanceId = aws_instance.ec2[count.index].id

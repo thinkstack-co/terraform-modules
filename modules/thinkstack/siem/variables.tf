@@ -76,7 +76,7 @@ variable "encrypted" {
 
 variable "iam_instance_profile" {
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
-  default     = "ssm-service-role"
+  default     = "siem-ssm-service-role"
 }
 
 variable "instance_count" {
