@@ -7,7 +7,7 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "number" {
+variable "count" {
   description = "The total number of resources to create"
   default     = 1
 }
