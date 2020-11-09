@@ -6,7 +6,7 @@
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | >= 3.13.0 |
 
 ## Inputs
 
