@@ -89,8 +89,7 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
 
   network_interface {
-        network_interface_id = aws_network_interface.mgmt0_nic.id
-        device_index         = 0
+        network_interface_id = aws_network_interface.mgmt0_nic.id[count.index]
     }
 
   placement_group                      = var.placement_group
