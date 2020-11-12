@@ -90,6 +90,7 @@ resource "aws_instance" "ec2" {
 
   network_interface {
         network_interface_id = aws_network_interface.mgmt0_nic[count.index]
+        device_index         = 0
     }
 
   placement_group                      = var.placement_group
