@@ -95,11 +95,11 @@ resource "aws_instance" "ec2" {
 
   placement_group                      = var.placement_group
 
-  root_block_device                    = {
-    delete_on_termination = var.root_delete_on_termination
-    volume_type           = var.root_volume_type
-    volume_size           = var.root_volume_size
-  }
+#   root_block_device                    = {
+#     delete_on_termination = var.root_delete_on_termination
+#     volume_type           = var.root_volume_type
+#     volume_size           = var.root_volume_size
+#   }
   
   tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
   tenancy                = var.tenancy
