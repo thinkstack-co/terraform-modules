@@ -3,11 +3,11 @@ terraform {
 }
 
 resource "aws_network_interface" "eni" {
-  count              = var.eni_number
+  number               = var.eni_number
   description         = var.description
-  subnet_id           = element(var.subnet_id, [count.index])
-  private_ips         = element(var.private_ips, [count.index])
-  private_ips_count   = element(var.private_ips_count, [count.index])
+  subnet_id           = element(var.subnet_id, [number.index])
+  private_ips         = element(var.private_ips, [number.index])
+  private_ips_count   = element(var.private_ips_count, [number.index])
   security_groups     = var.vpc_security_group_ids
   source_dest_check   = var.source_dest_check
   tags                = var.tags
@@ -24,7 +24,7 @@ resource "aws_instance" "ec2" {
   ami                                  = var.ami
   # associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = var.availability_zone
-  count                                = var.number
+  number                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   # ebs_block_device                     = var.ebs_block_device
@@ -42,8 +42,8 @@ resource "aws_instance" "ec2" {
   iam_instance_profile                 = var.iam_instance_profile
   # ipv6_address_count                   = var.ipv6_address_count
   # ipv6_addresses                       = var.ipv6_addresses
-  tags                                 = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
-  volume_tags                          = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
+  tags                                 = merge(var.tags, map("Name", format("%s%01d", var.name, number.index + 1)))
+  volume_tags                          = merge(var.tags, map("Name", format("%s%01d", var.name, number.index + 1)))
   # root_block_device                    = var.root_block_device
   
 
@@ -72,12 +72,12 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled           = true
   alarm_actions             = []
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2.*.id, count.index))
+  alarm_name                = format("%s-instance-alarm", element(aws_instance.ec2.*.id, number.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.number
+  number                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
-    InstanceId = element(aws_instance.ec2.*.id, count.index)
+    InstanceId = element(aws_instance.ec2.*.id, number.index)
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -99,12 +99,12 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled           = true
   alarm_actions             = ["arn:aws:automate:${var.region}:ec2:recover"]
   alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name                = format("%s-system-alarm", element(aws_instance.ec2.*.id, count.index))
+  alarm_name                = format("%s-system-alarm", element(aws_instance.ec2.*.id, number.index))
   comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.number
+  number                     = var.number
   datapoints_to_alarm       = 2
   dimensions                = {
-    InstanceId = element(aws_instance.ec2.*.id, count.index)
+    InstanceId = element(aws_instance.ec2.*.id, number.index)
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
