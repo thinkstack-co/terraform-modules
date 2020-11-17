@@ -48,7 +48,8 @@ resource "aws_instance" "ec2" {
   
 
   network_interface {
-        network_interface_id    = aws_network_interface.eni.id[count.index]
+        network_interface_id    = aws_network_interface.eni.id
+        device_index            = var.device_index
         delete_on_termination   = var.delete_on_termination
   }
 
