@@ -24,6 +24,11 @@ variable "ebs_optimized" {
   default     = false
 }
 
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = ""
+}
+
 variable "sg_name" {
   description = "Name of the security group"
   default     = "fortigate_fw_sg"
