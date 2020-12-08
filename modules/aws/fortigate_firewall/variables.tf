@@ -19,6 +19,11 @@ variable "enable_dmz" {
   default     = true
 }
 
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = ""
+}
+
 variable "sg_name" {
   description = "Name of the security group"
   default     = "fortigate_fw_sg"
@@ -100,6 +105,11 @@ variable "key_name" {
 variable "instance_name_prefix" {
   description = "Used to populate the Name tag. Set in main.tf"
   default     = "aws_fw"
+}
+
+variable "region" {
+  type        = "string"
+  description = "(Required) VPC Region the resources exist in"
 }
 
 variable "root_volume_type" {
