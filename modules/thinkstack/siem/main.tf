@@ -490,4 +490,4 @@ resource "aws_sqs_queue" "terraform_queue" {
   kms_master_key_id                 = var.sqs_kms_master_key_id
   kms_data_key_reuse_period_seconds = var.sqs_kms_data_key_reuse_period_seconds
   tags                              = var.tags
-  
+}
