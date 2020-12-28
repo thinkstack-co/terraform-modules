@@ -355,13 +355,13 @@ variable "sqs_receive_wait_time_seconds" {
 }
 
 variable "sqs_policy" {
-  type        = "string"
+  type        = string
   description = "(Optional) The JSON policy for the SQS queue. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide."
   default     = ""
 }
 
 variable "sqs_redrive_policy" {
-  type        = "string"
+  type        = string
   description = "(Optional) The JSON policy to set up the Dead Letter Queue, see AWS docs. Note: when specifying maxReceiveCount, you must specify it as an integer (5), and not a string ('5')."
   default     = null
 }
@@ -379,7 +379,7 @@ variable "sqs_content_based_deduplication" {
 }
 
 variable "sqs_kms_master_key_id" {
-  type        = "string"
+  type        = string
   description = "(Optional) The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see Key Terms."
   default     = "alias/aws/sqs"
 }
