@@ -111,8 +111,8 @@ variable "root_volume_size" {
 
 variable "root_volume_type" {
   type        = string
-  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
-  default     = "gp2"
+  description = "(Optional) The type of volume. Can be standard, gp2, gp3 or io1. (Default: standard)"
+  default     = "gp3"
 }
 
 variable "root_iops" {

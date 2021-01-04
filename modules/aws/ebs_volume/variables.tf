@@ -26,7 +26,7 @@ variable "snapshot_id" {
 variable "type" {
   type        = string
   description = "ebs volume type (example gp2, io1, standard, sc1, st1)"
-  default     = "gp2"
+  default     = "gp3"
 }
 
 variable "tags" {
