@@ -9,7 +9,7 @@ output "dx_connection_bandwidth" {
 }
 
 output "dx_connection_arn" {
-  value         = concat(aws_dx_connnection.dx.*.arn, {""})[0]
+  value         = concat(aws_dx_connnection.dx.*.arn, [""])[0]
   description   = "The ARN of the connnection"
 }
 
