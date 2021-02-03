@@ -195,7 +195,6 @@ resource "aws_route" "workspaces_default_route_fw" {
 }
 
 data "aws_vpc_endpoint_service" "s3" {
-  count   = var.enable_s3_endpoint ? 1 : 0
   service = "s3"
   filter {
     name   = "vpc_id"
@@ -204,7 +203,7 @@ data "aws_vpc_endpoint_service" "s3" {
 }
 
 resource "aws_vpc_endpoint" "ep" {
-  count        = var.count
+  count        = var.enable_s3_endpoint ? 1 : 0
   vpc_id       = aws_vpc.vpc.id
   service_name = data.aws_vpc_endpoint_service.s3.service_name
 }
