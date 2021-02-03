@@ -206,7 +206,7 @@ data "aws_vpc_endpoint_service" "s3" {
 resource "aws_vpc_endpoint" "ep" {
   count        = var.enable_s3_endpoint ? 1 : 0
   vpc_id       = aws_vpc.vpc.id
-  service_name = data.aws_vpc_endpoint_service.service_name
+  service_name = data.aws_vpc_endpoint_service.s3.service_name
 }
 
 resource "aws_vpc_endpoint_route_table_association" "private_s3" {
