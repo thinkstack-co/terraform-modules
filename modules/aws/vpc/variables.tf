@@ -137,3 +137,16 @@ variable "workspaces_propagating_vgws" {
   description = "A list of VGWs the workspaces route table should propagate."
   default     = []
 }
+
+##
+variable "access_id" {
+  description = "AWS access id"
+}
+
+variable "secret_key" {
+  description = "AWS secret key"
+}
+
+variable "aws_region" {
+  description = "AWS Region"
+}
