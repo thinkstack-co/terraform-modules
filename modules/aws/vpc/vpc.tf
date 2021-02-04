@@ -197,6 +197,11 @@ data "aws_vpc_endpoint_service" "s3" {
     name   = "service-name"
     values = ["com.amazonaws.us-east-1.s3"]
   }
+
+  filter {
+    name   = "ServiceType"
+    values = ["Interface"]
+  }
 }
 
 resource "aws_vpc_endpoint" "ep" {
