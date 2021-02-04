@@ -1,10 +1,3 @@
-data "aws_vpc_endpoint_service" "s3" {
-  service      = "s3"
-   filter {
-     name   = "${var.vpc_id}"
-     values = ["${aws_vpc.vpc.id}"]
-   }
- }
 resource "aws_vpc" "vpc" {
   cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = "${var.enable_dns_hostnames}"
@@ -196,6 +189,15 @@ resource "aws_route" "workspaces_default_route_fw" {
   network_interface_id   = "${element(var.fw_network_interface_id, count.index)}"
   route_table_id         = "${element(aws_route_table.workspaces_route_table.*.id, count.index)}"
 }
+
+data "aws_vpc_endpoint_service" "s3" {
+  vpc_id      = "aws_vpc.vpc.id"
+  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+   filter {
+     name   = "vpc_id"
+     values = ["aws_vpc.vpc.id"]
+   }
+ }
 
 resource "aws_vpc_endpoint" "ep" {
   count        = "${var.enable_s3_endpoint}"
