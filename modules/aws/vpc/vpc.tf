@@ -1,9 +1,3 @@
-provider "aws" {
-  access_key = "${var.access_id}"
-  secret_key = "${var.secret_key}"
-  region     = "${var.aws_region}"
-}
-
 resource "aws_vpc" "vpc" {
   cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = "${var.enable_dns_hostnames}"
@@ -196,11 +190,8 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = "${element(aws_route_table.workspaces_route_table.*.id, count.index)}"
 }
 
-# data "aws_region" "current" {
-#   name = ${provider.aws.region}
-# }
 data "aws_vpc_endpoint_service" "s3" {
-  service_name = "com.amazonaws.${module.provider.aws.region}.s3"
+  service_name = "com.amazonaws.${var.vpc_region}.s3"
  }
 
 resource "aws_vpc_endpoint" "ep" {

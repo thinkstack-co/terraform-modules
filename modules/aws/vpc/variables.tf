@@ -128,6 +128,9 @@ variable "vpc_cidr" {
   default     = "10.11.0.0/16"
 }
 
+variable "vpc_region" {
+  description = "Region in which the vpc resides"
+}
 variable "workspaces_subnets_list" {
   description = "A list of workspaces subnets inside the VPC."
   default     = ["10.11.21.0/24", "10.11.22.0/24", "10.11.23.0/24"]
@@ -136,17 +139,4 @@ variable "workspaces_subnets_list" {
 variable "workspaces_propagating_vgws" {
   description = "A list of VGWs the workspaces route table should propagate."
   default     = []
-}
-
-variable "access_id" {
-  description = "AWS access id"
-}
-
-variable "secret_key" {
-  description = "AWS secret key"
-}
-
-variable "aws_region" {
-  description = "AWS Region"
-  default     = "us-east-1"
 }
