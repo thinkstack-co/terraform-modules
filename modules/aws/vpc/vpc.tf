@@ -193,7 +193,8 @@ resource "aws_route" "workspaces_default_route_fw" {
 data "aws_vpc_endpoint_service" "s3" {
   service_name = "com.amazonaws.${var.vpc_region}.s3"
   filter {
-    vpc-endpoint-type = "Interface"
+    name = "vpc-endpoint-type"
+    value = "Interface"
   }
  }
 
