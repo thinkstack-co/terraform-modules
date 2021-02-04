@@ -193,7 +193,7 @@ resource "aws_route" "workspaces_default_route_fw" {
 data "aws_vpc_endpoint_service" "s3" {
   service      = "${s3}"
    filter {
-     name   = "${vpc_id}"
+     name   = "${aws_vpc.vpc.id}"
      values = ["${aws_vpc.vpc.id}"]
    }
  }
