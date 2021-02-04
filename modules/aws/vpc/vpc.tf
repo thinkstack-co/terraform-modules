@@ -194,7 +194,7 @@ data "aws_vpc_endpoint_service" "s3" {
   service = "s3"
   filter {
     name   = "service-name"
-    values = ["s3"]
+    values = ["com.amazonaws.us-east-1.s3"]
   }
 }
 
