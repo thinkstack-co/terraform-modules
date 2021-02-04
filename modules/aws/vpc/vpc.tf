@@ -190,10 +190,6 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = "${element(aws_route_table.workspaces_route_table.*.id, count.index)}"
 }
 
-data "aws_region" "current" {
-  all_regions    = "true"
-}
-
 data "aws_vpc_endpoint_service" "s3" {
   service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
    filter {
