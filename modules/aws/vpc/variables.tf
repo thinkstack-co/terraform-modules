@@ -132,8 +132,3 @@ variable "workspaces_propagating_vgws" {
   description = "A list of VGWs the workspaces route table should propagate."
   default     = []
 }
-
-variable "aws_region" {
-  description = "The VPC default region."
-  default     = "us-east-1"
-}
