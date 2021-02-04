@@ -104,10 +104,10 @@ variable "public_propagating_vgws" {
   default     = []
 }
 
-variable "region" {
-  type        = "string"
-  description = "(Required) VPC Region the resources exist in"
-}
+# variable "region" {
+#   type        = "string"
+#   description = "(Required) VPC Region the resources exist in"
+# }
 
 variable "single_nat_gateway" {
   description = "should be true if you want to provision a single shared NAT Gateway across all of your private networks"
