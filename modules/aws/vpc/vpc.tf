@@ -191,11 +191,11 @@ resource "aws_route" "workspaces_default_route_fw" {
 }
 
 data "aws_vpc_endpoint_service" "s3" {
-  service      = "com.amazonaws.us-east-1.s3"
-#   filter {
-#     name   = "service-name"
-#     values = ["com.amazonaws.us-east-1.s3"]
-#   }
+  service      = "s3"
+   filter {
+     name   = "vpc_id"
+     values = ["aws_vpc.vpc.id"]
+   }
  }
 
 resource "aws_vpc_endpoint" "ep" {
