@@ -144,8 +144,8 @@ resource "aws_route" "dmz_default_route_natgw" {
 resource "aws_route" "dmz_default_route_fw" {
   count                  = "${var.enable_firewall ? length(var.azs) : 0}"
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = "${element(var.fw_dmz_network_interface_id, count.index)}"
-  route_table_id         = "${element(aws_route_table.dmz_route_table.*.id, count.index)}"
+  network_interface_id   = "${element(concat(var.fw_dmz_network_interface_id, list("")), count.index)}"
+  route_table_id         = "${element(concat(aws_route_table.dmz_route_table.*.id, list("")), count.index)}"
 }
 
 resource "aws_route_table" "mgmt_route_table" {
