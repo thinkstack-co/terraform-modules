@@ -138,6 +138,15 @@ variable "workspaces_propagating_vgws" {
   default     = []
 }
 
-variable "region" {
-  description = "region"
+variable "access_id" {
+  description = "AWS access id"
+}
+
+variable "secret_key" {
+  description = "AWS secret key"
+}
+
+variable "aws_region" {
+  description = "AWS Region"
+  default     = "us-east-1"
 }
