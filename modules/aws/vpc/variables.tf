@@ -137,3 +137,7 @@ variable "workspaces_propagating_vgws" {
   description = "A list of VGWs the workspaces route table should propagate."
   default     = []
 }
+
+variable "region" {
+  description = "region"
+}
