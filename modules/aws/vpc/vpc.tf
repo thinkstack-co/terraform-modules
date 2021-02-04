@@ -194,7 +194,7 @@ data "aws_region" "current" {
   name = "${var.region}"
 }
 data "aws_vpc_endpoint_service" "s3" {
-  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+  service_name = "com.amazonaws.${var.region}.s3"
  }
 
 resource "aws_vpc_endpoint" "ep" {
