@@ -191,7 +191,7 @@ resource "aws_route" "workspaces_default_route_fw" {
 }
 
 data "aws_region" "current" {
-  region    = "${aws_region}"
+  region    = "${var.aws_region}"
 }
 
 data "aws_vpc_endpoint_service" "s3" {
