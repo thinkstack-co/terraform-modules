@@ -85,3 +85,7 @@ output "igw_id" {
 output "availability_zone" {
   value = ["${aws_subnet.private_subnets.*.availability_zone}"]
 }
+
+output "region" {
+  value = ["${provider.aws.region}"]
+}
