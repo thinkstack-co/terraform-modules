@@ -198,7 +198,7 @@ data "aws_vpc_endpoint_service" "s3" {
   }
 
   filter {
-    name   = "ServiceType"
+    name   = "service-type"
     values = ["Interface"]
   }
 }
