@@ -194,7 +194,7 @@ data "aws_vpc_endpoint_service" "s3" {
   vpc_id  = "${aws_vpc.vpc.id}"
   service = "s3"
   filter {
-    name   = "${var.vpc_id}"
+    name   = "${aws_vpc.vpc.id}"
   }
 }
 
