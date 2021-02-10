@@ -190,22 +190,15 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = "${element(aws_route_table.workspaces_route_table.*.id, count.index)}"
 }
 
-# data "aws_vpc_endpoint_service" "s3" {
-#   service_name = "com.amazonaws.${var.vpc_region}.s3"
-#   filter {
-#     name = "vpc-endpoint-type"
-#     value = "Interface"
-#   }
-#  }
 
 locals {
-  service_name = "com.amazonaws.${var.vpc_region}.s3"
+  service_name = ["com.amazonaws.${var.vpc_region}.s3"]
 }
 
 resource "aws_vpc_endpoint" "ep" {
   count        = "${var.enable_s3_endpoint}"
   vpc_id       = "${aws_vpc.vpc.id}"
-  service_name = "${local.service_name.count.index}"
+  service_name = "${element(local.service_name, count.index)}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "private_s3" {
