@@ -25,7 +25,8 @@
 | target\_bucket | (Required) The name of the bucket that will receive the log objects. | `string` | `""` | no |
 | target\_prefix | (Optional) To specify a key prefix for log objects. | `string` | `"log/"` | no |
 | versioning | (Optional) A state of versioning (documented below) | `bool` | `true` | no |
-
+| days | (required) Specifies the number of days after object creation when it will be moved to another storage class. Each class is defined independently in variables.tf | `number` | `defined in vars` | yes |
+| enabled | (required) Specifies the number of days after object creation when it will be moved to another storage class. Each class is defined independently in variables.tf | `bool` | `true` | yes |
 ## Outputs
 
 | Name | Description |

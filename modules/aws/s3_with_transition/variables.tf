@@ -58,7 +58,7 @@ variable "mfa_delete" {
 
 variable "lifecycle_infrequent_storage_transition_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Specifies infrequent storage transition lifecycle rule status."
 }
 
@@ -77,7 +77,7 @@ variable "lifecycle_days_to_infrequent_storage_transition" {
 
 variable "lifecycle_glacier_transition_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Specifies Glacier transition lifecycle rule status."
 }
 
@@ -96,7 +96,7 @@ variable "lifecycle_days_to_glacier_transition" {
 
 variable "lifecycle_deep_archive_transition_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Specifies Deep Archive transition lifecycle rule status."
 }
 
