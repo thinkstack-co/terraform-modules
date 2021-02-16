@@ -66,7 +66,7 @@ variable "lifecycle_infrequent_storage_object_prefix" {
   type        = string
   default     = ""
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-  sensitive   = true
+  #sensitive   = true
 }
 
 variable "lifecycle_days_to_infrequent_storage_transition" {
@@ -85,7 +85,7 @@ variable "lifecycle_glacier_object_prefix" {
   type        = string
   default     = ""
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-  sensitive   = true
+  #sensitive   = true
 }
 
 variable "lifecycle_days_to_glacier_transition" {
@@ -104,7 +104,7 @@ variable "lifecycle_deep_archive_object_prefix" {
   type        = string
   default     = ""
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-  sensitive   = true
+  #sensitive   = true
 }
 
 variable "lifecycle_days_to_deep_archive_transition" {
