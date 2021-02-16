@@ -20,6 +20,15 @@ resource "aws_s3_bucket" "s3_bucket" {
     lifecycle {
         prevent_destroy = true
     }
+    transition_1 {
+      days          = var.days1
+      storage_class = var.storage_class1
+    }
+
+    transition_2 {
+      days          = var.days2
+      storage_class = var.storage_class2 
+    }
 
     server_side_encryption_configuration {
         rule {
