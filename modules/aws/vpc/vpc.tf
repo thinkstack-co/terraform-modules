@@ -195,7 +195,7 @@ locals {
   service_name = ["com.amazonaws.${var.vpc_region}.s3"]
 }
 
-resource "aws_vpc_endpoint" "ep" {
+resource "aws_vpc_endpoint" "s3" {
   count        = "${var.enable_s3_endpoint}"
   vpc_id       = "${aws_vpc.vpc.id}"
   service_name = "${element(local.service_name, count.index)}"
