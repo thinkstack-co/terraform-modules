@@ -12,9 +12,7 @@ Creates the following
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| terraform | >= 0.12.0 |
+No requirements.
 
 ## Providers
 
@@ -50,7 +48,7 @@ Creates the following
 | single\_nat\_gateway | should be true if you want to provision a single shared NAT Gateway across all of your private networks | `bool` | `false` | no |
 | tags | A map of tags to add to all resources | `map` | <pre>{<br>  "environment": "prod",<br>  "project": "core_infrastructure",<br>  "terraform": "true"<br>}</pre> | no |
 | vpc\_cidr | The CIDR block for the VPC | `string` | `"10.11.0.0/16"` | no |
-| vpc\_region | The region for the VPC | `any` | n/a | yes |
+| vpc\_region | Region in which the vpc resides | `any` | n/a | yes |
 | workspaces\_propagating\_vgws | A list of VGWs the workspaces route table should propagate. | `list` | `[]` | no |
 | workspaces\_subnets\_list | A list of workspaces subnets inside the VPC. | `list` | <pre>[<br>  "10.11.21.0/24",<br>  "10.11.22.0/24",<br>  "10.11.23.0/24"<br>]</pre> | no |
 
