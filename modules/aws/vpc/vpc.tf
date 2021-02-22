@@ -198,7 +198,7 @@ locals {
 resource "aws_vpc_endpoint" "s3" {
   count        = "${var.enable_s3_endpoint}"
   vpc_id       = "${aws_vpc.vpc.id}"
-  service_name = "${element(local.service_name, count.index)}"
+  service_name = "${local.service_name}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "private_s3" {
