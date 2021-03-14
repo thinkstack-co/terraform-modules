@@ -30,6 +30,10 @@ output "workspaces_subnet_ids" {
   value = aws_subnet.workspaces_subnets[*].id
 }
 
+output "firewall_ha_heartbeat_subnet_ids" {
+  value = aws_subnet.firewall_ha_heartbeat_subnets[*].id
+}
+
 output "vpc_id" {
   value = aws_vpc.vpc.id
 }
