@@ -59,6 +59,14 @@ resource "aws_subnet" "workspaces_subnets" {
   tags              = merge(var.tags, map("Name", format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index))))
 }
 
+resource "aws_subnet" "firewall_firewall_ha_heartbeat_subnets" {
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.firewall_firewall_ha_heartbeat_subnets_list[count.index]
+  availability_zone = element(var.azs, count.index)
+  count             = length(var.firewall_firewall_ha_heartbeat_subnets_list)
+  tags              = merge(var.tags, map("Name", format("%s-subnet-firewall-ha-heartbeat-%s", var.name, element(var.azs, count.index))))
+}
+
 resource "aws_internet_gateway" "igw" {
   tags   = merge(var.tags, map("Name", format("%s-igw", var.name)))
   vpc_id = aws_vpc.vpc.id
@@ -194,6 +202,27 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
 }
 
+resource "aws_route_table" "firewall_ha_heartbeat_route_table" {
+  count            = length(var.azs)
+  propagating_vgws = var.firewall_ha_heartbeat_propagating_vgws
+  tags             = merge(var.tags, map("Name", format("%s-rt-firewall-ha-heartbeat-%s", var.name, element(var.azs, count.index))))
+  vpc_id           = aws_vpc.vpc.id
+}
+
+resource "aws_route" "firewall_ha_heartbeat_default_route_natgw" {
+  count                  = var.enable_firewall ? 0 : length(var.azs)
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
+  route_table_id         = element(aws_route_table.firewall_ha_heartbeat_route_table.*.id, count.index)
+}
+
+resource "aws_route" "firewall_ha_heartbeat_default_route_fw" {
+  count                  = var.enable_firewall ? length(var.azs) : 0
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = element(var.fw_network_interface_id, count.index)
+  route_table_id         = element(aws_route_table.firewall_ha_heartbeat_route_table.*.id, count.index)
+}
+
 # data "aws_vpc_endpoint_service" "s3" {
 #   count        = var.enable_s3_endpoint ? 1 : 0
 #   service_name = "s3"
@@ -253,4 +282,10 @@ resource "aws_route_table_association" "workspaces" {
   count          = length(var.workspaces_subnets_list)
   route_table_id = element(aws_route_table.workspaces_route_table.*.id, count.index)
   subnet_id      = element(aws_subnet.workspaces_subnets.*.id, count.index)
+}
+
+resource "aws_route_table_association" "firewall_ha_heartbeat" {
+  count          = length(var.firewall_ha_heartbeat_subnets_list)
+  route_table_id = element(aws_route_table.firewall_ha_heartbeat_route_table.*.id, count.index)
+  subnet_id      = element(aws_subnet.firewall_ha_heartbeat_subnets.*.id, count.index)
 }

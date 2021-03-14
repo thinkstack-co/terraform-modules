@@ -33,7 +33,7 @@ resource "aws_security_group" "silverpeak_sg" {
 #######################
 
 resource "aws_network_interface" "wan0_nic" {
-    count               = var.count
+    count               = var.number
     description         = var.wan0_description
     private_ips         = var.wan0_private_ips
     security_groups     = [aws_security_group.silverpeak_sg.id]
@@ -48,7 +48,7 @@ resource "aws_network_interface" "wan0_nic" {
 }
 
 resource "aws_network_interface" "lan0_nic" {
-    count               = var.count
+    count               = var.number
     description         = var.lan0_description
     private_ips         = var.lan0_private_ips
     security_groups     = [aws_security_group.silverpeak_sg.id]
@@ -63,7 +63,7 @@ resource "aws_network_interface" "lan0_nic" {
 }
 
 resource "aws_network_interface" "mgmt0_nic" {
-    count               = var.count
+    count               = var.number
     description         = var.mgmt0_description
     private_ips         = var.mgmt0_private_ips
     security_groups     = [aws_security_group.silverpeak_sg.id]
@@ -78,7 +78,7 @@ resource "aws_network_interface" "mgmt0_nic" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   availability_zone                    = var.availability_zone
-  count                                = var.count
+  count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   ephemeral_block_device               = var.ephemeral_block_device
