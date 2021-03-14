@@ -15,8 +15,29 @@ variable "dmz_subnet_id" {
 }
 
 variable "enable_dmz" {
-  description = "describe your variable"
+  description = "Flag to enable the DMZ nic"
   default     = true
+}
+
+variable "enable_ha" {
+  description = "Flag to enable the ha nic"
+  default     = true
+}
+
+variable "ha_nic_description" {
+  description = "Description of the ha network interface"
+  default     = "Fortigate FW ha nic"
+}
+
+variable "ha_private_ips" {
+  type = list
+  description = "(Optional) List of private IPs to assign to the ENI."
+  default     = ["10.11.241.10", "10.11.242.10"]
+}
+
+variable "ha_subnet_id" {
+  description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
+  type = list
 }
 
 variable "ebs_optimized" {
