@@ -81,28 +81,26 @@ resource "aws_instance" "ec2" {
   count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
-  ephemeral_block_device               = var.ephemeral_block_device
+  # ephemeral_block_device             = var.ephemeral_block_device
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
   key_name                             = var.key_name
   monitoring                           = var.monitoring
+  placement_group                      = var.placement_group
+  tags                                 = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tenancy                              = var.tenancy
+  user_data                            = var.user_data
+  volume_tags                          = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
 
   network_interface {
         network_interface_id = element(aws_network_interface.mgmt0_nic.*.id, count.index)
         device_index         = 0
     }
 
-  placement_group                      = var.placement_group
-
-  root_block_device                    = {
+  root_block_device {
     delete_on_termination = var.root_delete_on_termination
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }
-  
-  tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
-  tenancy                = var.tenancy
-  user_data              = var.user_data
-  volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
 }
