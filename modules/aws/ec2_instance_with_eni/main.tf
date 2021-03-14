@@ -15,7 +15,7 @@ resource "aws_network_interface" "eni" {
   # Attachment varaible conflicts with the attachment within the aws_instance resource
   # attachment          = var.attachment
 
-  lifecycle           = {
+  lifecycle {
     prevent_destroy   = true
   }
 }
