@@ -59,11 +59,11 @@ resource "aws_subnet" "workspaces_subnets" {
   tags              = merge(var.tags, map("Name", format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index))))
 }
 
-resource "aws_subnet" "firewall_firewall_ha_heartbeat_subnets" {
+resource "aws_subnet" "firewall_ha_heartbeat_subnets" {
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = var.firewall_firewall_ha_heartbeat_subnets_list[count.index]
+  cidr_block        = var.firewall_ha_heartbeat_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
-  count             = length(var.firewall_firewall_ha_heartbeat_subnets_list)
+  count             = length(var.firewall_ha_heartbeat_subnets_list)
   tags              = merge(var.tags, map("Name", format("%s-subnet-firewall-ha-heartbeat-%s", var.name, element(var.azs, count.index))))
 }
 
