@@ -5,9 +5,9 @@ terraform {
 resource "aws_network_interface" "eni" {
   count               = var.eni_number
   description         = var.description
-  subnet_id           = element(var.subnet_id, count.index)
-  private_ips         = element(var.private_ips, count.index)
-  private_ips_count   = element(var.private_ips_count, count.index)
+  subnet_id           = var.subnet_id
+  private_ips         = var.private_ips
+  private_ips_count   = var.private_ips_count
   security_groups     = var.vpc_security_group_ids
   source_dest_check   = var.source_dest_check
   tags                = var.tags
