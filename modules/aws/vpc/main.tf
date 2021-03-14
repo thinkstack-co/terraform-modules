@@ -209,20 +209,6 @@ resource "aws_route_table" "firewall_ha_heartbeat_route_table" {
   vpc_id           = aws_vpc.vpc.id
 }
 
-resource "aws_route" "firewall_ha_heartbeat_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.firewall_ha_heartbeat_route_table.*.id, count.index)
-}
-
-resource "aws_route" "firewall_ha_heartbeat_default_route_fw" {
-  count                  = var.enable_firewall ? length(var.azs) : 0
-  destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = element(var.fw_network_interface_id, count.index)
-  route_table_id         = element(aws_route_table.firewall_ha_heartbeat_route_table.*.id, count.index)
-}
-
 # data "aws_vpc_endpoint_service" "s3" {
 #   count        = var.enable_s3_endpoint ? 1 : 0
 #   service_name = "s3"
