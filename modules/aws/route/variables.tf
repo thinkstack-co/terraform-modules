@@ -48,7 +48,7 @@ variable "nat_gateway_id" {
 variable "network_interface_id" {
   type = list
   description = "(Optional) An ID of a network interface."
-  default = []
+  default = null
 }
 
 variable "transit_gateway_id" {
