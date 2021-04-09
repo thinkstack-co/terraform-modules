@@ -312,6 +312,14 @@ resource "aws_security_group" "sg" {
     }
 
     ingress {
+        from_port   = 162
+        to_port     = 162
+        protocol    = "udp"
+        cidr_blocks = var.sg_cidr_blocks
+        description = "SNMP Trap Ingester Port"
+    }
+
+    ingress {
         from_port   = 13001
         to_port     = 13001
         protocol    = "udp"
