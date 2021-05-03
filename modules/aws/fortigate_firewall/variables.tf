@@ -114,6 +114,11 @@ variable "ami_id" {
   description = "The AMI to use"
 }
 
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = null
+}
+
 variable "instance_type" {
     description = "Select the instance type. Set in main.tf"
     default     = "m3.medium"
