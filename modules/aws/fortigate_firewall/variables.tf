@@ -1,21 +1,21 @@
-variable "dmz_nic_description" {
-  description = "Description of the dmz network interface"
-  default     = "Fortigate FW DMZ nic"
+variable "mgmt_nic_description" {
+  description = "Description of the mgmt network interface"
+  default     = "Fortigate FW mgmt nic"
 }
 
-variable "dmz_private_ips" {
+variable "mgmt_private_ips" {
   type = list
   description = "(Optional) List of private IPs to assign to the ENI."
-  default     = ["10.11.101.10", "10.11.102.10"]
+  default     = ["10.11.61.10", "10.11.62.10"]
 }
 
-variable "dmz_subnet_id" {
+variable "mgmt_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
   type = list
 }
 
-variable "enable_dmz" {
-  description = "Flag to enable the DMZ nic"
+variable "enable_mgmt" {
+  description = "Flag to enable the mgmt nic"
   default     = true
 }
 
