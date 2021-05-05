@@ -21,7 +21,9 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.private_subnets_list[count.index]
-  availability_zone = element(list(format("%sa", var.region), format("%sb", var.region), format("%sc", var.region)), count.index)
+  # This code required that the AZ be sequential and not a choice of the actual AZ.
+  # availability_zone = element(list(format("%sa", var.region), format("%sb", var.region), format("%sc", var.region)), count.index)
+  availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
   tags              = merge(var.tags, map("Name", format("%s-subnet-private-%s", var.name, element(var.azs, count.index))))
 }
