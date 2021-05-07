@@ -3,6 +3,6 @@ variable "vpn_route_cidr_block" {
 }
 
 variable "vpn_connection_id" {
-    type        = "string"
+    type        = "list"
     description = "VPN connection id"
 }
