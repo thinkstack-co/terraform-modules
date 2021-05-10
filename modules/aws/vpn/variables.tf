@@ -41,3 +41,8 @@ variable "static_routes_only" {
     description = "Flag to determine whether or not dynamic or static routing is enabled"
     default     = true
 }
+
+variable "vpn_route_cidr_block" {
+    type = "list"
+    default = {}
+}
