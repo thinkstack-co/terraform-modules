@@ -42,7 +42,3 @@ variable "static_routes_only" {
     default     = true
 }
 
-variable "vpn_route_cidr_block" {
-    type = "list"
-    default = {}
-}
