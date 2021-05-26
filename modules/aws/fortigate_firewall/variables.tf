@@ -16,9 +16,11 @@ variable "mgmt_subnet_id" {
 
 variable "dmz_subnet_id" {
   description = "the dmz subnet id. set in main.tf"
+  type        = list
 }
 
 variable "dmz_private_ips" {
+  type        = list
   description = "the dmz IP addresses"
   default     = null
 }
