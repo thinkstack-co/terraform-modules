@@ -14,6 +14,17 @@ variable "mgmt_subnet_id" {
   type = list
 }
 
+variable "dmz_subnet_id" {
+  description = "the dmz subnet id. set in main.tf"
+  type        = list
+}
+
+variable "dmz_private_ips" {
+  type        = list
+  description = "the dmz IP addresses"
+  default     = null
+}
+
 variable "enable_mgmt" {
   description = "Flag to enable the mgmt nic"
   default     = true
