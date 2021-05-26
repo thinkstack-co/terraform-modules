@@ -1,22 +1,43 @@
-variable "dmz_nic_description" {
-  description = "Description of the dmz network interface"
-  default     = "Fortigate FW DMZ nic"
+variable "mgmt_nic_description" {
+  description = "Description of the mgmt network interface"
+  default     = "Fortigate FW mgmt nic"
 }
 
-variable "dmz_private_ips" {
+variable "mgmt_private_ips" {
   type = list
   description = "(Optional) List of private IPs to assign to the ENI."
-  default     = ["10.11.101.10", "10.11.102.10"]
+  default     = ["10.11.61.10", "10.11.62.10"]
 }
 
-variable "dmz_subnet_id" {
+variable "mgmt_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
   type = list
 }
 
-variable "enable_dmz" {
-  description = "describe your variable"
+variable "enable_mgmt" {
+  description = "Flag to enable the mgmt nic"
   default     = true
+}
+
+variable "enable_ha" {
+  description = "Flag to enable the ha nic"
+  default     = true
+}
+
+variable "ha_nic_description" {
+  description = "Description of the ha network interface"
+  default     = "Fortigate FW ha nic"
+}
+
+variable "ha_private_ips" {
+  type = list
+  description = "(Optional) List of private IPs to assign to the ENI."
+  default     = ["10.11.241.10", "10.11.242.10"]
+}
+
+variable "ha_subnet_id" {
+  description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
+  type = list
 }
 
 variable "ebs_optimized" {
@@ -91,6 +112,11 @@ variable "source_dest_check" {
 
 variable "ami_id" {
   description = "The AMI to use"
+}
+
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = null
 }
 
 variable "instance_type" {

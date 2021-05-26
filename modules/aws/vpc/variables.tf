@@ -137,3 +137,13 @@ variable "workspaces_propagating_vgws" {
   description = "A list of VGWs the workspaces route table should propagate."
   default     = []
 }
+
+variable "firewall_ha_heartbeat_subnets_list" {
+  description = "A list of firewall_ha_heartbeat subnets inside the VPC."
+  default     = ["10.11.241.0/24", "10.11.242.0/24", "10.11.243.0/24"]
+}
+
+variable "firewall_ha_heartbeat_propagating_vgws" {
+  description = "A list of VGWs the firewall_ha_heartbeat route table should propagate."
+  default     = []
+}

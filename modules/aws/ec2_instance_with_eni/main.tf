@@ -5,9 +5,9 @@ terraform {
 resource "aws_network_interface" "eni" {
   count               = var.eni_number
   description         = var.description
-  subnet_id           = element(var.subnet_id, [count.index])
-  private_ips         = element(var.private_ips, [count.index])
-  private_ips_count   = element(var.private_ips_count, [count.index])
+  subnet_id           = var.subnet_id
+  private_ips         = var.private_ips
+  private_ips_count   = var.private_ips_count
   security_groups     = var.vpc_security_group_ids
   source_dest_check   = var.source_dest_check
   tags                = var.tags
@@ -15,7 +15,7 @@ resource "aws_network_interface" "eni" {
   # Attachment varaible conflicts with the attachment within the aws_instance resource
   # attachment          = var.attachment
 
-  lifecycle           = {
+  lifecycle {
     prevent_destroy   = true
   }
 }
@@ -48,7 +48,7 @@ resource "aws_instance" "ec2" {
   
 
   network_interface {
-        network_interface_id    = aws_network_interface.eni.id
+        network_interface_id    = element(aws_network_interface.eni.*.id, count.index)
         device_index            = var.device_index
         delete_on_termination   = var.delete_on_termination
   }

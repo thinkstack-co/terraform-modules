@@ -23,10 +23,11 @@ output "public_ip" {
   value       = aws_instance.ec2[*].public_ip
 }
 
+/* This no longer exists in this module and provider version
 output "network_interface_id" {
   description = "List of IDs of the network interface of instances"
   value       = aws_instance.ec2[*].network_interface_id
-}
+}*/
 
 output "primary_network_interface_id" {
   description = "List of IDs of the primary network interface of instances"
