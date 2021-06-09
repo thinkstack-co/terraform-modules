@@ -15,7 +15,7 @@ variable "default_route_table_association" {
 
 variable "default_route_table_propagation" {
   description = "(Optional) Whether resource attachments automatically propagate routes to the default propagation route table."
-  default     = "64512"
+  default     = "enable"
 }
 
 variable "description" {
