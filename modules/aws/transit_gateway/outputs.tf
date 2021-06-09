@@ -1,5 +1,5 @@
 output "transit_gateway_arn" {
-    value = aws_transit_gateway.transit_gateway.arn
+    value = aws_ec2_transit_gateway.transit_gateway.arn
 }
 
 output "transit_gateway_route_table_id" {
