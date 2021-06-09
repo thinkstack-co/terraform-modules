@@ -3,6 +3,11 @@ variable "appliance_mdoe_support" {
   default = "disable"
 }
 
+variable "description" {
+  description = "(Optional) Description of the EC2 Transit Gateway Attachment."
+  default     = "Transit gateway attachment to allow access across VPCs or accounts."
+}
+
 variable "dns_support" {
   description = "(Optional) Whether DNS support is enabled."
   default = "enable"
