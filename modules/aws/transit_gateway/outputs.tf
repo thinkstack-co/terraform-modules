@@ -10,10 +10,6 @@ output "transit_gateway_id" {
     value = aws_transit_gateway.transit_gateway.id
 }
 
-output "transit_gateway_id" {
-    value = aws_transit_gateway.transit_gateway.id
-}
-
 output "transit_gateway_propagation_default_route_table_id" {
     value = aws_transit_gateway.transit_gateway.propagation_default_route_table_id
 }
