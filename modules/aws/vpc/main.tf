@@ -81,20 +81,13 @@ resource "aws_eip" "nateip" {
   vpc   = true
 }
 
-resource "aws_nat_gateway" "natgw" {
-  depends_on    = [aws_internet_gateway.igw]
+# resource "aws_nat_gateway" "natgw" {
+#   depends_on    = [aws_internet_gateway.igw]
 
-  allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
-  count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
-  subnet_id     = element(aws_subnet.public_subnets.*.id, (var.single_nat_gateway ? 0 : count.index))
-
-lifecycle {
-    ignore_changes = [
-      natgw_ids,
-    ]
-  }
-
-}
+#   allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
+#   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
+#   subnet_id     = element(aws_subnet.public_subnets.*.id, (var.single_nat_gateway ? 0 : count.index))
+# }
 
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
@@ -103,12 +96,12 @@ resource "aws_route_table" "private_route_table" {
   vpc_id           = aws_vpc.vpc.id
 }
 
-resource "aws_route" "private_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
-}
+# resource "aws_route" "private_default_route_natgw" {
+#   count                  = var.enable_firewall ? 0 : length(var.azs)
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
+#   route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
+# }
 
 resource "aws_route" "private_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
@@ -124,15 +117,12 @@ resource "aws_route_table" "db_route_table" {
   vpc_id           = aws_vpc.vpc.id
 }
 
-resource "aws_route" "db_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.db_route_table.*.id, count.index)
-
-
-
-}
+# resource "aws_route" "db_default_route_natgw" {
+#   count                  = var.enable_firewall ? 0 : length(var.azs)
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
+#   route_table_id         = element(aws_route_table.db_route_table.*.id, count.index)
+# }
 
 resource "aws_route" "db_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
@@ -169,12 +159,12 @@ resource "aws_route_table" "mgmt_route_table" {
   vpc_id           = aws_vpc.vpc.id
 }
 
-resource "aws_route" "mgmt_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.mgmt_route_table.*.id, count.index)
-}
+# resource "aws_route" "mgmt_default_route_natgw" {
+#   count                  = var.enable_firewall ? 0 : length(var.azs)
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
+#   route_table_id         = element(aws_route_table.mgmt_route_table.*.id, count.index)
+# }
 
 resource "aws_route" "mgmt_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
@@ -190,13 +180,13 @@ resource "aws_route_table" "workspaces_route_table" {
   vpc_id           = aws_vpc.vpc.id
 }
 
-resource "aws_route" "workspaces_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
+# resource "aws_route" "workspaces_default_route_natgw" {
+#   count                  = var.enable_firewall ? 0 : length(var.azs)
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
+#   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
 
-}
+# }
 
 resource "aws_route" "workspaces_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
