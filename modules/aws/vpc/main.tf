@@ -90,8 +90,7 @@ resource "aws_nat_gateway" "natgw" {
 
 lifecycle {
     ignore_changes = [
-      gateway_id,
-      nat_gateway_id,
+      natgw_ids,
     ]
   }
 
