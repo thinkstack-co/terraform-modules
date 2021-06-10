@@ -8,12 +8,6 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
   tags                 = merge(var.tags, map("Name", format("%s", var.name)))
-lifecycle {
-    ignore_changes = [
-      gateway_id,
-      nat_gateway_id,
-    ]
-  }
 }
 
 resource "aws_subnet" "private_subnets" {
@@ -93,6 +87,14 @@ resource "aws_nat_gateway" "natgw" {
   allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
   subnet_id     = element(aws_subnet.public_subnets.*.id, (var.single_nat_gateway ? 0 : count.index))
+
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
+
 }
 
 resource "aws_route_table" "private_route_table" {
@@ -107,6 +109,14 @@ resource "aws_route" "private_default_route_natgw" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
+
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
+
 }
 
 resource "aws_route" "private_default_route_fw" {
@@ -128,6 +138,14 @@ resource "aws_route" "db_default_route_natgw" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.db_route_table.*.id, count.index)
+
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
+
 }
 
 resource "aws_route" "db_default_route_fw" {
@@ -149,6 +167,14 @@ resource "aws_route" "dmz_default_route_natgw" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.dmz_route_table.*.id, count.index)
+
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
+
 }
 
 resource "aws_route" "dmz_default_route_fw" {
@@ -170,6 +196,14 @@ resource "aws_route" "mgmt_default_route_natgw" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.mgmt_route_table.*.id, count.index)
+
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
+
 }
 
 resource "aws_route" "mgmt_default_route_fw" {
@@ -191,6 +225,14 @@ resource "aws_route" "workspaces_default_route_natgw" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
+
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
+
 }
 
 resource "aws_route" "workspaces_default_route_fw" {
