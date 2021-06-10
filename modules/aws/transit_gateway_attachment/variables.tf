@@ -46,7 +46,6 @@ variable "transit_gateway_default_route_table_propagation" {
 
 variable "transit_gateway_id" {
   description = "(Optional) Boolean whether the VPC Attachment should propagate routes with the EC2 Transit Gateway propagation default route table. This cannot be configured or perform drift detection with Resource Access Manager shared EC2 Transit Gateways."
-  default = true
 }
 
 variable "vpc_id" {
