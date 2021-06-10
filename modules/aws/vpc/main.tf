@@ -8,6 +8,12 @@ resource "aws_vpc" "vpc" {
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
   tags                 = merge(var.tags, map("Name", format("%s", var.name)))
+lifecycle {
+    ignore_changes = [
+      gateway_id,
+      nat_gateway_id,
+    ]
+  }
 }
 
 resource "aws_subnet" "private_subnets" {
