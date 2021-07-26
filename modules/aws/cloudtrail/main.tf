@@ -12,7 +12,7 @@ resource "aws_cloudtrail" "cloudtrail" {
     enable_log_file_validation      =   var.enable_log_file_validation
     include_global_service_events   =   var.include_global_service_events
     is_multi_region_trail           =   var.is_multi_region_trail
-    kms_key_id                      =   aws_kms_key.cloudtrail.id
+    kms_key_id                      =   aws_kms_key.cloudtrail.arn
     name                            =   var.name
     s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
     s3_key_prefix                   =   var.s3_key_prefix
