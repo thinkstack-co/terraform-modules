@@ -6,6 +6,33 @@ resource "aws_kms_key" "cloudtrail" {
   description             = "KMS key for cloudtrail logs"
   deletion_window_in_days = 30
   enable_key_rotation = true
+  policy  = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+
+        {
+            "Sid": "Enable CloudTrail Encrypt Permissions",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "kms:GenerateDataKey*",
+            "Resource": "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}",
+            
+          }
+
+          {
+            "Sid": "Enable CloudTrail Encrypt Permissions",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "kms:Decrypt",
+            "Resource": "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}",
+            
+          }
+POLICY
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
