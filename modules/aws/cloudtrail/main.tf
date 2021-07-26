@@ -18,9 +18,9 @@ resource "aws_kms_key" "cloudtrail" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "kms:GenerateDataKey*",
-            "Resource": "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
             
-          }
+          },
 
           {
             "Sid": "Enable CloudTrail Encrypt Permissions",
@@ -29,9 +29,13 @@ resource "aws_kms_key" "cloudtrail" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "kms:Decrypt",
-            "Resource": "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}",
-            
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
           }
+          
+          ]
+        }
+        
+          
 POLICY
 }
 
