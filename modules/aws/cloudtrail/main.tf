@@ -2,11 +2,17 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
+resource "aws_kms_key" "cloudtrail" {
+  description             = "KMS key for cloudtrail logs"
+  deletion_window_in_days = 30
+  enable_key_rotation = true
+}
+
 resource "aws_cloudtrail" "cloudtrail" {
     enable_log_file_validation      =   var.enable_log_file_validation
     include_global_service_events   =   var.include_global_service_events
     is_multi_region_trail           =   var.is_multi_region_trail
-    kms_key_id                      =   var.kms_key_id
+    kms_key_id                      =   aws_kms_key.cloudtrail.id
     name                            =   var.name
     s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
     s3_key_prefix                   =   var.s3_key_prefix
