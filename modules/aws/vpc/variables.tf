@@ -124,6 +124,10 @@ variable "vpc_cidr" {
   default     = "10.11.0.0/16"
 }
 
+variable "vpc_region" {
+  description = "The region for the VPC"
+}
+
 variable "workspaces_subnets_list" {
   description = "A list of workspaces subnets inside the VPC."
   default     = ["10.11.21.0/24", "10.11.22.0/24", "10.11.23.0/24"]
