@@ -114,7 +114,7 @@ variable "region" {
 
 variable "root_volume_type" {
   description = "Root volume EBS type"
-  default     = "gp2"
+  default     = "gp3"
 }
 
 variable "root_volume_size" {
