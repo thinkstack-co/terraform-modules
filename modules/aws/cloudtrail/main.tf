@@ -98,6 +98,15 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
             "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
         },
         {
+            "Sid": "AWSCloudTrailAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
+        },
+        {
             "Sid": "AWSCloudTrailWrite",
             "Effect": "Allow",
             "Principal": {
