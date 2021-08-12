@@ -1,4 +1,4 @@
-variable "mfa_self_serve_name" {
+variable "mfa_enforcement_name" {
     description = "Name of the policy"
     default     = "mfa_enforcement"
 }
