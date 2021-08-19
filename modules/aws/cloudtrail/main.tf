@@ -19,13 +19,6 @@ resource "aws_kms_key" "cloudtrail" {
             },
             "Action": "kms:GenerateDataKey*",
             "Resource": "*",
-            "Condition": {
-              "StringLike": {
-                "kms:EncryptionContext:aws:cloudtrail:arn": [
-                  "arn:aws:cloudtrail:*:369844436288:trail/*"
-                ]
-              }
-            }
           },
 
           {
