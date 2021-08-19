@@ -18,7 +18,12 @@ resource "aws_kms_key" "cloudtrail" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "kms:GenerateDataKey*",
-            "Resource": "*"
+            "Resource": "*",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::369844436288:root"
+                ]
+            }
           },
 
           {
