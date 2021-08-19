@@ -12,24 +12,20 @@ resource "aws_kms_key" "cloudtrail" {
     "Statement": [
 
         {
-            "Sid": "Enable IAM User Permissions",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::369844436288:root"
-            },
-            "Action": "kms:*",
-            "Resource": "*"
-        },
-
-        {
-            "Sid": "Enable CloudTrail Encrypt Permissions",
+            "Sid": "Allow CloudTrail to encrypt logs",
             "Effect": "Allow",
             "Principal": {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "kms:GenerateDataKey*",
-            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
-            
+            "Resource": "*",
+            "Condition": {
+              "StringLike": {
+                "kms:EncryptionContext:aws:cloudtrail:arn": [
+                  "arn:aws:cloudtrail:*:369844436288:trail/*"
+                ]
+              }
+            }
           },
 
           {
@@ -41,7 +37,7 @@ resource "aws_kms_key" "cloudtrail" {
             "Action": "kms:Decrypt",
             "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
           },
-          
+
           {
             "Sid": "Enable CloudTrail Encrypt Permissions",
             "Effect": "Allow",
