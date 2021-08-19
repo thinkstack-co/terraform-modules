@@ -35,7 +35,7 @@ resource "aws_kms_key" "cloudtrail" {
               "kms:CancelKeyDeletion"
             ],
             "Resource": "*"
-          }
+          },
 
         {
             "Sid": "Allow CloudTrail to encrypt logs",
