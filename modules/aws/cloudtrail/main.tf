@@ -12,6 +12,32 @@ resource "aws_kms_key" "cloudtrail" {
     "Statement": [
 
         {
+            "Sid": "Allow access for Key Administrators",
+            "Effect": "Allow",
+            "Principal": {"AWS": [
+              "arn:aws:iam::369844436288:root", 
+              "arn:aws:iam::369844436288:user/terraform"
+            ]},
+            "Action": [
+              "kms:Create*",
+              "kms:Describe*",
+              "kms:Enable*",
+              "kms:List*",
+              "kms:Put*",
+              "kms:Update*",
+              "kms:Revoke*",
+              "kms:Disable*",
+              "kms:Get*",
+              "kms:Delete*",
+              "kms:TagResource",
+              "kms:UntagResource",
+              "kms:ScheduleKeyDeletion",
+              "kms:CancelKeyDeletion"
+            ],
+            "Resource": "*"
+          }
+
+        {
             "Sid": "Allow CloudTrail to encrypt logs",
             "Effect": "Allow",
             "Principal": {
@@ -19,11 +45,6 @@ resource "aws_kms_key" "cloudtrail" {
             },
             "Action": "kms:GenerateDataKey*",
             "Resource": "*",
-            "Principal": {
-                "AWS": [
-                    "arn:aws:iam::369844436288:root"
-                ]
-            }
           },
 
           {
