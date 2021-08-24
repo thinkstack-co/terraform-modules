@@ -1,6 +1,6 @@
 variable "amazon_side_asn" {
   description = "(Optional) Private Autonomous System Number (ASN) for the Amazon side of a BGP session."
-  default     = "64512"
+  default     = "64525"
 }
 
 variable "auto_accept_shared_attachments" {
