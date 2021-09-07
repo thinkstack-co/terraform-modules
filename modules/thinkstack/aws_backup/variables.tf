@@ -45,7 +45,7 @@ variable "key_is_enabled" {
 
 variable "key_name" {
   description = "(Optional) The display name of the alias. The name must start with the word 'alias' followed by a forward slash"
-  default     = "aws_backup_key"
+  default     = "alias/aws_backup_key"
   type        = string
 }
 
