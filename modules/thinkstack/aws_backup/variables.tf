@@ -65,6 +65,12 @@ variable "vault_prod_hourly_name" {
     type        = string
 }
 
+variable "vault_dr_hourly_name" {
+    description = "value"
+    default     = "vault_dr_hourly"
+    type        = string
+}
+
 variable "vault_prod_daily_name" {
     description = "value"
     default     = "vault_prod_daily"
