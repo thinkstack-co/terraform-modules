@@ -90,6 +90,7 @@ resource "aws_backup_vault" "vault_prod_monthly" {
 
 ### Disaster Recovery
 resource "aws_backup_vault" "vault_disaster_recovery" {
+  provider    = aws.aws_dr_region
   name        = var.vault_disaster_recovery_name
   kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
