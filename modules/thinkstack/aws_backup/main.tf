@@ -110,12 +110,12 @@ resource "aws_backup_plan" "plan" {
     copy_action {
       destination_vault_arn = aws_backup_vault.vault_dr_hourly.arn
       lifecycle {
-          cold_storage_after = ""
+          # cold_storage_after = ""
           delete_after       = var.dr_backup_retention
         }
     }
     lifecycle {
-      cold_storage_after = ""
+      # cold_storage_after = ""
       delete_after       = var.hourly_backup_retention
     }
   }
@@ -128,7 +128,7 @@ resource "aws_backup_plan" "plan" {
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     lifecycle {
-      cold_storage_after = ""
+      # cold_storage_after = ""
       delete_after       = var.daily_backup_retention
     }
   }
@@ -141,7 +141,7 @@ resource "aws_backup_plan" "plan" {
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     lifecycle {
-      cold_storage_after = ""
+      # cold_storage_after = ""
       delete_after       = var.monthly_backup_retention
     }
   }
