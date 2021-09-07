@@ -63,27 +63,27 @@ resource "aws_iam_role_policy_attachment" "restores" {
 ### Hourly
 resource "aws_backup_vault" "vault_prod_hourly" {
   name        = var.vault_prod_hourly_name
-  kms_key_arn = var.kms_key_arn
+  kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
 }
 
 resource "aws_backup_vault" "vault_dr_hourly" {
   name        = var.vault_dr_hourly_name
-  kms_key_arn = var.kms_key_arn
+  kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
 }
 
 ### Daily
 resource "aws_backup_vault" "vault_prod_daily" {
   name        = var.vault_prod_daily_name
-  kms_key_arn = var.kms_key_arn
+  kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
 }
 
 ### Monthly
 resource "aws_backup_vault" "vault_prod_monthly" {
   name        = var.vault_prod_monthly_name
-  kms_key_arn = var.kms_key_arn
+  kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
 }
 
