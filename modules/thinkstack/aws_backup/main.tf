@@ -1,5 +1,12 @@
 terraform {
   required_version = ">= 0.12.0"
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = ">= 2.7.0"
+      configuration_aliases = [ aws.aws_dr_region ]
+    }
+  }
 }
 
 ###############################################################
@@ -81,6 +88,13 @@ resource "aws_backup_vault" "vault_prod_monthly" {
   tags        = var.tags
 }
 
+### Disaster Recovery
+resource "aws_backup_vault" "vault_disaster_recovery" {
+  name        = var.vault_disaster_recovery_name
+  kms_key_arn = aws_kms_key.key.arn
+  tags        = var.tags
+}
+
 ###############################################################
 # Backup Vault Policy
 ###############################################################
@@ -102,7 +116,7 @@ resource "aws_backup_plan" "plan" {
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     copy_action {
-      destination_vault_arn = var.dr_vault
+      destination_vault_arn = aws_backup_vault.vault_disaster_recovery.arn
       lifecycle {
           # cold_storage_after = ""
           delete_after       = var.dr_backup_retention

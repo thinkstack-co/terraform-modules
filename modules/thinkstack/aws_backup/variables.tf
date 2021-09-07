@@ -83,6 +83,12 @@ variable "vault_prod_monthly_name" {
     type        = string
 }
 
+variable "vault_disaster_recovery_name" {
+    description = "value"
+    default     = "vault_disaster_recovery"
+    type        = string
+}
+
 ###############################################################
 # Plan Variables
 ###############################################################
@@ -127,11 +133,6 @@ variable "backup_plan_completion_window" {
   description = "(Optional) The amount of time in minutes AWS Backup attempts a backup before canceling the job and returning an error. Default is set to 24 hours."
   default = 1440
   type = number
-}
-
-variable "dr_vault" {
-  description = "(Required) The ARN of the Disaster Recovery, or DR, vault in another region"
-  type = string
 }
 
 ###############################################################
