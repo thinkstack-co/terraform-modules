@@ -27,7 +27,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_kms_alias" "alias" {
-  name          = var.prod_key_name
+  name          = var.key_name
   target_key_id = aws_kms_key.key.key_id
 }
 
