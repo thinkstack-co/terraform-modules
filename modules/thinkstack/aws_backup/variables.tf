@@ -111,6 +111,24 @@ variable "monthly_backup_retention" {
   type        = number
 }
 
+variable "dr_backup_retention" {
+  description = "(Required) The dr backup plan retention in days. By default this is 3 days."
+  default     = 3
+  type        = number
+}
+
+variable "backup_plan_start_window" {
+  description = "(Optional) The amount of time in minutes before beginning a backup."
+  default = 10
+  type = number
+}
+
+variable "backup_plan_completion_window" {
+  description = "(Optional) The amount of time AWS Backup attempts a backup before canceling the job and returning an error."
+  default = 24
+  type = number
+}
+
 ###############################################################
 # General Use Variables
 ###############################################################

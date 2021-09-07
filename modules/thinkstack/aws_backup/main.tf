@@ -105,10 +105,10 @@ resource "aws_backup_plan" "plan" {
     target_vault_name        = aws_backup_vault.vault_prod_hourly.name
     schedule                 = "cron(20 * * * ? *)"
     enable_continuous_backup = false
-    start_window             = ""
-    completion_window        = ""
+    start_window             = var.backup_plan_start_window
+    completion_window        = var.backup_plan_completion_window
     copy_action {
-      lifecycle             = 3
+      lifecycle             = var.dr_backup_retention
       destination_vault_arn = aws_backup_vault.vault_dr_hourly.arn
     }
     lifecycle {
@@ -122,8 +122,8 @@ resource "aws_backup_plan" "plan" {
     target_vault_name = aws_backup_vault.vault_prod_daily.name
     schedule                 = "cron(20 7 * * ? *)"
     enable_continuous_backup = false
-    start_window             = ""
-    completion_window        = ""
+    start_window             = var.backup_plan_start_window
+    completion_window        = var.backup_plan_completion_window
     lifecycle {
       cold_storage_after = ""
       delete_after       = var.daily_backup_retention
@@ -135,8 +135,8 @@ resource "aws_backup_plan" "plan" {
     target_vault_name = aws_backup_vault.vault_prod_monthly.name
     schedule                 = "cron(20 7 1 * ? *)"
     enable_continuous_backup = false
-    start_window             = ""
-    completion_window        = ""
+    start_window             = var.backup_plan_start_window
+    completion_window        = var.backup_plan_completion_window
     lifecycle {
       cold_storage_after = ""
       delete_after       = var.monthly_backup_retention
