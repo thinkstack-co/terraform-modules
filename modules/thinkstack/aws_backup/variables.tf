@@ -124,8 +124,8 @@ variable "backup_plan_start_window" {
 }
 
 variable "backup_plan_completion_window" {
-  description = "(Optional) The amount of time AWS Backup attempts a backup before canceling the job and returning an error."
-  default = 24
+  description = "(Optional) The amount of time in minutes AWS Backup attempts a backup before canceling the job and returning an error. Default is set to 24 hours."
+  default = 1440
   type = number
 }
 
