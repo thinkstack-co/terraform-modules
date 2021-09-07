@@ -45,7 +45,7 @@ variable "key_is_enabled" {
 
 variable "key_name" {
   description = "(Optional) The display name of the alias. The name must start with the word 'alias' followed by a forward slash"
-  default     = "alias/aws_backup_key"
+  default     = "alias/aws_backup_disaster_recovery_key"
   type        = string
 }
 
@@ -53,85 +53,6 @@ variable "key_policy" {
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
   default     =  null
   type        = string
-}
-
-###############################################################
-# Vault Variables
-###############################################################
-
-variable "vault_prod_hourly_name" {
-    description = "value"
-    default     = "vault_prod_hourly"
-    type        = string
-}
-
-variable "vault_dr_hourly_name" {
-    description = "value"
-    default     = "vault_dr_hourly"
-    type        = string
-}
-
-variable "vault_prod_daily_name" {
-    description = "value"
-    default     = "vault_prod_daily"
-    type        = string
-}
-
-variable "vault_prod_monthly_name" {
-    description = "value"
-    default     = "vault_prod_monthly"
-    type        = string
-}
-
-###############################################################
-# Plan Variables
-###############################################################
-
-variable "backup_plan_name" {
-  description = "(Required) The display name of a backup plan."
-  default     = "prod_backups"
-  type        = string
-}
-
-variable "hourly_backup_retention" {
-  description = "(Required) The hourly backup plan retention in days. By default this is 7 days."
-  default     = 7
-  type        = number
-}
-
-variable "daily_backup_retention" {
-  description = "(Required) The daily backup plan retention in days. By default this is 30 days"
-  default     = 30
-  type        = number
-}
-
-variable "monthly_backup_retention" {
-  description = "(Required) The daily backup plan retention in days. By default this is 365 days."
-  default     = 365
-  type        = number
-}
-
-variable "dr_backup_retention" {
-  description = "(Required) The dr backup plan retention in days. By default this is 3 days."
-  default     = 3
-  type        = number
-}
-
-variable "backup_plan_start_window" {
-  description = "(Optional) The amount of time in minutes before beginning a backup."
-  default = 60
-  type = number
-}
-
-variable "backup_plan_completion_window" {
-  description = "(Optional) The amount of time in minutes AWS Backup attempts a backup before canceling the job and returning an error. Default is set to 24 hours."
-  default = 1440
-  type = number
-}
-
-variable "dr_vault" {
-  description = "(Required) The ARN of the Disaster Recovery, or DR, vault in another region"
-  type = string
 }
 
 ###############################################################

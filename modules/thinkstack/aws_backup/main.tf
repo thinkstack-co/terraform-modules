@@ -1,19 +1,5 @@
 terraform {
-  required_providers {
-      aws = {
-          configuration_aliases = [ aws.dr_region ]
-      }
-  }
   required_version = ">= 0.12.0"
-}
-
-provider "aws" {
-    region = var.aws_prod_region
-}
-
-provider "aws" {
-    alias = "dr_region"
-    region = var.aws_dr_region
 }
 
 ###############################################################
@@ -81,15 +67,6 @@ resource "aws_backup_vault" "vault_prod_hourly" {
   tags        = var.tags
 }
 
-resource "aws_backup_vault" "vault_dr_hourly" {
-  providers = {
-      aws = aws.dr_region
-  }
-  name        = var.vault_dr_hourly_name
-  kms_key_arn = aws_kms_key.key.arn
-  tags        = var.tags
-}
-
 ### Daily
 resource "aws_backup_vault" "vault_prod_daily" {
   name        = var.vault_prod_daily_name
@@ -125,7 +102,7 @@ resource "aws_backup_plan" "plan" {
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     copy_action {
-      destination_vault_arn = aws_backup_vault.vault_dr_hourly.arn
+      destination_vault_arn = var.dr_vault
       lifecycle {
           # cold_storage_after = ""
           delete_after       = var.dr_backup_retention
