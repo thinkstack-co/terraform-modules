@@ -56,6 +56,16 @@ variable "key_policy" {
 }
 
 ###############################################################
+# Vault Variables
+###############################################################
+
+variable "vault_disaster_recovery_name" {
+    description = "value"
+    default     = "vault_disaster_recovery"
+    type        = string
+}
+
+###############################################################
 # General Use Variables
 ###############################################################
 
