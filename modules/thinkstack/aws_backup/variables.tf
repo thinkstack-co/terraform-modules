@@ -119,7 +119,7 @@ variable "dr_backup_retention" {
 
 variable "backup_plan_start_window" {
   description = "(Optional) The amount of time in minutes before beginning a backup."
-  default = 10
+  default = 60
   type = number
 }
 
