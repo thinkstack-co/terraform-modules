@@ -164,32 +164,32 @@ resource "aws_backup_selection" "backup_tag" {
   plan_id      = aws_backup_plan.plan.id
 
   selection_tag {
-    type  = "StringEquals"
+    type  = "STRINGEQUALS"
     key   = "backup"
     value = "true"
   }
   selection_tag {
-    type  = "StringEquals"
+    type  = "STRINGEQUALS"
     key   = "backup"
     value = "True"
   }
   selection_tag {
-    type  = "StringEquals"
+    type  = "STRINGEQUALS"
     key   = "backup"
     value = "TRUE"
   }
   selection_tag {
-    type  = "StringEquals"
+    type  = "STRINGEQUALS"
     key   = "backup"
     value = "yes"
   }
   selection_tag {
-    type  = "StringEquals"
+    type  = "STRINGEQUALS"
     key   = "backup"
     value = "Yes"
   }
   selection_tag {
-    type  = "StringEquals"
+    type  = "STRINGEQUALS"
     key   = "backup"
     value = "YES"
   }
