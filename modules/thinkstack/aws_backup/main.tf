@@ -1,5 +1,19 @@
 terraform {
+  required_providers {
+      aws = {
+          configuration_aliases = [ aws.dr_region ]
+      }
+  }
   required_version = ">= 0.12.0"
+}
+
+provider "aws" {
+    region = var.aws_prod_region
+}
+
+provider "aws" {
+    alias = "dr_region"
+    region = var.aws_dr_region
 }
 
 ###############################################################
@@ -68,6 +82,9 @@ resource "aws_backup_vault" "vault_prod_hourly" {
 }
 
 resource "aws_backup_vault" "vault_dr_hourly" {
+  providers = {
+      aws = aws.dr_region
+  }
   name        = var.vault_dr_hourly_name
   kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
