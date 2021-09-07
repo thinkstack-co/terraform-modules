@@ -24,6 +24,39 @@ resource "aws_kms_alias" "alias" {
 }
 
 ###############################################################
+# IAM
+###############################################################
+# Assume Role
+resource "aws_iam_role" "backup" {
+  name               = "aws_backup_role"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": ["sts:AssumeRole"],
+      "Effect": "allow",
+      "Principal": {
+        "Service": ["backup.amazonaws.com"]
+      }
+    }
+  ]
+}
+POLICY
+}
+
+# Policy Attachment
+resource "aws_iam_role_policy_attachment" "backup" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+  role       = aws_iam_role.backup.name
+}
+
+resource "aws_iam_role_policy_attachment" "restores" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
+  role       = aws_iam_role.backup.name
+}
+
+###############################################################
 # Backup Vaults
 ###############################################################
 
@@ -121,6 +154,43 @@ resource "aws_backup_plan" "plan" {
 ###############################################################
 # Backup Selection
 ###############################################################
+
+resource "aws_backup_selection" "backup_tag" {
+  iam_role_arn = aws_iam_role.backup.arn
+  name         = "backup_tag"
+  plan_id      = aws_backup_plan.plan.id
+
+  selection_tag {
+    type  = "StringEquals"
+    key   = "backup"
+    value = "true"
+  }
+  selection_tag {
+    type  = "StringEquals"
+    key   = "backup"
+    value = "True"
+  }
+  selection_tag {
+    type  = "StringEquals"
+    key   = "backup"
+    value = "TRUE"
+  }
+  selection_tag {
+    type  = "StringEquals"
+    key   = "backup"
+    value = "yes"
+  }
+  selection_tag {
+    type  = "StringEquals"
+    key   = "backup"
+    value = "Yes"
+  }
+  selection_tag {
+    type  = "StringEquals"
+    key   = "backup"
+    value = "YES"
+  }
+}
 
 ###############################################################
 # Backup Notifications
