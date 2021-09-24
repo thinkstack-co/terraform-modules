@@ -101,7 +101,7 @@ variable "backup_plan_name" {
 
 variable "hourly_backup_retention" {
   description = "(Required) The hourly backup plan retention in days. By default this is 7 days."
-  default     = 7
+  default     = 3
   type        = number
 }
 
