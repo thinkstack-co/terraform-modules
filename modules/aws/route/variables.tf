@@ -45,10 +45,10 @@ variable "nat_gateway_id" {
   default     = null
 }
 
-variable "network_interface_id" {
-  type        = list
-  description = "(Optional) An ID of a network interface."
-}
+# variable "network_interface_id" {
+#   type        = list
+#   description = "(Optional) An ID of a network interface."
+# }
 
 variable "transit_gateway_id" {
   type        = string
