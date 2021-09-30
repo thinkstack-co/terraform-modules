@@ -7,8 +7,10 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
+  #tags                 = merge(var.tags, map("Name", format("%s", var.name))) old
   #tags                 = merge(var.tags, "Name" = format("%s", var.name))
-  tags = ["${concat(var.tags, "Name" = format("%s", var.name))}"]
+  #tags = ["${concat(var.tags, "Name" = format("%s", var.name))}"]
+  tags = merge({"Name" = format("%s", var.name)},var.tags,)
   }
 
 resource "aws_subnet" "private_subnets" {
