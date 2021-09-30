@@ -7,8 +7,8 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags                 = merge(var.tags, "Name" = format("%s", var.name))
-}
+  #tags                 = merge(var.tags, "Name" = format("%s", var.name))
+  tags = ["${concat(var.tags, list(tomap("key", "Name","value", var.name,)))}"]}
 
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
