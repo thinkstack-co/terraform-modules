@@ -26,9 +26,9 @@ resource "aws_instance" "ec2_instance" {
     source_dest_check      = var.source_dest_check
     subnet_id              = element(var.subnet_id, count.index)
     tenancy                = var.tenancy
-    tags                   = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
+    tags                   = merge(var.tags, ({"Name" = format("%s%01d", var.name, count.index + 1)}))
     user_data              = var.user_data
-    volume_tags            = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
+    volume_tags            = merge(var.tags, ({"Name" = format("%s%01d", var.name, count.index + 1)}))
     vpc_security_group_ids = var.vpc_security_group_ids
 
     lifecycle {
@@ -39,7 +39,7 @@ resource "aws_instance" "ec2_instance" {
 resource "aws_vpc_dhcp_options" "dc_dns" {
     domain_name_servers = aws_instance.ec2_instance[*].private_ip
     domain_name         = var.domain_name
-    tags                = merge(var.tags, map("Name", format("%s-dhcp-options", var.name)))
+    tags                = merge(var.tags, ({"Name" = format("%s-dhcp-options", var.name)}))
 }
 
 resource "aws_vpc_dhcp_options_association" "dc_dns" {
