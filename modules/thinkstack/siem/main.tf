@@ -11,7 +11,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags                 = merge(var.tags, map("Name", format("%s", var.name)))
+  tags                 = merge(var.tags, ({"Name" = format("%s", var.name)}))
 }
 
 ###########################
@@ -23,7 +23,7 @@ resource "aws_subnet" "private_subnets" {
   cidr_block        = var.private_subnets_list[count.index]
   availability_zone = element(list(format("%sa", var.region), format("%sb", var.region), format("%sc", var.region)), count.index)
   count             = length(var.private_subnets_list)
-  tags              = merge(var.tags, map("Name", format("%s-subnet-private-%s", var.name, element(var.azs, count.index))))
+  tags              = merge(var.tags, ({"Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index))}))
 }
 
 resource "aws_subnet" "public_subnets" {
@@ -32,7 +32,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = element(var.azs, count.index)
   map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = length(var.public_subnets_list)
-  tags                    = merge(var.tags, map("Name", format("%s-subnet-public-%s", var.name, element(var.azs, count.index))))
+  tags                    = merge(var.tags, ({"Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index))}))
 }
 
 ###########################
@@ -45,7 +45,7 @@ resource "aws_eip" "nateip" {
 }
 
 resource "aws_internet_gateway" "igw" {
-  tags   = merge(var.tags, map("Name", format("%s-igw", var.name)))
+  tags   = merge(var.tags, ({"Name" = format("%s-igw", var.name)}))
   vpc_id = aws_vpc.vpc.id
 }
 
@@ -63,7 +63,7 @@ resource "aws_nat_gateway" "natgw" {
 
 resource "aws_route_table" "public_route_table" {
   propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
-  tags             = merge(var.tags, map("Name", format("%s-rt-public", var.name)))
+  tags             = merge(var.tags, ({"Name" = format("%s-rt-public", var.name)}))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -76,7 +76,7 @@ resource "aws_route" "public_default_route" {
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
   propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
-  tags             = merge(var.tags, map("Name", format("%s-rt-private-%s", var.name, element(var.azs, count.index))))
+  tags             = merge(var.tags, ({"Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index))}))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -134,7 +134,7 @@ resource "aws_route" "vpc_peer_route" {
 
 resource "aws_vpn_gateway" "vpn_gateway" {
   vpc_id            = aws_vpc.vpc.id
-  tags              = merge(var.tags, map("Name", format("%s_vpn_gw", var.name)))
+  tags              = merge(var.tags, ({"Name" = format("%s_vpn_gw", var.name)}))
 }
 
 resource "aws_customer_gateway" "customer_gateway" {
@@ -142,14 +142,14 @@ resource "aws_customer_gateway" "customer_gateway" {
   bgp_asn          = var.bgp_asn
   ip_address       = var.vpn_peer_ip_address[count.index]
   type             = var.vpn_type
-  tags             = merge(var.tags, map("Name", format("%s_customer_gw", var.customer_gw_name[count.index])))
+  tags             = merge(var.tags, ({"Name" = format("%s_customer_gw", var.customer_gw_name[count.index])}))
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
   count                 = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
   customer_gateway_id   = aws_customer_gateway.customer_gateway[count.index].id
   static_routes_only    = var.static_routes_only
-  tags                  = merge(var.tags, map("Name", format("%s_vpn_connection", var.name)))
+  tags                  = merge(var.tags, ({"Name" = format("%s_vpn_connection", var.name)}))
   type                  = var.vpn_type
   vpn_gateway_id        = aws_vpn_gateway.vpn_gateway.id
 }
@@ -206,10 +206,10 @@ resource "aws_instance" "ec2" {
   }
   source_dest_check      = var.source_dest_check
   subnet_id              = aws_subnet.private_subnets[count.index].id
-  tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tags                   = merge(var.tags, ({"Name" = format("%s%d", var.name, count.index + 1)}))
   tenancy                = var.tenancy
   user_data              = data.template_file.user_data.rendered
-  volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  volume_tags            = merge(var.tags, ({"Name" = format("%s%d", var.name, count.index + 1)}))
   vpc_security_group_ids = [aws_security_group.sg.id]
 
   lifecycle {
@@ -227,7 +227,7 @@ resource "aws_ebs_volume" "log_volume" {
   encrypted         = var.encrypted
   size              = var.log_volume_size
   type              = var.log_volume_type
-  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tags              = merge(var.tags, ({"Name" = format("%s%d", var.name, count.index + 1)}))
 }
 
 resource "aws_volume_attachment" "log_volume_attachment" {
@@ -300,7 +300,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 resource "aws_security_group" "sg" {
     description = var.security_group_description
     name        = var.security_group_name
-    tags        = merge(var.tags, map("Name", format("%s", var.security_group_name)))
+    tags        = merge(var.tags, ({"Name" = format("%s", var.security_group_name)}))
     vpc_id      = aws_vpc.vpc.id
 
     ingress {

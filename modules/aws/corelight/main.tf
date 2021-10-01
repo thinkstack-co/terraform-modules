@@ -42,7 +42,7 @@ resource "aws_security_group" "corelight_sg" {
     cidr_blocks     = ["0.0.0.0/0"]
   }
 
-  tags            = merge(var.tags, map("Name", format("%s", var.sg_name)))
+  tags            = merge(var.tags, ({"Name" = format("%s", var.sg_name)}))
 }
 
 #######################
@@ -70,7 +70,7 @@ resource "aws_network_interface" "listener_nic" {
     security_groups     = [aws_security_group.corelight_sg.id]
     source_dest_check   = var.source_dest_check
     subnet_id           = element(var.listener_subnet_ids, count.index)
-    tags                = merge(var.tags, map("Name", format("%s%d_listener", var.name, count.index + 1)))
+    tags                = merge(var.tags, ({"Name" = format("%s%d_listener", var.name, count.index + 1)}))
 }
 
 resource "aws_network_interface" "mgmt_nic" {
@@ -80,7 +80,7 @@ resource "aws_network_interface" "mgmt_nic" {
     security_groups     = [aws_security_group.corelight_sg.id]
     source_dest_check   = var.source_dest_check
     subnet_id           = element(var.mgmt_subnet_ids, count.index)
-    tags                = merge(var.tags, map("Name", format("%s%d_mgmt", var.name, count.index + 1)))
+    tags                = merge(var.tags, ({"Name" = format("%s%d_mgmt", var.name, count.index + 1)}))
 
     attachment {
         instance        = element(aws_instance.ec2.*.id, count.index)
@@ -116,10 +116,10 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
 
-  tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tags                   = merge(var.tags, ({"Name" = format("%s%d", var.name, count.index + 1)}))
   tenancy                = var.tenancy
   user_data              = var.user_data
-  volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  volume_tags            = merge(var.tags, ({"Name" = format("%s%d", var.name, count.index + 1)}))
 
   lifecycle {
     ignore_changes  = [user_data]

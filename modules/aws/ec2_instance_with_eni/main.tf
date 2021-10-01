@@ -42,8 +42,8 @@ resource "aws_instance" "ec2" {
   iam_instance_profile                 = var.iam_instance_profile
   # ipv6_address_count                   = var.ipv6_address_count
   # ipv6_addresses                       = var.ipv6_addresses
-  tags                                 = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
-  volume_tags                          = merge(var.tags, map("Name", format("%s%01d", var.name, count.index + 1)))
+  tags                                 = merge(var.tags, ({"Name" = format("%s%01d", var.name, count.index + 1)}))
+  volume_tags                          = merge(var.tags, ({"Name" = format("%s%01d", var.name, count.index + 1)}))
   # root_block_device                    = var.root_block_device
   
 
