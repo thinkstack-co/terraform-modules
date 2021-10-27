@@ -18,6 +18,11 @@ variable "policy" {
   default     = ""
 }
 
+variable "region" {
+  description = "(Optional) The AWS region this bucket resides in."
+  default     = ""
+}
+
 variable "sse_algorithm" {
     type        = string
     description = "(required) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
