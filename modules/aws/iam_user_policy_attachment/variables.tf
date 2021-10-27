@@ -1,9 +1,9 @@
 variable "policy_arn" {
-  type = string
+  type        = string
   description = "(Required) - The ARN of the policy you want to apply"
 }
 
 variable "user" {
-  type = string
+  type        = string
   description = "(Required) - The user the policy should be applied to"
 }

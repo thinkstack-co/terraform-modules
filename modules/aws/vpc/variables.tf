@@ -112,7 +112,7 @@ variable "single_nat_gateway" {
 
 variable "tags" {
   description = "A map of tags to add to all resources"
-  default     = {
+  default = {
     terraform   = "true"
     environment = "prod"
     project     = "core_infrastructure"

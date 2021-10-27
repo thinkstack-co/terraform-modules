@@ -69,7 +69,7 @@ variable "vpc_endpoint_id" {
 }
 
 variable "vpc_peering_connection_id" {
-  type = string
+  type        = string
   description = "(Optional) An ID of a VPC peering connection."
-  default = null
+  default     = null
 }
