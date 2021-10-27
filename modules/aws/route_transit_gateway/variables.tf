@@ -1,9 +1,3 @@
-variable "carrier_gateway_id" {
-  type        = string
-  description = "(Optional) Identifier of a carrier gateway. This attribute can only be used when the VPC contains a subnet which is associated with a Wavelength Zone."
-  default     = null
-}
-
 variable "destination_cidr_block" {
   type        = string
   description = " (Optional) The destination CIDR block."
@@ -45,12 +39,6 @@ variable "nat_gateway_id" {
   default     = null
 }
 
-variable "network_interface_id" {
-  type        = string
-  description = "(Optional) An ID of a network interface."
-  default     = null
-}
-
 variable "transit_gateway_id" {
   type        = string
   description = "(Optional) Identifier of an EC2 Transit Gateway."
@@ -69,7 +57,7 @@ variable "vpc_endpoint_id" {
 }
 
 variable "vpc_peering_connection_id" {
-  type        = string
+  type = string
   description = "(Optional) An ID of a VPC peering connection."
-  default     = null
+  default = null
 }
