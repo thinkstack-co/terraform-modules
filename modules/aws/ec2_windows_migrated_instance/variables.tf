@@ -17,12 +17,12 @@ variable "subnet_id" {
 }
 
 variable "instance_type" {
-    description = "Select the instance type. Set in main.tf"
-    default = "t2.medium"
+  description = "Select the instance type. Set in main.tf"
+  default     = "t2.medium"
 }
 
 variable "key_name" {
-    description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
+  description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
 }
 
 variable "user_data" {
@@ -36,7 +36,7 @@ variable "private_ip" {
 }
 
 variable "security_group_ids" {
-  type = list
+  type        = list
   description = "Lits of security group ids to attach to the instance"
 }
 
@@ -66,14 +66,14 @@ variable "ebs_volume_size" {
 }*/
 
 variable "region" {
-  type = string
+  type        = string
   description = "(Required) VPC Region the resources exist in"
 }
 
 variable "tags" {
   default = {
-    created_by  = "terraform"
-    terraform   = "true"
+    created_by = "terraform"
+    terraform  = "true"
   }
 }
 

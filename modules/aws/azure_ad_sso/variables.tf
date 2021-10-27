@@ -3,13 +3,13 @@
 ##################################
 
 variable "policy_name" {
-    description = "Name of the policy"
-    default     = "azure_ad_sso_user_role_policy"
+  description = "Name of the policy"
+  default     = "azure_ad_sso_user_role_policy"
 }
 
 variable "policy_description" {
-    description = "Description of the policy"
-    default     = "This policy will allow to fetch the roles from AWS accounts."
+  description = "Description of the policy"
+  default     = "This policy will allow to fetch the roles from AWS accounts."
 }
 
 ##################################

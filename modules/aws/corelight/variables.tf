@@ -29,7 +29,7 @@ variable "mgmt_cidr_blocks" {
 variable "tags" {
   type        = map
   description = "(Optional) A mapping of tags to assign to the resource."
-  default     = {
+  default = {
     created_by  = "terraform"
     backup      = "true"
     terraform   = "true"

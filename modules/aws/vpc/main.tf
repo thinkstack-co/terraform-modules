@@ -7,15 +7,15 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags = merge({"Name" = format("%s", var.name)},var.tags,)
-  }
+  tags                 = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
 
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.private_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
-  tags              = merge(var.tags,({"Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "public_subnets" {
@@ -24,7 +24,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = element(var.azs, count.index)
   map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = length(var.public_subnets_list)
-  tags                    = merge(var.tags, ({"Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index))}))
+  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "dmz_subnets" {
@@ -32,7 +32,7 @@ resource "aws_subnet" "dmz_subnets" {
   cidr_block        = var.dmz_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.dmz_subnets_list)
-  tags              = merge(var.tags, ({"Name" = format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "db_subnets" {
@@ -40,7 +40,7 @@ resource "aws_subnet" "db_subnets" {
   cidr_block        = var.db_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.db_subnets_list)
-  tags              = merge(var.tags, ({"Name" = format("%s-subnet-db-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "mgmt_subnets" {
@@ -48,7 +48,7 @@ resource "aws_subnet" "mgmt_subnets" {
   cidr_block        = var.mgmt_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.mgmt_subnets_list)
-  tags              = merge(var.tags, ({"Name" = format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "workspaces_subnets" {
@@ -56,17 +56,17 @@ resource "aws_subnet" "workspaces_subnets" {
   cidr_block        = var.workspaces_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.workspaces_subnets_list)
-  tags              = merge(var.tags, ({"Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_internet_gateway" "igw" {
-  tags   = merge(var.tags, ({"Name" = format("%s-igw", var.name)}))
+  tags   = merge(var.tags, ({ "Name" = format("%s-igw", var.name) }))
   vpc_id = aws_vpc.vpc.id
 }
 
 resource "aws_route_table" "public_route_table" {
   propagating_vgws = var.public_propagating_vgws
-  tags             = merge(var.tags, ({"Name" = format("%s-rt-public", var.name)}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-public", var.name) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -82,7 +82,7 @@ resource "aws_eip" "nateip" {
 }
 
 resource "aws_nat_gateway" "natgw" {
-  depends_on    = [aws_internet_gateway.igw]
+  depends_on = [aws_internet_gateway.igw]
 
   allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
@@ -92,7 +92,7 @@ resource "aws_nat_gateway" "natgw" {
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.private_propagating_vgws
-  tags             = merge(var.tags, ({"Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -113,7 +113,7 @@ resource "aws_route" "private_default_route_fw" {
 resource "aws_route_table" "db_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.db_propagating_vgws
-  tags             = merge(var.tags, ({"Name" = format("%s-rt-db-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-db-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -134,7 +134,7 @@ resource "aws_route" "db_default_route_fw" {
 resource "aws_route_table" "dmz_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.dmz_propagating_vgws
-  tags             = merge(var.tags, ({"Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -155,7 +155,7 @@ resource "aws_route" "dmz_default_route_fw" {
 resource "aws_route_table" "mgmt_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.mgmt_propagating_vgws
-  tags             = merge(var.tags, ({"Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -176,7 +176,7 @@ resource "aws_route" "mgmt_default_route_fw" {
 resource "aws_route_table" "workspaces_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.workspaces_propagating_vgws
-  tags             = merge(var.tags, ({"Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
