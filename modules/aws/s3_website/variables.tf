@@ -12,10 +12,6 @@ variable "policy" {
   default     = ""
 }
 
-variable "region" {
-    description = "(Optional) If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee."
-}
-
 variable "tags" {
     type        = map
     description = "(Optional) A mapping of tags to assign to the bucket."
