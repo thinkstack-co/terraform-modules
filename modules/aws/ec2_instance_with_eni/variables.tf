@@ -23,7 +23,7 @@ variable "eni_number" {
 }
 
 variable "description" {
-  type = string
+  type        = string
   description = "(Optional) A description for the network interface"
 }
 
@@ -57,7 +57,7 @@ variable "placement_group" {
 }
 
 variable "private_ips" {
-  type = list
+  type        = list
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
@@ -77,7 +77,7 @@ variable "instance_type" {
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type = list
+  type        = list
 }
 
 variable "subnet_id" {
@@ -121,7 +121,7 @@ variable "tags" {
 }
 
 variable "region" {
-  type = string
+  type        = string
   description = "(Required) VPC Region the resources exist in"
 }
 
@@ -166,5 +166,5 @@ variable "device_index" {
 
 variable "delete_on_termination" {
   description = "whether or not to delete the eni on instance termination"
-  default = false
+  default     = false
 }

@@ -13,14 +13,14 @@ variable "azs" {
 }
 
 variable "bgp_asn" {
-    description = "BGP ASN used for dynamic routing between the customer gateway and AWS gateway"
-    default     = 65077
+  description = "BGP ASN used for dynamic routing between the customer gateway and AWS gateway"
+  default     = 65077
 }
 
 variable "customer_gw_name" {
-    type        = list
-    description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
-    default     = null
+  type        = list
+  description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
+  default     = null
 }
 
 variable "created_by" {
@@ -111,8 +111,8 @@ variable "ipv6_addresses" {
 }
 
 variable "key_name_prefix" {
-    description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
-    default     = "siem_keypair"
+  description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
+  default     = "siem_keypair"
 }
 
 variable "log_volume_device_name" {
@@ -169,7 +169,7 @@ variable "private_subnets_list" {
 }
 
 variable "public_key" {
-    description = "(Required) Public rsa key"
+  description = "(Required) Public rsa key"
 }
 
 variable "public_propagating_vgws" {
@@ -201,13 +201,13 @@ variable "root_volume_type" {
 }
 
 variable "security_group_description" {
-    description = "Description of the security group"
-    default     = "SIEM Collector Security Group"
+  description = "Description of the security group"
+  default     = "SIEM Collector Security Group"
 }
 
 variable "security_group_name" {
-    description = "Name of the security group used for SIEM"
-    default     = "siem_collector_sg"
+  description = "Name of the security group used for SIEM"
+  default     = "siem_collector_sg"
 }
 
 variable "single_nat_gateway" {
@@ -221,8 +221,8 @@ variable "source_dest_check" {
 }
 
 variable "static_routes_only" {
-    description = "Flag to determine whether or not dynamic or static routing is enabled"
-    default     = true
+  description = "Flag to determine whether or not dynamic or static routing is enabled"
+  default     = true
 }
 
 variable "region" {
@@ -232,7 +232,7 @@ variable "region" {
 
 variable "tags" {
   description = "A map of tags to add to all resources"
-  default     = {
+  default = {
     backup      = "true"
     created_by  = "Your Name"
     terraform   = "true"
@@ -255,20 +255,20 @@ variable "vpc_cidr" {
 }
 
 variable "vpn_peer_ip_address" {
-    type        = list
-    description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
-    default     = null
+  type        = list
+  description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
+  default     = null
 }
 
 variable "vpn_route_cidr_blocks" {
-    type        = list
-    description = "(Required) CIDR block of the VPN subnets"
-    default     = null
+  type        = list
+  description = "(Required) CIDR block of the VPN subnets"
+  default     = null
 }
 
 variable "vpn_type" {
-    description = "Type of VPN tunnel. Currently only supports ipsec.1"
-    default     = "ipsec.1"
+  description = "Type of VPN tunnel. Currently only supports ipsec.1"
+  default     = "ipsec.1"
 }
 
 variable "allow_remote_vpc_dns_resolution" {

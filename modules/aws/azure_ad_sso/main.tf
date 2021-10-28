@@ -7,9 +7,9 @@ terraform {
 ##################################
 
 resource "aws_iam_policy" "role_reading_policy" {
-    name        = var.policy_name
-    description = var.policy_description
-    policy      = file("${path.module}/azure-ad-sso-policy.json")
+  name        = var.policy_name
+  description = var.policy_description
+  policy      = file("${path.module}/azure-ad-sso-policy.json")
 }
 
 ##################################
@@ -78,8 +78,8 @@ resource "aws_iam_role" "role_admins" {
 }
 
 resource "aws_iam_role_policy_attachment" "admin_policy_attach" {
-    role        = aws_iam_role.role_admins.name
-    policy_arn  = var.admin_policy_arn
+  role       = aws_iam_role.role_admins.name
+  policy_arn = var.admin_policy_arn
 }
 
 ##################################
@@ -96,8 +96,8 @@ resource "aws_iam_role" "role_sysadmins" {
 }
 
 resource "aws_iam_role_policy_attachment" "sysadmins_policy_attach" {
-    role        = aws_iam_role.role_sysadmins.name
-    policy_arn  = var.sysadmins_policy_arn
+  role       = aws_iam_role.role_sysadmins.name
+  policy_arn = var.sysadmins_policy_arn
 }
 
 ##################################
@@ -114,6 +114,6 @@ resource "aws_iam_role" "role_read_only" {
 }
 
 resource "aws_iam_role_policy_attachment" "read_only_policy_attach" {
-    role        = aws_iam_role.role_read_only.name
-    policy_arn  = var.read_only_policy_arn
+  role       = aws_iam_role.role_read_only.name
+  policy_arn = var.read_only_policy_arn
 }
