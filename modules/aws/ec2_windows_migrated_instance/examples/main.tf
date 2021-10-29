@@ -4,9 +4,9 @@ module "migrated_instance" {
   instance_name_prefix = "migrated_app"
   ami_id               = "ami-ffffffff"
   number_of_instances  = 1
-  subnet_id            = "${module.vpc.private_subnet_ids[0]}"
+  subnet_id            = module.vpc.private_subnet_ids[0]
   instance_type        = "m4.large"
-  key_name             = "${module.keypair.key_name}"
+  key_name             = module.keypair.key_name
   security_group_ids   = "sg-ffffffff"
 
   tags = {

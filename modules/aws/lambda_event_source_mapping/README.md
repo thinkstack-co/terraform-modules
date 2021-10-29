@@ -2,8 +2,8 @@
     module "sqs_queue_map" {
       source           = "github.com/thinkstack-co/terraform-modules//modules/aws/lambda_event_source_mapping"
       
-      event_source_arn = "${module.lambda_function.arn}"
-      function_name    = "${module.lambda_function.name}"
+      event_source_arn = module.lambda_function.arn
+      function_name    = module.lambda_function.name
 
 # Variables
 ## Required

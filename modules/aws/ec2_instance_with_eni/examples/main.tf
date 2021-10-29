@@ -5,9 +5,9 @@ module "app_needs_static_mac_address" {
   ami                    = "ami-ffffffff"
   availability_zone      = "us-west-2a"
   count                  = 1
-  subnet_id              = "${module.vpc.private_subnet_ids[0]}"
+  subnet_id              = module.vpc.private_subnet_ids[0]
   instance_type          = "m4.large"
-  key_name               = "${module.keypair.key_name}"
+  key_name               = module.keypair.key_name
   vpc_security_group_ids = ["sg-ffffffff"]
   device_index           = 0
   volume_tags = {
