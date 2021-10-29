@@ -6,15 +6,15 @@ module "ad_connector" {
   edition     = "Standard"
   enable_sso  = false
   name        = "ad.corp.com"
-  password    = "${var.ad_connector_password}"
+  password    = var.ad_connector_password
   short_name  = "CORP"
   size        = "Small"
-  subnet_ids  = ["${module.vpc.private_subnet.ids}"]
+  subnet_ids  = [module.vpc.private_subnet.ids]
   tags = {
     created_by  = "Zachary Hill"
     environment = "prod"
     terraform   = "true"
   }
   type   = "MicrosoftAD"
-  vpc_id = "${module.vpc.id}"
+  vpc_id = module.vpc.id
 }
