@@ -77,6 +77,10 @@ variable "launch_template_id" {
   description = "the id for launch template"
   default = ""
 }
+variable "launch_template_version" {
+  description = ""
+  default = ""
+}
 
 #variable "launch_template_name" {
 #  description = "the id for launch template"
