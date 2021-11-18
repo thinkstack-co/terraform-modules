@@ -24,7 +24,7 @@ resource "aws_instance" "ec2" {
   private_ip                           = var.private_ip
   launch_template {
     id = var.launch_template_id
-    name = var.launch_template_name
+    #name = var.launch_template_name
   }
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
