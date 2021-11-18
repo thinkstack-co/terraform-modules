@@ -73,6 +73,16 @@ variable "key_name" {
   default     = ""
 }
 
+variable "launch_template_id" {
+  description = "the id for launch template"
+  default = ""
+}
+
+variable "launch_template_name" {
+  description = "the id for launch template"
+  default = ""
+}
+
 variable "monitoring" {
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = false
