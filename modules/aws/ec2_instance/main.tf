@@ -26,9 +26,7 @@ resource "aws_instance" "ec2" {
     id = var.launch_template_id
     version = var.launch_template_version
   }
-    lifecycle {
-    ignore_changes = [launch_template]
-  }
+
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
@@ -45,7 +43,7 @@ resource "aws_instance" "ec2" {
   vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
-    ignore_changes  = [user_data]
+    ignore_changes  = [user_data, launch_template]
   }
 }
 
