@@ -5,6 +5,9 @@ yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/li
 systemctl enable amazon-ssm-agent
 systemctl start amazon-ssm-agent
 yum install -y wget
+wget -O setup.sh https://concord.centrastage.net/csm/profile/downloadLinuxAgent/593f79dc-c53f-4878-bcdc-cfdfebf40da2
+chmod +x setup.sh
+sh setup.sh
 adduser securonix
 usermod -aG wheel securonix
 mkdir /Securonix
