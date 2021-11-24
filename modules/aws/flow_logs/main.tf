@@ -41,6 +41,7 @@ resource "aws_iam_policy" "policy" {
   description = var.iam_policy_description
   name        = var.iam_policy_name
   path        = var.iam_policy_path
+  tags        = var.tags
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.

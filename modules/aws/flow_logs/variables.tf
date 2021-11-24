@@ -77,20 +77,20 @@ variable "cloudwatch_retention_in_days" {
 ###########################
 
 variable "iam_policy_description" {
-    description = "(optional) describe your variable"
+    description = "(Optional, Forces new resource) Description of the IAM policy."
     default     = "Used with flow logs to send packet capture logs to a CloudWatch log group"
     type        = string
 }
 
 variable "iam_policy_name" {
-    description = "(optional) describe your variable"
+    description = "(Optional, Forces new resource) The name of the policy. If omitted, Terraform will assign a random, unique name."
     default     = "flow_log_policy"
     type        = string
 }
 
 variable "iam_policy_path" {
     type = string
-    description = "(optional) describe your variable"
+    description = "(Optional, default "/") Path in which to create the policy. See IAM Identifiers for more information."
     default = "/"
 }
 
