@@ -101,6 +101,20 @@ variable "iam_policy_path" {
 variable "assume_role_policy" {
   type        = string
   description = "(Required) The policy that grants an entity permission to assume the role."
+  default = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "vpc-flow-logs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
 }
 
 variable "description" {
@@ -124,6 +138,7 @@ variable "max_session_duration" {
 variable "name" {
   type        = string
   description = "(Required) The friendly IAM role name to match."
+  default     = "flow_logs_role"
 }
 
 variable "permissions_boundary" {

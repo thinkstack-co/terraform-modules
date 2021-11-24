@@ -45,17 +45,19 @@ resource "aws_iam_policy" "policy" {
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
+    Version = "2012-10-17",
+    Statement = [{
+        Effect = "Allow",
         Action = [
-          "ec2:Describe*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": "${aws_cloudwatch_log_group.log_group.arn}"
+        }]
+    })
 }
 
 ###########################
