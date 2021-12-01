@@ -22,6 +22,10 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
+launch_template {
+    id      = var.launch_template_id
+    version = var.launch_template_version
+  }
 
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
@@ -39,7 +43,7 @@ resource "aws_instance" "ec2" {
   vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
-    ignore_changes = [user_data]
+    ignore_changes = [user_data, launch_template]
   }
 }
 
