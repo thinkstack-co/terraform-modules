@@ -30,14 +30,14 @@ resource "aws_instance" "ec2" {
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
-    tags                  = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+     tags                  = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }
 
   source_dest_check      = var.source_dest_check
   subnet_id              = var.subnet_id
-  tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+   tags                  = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
   user_data              = var.user_data
   vpc_security_group_ids = var.vpc_security_group_ids
