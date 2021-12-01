@@ -50,7 +50,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_nat_gateway" "natgw" {
-  depends_on    = [aws_internet_gateway.igw]
+  depends_on = [aws_internet_gateway.igw]
 
   allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
@@ -122,10 +122,10 @@ resource "aws_vpc_peering_connection" "peer" {
 }
 
 resource "aws_route" "vpc_peer_route" {
-  count                       = var.enable_vpc_peering ? 1 : 0
-  destination_cidr_block      = var.peer_vpc_subnet
-  route_table_id              = aws_route_table.private_route_table[count.index].id
-  vpc_peering_connection_id   = aws_vpc_peering_connection.peer[count.index].id
+  count                     = var.enable_vpc_peering ? 1 : 0
+  destination_cidr_block    = var.peer_vpc_subnet
+  route_table_id            = aws_route_table.private_route_table[count.index].id
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer[count.index].id
 }
 
 ###########################
@@ -133,25 +133,25 @@ resource "aws_route" "vpc_peer_route" {
 ###########################
 
 resource "aws_vpn_gateway" "vpn_gateway" {
-  vpc_id            = aws_vpc.vpc.id
-  tags              = merge(var.tags, map("Name", format("%s_vpn_gw", var.name)))
+  vpc_id = aws_vpc.vpc.id
+  tags   = merge(var.tags, map("Name", format("%s_vpn_gw", var.name)))
 }
 
 resource "aws_customer_gateway" "customer_gateway" {
-  count            = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
-  bgp_asn          = var.bgp_asn
-  ip_address       = var.vpn_peer_ip_address[count.index]
-  type             = var.vpn_type
-  tags             = merge(var.tags, map("Name", format("%s_customer_gw", var.customer_gw_name[count.index])))
+  count      = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
+  bgp_asn    = var.bgp_asn
+  ip_address = var.vpn_peer_ip_address[count.index]
+  type       = var.vpn_type
+  tags       = merge(var.tags, map("Name", format("%s_customer_gw", var.customer_gw_name[count.index])))
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
-  count                 = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
-  customer_gateway_id   = aws_customer_gateway.customer_gateway[count.index].id
-  static_routes_only    = var.static_routes_only
-  tags                  = merge(var.tags, map("Name", format("%s_vpn_connection", var.name)))
-  type                  = var.vpn_type
-  vpn_gateway_id        = aws_vpn_gateway.vpn_gateway.id
+  count               = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
+  customer_gateway_id = aws_customer_gateway.customer_gateway[count.index].id
+  static_routes_only  = var.static_routes_only
+  tags                = merge(var.tags, map("Name", format("%s_vpn_connection", var.name)))
+  type                = var.vpn_type
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway.id
 }
 
 resource "aws_vpn_connection_route" "vpn_route" {
@@ -165,8 +165,8 @@ resource "aws_vpn_connection_route" "vpn_route" {
 ###########################
 
 resource "aws_key_pair" "deployer_key" {
-    key_name_prefix =   var.key_name_prefix
-    public_key      =   var.public_key
+  key_name_prefix = var.key_name_prefix
+  public_key      = var.public_key
 }
 
 ###########################
@@ -246,14 +246,14 @@ resource "aws_volume_attachment" "log_volume_attachment" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  actions_enabled           = true
-  alarm_actions             = []
-  alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name                = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.instance_count
-  datapoints_to_alarm       = 2
-  dimensions                = {
+  actions_enabled     = true
+  alarm_actions       = []
+  alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
+  alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  count               = var.instance_count
+  datapoints_to_alarm = 2
+  dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
@@ -272,14 +272,14 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
-  actions_enabled           = true
-  alarm_actions             = ["arn:aws:automate:${var.region}:ec2:recover"]
-  alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name                = format("%s-system-alarm", aws_instance.ec2[count.index].id)
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.instance_count
-  datapoints_to_alarm       = 2
-  dimensions                = {
+  actions_enabled     = true
+  alarm_actions       = ["arn:aws:automate:${var.region}:ec2:recover"]
+  alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
+  alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  count               = var.instance_count
+  datapoints_to_alarm = 2
+  dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
@@ -298,129 +298,129 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 ###########################
 
 resource "aws_security_group" "sg" {
-    description = var.security_group_description
-    name        = var.security_group_name
-    tags        = merge(var.tags, map("Name", format("%s", var.security_group_name)))
-    vpc_id      = aws_vpc.vpc.id
+  description = var.security_group_description
+  name        = var.security_group_name
+  tags        = merge(var.tags, map("Name", format("%s", var.security_group_name)))
+  vpc_id      = aws_vpc.vpc.id
 
-    ingress {
-        from_port   = -1
-        to_port     = -1
-        protocol    = "icmp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Allow ICMP"
-    }
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Allow ICMP"
+  }
 
-    ingress {
-        from_port   = 162
-        to_port     = 162
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "SNMP Trap Ingester Port"
-    }
+  ingress {
+    from_port   = 162
+    to_port     = 162
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "SNMP Trap Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13001
-        to_port     = 13001
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Firewall Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13001
+    to_port     = 13001
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Firewall Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13001
-        to_port     = 13001
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Firewall Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13001
+    to_port     = 13001
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Firewall Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13002
-        to_port     = 13002
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Access Point Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13002
+    to_port     = 13002
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Access Point Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13002
-        to_port     = 13002
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Access Point Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13002
+    to_port     = 13002
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Access Point Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13003
-        to_port     = 13003
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Windows Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13003
+    to_port     = 13003
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13003
-        to_port     = 13003
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Windows Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13003
+    to_port     = 13003
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13004
-        to_port     = 13004
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Routers and Switches Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13004
+    to_port     = 13004
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Routers and Switches Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13004
-        to_port     = 13004
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Routers and Switches Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13004
+    to_port     = 13004
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Routers and Switches Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13005
-        to_port     = 13005
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Corelight and Darktrace Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13005
+    to_port     = 13005
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Corelight and Darktrace Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13005
-        to_port     = 13005
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Corelight and Darktrace Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13005
+    to_port     = 13005
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Corelight and Darktrace Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13022
-        to_port     = 13022
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13022
+    to_port     = 13022
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13022
-        to_port     = 13022
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13022
+    to_port     = 13022
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
+  }
 
-    egress {
-      from_port       = 0
-      to_port         = 0
-      protocol        = "-1"
-      cidr_blocks     = ["0.0.0.0/0"]
-    }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 ###################################################

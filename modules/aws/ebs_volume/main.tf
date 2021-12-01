@@ -6,10 +6,10 @@ resource "aws_ebs_volume" "vol" {
   availability_zone = var.availability_zone
   encrypted         = var.encrypted
   # iops              = var.iops
-  size              = var.size
-  snapshot_id       = var.snapshot_id
-  type              = var.type
-  tags              = var.tags
+  size        = var.size
+  snapshot_id = var.snapshot_id
+  type        = var.type
+  tags        = var.tags
 }
 
 resource "aws_volume_attachment" "vol_attach" {

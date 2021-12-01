@@ -36,13 +36,13 @@ resource "aws_security_group" "corelight_sg" {
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags            = merge(var.tags, map("Name", format("%s", var.sg_name)))
+  tags = merge(var.tags, map("Name", format("%s", var.sg_name)))
 }
 
 #######################
@@ -64,28 +64,28 @@ resource "aws_lb" "corelight_nlb" {
 #######################
 
 resource "aws_network_interface" "listener_nic" {
-    count               = var.number
-    description         = var.listener_nic_description
-    # private_ips         = var.listener_nic_private_ips
-    security_groups     = [aws_security_group.corelight_sg.id]
-    source_dest_check   = var.source_dest_check
-    subnet_id           = element(var.listener_subnet_ids, count.index)
-    tags                = merge(var.tags, map("Name", format("%s%d_listener", var.name, count.index + 1)))
+  count       = var.number
+  description = var.listener_nic_description
+  # private_ips         = var.listener_nic_private_ips
+  security_groups   = [aws_security_group.corelight_sg.id]
+  source_dest_check = var.source_dest_check
+  subnet_id         = element(var.listener_subnet_ids, count.index)
+  tags              = merge(var.tags, map("Name", format("%s%d_listener", var.name, count.index + 1)))
 }
 
 resource "aws_network_interface" "mgmt_nic" {
-    count               = var.number
-    description         = var.mgmt_nic_description
-    # private_ips         = var.mgmt_nic_private_ips
-    security_groups     = [aws_security_group.corelight_sg.id]
-    source_dest_check   = var.source_dest_check
-    subnet_id           = element(var.mgmt_subnet_ids, count.index)
-    tags                = merge(var.tags, map("Name", format("%s%d_mgmt", var.name, count.index + 1)))
+  count       = var.number
+  description = var.mgmt_nic_description
+  # private_ips         = var.mgmt_nic_private_ips
+  security_groups   = [aws_security_group.corelight_sg.id]
+  source_dest_check = var.source_dest_check
+  subnet_id         = element(var.mgmt_subnet_ids, count.index)
+  tags              = merge(var.tags, map("Name", format("%s%d_mgmt", var.name, count.index + 1)))
 
-    attachment {
-        instance        = element(aws_instance.ec2.*.id, count.index)
-        device_index    = 1
-    }
+  attachment {
+    instance     = element(aws_instance.ec2.*.id, count.index)
+    device_index = 1
+  }
 }
 
 #######################
@@ -105,10 +105,10 @@ resource "aws_instance" "ec2" {
   placement_group                      = var.placement_group
 
   network_interface {
-        network_interface_id = aws_network_interface.listener_nic[count.index].id
-        device_index         = 0
-    }
-  
+    network_interface_id = aws_network_interface.listener_nic[count.index].id
+    device_index         = 0
+  }
+
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
@@ -116,13 +116,13 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
 
-  tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
-  tenancy                = var.tenancy
-  user_data              = var.user_data
-  volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tags        = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tenancy     = var.tenancy
+  user_data   = var.user_data
+  volume_tags = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
 
   lifecycle {
-    ignore_changes  = [user_data]
+    ignore_changes = [user_data]
   }
 }
 
@@ -158,14 +158,14 @@ resource "aws_volume_attachment" "log_volume_attach" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  actions_enabled           = true
-  alarm_actions             = []
-  alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name                = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.number
-  datapoints_to_alarm       = 2
-  dimensions                = {
+  actions_enabled     = true
+  alarm_actions       = []
+  alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
+  alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  count               = var.number
+  datapoints_to_alarm = 2
+  dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
@@ -185,14 +185,14 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
-  actions_enabled           = true
-  alarm_actions             = ["arn:aws:automate:${var.region}:ec2:recover"]
-  alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name                = format("%s-system-alarm", aws_instance.ec2[count.index].id)
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.number
-  datapoints_to_alarm       = 2
-  dimensions                = {
+  actions_enabled     = true
+  alarm_actions       = ["arn:aws:automate:${var.region}:ec2:recover"]
+  alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
+  alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  count               = var.number
+  datapoints_to_alarm = 2
+  dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"

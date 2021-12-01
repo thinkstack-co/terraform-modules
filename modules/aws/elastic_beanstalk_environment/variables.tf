@@ -1,75 +1,75 @@
 variable "application" {
-  type = string
+  type        = string
   description = "(Required) Name of the application that contains the version to be deployed"
 }
 
 variable "cname_prefix" {
-  type = string
+  type        = string
   description = "(Optional) Prefix to use for the fully qualified DNS name of the Environment"
-  default = ""
+  default     = ""
 }
 
 variable "description" {
-  type = string
+  type        = string
   description = "(Optional) Short description of the Environment"
-  default = ""
+  default     = ""
 }
 
 variable "name" {
-  type = string
+  type        = string
   description = "(Required) A unique name for this Environment. This name is used in the application URL"
 }
 
 variable "platform_arn" {
-  type = string
+  type        = string
   description = "(Optional) The ARN of the Elastic Beanstalk Platform to use in deployment"
-  default = ""
+  default     = ""
 }
 
 variable "poll_interval" {
-  type = string
+  type        = string
   description = "The time between polling the AWS API to check if changes have been applied. Use this to adjust the rate of API calls for any create or update action. Minimum 10s, maximum 180s. Omit this to use the default behavior, which is an exponential backoff"
-  default = ""
+  default     = ""
 }
 
 variable "setting" {
-  type = string
+  type        = string
   description = "(Optional) Option settings to configure the new Environment. These override specific values that are set as defaults. The format is detailed below in Option Settings"
-  default = ""
+  default     = ""
 }
 
 variable "solution_stack_name" {
-  type = string
+  type        = string
   description = "(Optional) A solution stack to base your environment off of. Example stacks can be found in the Amazon API documentation"
-  default = ""
+  default     = ""
 }
 
 variable "tags" {
-  type = map
+  type        = map
   description = "(Optional) A set of tags to apply to the Environment."
-  default = {}
+  default     = {}
 }
 
 variable "template_name" {
-  type = string
+  type        = string
   description = "(Optional) The name of the Elastic Beanstalk Configuration template to use in deployment"
-  default = ""
+  default     = ""
 }
 
 variable "tier" {
-  type = string
+  type        = string
   description = "(Optional) Elastic Beanstalk Environment tier. Valid values are Worker or WebServer. If tier is left blank WebServer will be used."
-  default = ""
+  default     = ""
 }
 
 variable "version_label" {
-  type = string
+  type        = string
   description = "(Optional) The name of the Elastic Beanstalk Application Version to use in deployment."
-  default = ""
+  default     = ""
 }
 
 variable "wait_for_ready_timeout" {
-  type = string
+  type        = string
   description = "(Default: 20m) The maximum duration that Terraform should wait for an Elastic Beanstalk Environment to be in a ready state before timing out."
-  default = 20
+  default     = 20
 }

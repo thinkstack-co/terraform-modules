@@ -32,11 +32,11 @@ variable "source_dest_check" {
 }
 
 variable "subnet_id" {
-  type = string
+  type        = string
   description = "Subnet ID to create the eni in"
 }
 
 variable "tags" {
   description = "tags to assign to the eni"
-  type = map
+  type        = map
 }
