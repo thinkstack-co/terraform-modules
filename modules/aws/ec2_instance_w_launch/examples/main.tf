@@ -54,6 +54,9 @@ module "app_server" {
   root_volume_type       = "gp2"
   root_volume_size       = "100"
 
+  launch_template_id = "lt-1235483282384785"
+  launch_template_version = 1
+  
   volume_tags = {
     os_drive    = "c"
     device_name = "/dev/sda1"
