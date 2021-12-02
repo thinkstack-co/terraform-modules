@@ -2,7 +2,7 @@
 # Simple Example
 ################
 module "aws_sql" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance_w_launch"
 
   ami                    = "ami-ffffffff"
   availability_zone      = module.vpc.availability_zone[0]
@@ -16,6 +16,8 @@ module "aws_sql" {
   root_volume_type       = "gp2"
   root_volume_size       = "100"
   subnet_id              = module.vpc.private_subnet_ids[0]
+  launch_template_id = "lt-1235483282384785"
+  launch_template_version = 1
   vpc_security_group_ids = ["sg-ffffffff"]
   volume_tags = {
     os_drive    = "c"
@@ -41,7 +43,7 @@ module "aws_sql" {
 ######################
 
 module "app_server" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance_w_launch"
 
   name                   = "app_server"
   ami                    = "ami-ffffffff"
