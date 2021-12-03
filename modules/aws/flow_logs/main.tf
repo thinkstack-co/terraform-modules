@@ -7,7 +7,7 @@ terraform {
 ###########################
 
 resource "aws_kms_key" "key" {
-  bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
+  # bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
   customer_master_key_spec           = var.key_customer_master_key_spec
   description                        = var.key_description
   deletion_window_in_days            = var.key_deletion_window_in_days
@@ -70,7 +70,7 @@ resource "aws_iam_policy" "policy" {
 data "aws_iam_role" "role" {
   assume_role_policy    = var.assume_role_policy
   description           = var.description
-  force_detach_policies = var.force_detach_policies
+  # force_detach_policies = var.force_detach_policies
   max_session_duration  = var.max_session_duration
   name                  = var.name
   permissions_boundary  = var.permissions_boundary
