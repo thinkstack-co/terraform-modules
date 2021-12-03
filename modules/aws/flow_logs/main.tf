@@ -71,7 +71,7 @@ data "aws_iam_role" "role" {
   assume_role_policy    = var.iam_role_assume_role_policy
   description           = var.iam_role_description
   # force_detach_policies = var.iam_role_force_detach_policies
-  max_session_duration  = var.iam_role_max_session_duration
+  # max_session_duration  = var.iam_role_max_session_duration
   name                  = var.iam_role_name
-  permissions_boundary  = var.iam_role_permissions_boundary
+  # permissions_boundary  = var.iam_role_permissions_boundary
 }
