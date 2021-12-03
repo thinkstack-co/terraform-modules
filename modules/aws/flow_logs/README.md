@@ -1,7 +1,7 @@
 Flow Logs Module
 =================
 
-This module sets up each componenet required to capture ENI Flow Logs with the parameters specified. By default this module will be set up to work without any changes to variables.
+This module sets up each componenet required to capture ENI Flow Logs with the parameters specified. By default this module will be set up to work without any changes to variables. The result of this module creates a unique cloudwatch log group with a prefix of 'flow_logs', an IAM policy and IAM role which can be used with ENI flow logs to deliver logs to that cloudwatch log group.
 
 
 # Usage
