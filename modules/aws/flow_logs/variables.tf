@@ -98,7 +98,7 @@ variable "iam_policy_path" {
 # IAM Role
 ###########################
 
-variable "assume_role_policy" {
+variable "iam_role_assume_role_policy" {
   type        = string
   description = "(Required) The policy that grants an entity permission to assume the role."
   default = <<POLICY
@@ -117,31 +117,31 @@ variable "assume_role_policy" {
 POLICY
 }
 
-variable "description" {
+variable "iam_role_description" {
   type        = string
   description = "(Optional) The description of the role."
   default     = "Role utilized for EC2 instances ENI flow logs. This role allows creation of log streams and adding logs to the log streams in cloudwatch"
 }
 
-variable "force_detach_policies" {
+variable "iam_role_force_detach_policies" {
   type        = string
   description = "(Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false."
   default     = false
 }
 
-variable "max_session_duration" {
+variable "iam_role_max_session_duration" {
   type        = string
   description = "(Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours."
   default     = 3600
 }
 
-variable "name" {
+variable "iam_role_name" {
   type        = string
   description = "(Required) The friendly IAM role name to match."
   default     = "flow_logs_role"
 }
 
-variable "permissions_boundary" {
+variable "iam_role_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
   default     = ""
