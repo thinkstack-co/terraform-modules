@@ -29,7 +29,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_cloudwatch_log_group" "log_group" {
   kms_key_id        = aws_kms_key.key.arn
-  name_prefix       = var.cloudwatch_name
+  name_prefix       = var.cloudwatch_name_prefix
   retention_in_days = var.cloudwatch_retention_in_days
   tags              = var.tags
 }
@@ -67,11 +67,11 @@ resource "aws_iam_policy" "policy" {
 # IAM Role
 ###########################
 
-data "aws_iam_role" "role" {
+resource "aws_iam_role" "role" {
   assume_role_policy    = var.iam_role_assume_role_policy
   description           = var.iam_role_description
-  # force_detach_policies = var.iam_role_force_detach_policies
-  # max_session_duration  = var.iam_role_max_session_duration
+  force_detach_policies = var.iam_role_force_detach_policies
+  max_session_duration  = var.iam_role_max_session_duration
   name                  = var.iam_role_name
-  # permissions_boundary  = var.iam_role_permissions_boundary
+  permissions_boundary  = var.iam_role_permissions_boundary
 }
