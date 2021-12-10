@@ -10,10 +10,9 @@ resource "aws_network_interface" "eni" {
   source_dest_check = var.source_dest_check
   subnet_id         = var.subnet_id
   tags              = var.tags
+  attachment {
+    instance     = var.instance_id
+    device_index = var.device_index
+  }
 }
 
-resource "aws_network_interface_attachment" "eni_attach" {
-  device_index         = var.device_index
-  instance_id          = var.instance_id
-  network_interface_id = aws_network_interface.eni.id
-}
