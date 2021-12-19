@@ -114,6 +114,11 @@ resource "aws_iam_role" "role" {
   permissions_boundary  = var.iam_role_permissions_boundary
 }
 
+resource "aws_iam_role_policy_attachment" "role_attach" {
+  role       = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.policy.arn
+}
+
 
 ###########################
 # VPC Flow Log
