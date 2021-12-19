@@ -14,9 +14,8 @@ resource "aws_kms_key" "key" {
   enable_key_rotation                = var.key_enable_key_rotation
   key_usage                          = var.key_usage
   is_enabled                         = var.key_is_enabled
-  # policy                             = var.key_policy
+  policy                             = var.key_policy
   tags                               = var.tags
-  policy                             = var.policy
 }
 
 resource "aws_kms_alias" "alias" {

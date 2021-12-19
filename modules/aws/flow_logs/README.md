@@ -8,7 +8,8 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
 
     module "flow_logs" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/flow_logs"
-        
+
+        aws_region = var.aws_region
     }
 
 # Variables
