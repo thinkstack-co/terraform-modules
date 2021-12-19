@@ -8,8 +8,6 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
 
     module "flow_logs" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/flow_logs"
-
-        aws_region = var.aws_region
     }
 
 # Variables
@@ -32,10 +30,9 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     iam_role_max_session_duration
     iam_role_name
     iam_role_permissions_boundary
-    aws_region
     tags
 ## Required
-    aws_region
+    N/A
 
 ## Optional
     key_bypass_policy_lockout_safety_check
