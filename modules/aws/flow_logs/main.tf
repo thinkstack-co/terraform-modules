@@ -2,10 +2,11 @@ terraform {
   required_version = ">= 0.15.0"
 }
 
-#####
+###########################
 # Data Sources
-#####
+###########################
 data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
 
 output "account_id" {
   value = data.aws_caller_identity.current.account_id
@@ -23,7 +24,6 @@ resource "aws_kms_key" "key" {
   enable_key_rotation                = var.key_enable_key_rotation
   key_usage                          = var.key_usage
   is_enabled                         = var.key_is_enabled
-  # policy                             = var.key_policy
   tags                               = var.tags
   policy = jsonencode({
     "Version" = "2012-10-17",
@@ -40,7 +40,7 @@ resource "aws_kms_key" "key" {
         {
             "Effect" = "Allow",
             "Principal" = {
-                "Service" = "logs.${var.aws_region}.amazonaws.com"
+                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
             },
             "Action" = [
                 "kms:Encrypt*",
@@ -52,7 +52,7 @@ resource "aws_kms_key" "key" {
             "Resource" = "*",
             "Condition" = {
                 "ArnEquals" = {
-                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:*:*:log-group:*"
+                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
                 }
             }
         }
@@ -61,7 +61,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_kms_alias" "alias" {
-  name          = var.key_name
+  name_prefix          = var.key_name_prefix
   target_key_id = aws_kms_key.key.key_id
 }
 

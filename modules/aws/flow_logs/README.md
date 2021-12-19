@@ -21,7 +21,6 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     key_usage
     key_is_enabled
     key_name
-    key_policy
     cloudwatch_name_prefix
     cloudwatch_retention_in_days
     iam_policy_description
@@ -47,7 +46,6 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     key_usage
     key_is_enabled
     key_name
-    key_policy
     cloudwatch_name_prefix
     cloudwatch_retention_in_days
     iam_policy_description

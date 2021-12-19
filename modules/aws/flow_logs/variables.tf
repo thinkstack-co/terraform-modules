@@ -44,16 +44,10 @@ variable "key_is_enabled" {
   type        = string
 }
 
-variable "key_name" {
-  description = "(Optional) The display name of the alias. The name must start with the word 'alias' followed by a forward slash"
+variable "key_name_prefix" {
+  description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
   default     = "alias/flow_logs_key"
   type        = string
-}
-
-variable "key_policy" {
-  description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
-  type        = string
-  default     = null
 }
 
 ###########################
