@@ -52,7 +52,6 @@ variable "key_name" {
 
 variable "key_policy" {
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
-  # default     =  null
   type        = string
   default = jsonencode({
     "Version" = "2012-10-17",
