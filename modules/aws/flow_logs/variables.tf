@@ -145,9 +145,9 @@ variable "iam_role_permissions_boundary" {
 # General Use Variables
 ###############################################################
 
-variable "aws_region" {
+/* variable "aws_region" {
   description = "(Required) The AWS region the resource is deployed within."
-}
+} */
 
 variable "tags" {
   description = "(Optional) A mapping of tags to assign to the object."
