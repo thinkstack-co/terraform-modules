@@ -13,7 +13,6 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     }
 
 # Variables
-    key_bypass_policy_lockout_safety_check
     key_customer_master_key_spec
     key_description
     key_deletion_window_in_days
@@ -33,7 +32,6 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     iam_role_name_prefix
     iam_role_permissions_boundary
     flow_log_destination_type
-    flow_log_format
     flow_max_aggregation_interval
     flow_traffic_type
     flow_vpc_id
@@ -62,7 +60,6 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     iam_role_name_prefix
     iam_role_permissions_boundary
     flow_log_destination_type
-    flow_log_format
     flow_max_aggregation_interval
     flow_traffic_type
     tags

@@ -2,12 +2,6 @@
 # KMS Encryption Key
 ###########################
 
-variable "key_bypass_policy_lockout_safety_check" {
-    description = "(Optional) Specifies whether to disable the policy lockout check performed when creating or updating the key's policy. Setting this value to true increases the risk that the CMK becomes unmanageable. For more information, refer to the scenario in the Default Key Policy section in the AWS Key Management Service Developer Guide. Defaults to false."
-    default     = false
-    type        = bool
-}
-
 variable "key_customer_master_key_spec" {
     description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
     default     = "SYMMETRIC_DEFAULT"
@@ -150,12 +144,6 @@ variable "flow_log_destination_type" {
   description = "(Optional) The type of the logging destination. Valid values: cloud-watch-logs, s3. Default: cloud-watch-logs."
   default     = "cloud-watch-logs"
 }
-
-/* variable "flow_log_format" {
-  type        = string
-  description = "(Optional) The fields to include in the flow log record, in the order in which they should appear."
-  default     = ""
-} */
 
 variable "flow_max_aggregation_interval" {
   type        = string
