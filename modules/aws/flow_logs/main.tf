@@ -14,8 +14,32 @@ resource "aws_kms_key" "key" {
   enable_key_rotation                = var.key_enable_key_rotation
   key_usage                          = var.key_usage
   is_enabled                         = var.key_is_enabled
-  policy                             = var.key_policy
+  # policy                             = var.key_policy
   tags                               = var.tags
+  policy = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+        {
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "logs.${var.aws_region}.amazonaws.com"
+            },
+            "Action" = [
+                "kms:Encrypt*",
+                "kms:Decrypt*",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:Describe*"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "ArnEquals" = {
+                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:*:*:log-group:*"
+                }
+            }
+        }
+    ]
+})
 }
 
 resource "aws_kms_alias" "alias" {
