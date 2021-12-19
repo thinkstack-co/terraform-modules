@@ -2,7 +2,7 @@
 # KMS Encryption Key
 ###########################
 
-/* variable "key_bypass_policy_lockout_safety_check" {
+variable "key_bypass_policy_lockout_safety_check" {
     description = "(Optional) Specifies whether to disable the policy lockout check performed when creating or updating the key's policy. Setting this value to true increases the risk that the CMK becomes unmanageable. For more information, refer to the scenario in the Default Key Policy section in the AWS Key Management Service Developer Guide. Defaults to false."
     default     = false
     type        = bool
@@ -54,7 +54,7 @@ variable "key_policy" {
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
   default     =  null
   type        = string
-} */
+}
 
 ###########################
 # CloudWatch Log Group
