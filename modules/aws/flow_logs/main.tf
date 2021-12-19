@@ -113,3 +113,19 @@ resource "aws_iam_role" "role" {
   name_prefix           = var.iam_role_name_prefix
   permissions_boundary  = var.iam_role_permissions_boundary
 }
+
+
+###########################
+# VPC Flow Log
+###########################
+
+resource "aws_flow_log" "vpc_flow" {
+  iam_role_arn             = aws_iam_role.role.arn
+  log_destination_type     = var.flow_log_destination_type
+  log_destination          = aws_cloudwatch_log_group.log_group.arn
+  log_format               = var.flow_log_format
+  max_aggregation_interval = var.flow_max_aggregation_interval
+  tags                     = var.tags
+  traffic_type             = var.flow_traffic_type
+  vpc_id                   = var.flow_vpc_id
+}

@@ -8,6 +8,8 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
 
     module "flow_logs" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/flow_logs"
+
+        flow_vpc_id = "vpc-42718oh421"
     }
 
 # Variables
@@ -30,9 +32,14 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     iam_role_max_session_duration
     iam_role_name_prefix
     iam_role_permissions_boundary
+    flow_log_destination_type
+    flow_log_format
+    flow_max_aggregation_interval
+    flow_traffic_type
+    flow_vpc_id
     tags
 ## Required
-    N/A
+    flow_vpc_id
 
 ## Optional
     key_bypass_policy_lockout_safety_check
@@ -54,6 +61,10 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     iam_role_max_session_duration
     iam_role_name_prefix
     iam_role_permissions_boundary
+    flow_log_destination_type
+    flow_log_format
+    flow_max_aggregation_interval
+    flow_traffic_type
     tags
 # Outputs
     arn

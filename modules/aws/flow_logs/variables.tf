@@ -141,6 +141,39 @@ variable "iam_role_permissions_boundary" {
   default     = ""
 }
 
+###########################
+# CloudWatch Log Group
+###########################
+
+variable "flow_log_destination_type" {
+  type        = string
+  description = "(Optional) The type of the logging destination. Valid values: cloud-watch-logs, s3. Default: cloud-watch-logs."
+  default     = "cloud-watch-logs"
+}
+
+/* variable "flow_log_format" {
+  type        = string
+  description = "(Optional) The fields to include in the flow log record, in the order in which they should appear."
+  default     = ""
+} */
+
+variable "flow_max_aggregation_interval" {
+  type        = string
+  description = "(Optional) The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid Values: 60 seconds (1 minute) or 600 seconds (10 minutes). Default: 600."
+  default     = 60
+}
+
+variable "flow_traffic_type" {
+  type        = string
+  description = "(Optional) The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL."
+  default     = "ALL"
+}
+
+variable "flow_vpc_id" {
+  type        = string
+  description = "(Required) VPC ID to attach to"
+}
+
 ###############################################################
 # General Use Variables
 ###############################################################
