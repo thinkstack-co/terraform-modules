@@ -32,9 +32,10 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     iam_role_max_session_duration
     iam_role_name
     iam_role_permissions_boundary
+    aws_region
     tags
 ## Required
-    None
+    aws_region
 
 ## Optional
     key_bypass_policy_lockout_safety_check

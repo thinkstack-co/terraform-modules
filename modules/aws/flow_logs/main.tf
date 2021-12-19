@@ -6,6 +6,7 @@ terraform {
 # KMS Encryption Key
 ###########################
 
+/* Commented out the KMS key for now in order to further test the correct implementation
 resource "aws_kms_key" "key" {
   # bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
   customer_master_key_spec           = var.key_customer_master_key_spec
@@ -14,21 +15,55 @@ resource "aws_kms_key" "key" {
   enable_key_rotation                = var.key_enable_key_rotation
   key_usage                          = var.key_usage
   is_enabled                         = var.key_is_enabled
-  policy                             = var.key_policy
+  # policy                             = var.key_policy
   tags                               = var.tags
+  policy                             = jsonencode({
+    "Version": "2012-10-17",
+        "Id": "key-default-1",
+        "Statement": [
+            {
+                "Sid": "Enable IAM User Permissions",
+                "Effect": "Allow",
+                "Principal": {
+                    "AWS": "arn:aws:iam::${account_id}:root"
+                },
+                "Action": "kms:*",
+                "Resource": "*"
+            },
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "logs.${aws_region}.amazonaws.com"
+                },
+                "Action": [
+                    "kms:Encrypt*",
+                    "kms:Decrypt*",
+                    "kms:ReEncrypt*",
+                    "kms:GenerateDataKey*",
+                    "kms:Describe*"
+                ],
+                "Resource": "*",
+                "Condition": {
+                    "ArnEquals": {
+                        "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${aws_region}:${account_id}:${aws_cloudwatch_log_group.log_group.name}:log-group-name"
+                    }
+                }
+            }    
+        ]
+    })
 }
 
 resource "aws_kms_alias" "alias" {
   name          = var.key_name
   target_key_id = aws_kms_key.key.key_id
-}
+} */
 
 ###########################
 # CloudWatch Log Group
 ###########################
 
 resource "aws_cloudwatch_log_group" "log_group" {
-  kms_key_id        = aws_kms_key.key.arn
+  # kms_key_id        = aws_kms_key.key.arn
   name_prefix       = var.cloudwatch_name_prefix
   retention_in_days = var.cloudwatch_retention_in_days
   tags              = var.tags
