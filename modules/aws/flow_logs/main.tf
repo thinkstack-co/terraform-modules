@@ -123,7 +123,7 @@ resource "aws_flow_log" "vpc_flow" {
   iam_role_arn             = aws_iam_role.role.arn
   log_destination_type     = var.flow_log_destination_type
   log_destination          = aws_cloudwatch_log_group.log_group.arn
-  log_format               = var.flow_log_format
+  # log_format               = var.flow_log_format
   max_aggregation_interval = var.flow_max_aggregation_interval
   tags                     = var.tags
   traffic_type             = var.flow_traffic_type
