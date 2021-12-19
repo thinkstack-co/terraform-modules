@@ -18,17 +18,17 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     key_enable_key_rotation
     key_usage
     key_is_enabled
-    key_name
+    key_name_prefix
     cloudwatch_name_prefix
     cloudwatch_retention_in_days
     iam_policy_description
-    iam_policy_name
+    iam_policy_name_prefix
     iam_policy_path
     iam_role_assume_role_policy
     iam_role_description
     iam_role_force_detach_policies
     iam_role_max_session_duration
-    iam_role_name
+    iam_role_name_prefix
     iam_role_permissions_boundary
     tags
 ## Required
@@ -42,17 +42,17 @@ This module sets up each componenet required to capture ENI Flow Logs with the p
     key_enable_key_rotation
     key_usage
     key_is_enabled
-    key_name
+    key_name_prefix
     cloudwatch_name_prefix
     cloudwatch_retention_in_days
     iam_policy_description
-    iam_policy_name
+    iam_policy_name_prefix
     iam_policy_path
     iam_role_assume_role_policy
     iam_role_description
     iam_role_force_detach_policies
     iam_role_max_session_duration
-    iam_role_name
+    iam_role_name_prefix
     iam_role_permissions_boundary
     tags
 # Outputs

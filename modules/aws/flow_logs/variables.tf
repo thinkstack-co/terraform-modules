@@ -76,9 +76,9 @@ variable "iam_policy_description" {
     type        = string
 }
 
-variable "iam_policy_name" {
-    description = "(Optional, Forces new resource) The name of the policy. If omitted, Terraform will assign a random, unique name."
-    default     = "flow_log_policy"
+variable "iam_policy_name_prefix" {
+    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+    default     = "flow_log_policy_"
     type        = string
 }
 
@@ -129,10 +129,10 @@ variable "iam_role_max_session_duration" {
   default     = 3600
 }
 
-variable "iam_role_name" {
+variable "iam_role_name_prefix" {
   type        = string
-  description = "(Required) The friendly IAM role name to match."
-  default     = "flow_logs_role"
+  description = "(Required, Forces new resource) Creates a unique friendly name beginning with the specified prefix. Conflicts with name."
+  default     = "flow_logs_role_"
 }
 
 variable "iam_role_permissions_boundary" {

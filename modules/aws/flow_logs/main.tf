@@ -77,7 +77,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 ###########################
 resource "aws_iam_policy" "policy" {
   description = var.iam_policy_description
-  name        = var.iam_policy_name
+  name_prefix = var.iam_policy_name_prefix
   path        = var.iam_policy_path
   tags        = var.tags
 
@@ -110,6 +110,6 @@ resource "aws_iam_role" "role" {
   description           = var.iam_role_description
   force_detach_policies = var.iam_role_force_detach_policies
   max_session_duration  = var.iam_role_max_session_duration
-  name                  = var.iam_role_name
+  name_prefix           = var.iam_role_name_prefix
   permissions_boundary  = var.iam_role_permissions_boundary
 }
