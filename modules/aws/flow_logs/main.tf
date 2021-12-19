@@ -2,6 +2,15 @@ terraform {
   required_version = ">= 0.15.0"
 }
 
+#####
+# Data Sources
+#####
+data "aws_caller_identity" "current" {}
+
+output "account_id" {
+  value = data.aws_caller_identity.current.account_id
+}
+
 ###########################
 # KMS Encryption Key
 ###########################
@@ -19,6 +28,15 @@ resource "aws_kms_key" "key" {
   policy = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${account_id}:root"
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
         {
             "Effect" = "Allow",
             "Principal" = {
