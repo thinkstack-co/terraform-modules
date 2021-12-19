@@ -46,7 +46,7 @@ variable "key_is_enabled" {
 
 variable "key_name_prefix" {
   description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
-  default     = "alias/flow_logs_key"
+  default     = "alias/flow_logs_key_"
   type        = string
 }
 
@@ -56,7 +56,7 @@ variable "key_name_prefix" {
 
 variable "cloudwatch_name_prefix" {
   description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix."
-  default     = "flow_logs"
+  default     = "flow_logs_"
   type        = string
 }
 
