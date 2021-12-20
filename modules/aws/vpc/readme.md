@@ -1,4 +1,6 @@
 ## Description
+Module which builds out a VPC with multiple subnets for network segmentation, associated routes, gateways, and flow logs for all instances within the VPC.
+
 Creates the following
 -   VPC
 -   Two private subnets, one in each of two AZs
@@ -9,6 +11,12 @@ Creates the following
 -   Two EIPs attached to the NAT gateways
 -   One internet gateway
 -   Three route tables. One for the public subnets, and two for each of the private subnets
+-   Cloudwatch group
+-   KMS key
+-   KMS alias
+-   IAM policy
+-   IAM role
+-   VPC flow log
 
 ## Requirements
 

@@ -332,7 +332,7 @@ resource "aws_kms_key" "key" {
 resource "aws_kms_alias" "alias" {
   count         = (var.enable_vpc_flow_logs == true ? 1 : 0)
   name_prefix   = var.key_name_prefix
-  target_key_id = aws_kms_key.key.key_id
+  target_key_id = aws_kms_key.key.key_id[0]
 }
 
 ###########################
