@@ -302,7 +302,7 @@ variable "peer_vpc_ids" {
 }
 
 variable "peer_vpc_subnets" {
-  type        = list[string]
+  type        = list(string)
   description = "(Optional) The subnet cidr blocks of the VPC which will be a peer. The order should match up with the same index of the peer_vpc_ids"
   default     = []
 }
