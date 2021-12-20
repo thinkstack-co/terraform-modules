@@ -407,5 +407,5 @@ resource "aws_flow_log" "vpc_flow" {
   max_aggregation_interval = var.flow_max_aggregation_interval
   tags                     = var.tags
   traffic_type             = var.flow_traffic_type
-  vpc_id                   = var.flow_vpc_id
+  vpc_id                   = aws_vpc.vpc.id
 }

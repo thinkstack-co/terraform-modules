@@ -274,10 +274,10 @@ variable "flow_traffic_type" {
   default     = "ALL"
 }
 
-variable "flow_vpc_id" {
+/* variable "flow_vpc_id" {
   type        = string
   description = "(Required) VPC ID to attach to"
-}
+} */
 
 ###############################################################
 # General Use Variables
