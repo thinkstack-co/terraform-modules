@@ -284,9 +284,9 @@ variable "auto_accept" {
 }
 
 variable "peer_owner_id" {
-  type        = string
+  type        = list
   description = "(Optional) The AWS account ID of the owner of the peer VPC. Defaults to the account ID the AWS provider is currently connected to."
-  default     = ""
+  default     = []
 }
 
 variable "peer_region" {
