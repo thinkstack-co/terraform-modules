@@ -8,6 +8,10 @@ terraform {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+locals {
+  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+}
+
 ###########################
 # VPC
 ###########################
@@ -216,9 +220,6 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
 }
 
-locals {
-  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
-}
 resource "aws_vpc_endpoint" "s3" {
   count        = var.enable_s3_endpoint ? 1 : 0
   vpc_id       = aws_vpc.vpc.id
