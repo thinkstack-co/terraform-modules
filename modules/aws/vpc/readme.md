@@ -48,15 +48,15 @@ Creates the following
 | fw\_dmz\_network\_interface\_id | Firewall DMZ eni id | `list` | `[]` | no |
 | fw\_network\_interface\_id | Firewall network interface id | `list` | `[]` | no |
 | instance\_tenancy | A tenancy option for instances launched into the VPC | `string` | `"default"` | no |
-| map\_public\_ip\_on\_launch | should be false if you do not want to auto-assign public IP on launch | `bool` | `true` | no |
+| map\_public\_ip\_on\_launch | (Optional) Specify true to indicate that instances launched into the subnet should be assigned a public IP address. Default is false. | `bool` | `true` | no |
 | mgmt\_propagating\_vgws | A list of VGWs the mgmt route table should propagate. | `list` | `[]` | no |
 | mgmt\_subnets\_list | A list of mgmt subnets inside the VPC. | `list` | <pre>[<br>  "10.11.61.0/24",<br>  "10.11.62.0/24",<br>  "10.11.63.0/24"<br>]</pre> | no |
-| name | Name to be used on all the resources as identifier | `string` | `"terraform"` | no |
+| name | (Required) Name to be tagged on all of the resources as an identifier | `string` | `null` | yes |
 | private\_propagating\_vgws | A list of VGWs the private route table should propagate. | `list` | `[]` | no |
 | private\_subnets\_list | A list of private subnets inside the VPC. | `list` | <pre>[<br>  "10.11.1.0/24",<br>  "10.11.2.0/24",<br>  "10.11.3.0/24"<br>]</pre> | no |
 | public\_propagating\_vgws | A list of VGWs the public route table should propagate. | `list` | `[]` | no |
 | public\_subnets\_list | A list of public subnets inside the VPC. | `list` | <pre>[<br>  "10.11.201.0/24",<br>  "10.11.202.0/24",<br>  "10.11.203.0/24"<br>]</pre> | no |
-| single\_nat\_gateway | should be true if you want to provision a single shared NAT Gateway across all of your private networks | `bool` | `false` | no |
+| single\_nat\_gateway | (Optional) A boolean flag to enable/disable use of only a single shared NAT Gateway across all of your private networks. Defaults False. | `bool` | `false` | no |
 | tags | A map of tags to add to all resources | `map` | <pre>{<br>  "environment": "prod",<br>  "project": "core_infrastructure",<br>  "terraform": "true"<br>}</pre> | no |
 | vpc\_cidr | The CIDR block for the VPC | `string` | `"10.11.0.0/16"` | no |
 | vpc\_region | The region for the VPC | `any` | n/a | yes |

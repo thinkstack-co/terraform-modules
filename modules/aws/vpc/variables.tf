@@ -52,8 +52,9 @@ variable "instance_tenancy" {
 }
 
 variable "map_public_ip_on_launch" {
-  description = "should be false if you do not want to auto-assign public IP on launch"
+  description = "(Optional) Specify true to indicate that instances launched into the subnet should be assigned a public IP address. Default is false."
   default     = true
+  type        = bool
 }
 
 variable "mgmt_subnets_list" {
@@ -67,8 +68,8 @@ variable "mgmt_propagating_vgws" {
 }
 
 variable "name" {
-  description = "Name to be used on all the resources as identifier"
-  default     = "terraform"
+  description = "(Required) Name to be tagged on all of the resources as an identifier"
+  type        = string
 }
 
 variable "private_subnets_list" {
@@ -76,14 +77,14 @@ variable "private_subnets_list" {
   default     = ["10.11.1.0/24", "10.11.2.0/24", "10.11.3.0/24"]
 }
 
-variable "public_subnets_list" {
-  description = "A list of public subnets inside the VPC."
-  default     = ["10.11.201.0/24", "10.11.202.0/24", "10.11.203.0/24"]
-}
-
 variable "private_propagating_vgws" {
   description = "A list of VGWs the private route table should propagate."
   default     = []
+}
+
+variable "public_subnets_list" {
+  description = "A list of public subnets inside the VPC."
+  default     = ["10.11.201.0/24", "10.11.202.0/24", "10.11.203.0/24"]
 }
 
 variable "public_propagating_vgws" {
@@ -92,17 +93,19 @@ variable "public_propagating_vgws" {
 }
 
 variable "single_nat_gateway" {
-  description = "should be true if you want to provision a single shared NAT Gateway across all of your private networks"
+  description = "(Optional) A boolean flag to enable/disable use of only a single shared NAT Gateway across all of your private networks. Defaults False."
   default     = false
 }
 
 variable "vpc_cidr" {
   description = "The CIDR block for the VPC"
   default     = "10.11.0.0/16"
+  type        = string
 }
 
 variable "vpc_region" {
   description = "The region for the VPC"
+  type        = string
 }
 
 variable "workspaces_subnets_list" {
