@@ -2,6 +2,29 @@
 # VPC
 ###########################
 
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  default     = "10.11.0.0/16"
+  type        = string
+}
+
+variable "enable_dns_hostnames" {
+  description = "(Optional) A boolean flag to enable/disable DNS hostnames in the VPC. Defaults false."
+  default     = true
+  type        = bool
+}
+
+variable "enable_dns_support" {
+  description = "(Optional) A boolean flag to enable/disable DNS support in the VPC. Defaults true."
+  default     = true
+  type        = bool
+}
+
+variable "instance_tenancy" {
+  description = "A tenancy option for instances launched into the VPC"
+  default     = "default"
+}
+
 ###########################
 # Subnets
 ###########################
@@ -42,18 +65,6 @@ variable "dmz_propagating_vgws" {
   default     = []
 }
 
-variable "enable_dns_hostnames" {
-  description = "(Optional) A boolean flag to enable/disable DNS hostnames in the VPC. Defaults false."
-  default     = true
-  type        = bool
-}
-
-variable "enable_dns_support" {
-  description = "(Optional) A boolean flag to enable/disable DNS support in the VPC. Defaults true."
-  default     = true
-  type        = bool
-}
-
 variable "fw_dmz_network_interface_id" {
   type        = list
   description = "Firewall DMZ eni id"
@@ -63,11 +74,6 @@ variable "fw_dmz_network_interface_id" {
 variable "fw_network_interface_id" {
   description = "Firewall network interface id"
   default     = []
-}
-
-variable "instance_tenancy" {
-  description = "A tenancy option for instances launched into the VPC"
-  default     = "default"
 }
 
 variable "map_public_ip_on_launch" {
@@ -114,12 +120,6 @@ variable "public_propagating_vgws" {
 variable "single_nat_gateway" {
   description = "(Optional) A boolean flag to enable/disable use of only a single shared NAT Gateway across all of your private networks. Defaults False."
   default     = false
-}
-
-variable "vpc_cidr" {
-  description = "The CIDR block for the VPC"
-  default     = "10.11.0.0/16"
-  type        = string
 }
 
 variable "vpc_region" {

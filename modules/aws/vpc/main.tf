@@ -368,7 +368,7 @@ resource "aws_iam_policy" "policy" {
             "logs:DescribeLogStreams"
         ],
         Resource = [
-            "${aws_cloudwatch_log_group.log_group.arn}:*"
+            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
         ]
         }]
     })
