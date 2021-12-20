@@ -217,7 +217,7 @@ resource "aws_route" "workspaces_default_route_fw" {
 }
 
 locals {
-  service_name = "com.amazonaws.${var.vpc_region}.s3"
+  service_name = "com.amazonaws.${var.data.aws_region.current.name}.s3"
 }
 resource "aws_vpc_endpoint" "s3" {
   count        = var.enable_s3_endpoint ? 1 : 0

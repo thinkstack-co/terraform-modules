@@ -119,10 +119,10 @@ variable "public_propagating_vgws" {
   default     = []
 }
 
-variable "vpc_region" {
+/* variable "vpc_region" {
   description = "The region for the VPC"
   type        = string
-}
+} */
 
 variable "workspaces_propagating_vgws" {
   description = "A list of VGWs the workspaces route table should propagate."
