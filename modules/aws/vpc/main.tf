@@ -216,16 +216,6 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
 }
 
-# data "aws_vpc_endpoint_service" "s3" {
-#   count        = var.enable_s3_endpoint ? 1 : 0
-#   service_name = "s3"
-#   # filter {
-#   #   name   = "vpc_id"
-#   #   values = [aws_vpc.vpc.id]
-#   # }
-# }
-
-
 locals {
   service_name = "com.amazonaws.${var.vpc_region}.s3"
 }
