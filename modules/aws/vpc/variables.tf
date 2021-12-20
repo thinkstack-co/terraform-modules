@@ -188,7 +188,7 @@ variable "cloudwatch_name_prefix" {
 variable "cloudwatch_retention_in_days" {
   description = "(Optional) Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire."
   default     = 365
-  type        = string
+  type        = number
 }
 
 ###########################
@@ -243,13 +243,13 @@ variable "iam_role_description" {
 }
 
 variable "iam_role_force_detach_policies" {
-  type        = string
+  type        = bool
   description = "(Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false."
   default     = false
 }
 
 variable "iam_role_max_session_duration" {
-  type        = string
+  type        = number
   description = "(Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours."
   default     = 3600
 }
@@ -267,7 +267,7 @@ variable "iam_role_permissions_boundary" {
 }
 
 ###########################
-# CloudWatch Log Group
+# VPC Flow Log
 ###########################
 
 variable "flow_log_destination_type" {
@@ -277,7 +277,7 @@ variable "flow_log_destination_type" {
 }
 
 variable "flow_max_aggregation_interval" {
-  type        = string
+  type        = number
   description = "(Optional) The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid Values: 60 seconds (1 minute) or 600 seconds (10 minutes). Default: 600."
   default     = 60
 }
@@ -287,11 +287,6 @@ variable "flow_traffic_type" {
   description = "(Optional) The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL."
   default     = "ALL"
 }
-
-/* variable "flow_vpc_id" {
-  type        = string
-  description = "(Required) VPC ID to attach to"
-} */
 
 ###############################################################
 # General Use Variables
