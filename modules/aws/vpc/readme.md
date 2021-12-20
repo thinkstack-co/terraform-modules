@@ -39,11 +39,12 @@ Creates the following
 | db\_subnets\_list | A list of database subnets inside the VPC. | `list` | <pre>[<br>  "10.11.11.0/24",<br>  "10.11.12.0/24",<br>  "10.11.13.0/24"<br>]</pre> | no |
 | dmz\_propagating\_vgws | A list of VGWs the DMZ route table should propagate. | `list` | `[]` | no |
 | dmz\_subnets\_list | A list of DMZ subnets inside the VPC. | `list` | <pre>[<br>  "10.11.101.0/24",<br>  "10.11.102.0/24",<br>  "10.11.103.0/24"<br>]</pre> | no |
-| enable\_dns\_hostnames | should be true if you want to use private DNS within the VPC | `bool` | `true` | no |
-| enable\_dns\_support | should be true if you want to use private DNS within the VPC | `bool` | `true` | no |
-| enable\_firewall | should be true if you are using a firewall to NAT traffic for the private subnets | `bool` | `false` | no |
-| enable\_nat\_gateway | should be true if you want to provision NAT Gateways for each of your private networks | `bool` | `true` | no |
-| enable\_s3\_endpoint | should be true if you want to provision an S3 endpoint to the VPC | `bool` | `false` | no |
+| enable\_dns\_hostnames | (Optional) A boolean flag to enable/disable DNS hostnames in the VPC. Defaults false. | `bool` | `true` | no |
+| enable\_dns\_support | (Optional) A boolean flag to enable/disable DNS support in the VPC. Defaults true. | `bool` | `true` | no |
+| enable\_firewall | (Optional) A boolean flag to enable/disable the use of a firewall instance within the VPC. Defaults False. | `bool` | `false` | no |
+| enable\_nat\_gateway | (Optional) A boolean flag to enable/disable the use of NAT gateways in the private subnets. Defaults True. | `bool` | `true` | no |
+| enable\_s3\_endpoint | (Optional) A boolean flag to enable/disable the use of a S3 endpoint with the VPC. Defaults False | `bool` | `false` | no |
+| enable\_vpc\_flow\_logs | (Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults True. | `bool` | `true` | no |
 | fw\_dmz\_network\_interface\_id | Firewall DMZ eni id | `list` | `[]` | no |
 | fw\_network\_interface\_id | Firewall network interface id | `list` | `[]` | no |
 | instance\_tenancy | A tenancy option for instances launched into the VPC | `string` | `"default"` | no |

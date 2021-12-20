@@ -292,19 +292,19 @@ variable "enable_firewall" {
 }
 
 variable "enable_nat_gateway" {
-  description = "(Optional) A boolean flag to enable/disable the use of NAT gateways in the private subnets. Defaults True"
+  description = "(Optional) A boolean flag to enable/disable the use of NAT gateways in the private subnets. Defaults True."
   default     = true
   type        = bool
 }
 
 variable "enable_s3_endpoint" {
-  description = "(Optional) Enables associating the S3 endpoint with the VPC"
+  description = "(Optional) A boolean flag to enable/disable the use of a S3 endpoint with the VPC. Defaults False"
   default     = false
   type        = bool
 }
 
 variable "enable_vpc_flow_logs" {
-  description = "(Optional) Enables the resources associated with building and attaching VPC flow logs to the entire VPC. "
+  description = "(Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults True."
   default     = true
   type        = bool
 }
