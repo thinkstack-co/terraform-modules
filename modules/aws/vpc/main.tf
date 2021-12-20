@@ -390,8 +390,8 @@ resource "aws_iam_role" "role" {
 
 resource "aws_iam_role_policy_attachment" "role_attach" {
   count      = (var.enable_vpc_flow_logs == true ? 1 : 0)
-  role       = aws_iam_role.role.name
-  policy_arn = aws_iam_policy.policy.arn
+  role       = aws_iam_role.role[0].name
+  policy_arn = aws_iam_policy.policy[0].arn
 }
 
 
@@ -401,9 +401,9 @@ resource "aws_iam_role_policy_attachment" "role_attach" {
 
 resource "aws_flow_log" "vpc_flow" {
   count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
-  iam_role_arn             = aws_iam_role.role.arn
+  iam_role_arn             = aws_iam_role.role[0].arn
   log_destination_type     = var.flow_log_destination_type
-  log_destination          = aws_cloudwatch_log_group.log_group.arn
+  log_destination          = aws_cloudwatch_log_group.log_group[0].arn
   max_aggregation_interval = var.flow_max_aggregation_interval
   tags                     = var.tags
   traffic_type             = var.flow_traffic_type

@@ -1,3 +1,22 @@
+###########################
+# VPC
+###########################
+
+###########################
+# Subnets
+###########################
+
+
+###########################
+# Gateways
+###########################
+
+###########################
+# Route Tables and Associations
+###########################
+
+
+
 variable "azs" {
   description = "A list of Availability zones in the region"
   default     = ["us-east-2a", "us-east-2b", "us-east-2c"]
