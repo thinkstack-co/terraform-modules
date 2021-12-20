@@ -341,7 +341,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_cloudwatch_log_group" "log_group" {
   count             = (var.enable_vpc_flow_logs == true ? 1 : 0)
-  kms_key_id        = aws_kms_key.key.arn
+  kms_key_id        = aws_kms_key.key[0].arn
   name_prefix       = var.cloudwatch_name_prefix
   retention_in_days = var.cloudwatch_retention_in_days
   tags              = var.tags
