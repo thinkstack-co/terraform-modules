@@ -286,13 +286,13 @@ variable "flow_traffic_type" {
 
 
 variable "enable_firewall" {
-  description = "(Optional) should be true if you are using a firewall to NAT traffic for the private subnets"
+  description = "(Optional) A boolean flag to enable/disable the use of a firewall instance within the VPC. Defaults False."
   default     = false
   type        = bool
 }
 
 variable "enable_nat_gateway" {
-  description = "(Optional) should be true if you want to provision NAT Gateways for each of your private networks"
+  description = "(Optional) A boolean flag to enable/disable the use of NAT gateways in the private subnets. Defaults True"
   default     = true
   type        = bool
 }
