@@ -122,9 +122,9 @@ resource "aws_vpc_peering_connection" "peer" {
 }
 
 resource "aws_route" "vpc_peer_route" {
-  count                     = var.enable_vpc_peering ? 1 : 0
-  destination_cidr_block    = var.peer_vpc_subnet
-  route_table_id            = aws_route_table.private_route_table[count.index].id
+  count                     = var.enable_vpc_peering ? length(var.peer_vpc_ids) : 0
+  destination_cidr_block    = var.peer_vpc_subnets[count.index]
+  route_table_id            = aws_route_table.private_route_table[0].id
   vpc_peering_connection_id = aws_vpc_peering_connection.peer[count.index].id
 }
 

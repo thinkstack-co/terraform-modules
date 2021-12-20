@@ -301,10 +301,10 @@ variable "peer_vpc_ids" {
   default     = []
 }
 
-variable "peer_vpc_subnet" {
-  type        = string
-  description = "(Optional) The subnet cidr block of the VPC which will be a peer"
-  default     = ""
+variable "peer_vpc_subnets" {
+  type        = list[string]
+  description = "(Optional) The subnet cidr blocks of the VPC which will be a peer. The order should match up with the same index of the peer_vpc_ids"
+  default     = []
 }
 
 variable "sg_cidr_blocks" {
