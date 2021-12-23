@@ -39,7 +39,7 @@ resource "aws_kms_key" "cloudtrail" {
             "Effect": "Allow",
             "Principal": {"Service": ["cloudtrail.amazonaws.com"]},
             "Action": "kms:GenerateDataKey*",
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.cloudtrail.key_id}",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition": {"StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}}
         },
         {
@@ -47,7 +47,7 @@ resource "aws_kms_key" "cloudtrail" {
             "Effect": "Allow",
             "Principal": {"Service": ["cloudtrail.amazonaws.com"]},
             "Action": "kms:DescribeKey",
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.cloudtrail.key_id}"
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
         },
         {
             "Sid": "Allow principals in the account to decrypt log files",
@@ -57,7 +57,7 @@ resource "aws_kms_key" "cloudtrail" {
                 "kms:Decrypt",
                 "kms:ReEncryptFrom"
             ],
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.cloudtrail.key_id}",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition": {
                 "StringEquals": {"kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"},
                 "StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}
@@ -68,7 +68,7 @@ resource "aws_kms_key" "cloudtrail" {
             "Effect": "Allow",
             "Principal": {"AWS": "*"},
             "Action": "kms:CreateAlias",
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.cloudtrail.key_id}",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition": {"StringEquals": {
                 "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com",
                 "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
@@ -82,7 +82,7 @@ resource "aws_kms_key" "cloudtrail" {
                 "kms:Decrypt",
                 "kms:ReEncryptFrom"
             ],
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.cloudtrail.key_id}",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition": {
                 "StringEquals": {"kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"},
                 "StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}
