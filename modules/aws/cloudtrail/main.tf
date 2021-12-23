@@ -75,31 +75,31 @@ resource "aws_cloudtrail" "cloudtrail" {
 }
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-    acl             = var.acl
-    bucket_prefix   = var.bucket_prefix
+  acl           = var.acl
+  bucket_prefix = var.bucket_prefix
 
-    versioning {
-        enabled     = var.enabled
-        mfa_delete  = var.mfa_delete
-    }
+  versioning {
+    enabled    = var.enabled
+    mfa_delete = var.mfa_delete
+  }
 
-    server_side_encryption_configuration {
-        rule {
-          apply_server_side_encryption_by_default {
-            kms_master_key_id = var.kms_master_key_id
-            sse_algorithm     = var.sse_algorithm
-          }
-        }
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = var.kms_master_key_id
+        sse_algorithm     = var.sse_algorithm
       }
-
-    tags = {
-        terraform    = "true"
     }
+  }
+
+  tags = {
+    terraform = "true"
+  }
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
-    bucket  = aws_s3_bucket.cloudtrail_s3_bucket.id
-    policy  = <<POLICY
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  policy = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [

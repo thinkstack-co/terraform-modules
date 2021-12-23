@@ -18,7 +18,7 @@ variable "disable_api_termination" {
 }
 
 variable "dmz_subnet_id" {
-  type = list
+  type        = list
   description = "(Required) Subnet ID to create the ENI in."
 }
 
@@ -64,7 +64,7 @@ variable "lan0_description" {
 }
 
 variable "lan0_private_ips" {
-  type = list
+  type        = list
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
@@ -74,12 +74,12 @@ variable "mgmt0_description" {
 }
 
 variable "mgmt0_private_ips" {
-  type = list
+  type        = list
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
 variable "mgmt_subnet_id" {
-  type = list
+  type        = list
   description = "(Required) Subnet ID to create the ENI in."
 }
 
@@ -98,30 +98,30 @@ variable "placement_group" {
 }
 
 variable "private_subnet_id" {
-  type = list
+  type        = list
   description = "(Required) Subnet ID to create the ENI in."
 }
 
 variable "root_delete_on_termination" {
-  type = string
+  type        = string
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
 }
 
 variable "root_volume_size" {
-  type = string
+  type        = string
   description = "(Optional) The size of the volume in gigabytes."
   default     = "100"
 }
 
 variable "root_volume_type" {
-  type = string
+  type        = string
   description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
   default     = "gp2"
 }
 
 variable "sg_description" {
-  type = string
+  type        = string
   description = "(Optional, Forces new resource) The security group description. Defaults to 'Managed by Terraform'. Cannot be ''. NOTE: This field maps to the AWS GroupDescription attribute, for which there is no Update API. If you'd like to classify your security groups in a way that can be updated, use tags."
   default     = "Silverpeak SDWAN security group"
 }
@@ -132,14 +132,14 @@ variable "sg_name" {
 }
 
 variable "source_dest_check" {
-  type = string
+  type        = string
   description = "(Optional) Whether to enable source destination checking for the ENI. Default true."
   default     = false
 }
 
 variable "tags" {
   description = "(Optional) A mapping of tags to assign to the resource."
-  default     = {
+  default = {
     created_by  = "terraform"
     backup      = "true"
     terraform   = "true"
@@ -164,7 +164,7 @@ variable "wan0_description" {
 }
 
 variable "wan0_private_ips" {
-  type = list
+  type        = list
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 

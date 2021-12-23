@@ -66,7 +66,7 @@ variable "iam_database_authentication_enabled" {
 }
 
 variable "kms_key_id" {
-  type = string
+  type        = string
   description = "(Optional) The ARN for the KMS encryption key. When specifying kms_key_id, storage_encrypted needs to be set to true."
   default     = ""
 }
