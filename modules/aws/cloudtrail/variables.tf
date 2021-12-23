@@ -99,9 +99,9 @@ variable "cloudtrail_s3_key_prefix" {
 }
 
 variable "cloudtrail_insight_type" {
-  type        = list(string)
+  type        = string
   description = "(Optional) Type of insights to log on a trail. The valid value is ApiCallRateInsight"
-  default     = ["ApiCallRateInsight", "ApiErrorRateInsight"]
+  default     = "ApiCallRateInsight"
 }
 
 ###########################
