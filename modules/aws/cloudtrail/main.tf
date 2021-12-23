@@ -2,78 +2,63 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
+###########################
+# Data Sources
+###########################
+
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+###########################
+# KMS Encryption Key
+###########################
+
 resource "aws_kms_key" "cloudtrail" {
-  description             = "KMS key for cloudtrail logs"
-  deletion_window_in_days = 30
-  enable_key_rotation = true
-  policy  = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [
-
+  customer_master_key_spec = var.key_customer_master_key_spec
+  description              = var.key_description
+  deletion_window_in_days  = var.key_deletion_window_in_days
+  enable_key_rotation      = var.key_enable_key_rotation
+  key_usage                = var.key_usage
+  is_enabled               = var.key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
         {
-            "Sid": "Allow access for Key Administrators",
-            "Effect": "Allow",
-            "Principal": {"AWS": [
-              "arn:aws:iam::369844436288:root", 
-              "arn:aws:iam::369844436288:user/terraform"
-            ]},
-            "Action": [
-              "kms:Create*",
-              "kms:Describe*",
-              "kms:Enable*",
-              "kms:List*",
-              "kms:Put*",
-              "kms:Update*",
-              "kms:Revoke*",
-              "kms:Disable*",
-              "kms:Get*",
-              "kms:Delete*",
-              "kms:TagResource",
-              "kms:UntagResource",
-              "kms:ScheduleKeyDeletion",
-              "kms:CancelKeyDeletion"
-            ],
-            "Resource": "*"
+          "Sid" = "Enable IAM User Permissions",
+          "Effect" = "Allow",
+          "Principal" = {
+              "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
           },
-
+          "Action" = "kms:*",
+          "Resource" = "*"
+        },
         {
-            "Sid": "Allow CloudTrail to encrypt logs",
-            "Effect": "Allow",
-            "Principal": {
-              "Service": "cloudtrail.amazonaws.com"
-            },
-            "Action": "kms:GenerateDataKey*",
-            "Resource": "*",
+          "Sid" = "Allow CloudTrail to encrypt logs",
+          "Effect" = "Allow",
+          "Principal" = {
+            "Service" = "cloudtrail.amazonaws.com"
           },
-
-          {
-            "Sid": "Enable CloudTrail Encrypt Permissions",
-            "Effect": "Allow",
-            "Principal": {
-              "Service": "cloudtrail.amazonaws.com"
+          "Action" = "kms:GenerateDataKey*",
+          "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/key_ID",
+          "Condition" = {
+            "StringLike" = {
+              "kms:EncryptionContext:aws:cloudtrail:arn": [
+                "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+              ]
             },
-            "Action": "kms:Decrypt",
-            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
+            "StringEquals" = {
+                "aws:SourceArn": "arn:aws:cloudtrail:region:account-id:trail/trailName"
+            }
           }
-          
-          ]
         }
-        
-          
-POLICY
+    ]
+  })
 }
 
-resource "aws_cloudtrail" "cloudtrail" {
-    enable_log_file_validation      =   var.enable_log_file_validation
-    include_global_service_events   =   var.include_global_service_events
-    is_multi_region_trail           =   var.is_multi_region_trail
-    kms_key_id                      =   aws_kms_key.cloudtrail.arn
-    name                            =   var.name
-    s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
-    s3_key_prefix                   =   var.s3_key_prefix
-}
-
+###########################
+# S3 Bucket
+###########################
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
   acl           = var.acl
   bucket_prefix = var.bucket_prefix
@@ -138,4 +123,19 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
     ]
 }
 POLICY
+}
+
+
+###########################
+# Cloudtrail
+###########################
+
+resource "aws_cloudtrail" "cloudtrail" {
+    enable_log_file_validation      =   var.enable_log_file_validation
+    include_global_service_events   =   var.include_global_service_events
+    is_multi_region_trail           =   var.is_multi_region_trail
+    kms_key_id                      =   aws_kms_key.cloudtrail.arn
+    name                            =   var.name
+    s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
+    s3_key_prefix                   =   var.s3_key_prefix
 }
