@@ -104,6 +104,15 @@ resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
     enabled    = var.s3_versioning_enabled
     mfa_delete = var.s3_mfa_delete
   }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = aws_kms_key.cloudtrail.key_id
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
