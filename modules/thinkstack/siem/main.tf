@@ -667,7 +667,7 @@ resource "aws_sqs_queue" "terraform_queue" {
 
   policy = jsonencode({
     "Version" = "2012-10-17",
-    "Id" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.terraform_queue.id}",
+    "Id" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_sqs_queue",
     "Statement" = [{
         "Sid" = "Sid1591029198479",
         "Effect" = "Allow",
@@ -675,7 +675,7 @@ resource "aws_sqs_queue" "terraform_queue" {
             "AWS" = "*"
         },
         "Action" = "SQS:*",
-        "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.terraform_queue.id}",
+        "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_sqs_queue",
         "Condition" = {
             "ArnLike" = {
                 "aws:SourceArn": "<S3 Bucket ARN>"
