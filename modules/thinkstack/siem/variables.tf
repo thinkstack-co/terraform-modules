@@ -317,3 +317,180 @@ variable "iam_role_name" {
   description = "(Optional, Forces new resource) The name of the role. If omitted, Terraform will assign a random, unique name."
   default     = "siem-ssm-service-role"
 }
+
+
+###########################
+# KMS Encryption Key
+###########################
+
+variable "key_customer_master_key_spec" {
+    description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+    default     = "SYMMETRIC_DEFAULT"
+    type        = string
+}
+
+variable "key_description" {
+    description = "(Optional) The description of the key as viewed in AWS console."
+    default     = "Cloudtrail kms key used to encrypt audit logs"
+    type        = string
+}
+
+variable "key_deletion_window_in_days" {
+    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+    default     = 30
+    type        = number
+}
+
+variable "key_enable_key_rotation" {
+  description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
+  default     = true
+  type        = bool
+}
+
+variable "key_usage" {
+  description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
+  default     = "ENCRYPT_DECRYPT"
+  type        = string
+}
+
+variable "key_is_enabled" {
+  description = "(Optional) Specifies whether the key is enabled. Defaults to true."
+  default     = true
+  type        = string
+}
+
+variable "key_name_prefix" {
+  description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
+  default     = "alias/cloudtrail_key_"
+  type        = string
+}
+
+###########################
+# S3 Bucket
+###########################
+
+variable "s3_bucket_prefix" {
+  description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
+  default     = "siem-cloudtrail-"
+  type        = string
+}
+
+variable "s3_versioning_enabled" {
+  description = "(Optional) Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket."
+  default     = false
+}
+
+variable "s3_mfa_delete" {
+  description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
+  default     = true
+}
+
+###########################
+# Cloudtrail
+###########################
+
+variable "cloudtrail_enable_log_file_validation" {
+  description = "(Optional) Whether log file integrity validation is enabled. Defaults to false."
+  default     = true
+  type        = bool
+}
+
+variable "cloudtrail_include_global_service_events" {
+  description = "(Optional) Whether the trail is publishing events from global services such as IAM to the log files. Defaults to true."
+  default     = true
+  type        = bool
+}
+
+variable "cloudtrail_is_multi_region_trail" {
+  description = "(Optional) Whether the trail is created in the current region or in all regions. Defaults to false."
+  default     = true
+  type        = bool
+}
+
+variable "cloudtrail_name" {
+  description = "(Required) Name of the trail."
+  default     = "cloudtrail"
+  type        = string
+}
+
+variable "cloudtrail_s3_key_prefix" {
+  description = "(Optional) S3 key prefix that follows the name of the bucket you have designated for log file delivery."
+  default     = null
+  type        = string
+}
+
+variable "cloudtrail_insight_type" {
+  type        = string
+  description = "(Optional) Type of insights to log on a trail. The valid value is ApiCallRateInsight"
+  default     = "ApiCallRateInsight"
+}
+
+##################
+# SQS
+##################
+
+variable "sqs_name" {
+  type        = string
+  description = "(Optional) This is the human-readable name of the queue. If omitted, Terraform will assign a random name."
+  default     = "siem_sqs_queue"
+}
+
+variable "sqs_visibility_timeout_seconds" {
+  type        = number
+  description = "(Optional) The visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see AWS docs."
+  default     = 30
+}
+
+variable "sqs_message_retention_seconds" {
+  type        = number
+  description = "(Optional) The number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days)."
+  default     = 345600
+}
+
+variable "sqs_max_message_size" {
+  type        = number
+  description = "(Optional) The limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 262144 bytes (256 KiB). The default for this attribute is 262144 (256 KiB)."
+  default     = 262144
+}
+
+variable "sqs_delay_seconds" {
+  type        = number
+  description = "(Optional) The time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds."
+  default     = 0
+}
+
+variable "sqs_receive_wait_time_seconds" {
+  type        = number
+  description = "(Optional) The time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately."
+  default     = 0
+}
+
+variable "sqs_redrive_policy" {
+  type        = string
+  description = "(Optional) The JSON policy to set up the Dead Letter Queue, see AWS docs. Note: when specifying maxReceiveCount, you must specify it as an integer (5), and not a string ('5')."
+  default     = null
+}
+
+variable "sqs_fifo_queue" {
+  type        = bool
+  description = "(Optional) Boolean designating a FIFO queue. If not set, it defaults to false making it standard."
+  default     = false
+}
+
+variable "sqs_content_based_deduplication" {
+  type        = bool
+  description = "(Optional) Enables content-based deduplication for FIFO queues. For more information, see the related documentation"
+  default     = false
+}
+
+variable "sqs_kms_master_key_id" {
+  type        = string
+  description = "(Optional) The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see Key Terms."
+  default     = "alias/aws/sqs"
+}
+
+variable "sqs_kms_data_key_reuse_period_seconds" {
+  type        = number
+  description = "(Optional) The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes)."
+  default     = 300
+}

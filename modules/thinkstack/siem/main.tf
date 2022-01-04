@@ -1,6 +1,13 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.14.0"
 }
+
+###########################
+# Data Sources
+###########################
+
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
 
 ###########################
 # VPC
@@ -479,3 +486,201 @@ resource "aws_iam_instance_profile" "this" {
 ##################
 # SSM association
 ##################
+
+###################################################
+# AWS CloudTrail Datasource Configuration
+###################################################
+
+###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "cloudtrail" {
+  customer_master_key_spec = var.key_customer_master_key_spec
+  description              = var.key_description
+  deletion_window_in_days  = var.key_deletion_window_in_days
+  enable_key_rotation      = var.key_enable_key_rotation
+  key_usage                = var.key_usage
+  is_enabled               = var.key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Id" = "Key policy created by CloudTrail",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {"AWS": [
+                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            ]},
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow CloudTrail to encrypt logs",
+            "Effect": "Allow",
+            "Principal": {"Service": ["cloudtrail.amazonaws.com"]},
+            "Action": "kms:GenerateDataKey*",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition": {"StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}}
+        },
+        {
+            "Sid": "Allow CloudTrail to describe key",
+            "Effect": "Allow",
+            "Principal": {"Service": ["cloudtrail.amazonaws.com"]},
+            "Action": "kms:DescribeKey",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
+        },
+        {
+            "Sid": "Allow principals in the account to decrypt log files",
+            "Effect": "Allow",
+            "Principal": {"AWS": "*"},
+            "Action": [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition": {
+                "StringEquals": {"kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"},
+                "StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}
+            }
+        },
+        {
+            "Sid": "Allow alias creation during setup",
+            "Effect": "Allow",
+            "Principal": {"AWS": "*"},
+            "Action": "kms:CreateAlias",
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition": {"StringEquals": {
+                "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com",
+                "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+            }}
+        },
+        {
+            "Sid": "Enable cross account log decryption",
+            "Effect": "Allow",
+            "Principal": {"AWS": "*"},
+            "Action": [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition": {
+                "StringEquals": {"kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"},
+                "StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}
+            }
+        }
+    ]
+  })
+}
+
+###########################
+# S3 Bucket
+###########################
+resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
+  acl           = "private"
+  bucket_prefix = var.s3_bucket_prefix
+  tags          = var.tags
+
+  versioning {
+    enabled    = var.s3_versioning_enabled
+    mfa_delete = var.s3_mfa_delete
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = aws_kms_key.cloudtrail.key_id
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  policy = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+        {
+            "Sid" = "AWSCloudTrailAclCheck",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "cloudtrail.amazonaws.com"
+            },
+            "Action" = "s3:GetBucketAcl",
+            "Resource" = "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
+        },
+        {
+            "Sid" = "AWSCloudTrailWrite",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "cloudtrail.amazonaws.com"
+            },
+            "Action" = "s3:PutObject",
+            "Resource" = "${aws_s3_bucket.cloudtrail_s3_bucket.arn}/*",
+            "Condition" = {
+                "StringEquals" = {
+                    "AWS:SourceArn" = "${aws_cloudtrail.cloudtrail.arn}",
+                    "s3:x-amz-acl" = "bucket-owner-full-control"
+                }
+            }
+        }
+    ]
+  })
+}
+
+###########################
+# Cloudtrail
+###########################
+
+resource "aws_cloudtrail" "cloudtrail" {
+    enable_log_file_validation      =   var.cloudtrail_enable_log_file_validation
+    include_global_service_events   =   var.cloudtrail_include_global_service_events
+    is_multi_region_trail           =   var.cloudtrail_is_multi_region_trail
+    kms_key_id                      =   aws_kms_key.cloudtrail.arn
+    name                            =   var.cloudtrail_name
+    s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
+    s3_key_prefix                   =   var.cloudtrail_s3_key_prefix
+    insight_selector {
+      insight_type = var.cloudtrail_insight_type
+    }
+}
+
+##################
+# SQS
+##################
+
+resource "aws_sqs_queue" "terraform_queue" {
+  name                              = var.sqs_name
+  visibility_timeout_seconds        = var.sqs_visibility_timeout_seconds
+  message_retention_seconds         = var.sqs_message_retention_seconds
+  max_message_size                  = var.sqs_max_message_size
+  delay_seconds                     = var.sqs_delay_seconds
+  receive_wait_time_seconds         = var.sqs_receive_wait_time_seconds
+  redrive_policy                    = var.sqs_redrive_policy
+  fifo_queue                        = var.sqs_fifo_queue
+  content_based_deduplication       = var.sqs_content_based_deduplication
+  kms_master_key_id                 = var.sqs_kms_master_key_id
+  kms_data_key_reuse_period_seconds = var.sqs_kms_data_key_reuse_period_seconds
+  tags                              = var.tags
+
+  policy = jsonencode({
+    "Version" = "2012-10-17",
+    "Id" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.terraform_queue.id}",
+    "Statement" = [{
+        "Sid" = "Sid1591029198479",
+        "Effect" = "Allow",
+        "Principal" = {
+            "AWS" = "*"
+        },
+        "Action" = "SQS:*",
+        "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_sqs_queue.terraform_queue.id}",
+        "Condition" = {
+            "ArnLike" = {
+                "aws:SourceArn": "<S3 Bucket ARN>"
+            }
+        }
+    }]
+  })
+}
