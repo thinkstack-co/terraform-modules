@@ -388,7 +388,7 @@ resource "aws_security_group" "sg" {
     to_port     = 13005
     protocol    = "udp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Corelight and Darktrace Syslog Ingester Port"
+    description = "NTA (Corelight, Darktrace, and ExtraHop) Syslog Ingester Port"
   }
 
   ingress {
@@ -396,7 +396,23 @@ resource "aws_security_group" "sg" {
     to_port     = 13005
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Corelight and Darktrace Syslog Ingester Port"
+    description = "NTA (Corelight, Darktrace, and ExtraHop) Syslog Ingester Port"
+  }
+
+  ingress {
+    from_port   = 13008
+    to_port     = 13008
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "ManageEngine ADAudit Ingester Port"
+  }
+
+  ingress {
+    from_port   = 13008
+    to_port     = 13008
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "ManageEngine ADAudit Ingester Port"
   }
 
   ingress {
