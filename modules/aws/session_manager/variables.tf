@@ -48,7 +48,7 @@ variable "ami" {
 
 variable "vpc_security_group_ids" {
   default     = []
-  type        = tolist(string)
+  type        = list(string)
   description = "A list of security group IDs to associate with."
 }
 
