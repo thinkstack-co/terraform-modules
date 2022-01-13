@@ -1,6 +1,12 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.15.0"
 }
+
+###########################
+# Data Sources
+###########################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
 
 ###########################
 # VPC
@@ -21,7 +27,7 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.private_subnets_list[count.index]
-  availability_zone = element(tolist(format("%sa", var.region), format("%sb", var.region), format("%sc", var.region)), count.index)
+  availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
   tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index)) }))
 }
