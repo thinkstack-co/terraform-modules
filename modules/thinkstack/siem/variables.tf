@@ -225,10 +225,10 @@ variable "static_routes_only" {
   default     = true
 }
 
-variable "region" {
+/* variable "region" {
   type        = string
   description = "(Required) AWS region in which the VPC and all rersources will be created in"
-}
+} */
 
 variable "tags" {
   description = "A map of tags to add to all resources"
