@@ -8,7 +8,6 @@ module "siem" {
   ami            = var.centos_ami[var.aws_region]
   created_by     = "Zachary Hill"
   public_key     = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
-  region         = var.aws_region
   sg_cidr_blocks = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
 
   customer_gw_name      = ["hq_edge"]
