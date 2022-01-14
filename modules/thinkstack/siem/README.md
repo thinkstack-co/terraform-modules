@@ -12,6 +12,7 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
         public_key            = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
         sg_cidr_blocks        = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
 
+        enable_vpn_peering    = true
         customer_gw_name      = ["hq_edge"]
         vpn_peer_ip_address   = ["1.1.1.1"]
         vpn_route_cidr_blocks = ["192.168.1.0/24"]
@@ -51,6 +52,7 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
     enable_dns_support
     enable_nat_gateway
     enable_vpc_peering
+    enable_vpn_tunnel
     encrypted
     iam_instance_profile
     iam_role_name

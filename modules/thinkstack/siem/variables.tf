@@ -63,9 +63,9 @@ variable "enable_vpc_peering" {
   default     = false
 }
 
-variable "enable_vpn_tunnel" {
+variable "enable_vpn_peering" {
   description = "(Required)Boolean which should be set to true if you want to enable and set up a vpn tunnel"
-  default     = true
+  default     = false
 }
 
 variable "encrypted" {
