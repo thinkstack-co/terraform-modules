@@ -139,12 +139,13 @@ resource "aws_route" "vpc_peer_route" {
 ###########################
 
 resource "aws_vpn_gateway" "vpn_gateway" {
+  count      = var.enable_vpn_peering ? 1 : 0
   vpc_id = aws_vpc.vpc.id
   tags   = merge(var.tags, ({ "Name" = format("%s_vpn_gw", var.name) }))
 }
 
 resource "aws_customer_gateway" "customer_gateway" {
-  count      = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
+  count      = var.enable_vpn_peering ? length(var.vpn_peer_ip_address) : 0
   bgp_asn    = var.bgp_asn
   ip_address = var.vpn_peer_ip_address[count.index]
   type       = var.vpn_type
@@ -152,7 +153,7 @@ resource "aws_customer_gateway" "customer_gateway" {
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
-  count               = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
+  count               = var.enable_vpn_peering ? length(var.vpn_peer_ip_address) : 0
   customer_gateway_id = aws_customer_gateway.customer_gateway[count.index].id
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
@@ -161,7 +162,7 @@ resource "aws_vpn_connection" "vpn_connection" {
 }
 
 resource "aws_vpn_connection_route" "vpn_route" {
-  count                  = var.enable_vpn_tunnel ? length(var.vpn_route_cidr_blocks) : 0
+  count                  = var.enable_vpn_peering ? length(var.vpn_route_cidr_blocks) : 0
   destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
   vpn_connection_id      = aws_vpn_connection.vpn_connection[0].id
 }
