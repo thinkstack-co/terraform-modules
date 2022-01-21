@@ -68,7 +68,7 @@ resource "aws_nat_gateway" "natgw" {
 ###########################
 
 resource "aws_route_table" "public_route_table" {
-  propagating_vgws = [aws_vpn_gateway.vpn_gateway[0].id]
+  propagating_vgws = var.enable_vpn_peering ? [aws_vpn_gateway.vpn_gateway[0].id] : []
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-public", var.name) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -81,7 +81,7 @@ resource "aws_route" "public_default_route" {
 
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
-  propagating_vgws = [aws_vpn_gateway.vpn_gateway[0].id]
+  propagating_vgws = var.enable_vpn_peering ? [aws_vpn_gateway.vpn_gateway[0].id] : []
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
