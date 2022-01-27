@@ -33,7 +33,7 @@ variable "firehose_key_arn" {
 variable "firehose_prefix" {
   description = "(Optional) The YYYY/MM/DD/HH time format prefix is automatically used for delivered S3 files. You can specify an extra prefix to be added in front of the time format prefix. Note that if the prefix ends with a slash, it appears as a folder in the S3 bucket"
   type        = string
-  default     = "YYYY/MM/DD/HH"
+  default     = ""
 }
 
 variable "firehose_buffer_size" {
@@ -90,7 +90,7 @@ variable "s3_policy" {
 variable "s3_lifecycle_id" {
   description = "(Optional) Unique identifier for the rule. Must be less than or equal to 255 characters in length."
   type        = string
-  default     = "lifecycle"
+  default     = "delete_after_7_days"
 }
 
 variable "s3_lifecycle_prefix" {
