@@ -7,7 +7,7 @@ variable "firehose_name" {
 }
 
 variable "firehose_destination" {
-  description = "(Required) This is the destination to where the data is delivered. The only options are s3 (Deprecated, use extended_s3 instead), extended_s3, redshift, elasticsearch, splunk, and http_endpoint."
+  description = "(Optional) This is the destination to where the data is delivered. The only options are s3 (Deprecated, use extended_s3 instead), extended_s3, redshift, elasticsearch, splunk, and http_endpoint."
   type        = string
   default     = "extended_s3"
 }
@@ -69,12 +69,6 @@ variable "firehose_kms_key_arn" {
 #################################
 # S3
 #################################
-
-variable "firehose_" {
-  description = ""
-  type        = string
-  default     = ""
-}
 
 variable "s3_acl" {
   description = "(Optional) The canned ACL to apply. Defaults to private."
