@@ -87,4 +87,5 @@ resource "aws_s3control_bucket_lifecycle_configuration" "lifecycle_transition" {
   }
 
   tags = var.tags
+  }
 }
