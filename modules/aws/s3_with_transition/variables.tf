@@ -127,7 +127,7 @@ variable "delete_on_date" {
   description = "(Optional) Date the object is to be deleted. Should be in YYYY-MM-DD date format, e.g., 2020-09-30"
 }
 
-variable "expired_object_delete_marker" {
+  variable "expired_object_delete_marker" {
   default     = "disabled"
   description = "(Optional) Enable to remove a delete marker with no noncurrent versions. Cannot be specified with date or days."
 }
@@ -141,7 +141,7 @@ variable "filter_tags" {
 }
 
 variable "expiration_id" {
-  default     = format("%s%d", "expiration_rule", count.index + 1)
+  #default     = format("%s%d", "expiration_rule", count.index + 1)
   description = "(Required) Unique identifier for the rule."
 }
 

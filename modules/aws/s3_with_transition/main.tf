@@ -39,7 +39,7 @@ resource "aws_s3control_bucket_lifecycle_configuration" "lifecycle_expiration" {
         tags   = var.filter_tags
       }
 
-      id = var.expiration_id
+      id = format("%s%d", "expiration_rule", count.index + 1)
     }
   }
 }
