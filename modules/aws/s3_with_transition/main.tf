@@ -46,7 +46,6 @@ resource "aws_s3control_bucket_lifecycle_configuration" "lifecycle_expiration" {
 
 resource "aws_s3control_bucket_lifecycle_configuration" "lifecycle_transition" {
   bucket = aws_s3control_bucket.example.arn
-  status = var.lifecycle_transition_status
 
   lifecycle_rule {
     id      = "transition-to-infrequent-access-storage"
