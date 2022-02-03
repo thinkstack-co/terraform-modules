@@ -119,11 +119,13 @@ variable "lifecycle_expiration_status" {
 }
 
 variable "expiration_days" {
+  default = null
   type        = number
   description = "(Optional) Number of days before the object is to be deleted."
 }
 
 variable "delete_on_date" {
+  default = null
   description = "(Optional) Date the object is to be deleted. Should be in YYYY-MM-DD date format, e.g., 2020-09-30"
 }
 
@@ -133,6 +135,7 @@ variable "delete_on_date" {
 }
 
 variable "filter_prefix" {
+  default = null
   description = "(Optional) Object prefix for rule filtering."
 }
 
@@ -140,9 +143,9 @@ variable "filter_tags" {
   description = "(Optional) Key-value map of object tags for rule filtering."
 }
 
-variable "expiration_id" {
-  #default     = format("%s%d", "expiration_rule", count.index + 1)
-  description = "(Required) Unique identifier for the rule."
-}
+# variable "expiration_id" {
+#   #default     = format("%s%d", "expiration_rule", count.index + 1)
+#   description = "(Required) Unique identifier for the rule."
+# }
 
 
