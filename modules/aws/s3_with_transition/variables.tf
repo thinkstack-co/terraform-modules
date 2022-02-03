@@ -114,7 +114,7 @@ variable "lifecycle_days_to_deep_archive_transition" {
 }
 
 variable "lifecycle_expiration_status" {
-  default     = false
+  default     = "enabled"
   description = "(Optional) Status of the expiration rule."
 }
 
