@@ -29,8 +29,8 @@ resource "aws_s3control_bucket_lifecycle_configuration" "lifecycle_expiration" {
     for_each = var.lifecycle_expiration_status ? [1] : []
     rule {
       expiration {
-        days = var.expiration
-        date = var.deletion_date
+        days = var.expiration_days
+        date = var.delete_on_date
         expired_object_delete_marker = var.expired_object_delete_marker
       }
 
@@ -39,7 +39,7 @@ resource "aws_s3control_bucket_lifecycle_configuration" "lifecycle_expiration" {
         tags   = var.filter_tags
       }
 
-      id = var.id
+      id = var.expiration_id
     }
   }
 }

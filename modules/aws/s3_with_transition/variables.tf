@@ -113,8 +113,36 @@ variable "lifecycle_days_to_deep_archive_transition" {
   description = "Specifies the number of days after object creation when it will be moved to Glacier storage."
 }
 
-variable "expiration" {
-  type        = number
-  default     = 120
-  description = "Specifies the number of days after object creation when it will be moved to Glacier storage."
+variable "lifecycle_expiration_status" {
+  default     = false
+  description = "(Optional) Status of the expiration rule."
 }
+
+variable "expiration_days" {
+  type        = number
+  description = "(Optional) Number of days before the object is to be deleted."
+}
+
+variable "delete_on_date" {
+  description = "(Optional) Date the object is to be deleted. Should be in YYYY-MM-DD date format, e.g., 2020-09-30"
+}
+
+variable "expired_object_delete_marker" {
+  default     = "disabled"
+  description = "(Optional) Enable to remove a delete marker with no noncurrent versions. Cannot be specified with date or days."
+}
+
+variable "filter_prefix" {
+  description = "(Optional) Object prefix for rule filtering."
+}
+
+variable "filter_tags" {
+  description = "(Optional) Key-value map of object tags for rule filtering."
+}
+
+variable "expiration_id" {
+  default     = format("%s%d", "expiration_rule", count.index + 1)
+  description = "(Required) Unique identifier for the rule."
+}
+
+
