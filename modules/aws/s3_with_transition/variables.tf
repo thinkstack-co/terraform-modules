@@ -112,3 +112,9 @@ variable "lifecycle_days_to_deep_archive_transition" {
   default     = 120
   description = "Specifies the number of days after object creation when it will be moved to Glacier storage."
 }
+
+variable "expiration" {
+  type        = number
+  default     = 120
+  description = "Specifies the number of days after object creation when it will be moved to Glacier storage."
+}
