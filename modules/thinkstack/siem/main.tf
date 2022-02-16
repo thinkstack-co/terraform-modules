@@ -326,116 +326,47 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-  ingress {
-    from_port   = 13001
-    to_port     = 13001
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Firewall Syslog Ingester Port"
-  }
+/* 
+########################################
+# Syslog Port Mappings
+########################################
+Port - Description
+13001 - Firewalls
+13002 - Access Points
+13003 - Windows
+13004 - Switches and Routers
+13005 - NTAs (Corelight, Darktrace, Extrahop, etc)
+13006 - PDUs and UPS devices
+13007 - Linux
+13008 - Manage Engine ADAudit
+13009 - Vulnerability Scanners (Trace, Qualys, Nessus, etc)
+13010 - Reserved
+13011 - Reserved
+13012 - Web Proxy or Reverse Proxy (NGINX)
+13013 - Reserved
+13014 - Firewall Orchestration (Fortimanager, Cisco FMC, etc)
+13015 - SANs and NAS devices
+13016 - Security Cameras
+13017 - Dell iDRAC
+13018 - HP iLO
+13019 - Backup Platforms (Veeam)
+13020 - Endpoint Security (Carbon Black, Crowdstrike, Cylance, etc)
+ */
 
   ingress {
     from_port   = 13001
-    to_port     = 13001
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Firewall Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13002
-    to_port     = 13002
+    to_port     = 13020
     protocol    = "udp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Access Point Syslog Ingester Port"
+    description = "RIN Syslog Ingester Ports"
   }
 
   ingress {
-    from_port   = 13002
-    to_port     = 13002
+    from_port   = 13001
+    to_port     = 13020
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Access Point Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13003
-    to_port     = 13003
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Windows Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13003
-    to_port     = 13003
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Windows Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13004
-    to_port     = 13004
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Routers and Switches Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13004
-    to_port     = 13004
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Routers and Switches Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13005
-    to_port     = 13005
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "NTA (Corelight, Darktrace, and ExtraHop) Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13005
-    to_port     = 13005
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "NTA (Corelight, Darktrace, and ExtraHop) Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13008
-    to_port     = 13008
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "ManageEngine ADAudit Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13008
-    to_port     = 13008
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "ManageEngine ADAudit Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13022
-    to_port     = 13022
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13022
-    to_port     = 13022
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
+    description = "RIN Syslog Ingester Ports"
   }
 
   egress {
