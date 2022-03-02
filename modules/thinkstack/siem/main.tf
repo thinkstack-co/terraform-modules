@@ -443,6 +443,7 @@ resource "aws_iam_instance_profile" "this" {
 ###########################
 
 resource "aws_kms_key" "key" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
   customer_master_key_spec = var.flow_key_customer_master_key_spec
   description              = var.flow_key_description
   deletion_window_in_days  = var.flow_key_deletion_window_in_days
@@ -486,6 +487,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_kms_alias" "alias" {
+  count         = (var.enable_vpc_flow_logs == true ? 1 : 0)
   name_prefix   = var.flow_key_name_prefix
   target_key_id = aws_kms_key.key[0].key_id
 }
@@ -495,6 +497,7 @@ resource "aws_kms_alias" "alias" {
 ###########################
 
 resource "aws_cloudwatch_log_group" "log_group" {
+  count             = (var.enable_vpc_flow_logs == true ? 1 : 0)
   kms_key_id        = aws_kms_key.key[0].arn
   name_prefix       = var.flow_cloudwatch_name_prefix
   retention_in_days = var.flow_cloudwatch_retention_in_days
@@ -505,6 +508,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 # IAM Policy
 ###########################
 resource "aws_iam_policy" "policy" {
+  count       = (var.enable_vpc_flow_logs == true ? 1 : 0)
   description = var.flow_iam_policy_description
   name_prefix = var.flow_iam_policy_name_prefix
   path        = var.flow_iam_policy_path
@@ -532,6 +536,7 @@ resource "aws_iam_policy" "policy" {
 ###########################
 
 resource "aws_iam_role" "role" {
+  count                 = (var.enable_vpc_flow_logs == true ? 1 : 0)
   assume_role_policy    = var.flow_iam_role_assume_role_policy
   description           = var.flow_iam_role_description
   force_detach_policies = var.flow_iam_role_force_detach_policies
@@ -541,6 +546,7 @@ resource "aws_iam_role" "role" {
 }
 
 resource "aws_iam_role_policy_attachment" "role_attach" {
+  count      = (var.enable_vpc_flow_logs == true ? 1 : 0)
   role       = aws_iam_role.role[0].name
   policy_arn = aws_iam_policy.policy[0].arn
 }
@@ -550,6 +556,7 @@ resource "aws_iam_role_policy_attachment" "role_attach" {
 ###########################
 
 resource "aws_flow_log" "vpc_flow" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
   iam_role_arn             = aws_iam_role.role[0].arn
   log_destination_type     = var.flow_log_destination_type
   log_destination          = aws_cloudwatch_log_group.log_group[0].arn

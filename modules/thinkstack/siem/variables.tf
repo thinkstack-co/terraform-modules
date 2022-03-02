@@ -225,20 +225,6 @@ variable "static_routes_only" {
   default     = true
 }
 
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  default = {
-    backup      = "true"
-    created_by  = "Your Name"
-    terraform   = "true"
-    environment = "prod"
-    project     = "SIEM Implementation"
-    service     = "soc"
-    team        = "Security Team"
-    used_by     = "ThinkStack"
-  }
-}
-
 variable "tenancy" {
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
@@ -470,4 +456,29 @@ variable "flow_traffic_type" {
   type        = string
   description = "(Optional) The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL."
   default     = "ALL"
+}
+
+
+###############################################################
+# General Use Variables
+###############################################################
+
+variable "enable_vpc_flow_logs" {
+  description = "(Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults True."
+  default     = true
+  type        = bool
+}
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  default = {
+    backup      = "true"
+    created_by  = "Your Name"
+    terraform   = "true"
+    environment = "prod"
+    project     = "SIEM Implementation"
+    service     = "soc"
+    team        = "Security Team"
+    used_by     = "ThinkStack"
+  }
 }
