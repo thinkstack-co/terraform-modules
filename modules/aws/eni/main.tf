@@ -3,14 +3,13 @@ terraform {
 }
 
 resource "aws_network_interface" "eni" {
-  #attachment        = var.attachment
-  private_ips       = var.private_ips
-  private_ips_count = var.private_ips_count
+  private_ips             = var.private_ips
+  private_ips_count       = var.private_ips_count
   private_ip_list_enabled = var.private_ip_list_enabled
-  security_groups   = var.security_groups
-  source_dest_check = var.source_dest_check
-  subnet_id         = var.subnet_id
-  tags              = var.tags
+  security_groups         = var.security_groups
+  source_dest_check       = var.source_dest_check
+  subnet_id               = var.subnet_id
+  tags                    = var.tags
 }
 
 resource "aws_network_interface_attachment" "eni_attach" {
