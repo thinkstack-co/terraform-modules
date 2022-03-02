@@ -443,12 +443,12 @@ resource "aws_iam_instance_profile" "this" {
 ###########################
 
 resource "aws_kms_key" "key" {
-  customer_master_key_spec = var.key_customer_master_key_spec
-  description              = var.key_description
-  deletion_window_in_days  = var.key_deletion_window_in_days
-  enable_key_rotation      = var.key_enable_key_rotation
-  key_usage                = var.key_usage
-  is_enabled               = var.key_is_enabled
+  customer_master_key_spec = var.flow_key_customer_master_key_spec
+  description              = var.flow_key_description
+  deletion_window_in_days  = var.flow_key_deletion_window_in_days
+  enable_key_rotation      = var.flow_key_enable_key_rotation
+  key_usage                = var.flow_key_usage
+  is_enabled               = var.flow_key_is_enabled
   tags                     = var.tags
   policy                   = jsonencode({
     "Version" = "2012-10-17",
@@ -486,7 +486,7 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_kms_alias" "alias" {
-  name_prefix   = var.key_name_prefix
+  name_prefix   = var.flow_key_name_prefix
   target_key_id = aws_kms_key.key[0].key_id
 }
 
@@ -496,8 +496,8 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_cloudwatch_log_group" "log_group" {
   kms_key_id        = aws_kms_key.key[0].arn
-  name_prefix       = var.cloudwatch_name_prefix
-  retention_in_days = var.cloudwatch_retention_in_days
+  name_prefix       = var.flow_cloudwatch_name_prefix
+  retention_in_days = var.flow_cloudwatch_retention_in_days
   tags              = var.tags
 }
 
@@ -505,9 +505,9 @@ resource "aws_cloudwatch_log_group" "log_group" {
 # IAM Policy
 ###########################
 resource "aws_iam_policy" "policy" {
-  description = var.iam_policy_description
-  name_prefix = var.iam_policy_name_prefix
-  path        = var.iam_policy_path
+  description = var.flow_iam_policy_description
+  name_prefix = var.flow_iam_policy_name_prefix
+  path        = var.flow_iam_policy_path
   tags        = var.tags
   policy      = jsonencode({
     Version = "2012-10-17",
@@ -532,12 +532,12 @@ resource "aws_iam_policy" "policy" {
 ###########################
 
 resource "aws_iam_role" "role" {
-  assume_role_policy    = var.iam_role_assume_role_policy
-  description           = var.iam_role_description
-  force_detach_policies = var.iam_role_force_detach_policies
-  max_session_duration  = var.iam_role_max_session_duration
-  name_prefix           = var.iam_role_name_prefix
-  permissions_boundary  = var.iam_role_permissions_boundary
+  assume_role_policy    = var.flow_iam_role_assume_role_policy
+  description           = var.flow_iam_role_description
+  force_detach_policies = var.flow_iam_role_force_detach_policies
+  max_session_duration  = var.flow_iam_role_max_session_duration
+  name_prefix           = var.flow_iam_role_name_prefix
+  permissions_boundary  = var.flow_iam_role_permissions_boundary
 }
 
 resource "aws_iam_role_policy_attachment" "role_attach" {
