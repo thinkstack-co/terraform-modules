@@ -9,7 +9,6 @@ resource "aws_route" "route" {
   destination_ipv6_cidr_block = var.destination_ipv6_cidr_block
   egress_only_gateway_id      = var.egress_only_gateway_id
   gateway_id                  = var.gateway_id
-  instance_id                 = var.instance_id
   local_gateway_id            = var.local_gateway_id
   nat_gateway_id              = var.nat_gateway_id
   network_interface_id        = var.network_interface_id
