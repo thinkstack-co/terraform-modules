@@ -300,6 +300,22 @@ variable "iam_role_name" {
 }
 
 ###########################
+# Transit Gateway
+###########################
+
+variable "transit_gateway_id" {
+  type        = string
+  description = "(Optional) Identifier of an EC2 Transit Gateway."
+  default     = null
+}
+
+variable "transit_subnet_route_cidr_blocks" {
+  type        = list
+  description = "(Optional) The destination CIDR blocks to send to the transit gateway."
+  default     = null
+}
+
+###########################
 # KMS Encryption Key
 ###########################
 
@@ -463,8 +479,14 @@ variable "flow_traffic_type" {
 # General Use Variables
 ###############################################################
 
+variable "enable_transit_gateway_peering" {
+  description = "(Optional) A boolean flag to enable/disable the use of a transit gateway. Defaults false."
+  default     = false
+  type        = bool
+}
+
 variable "enable_vpc_flow_logs" {
-  description = "(Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults True."
+  description = "(Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults true."
   default     = true
   type        = bool
 }

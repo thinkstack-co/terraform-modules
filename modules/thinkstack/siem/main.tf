@@ -130,7 +130,7 @@ resource "aws_vpc_peering_connection" "peer" {
 resource "aws_route" "vpc_peer_route" {
   count                     = var.enable_vpc_peering ? 1 : 0
   destination_cidr_block    = var.peer_vpc_subnet
-  route_table_id            = aws_route_table.private_route_table[count.index].id
+  route_table_id            = aws_route_table.private_route_table[0].id
   vpc_peering_connection_id = aws_vpc_peering_connection.peer[count.index].id
 }
 
@@ -165,6 +165,17 @@ resource "aws_vpn_connection_route" "vpn_route" {
   count                  = var.enable_vpn_peering ? length(var.vpn_route_cidr_blocks) : 0
   destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
   vpn_connection_id      = aws_vpn_connection.vpn_connection[0].id
+}
+
+###########################
+# Transit Gateway
+###########################
+
+resource "aws_route" "transit_route" {
+  count                     = var.enable_transit_gateway_peering ? length(var.transit_subnet_route_cidr_blocks) : 0
+  destination_cidr_block    = var.transit_subnet_route_cidr_blocks[count.index]
+  route_table_id            = aws_route_table.private_route_table[0].id
+  transit_gateway_id        = var.transit_gateway_id
 }
 
 ###########################
