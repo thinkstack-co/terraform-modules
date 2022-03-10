@@ -310,7 +310,7 @@ variable "transit_gateway_id" {
 }
 
 variable "transit_subnet_route_cidr_blocks" {
-  type        = string
+  type        = list
   description = "(Optional) The destination CIDR blocks to send to the transit gateway."
   default     = null
 }
