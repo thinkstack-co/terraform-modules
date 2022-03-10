@@ -5,7 +5,7 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
 
 # Usage
     module "siem" {
-        source                         = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem?ref=dev_v0_12_module_upgrade"
+        source                         = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem"
 
         ami                            = var.centos_ami[var.aws_region]
         created_by                     = "Zachary Hill"
@@ -23,6 +23,7 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
 
         enable_transit_gateway_peering = true
         transit_gateway_id             = "tgw-fdsajfkdlsaljk"
+        transit_subnet_route_cidr_blocks = ["10.24.0.0/16", "10.1.1.0/24"]
 
         tags                           = {
             created_by  = "Zachary Hill"
