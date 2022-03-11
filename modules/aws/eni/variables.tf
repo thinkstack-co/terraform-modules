@@ -50,7 +50,7 @@ variable "device_index" {
   type        = number
 }
 
-variable "instance" {
+variable "instance_id" {
   description = "(Required) ID of the instance to attach to."
   type        = string
 }
