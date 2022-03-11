@@ -2,6 +2,20 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
+###########################
+# Data Sources
+###########################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+locals {
+  service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
+}
+
+###########################
+# VPC
+###########################
+
 resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = var.enable_dns_hostnames
@@ -9,6 +23,10 @@ resource "aws_vpc" "vpc" {
   instance_tenancy     = var.instance_tenancy
   tags                 = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
+
+###########################
+# Subnets
+###########################
 
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
@@ -59,6 +77,10 @@ resource "aws_subnet" "workspaces_subnets" {
   tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index)) }))
 }
 
+###########################
+# Gateways
+###########################
+
 resource "aws_internet_gateway" "igw" {
   tags   = merge(var.tags, ({ "Name" = format("%s-igw", var.name) }))
   vpc_id = aws_vpc.vpc.id
@@ -88,6 +110,10 @@ resource "aws_nat_gateway" "natgw" {
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
   subnet_id     = element(aws_subnet.public_subnets.*.id, (var.single_nat_gateway ? 0 : count.index))
 }
+
+###########################
+# Route Tables and Associations
+###########################
 
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
@@ -194,19 +220,6 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
 }
 
-# data "aws_vpc_endpoint_service" "s3" {
-#   count        = var.enable_s3_endpoint ? 1 : 0
-#   service_name = "s3"
-#   # filter {
-#   #   name   = "vpc_id"
-#   #   values = [aws_vpc.vpc.id]
-#   # }
-# }
-
-
-locals {
-  service_name = "com.amazonaws.${var.vpc_region}.s3"
-}
 resource "aws_vpc_endpoint" "s3" {
   count        = var.enable_s3_endpoint ? 1 : 0
   vpc_id       = aws_vpc.vpc.id
@@ -253,4 +266,137 @@ resource "aws_route_table_association" "workspaces" {
   count          = length(var.workspaces_subnets_list)
   route_table_id = element(aws_route_table.workspaces_route_table.*.id, count.index)
   subnet_id      = element(aws_subnet.workspaces_subnets.*.id, count.index)
+}
+
+######################################################
+# VPC Flow Logs
+######################################################
+
+###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "key" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  customer_master_key_spec = var.key_customer_master_key_spec
+  description              = var.key_description
+  deletion_window_in_days  = var.key_deletion_window_in_days
+  enable_key_rotation      = var.key_enable_key_rotation
+  key_usage                = var.key_usage
+  is_enabled               = var.key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
+        {
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+            },
+            "Action" = [
+                "kms:Encrypt*",
+                "kms:Decrypt*",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:Describe*"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "ArnEquals" = {
+                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+                }
+            }
+        }
+    ]
+})
+}
+
+resource "aws_kms_alias" "alias" {
+  count         = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  name_prefix   = var.key_name_prefix
+  target_key_id = aws_kms_key.key[0].key_id
+}
+
+###########################
+# CloudWatch Log Group
+###########################
+
+resource "aws_cloudwatch_log_group" "log_group" {
+  count             = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  kms_key_id        = aws_kms_key.key[0].arn
+  name_prefix       = var.cloudwatch_name_prefix
+  retention_in_days = var.cloudwatch_retention_in_days
+  tags              = var.tags
+}
+
+###########################
+# IAM Policy
+###########################
+resource "aws_iam_policy" "policy" {
+  count       = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  description = var.iam_policy_description
+  name_prefix = var.iam_policy_name_prefix
+  path        = var.iam_policy_path
+  tags        = var.tags
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+        Effect = "Allow",
+        Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        Resource = [
+            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+        ]
+        }]
+    })
+}
+
+###########################
+# IAM Role
+###########################
+
+resource "aws_iam_role" "role" {
+  count                 = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  assume_role_policy    = var.iam_role_assume_role_policy
+  description           = var.iam_role_description
+  force_detach_policies = var.iam_role_force_detach_policies
+  max_session_duration  = var.iam_role_max_session_duration
+  name_prefix           = var.iam_role_name_prefix
+  permissions_boundary  = var.iam_role_permissions_boundary
+}
+
+resource "aws_iam_role_policy_attachment" "role_attach" {
+  count      = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  role       = aws_iam_role.role[0].name
+  policy_arn = aws_iam_policy.policy[0].arn
+}
+
+
+###########################
+# VPC Flow Log
+###########################
+
+resource "aws_flow_log" "vpc_flow" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  iam_role_arn             = aws_iam_role.role[0].arn
+  log_destination_type     = var.flow_log_destination_type
+  log_destination          = aws_cloudwatch_log_group.log_group[0].arn
+  max_aggregation_interval = var.flow_max_aggregation_interval
+  tags                     = var.tags
+  traffic_type             = var.flow_traffic_type
+  vpc_id                   = aws_vpc.vpc.id
 }

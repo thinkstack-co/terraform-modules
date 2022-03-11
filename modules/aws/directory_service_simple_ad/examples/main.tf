@@ -6,14 +6,14 @@ module "ad_connector" {
   customer_username = "svc_aws_adconnector"
   description       = "ad.corp.com adconnector"
   name              = "ad.corp.com"
-  password          = "${var.ad_connector_password}"
+  password          = var.ad_connector_password
   size              = "Small"
-  subnet_ids        = ["${module.vpc.private_subnet.ids}"]
+  subnet_ids        = [module.vpc.private_subnet.ids]
   tags = {
     created_by  = "Zachary Hill"
     environment = "prod"
     terraform   = "true"
   }
   type   = "ADConnector"
-  vpc_id = "${module.vpc.id}"
+  vpc_id = module.vpc.id
 }

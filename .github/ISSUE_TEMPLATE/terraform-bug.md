@@ -3,7 +3,7 @@ name: Terraform Bug
 about: Bug template for tracking issues, next steps, and solutions.
 title: ''
 labels: bug
-assignees: zachreborn, TheJalpa, jakeasarus, tgallagher91
+assignees: zachreborn, TheJalpa, jakeasarus
 
 ---
 

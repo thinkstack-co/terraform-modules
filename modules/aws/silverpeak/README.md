@@ -9,18 +9,18 @@
       source            = "github.com/thinkstack-co/terraform-modules//modules/aws/silverpeak"
       
       ami               = "ami-b7f895cf"
-      availability_zone = "${module.vpc.availability_zone[0]}"
+      availability_zone = module.vpc.availability_zone[0]
       count             = 1
-      dmz_subnet_id     = "${module.vpc.dmz_subnet_ids}"
+      dmz_subnet_id     = module.vpc.dmz_subnet_ids
       ebs_optimized     = true
       instance_type     = "c4.large"
-      key_name          = "${module.keypair.key_name}"
+      key_name          = module.keypair.key_name
       monitoring        = true
       lan0_private_ips  = ["10.11.1.20"]
       mgmt0_private_ips = ["10.11.21.20"]
-      mgmt_subnet_id    = "${module.vpc.mgmt_subnet_ids}"
+      mgmt_subnet_id    = module.vpc.mgmt_subnet_ids
       name              = "aws_prod_silverpeak"
-      private_subnet_id = "${module.vpc.private_subnet_ids}"
+      private_subnet_id = module.vpc.private_subnet_ids
       root_volume_type  = "gp2"
       root_volume_size  = "100"
       
@@ -33,7 +33,7 @@
         hourly_retention = "7"
       }
       wan0_private_ips  = ["10.11.101.20"]
-      vpc_id            = "${module.vpc.vpc_id}"
+      vpc_id            = module.vpc.vpc_id
     }
 
 # Variables

@@ -23,6 +23,7 @@ resource "aws_instance" "ec2" {
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
 
+
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted

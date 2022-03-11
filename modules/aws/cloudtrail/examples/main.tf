@@ -15,5 +15,5 @@ module "cloudtrail" {
   mfa_delete = false
 
   # Used if you want to set a specific kms key
-  # cloudtrail_kms_key  =   "${module.primary_kms_key.kms_key_arn}"
+  # cloudtrail_kms_key  =   module.primary_kms_key.kms_key_arn
 }

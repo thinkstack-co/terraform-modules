@@ -5,23 +5,27 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
 
 # Usage
     module "siem" {
-        source                = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem?ref=dev_v0_12_module_upgrade"
+        source                         = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem"
 
-        ami                   = var.centos_ami[var.aws_region]
-        created_by            = "Zachary Hill"
-        public_key            = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
-        region                = var.aws_region
-        sg_cidr_blocks        = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
+        ami                            = var.centos_ami[var.aws_region]
+        created_by                     = "Zachary Hill"
+        public_key                     = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
+        sg_cidr_blocks                 = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
 
-        customer_gw_name      = ["hq_edge"]
-        vpn_peer_ip_address   = ["1.1.1.1"]
-        vpn_route_cidr_blocks = ["192.168.1.0/24"]
+        enable_vpn_peering             = true
+        customer_gw_name               = ["hq_edge"]
+        vpn_peer_ip_address            = ["1.1.1.1"]
+        vpn_route_cidr_blocks          = ["192.168.1.0/24"]
 
-        enable_vpc_peering    = true
-        peer_vpc_ids          = ["vpc-insertiddhere"]
-        peer_vpc_subnet       = "10.11.0.0/16"
+        enable_vpc_peering             = true
+        peer_vpc_ids                   = ["vpc-insertiddhere"]
+        peer_vpc_subnet                = "10.11.0.0/16"
 
-        tags       = {
+        enable_transit_gateway_peering = true
+        transit_gateway_id             = "tgw-fdsajfkdlsaljk"
+        transit_subnet_route_cidr_blocks = ["10.24.0.0/16", "10.1.1.0/24"]
+
+        tags                           = {
             created_by  = "Zachary Hill"
             terraform   = "true"
             environment = "prod"
@@ -38,7 +42,6 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
     customer_gw_name
     enable_vpc_peering
     public_key
-    region
     sg_cidr_blocks
     vpn_peer_ip_address
     vpn_route_cidr_blocks
@@ -52,7 +55,9 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
     enable_dns_hostnames
     enable_dns_support
     enable_nat_gateway
+    enable_transit_gateway_peering
     enable_vpc_peering
+    enable_vpn_tunnel
     encrypted
     iam_instance_profile
     iam_role_name
@@ -85,6 +90,8 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
     static_routes_only
     tags
     tenancy
+    transit_gateway_id
+    transit_subnet_route_cidr_blocks
     vpc_cidr
     vpn_type
     allow_remote_vpc_dns_resolution

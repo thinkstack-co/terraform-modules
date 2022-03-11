@@ -8,7 +8,7 @@ This module sets up an EC2 instance with the parameters specified. This module h
         module "s3_prod_website_pub_bucket" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/s3_website"
         
-        policy = "${file("global/s3/bucket_policies/this-is-a-policy.json")}"
+        policy = file("global/s3/bucket_policies/this-is-a-policy.json")
         bucket_prefix = "this-is-a-bucket-prefix"
         region = "us-west-1"
         acl    = "public-read"
