@@ -2,7 +2,7 @@
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.0 |
+| terraform | >= 0.15.0 |
 
 ## Providers
 
@@ -18,7 +18,6 @@
 | destination\_ipv6\_cidr\_block | (Optional) The destination IPv6 CIDR block. | `string` | `null` | no |
 | egress\_only\_gateway\_id | (Optional) An ID of a VPC Egress Only Internet Gateway. | `string` | `""` | no |
 | gateway\_id | (Optional) An ID of a VPC internet gateway or a virtual private gateway. | `string` | `""` | no |
-| instance\_id | (Optional) An ID of an EC2 instance. | `string` | `""` | no |
 | nat\_gateway\_id | (Optional) An ID of a VPC NAT gateway. | `string` | `""` | no |
 | network\_interface\_id | (Optional) An ID of a network interface. | `list` | `[]` | no |
 | route\_table\_id | (Required) The ID of the routing table. | `list` | n/a | yes |

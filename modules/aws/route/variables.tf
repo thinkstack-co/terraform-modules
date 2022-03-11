@@ -27,12 +27,6 @@ variable "gateway_id" {
   default     = null
 }
 
-variable "instance_id" {
-  type        = string
-  description = "(Optional) An ID of an EC2 instance."
-  default     = null
-}
-
 variable "local_gateway_id" {
   type        = string
   description = "(Optional) Identifier of a Outpost local gateway."
