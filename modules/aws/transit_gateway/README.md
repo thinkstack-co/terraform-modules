@@ -33,7 +33,7 @@ No requirements.
 
 | Name | Description |
 |------|-------------|
-| transit\_gateway\_arn | n/a |
-| transit\_gateway\_id | n/a |
-| transit\_gateway\_propagation\_default\_route\_table\_id | n/a |
-| transit\_gateway\_route\_table\_id | n/a |
+| arn | EC2 Transit Gateway Amazon Resource Name (ARN) |
+| association_default_route_table_id | Identifier of the default association route table |
+| id | EC2 Transit Gateway identifier |
+| propagation\_default\_route\_table\_id | Identifier of the default propagation route table |

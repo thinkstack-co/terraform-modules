@@ -3,6 +3,7 @@
         source             = "github.com/thinkstack-co/terraform-modules//modules/aws/transit_gateway_attachment"
 
         name               = "sdwan_vpc_attachment"
+        subnet_ids         = ["subnet-fdsjklafjlkds8421", "subnet-290102034fjkdsa"]
         transit_gateway_id = module.transit_gateway.id
         vpc_id             = "vpc-4289104jk21lsda"
     }
