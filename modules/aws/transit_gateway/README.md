@@ -1,3 +1,10 @@
+# Usage
+    module "transit_gateway" {
+        source = "github.com/thinkstack-co/terraform-modules//modules/aws/transit_gateway"
+
+        name = "sdwan_tgw"
+    }
+
 ## Requirements
 
 No requirements.
@@ -18,6 +25,7 @@ No requirements.
 | default\_route\_table\_propagation | (Optional) Whether resource attachments automatically propagate routes to the default propagation route table. | `string` | `"64512"` | no |
 | description | (Optional) Description of the EC2 Transit Gateway. | `string` | `"Transit gateway to allow access across VPCs or accounts."` | no |
 | dns\_support | (Optional) Whether DNS support is enabled. | `string` | `"enable"` | no |
+| name | (Required) The name of the transit gateway | `string` | n/a | yes |
 | tags | (Optional) Map of tags for the EC2 Transit Gateway. | `map` | <pre>{<br>  "environment": "prod",<br>  "project": "core_infrastructure",<br>  "terraform": "true"<br>}</pre> | no |
 | vpn\_ecmp\_support | (Optional) Whether VPN Equal Cost Multipath Protocol support is enabled. | `string` | `"enable"` | no |
 

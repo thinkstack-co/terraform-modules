@@ -5,6 +5,9 @@ resource "aws_ec2_transit_gateway" "transit_gateway" {
     default_route_table_association = var.default_route_table_association
     default_route_table_propagation = var.default_route_table_propagation
     dns_support                     = var.dns_support
-    tags                            = var.tags
+    tags                            = merge(tomap({
+        Name = var.name}),
+        var.tags
+    )
     vpn_ecmp_support                = var.vpn_ecmp_support 
 }
