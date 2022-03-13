@@ -1,4 +1,4 @@
-resource "aws_ec2_transit_gateway_vpc_attachment" "transit_gateway_vpc_attachment" {
+resource "aws_ec2_transit_gateway_vpc_attachment" "this" {
   appliance_mode_support = var.appliance_mode_support
   dns_support            = var.dns_support
   ipv6_support           = var.ipv6_support
