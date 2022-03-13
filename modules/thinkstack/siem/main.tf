@@ -1,6 +1,12 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.15.0"
 }
+
+###########################
+# Data Sources
+###########################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
 
 ###########################
 # VPC
@@ -11,7 +17,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags                 = merge(var.tags, map("Name", format("%s", var.name)))
+  tags                 = merge(var.tags, ({ "Name" = format("%s", var.name) }))
 }
 
 ###########################
@@ -21,9 +27,9 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.private_subnets_list[count.index]
-  availability_zone = element(list(format("%sa", var.region), format("%sb", var.region), format("%sc", var.region)), count.index)
+  availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
-  tags              = merge(var.tags, map("Name", format("%s-subnet-private-%s", var.name, element(var.azs, count.index))))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "public_subnets" {
@@ -32,7 +38,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = element(var.azs, count.index)
   map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = length(var.public_subnets_list)
-  tags                    = merge(var.tags, map("Name", format("%s-subnet-public-%s", var.name, element(var.azs, count.index))))
+  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index)) }))
 }
 
 ###########################
@@ -45,12 +51,12 @@ resource "aws_eip" "nateip" {
 }
 
 resource "aws_internet_gateway" "igw" {
-  tags   = merge(var.tags, map("Name", format("%s-igw", var.name)))
+  tags   = merge(var.tags, ({ "Name" = format("%s-igw", var.name) }))
   vpc_id = aws_vpc.vpc.id
 }
 
 resource "aws_nat_gateway" "natgw" {
-  depends_on    = [aws_internet_gateway.igw]
+  depends_on = [aws_internet_gateway.igw]
 
   allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
@@ -62,8 +68,8 @@ resource "aws_nat_gateway" "natgw" {
 ###########################
 
 resource "aws_route_table" "public_route_table" {
-  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
-  tags             = merge(var.tags, map("Name", format("%s-rt-public", var.name)))
+  propagating_vgws = var.enable_vpn_peering ? [aws_vpn_gateway.vpn_gateway[0].id] : []
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-public", var.name) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -75,8 +81,8 @@ resource "aws_route" "public_default_route" {
 
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
-  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
-  tags             = merge(var.tags, map("Name", format("%s-rt-private-%s", var.name, element(var.azs, count.index))))
+  propagating_vgws = var.enable_vpn_peering ? [aws_vpn_gateway.vpn_gateway[0].id] : []
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -122,10 +128,10 @@ resource "aws_vpc_peering_connection" "peer" {
 }
 
 resource "aws_route" "vpc_peer_route" {
-  count                       = var.enable_vpc_peering ? 1 : 0
-  destination_cidr_block      = var.peer_vpc_subnet
-  route_table_id              = aws_route_table.private_route_table[count.index].id
-  vpc_peering_connection_id   = aws_vpc_peering_connection.peer[count.index].id
+  count                     = var.enable_vpc_peering ? 1 : 0
+  destination_cidr_block    = var.peer_vpc_subnet
+  route_table_id            = aws_route_table.private_route_table[0].id
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer[count.index].id
 }
 
 ###########################
@@ -133,31 +139,43 @@ resource "aws_route" "vpc_peer_route" {
 ###########################
 
 resource "aws_vpn_gateway" "vpn_gateway" {
-  vpc_id            = aws_vpc.vpc.id
-  tags              = merge(var.tags, map("Name", format("%s_vpn_gw", var.name)))
+  count      = var.enable_vpn_peering ? 1 : 0
+  vpc_id = aws_vpc.vpc.id
+  tags   = merge(var.tags, ({ "Name" = format("%s_vpn_gw", var.name) }))
 }
 
 resource "aws_customer_gateway" "customer_gateway" {
-  count            = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
-  bgp_asn          = var.bgp_asn
-  ip_address       = var.vpn_peer_ip_address[count.index]
-  type             = var.vpn_type
-  tags             = merge(var.tags, map("Name", format("%s_customer_gw", var.customer_gw_name[count.index])))
+  count      = var.enable_vpn_peering ? length(var.vpn_peer_ip_address) : 0
+  bgp_asn    = var.bgp_asn
+  ip_address = var.vpn_peer_ip_address[count.index]
+  type       = var.vpn_type
+  tags       = merge(var.tags, ({ "Name" = format("%s_customer_gw", var.customer_gw_name[count.index]) }))
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
-  count                 = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
-  customer_gateway_id   = aws_customer_gateway.customer_gateway[count.index].id
-  static_routes_only    = var.static_routes_only
-  tags                  = merge(var.tags, map("Name", format("%s_vpn_connection", var.name)))
-  type                  = var.vpn_type
-  vpn_gateway_id        = aws_vpn_gateway.vpn_gateway.id
+  count               = var.enable_vpn_peering ? length(var.vpn_peer_ip_address) : 0
+  customer_gateway_id = aws_customer_gateway.customer_gateway[count.index].id
+  static_routes_only  = var.static_routes_only
+  tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
+  type                = var.vpn_type
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway[0].id
 }
 
 resource "aws_vpn_connection_route" "vpn_route" {
-  count                  = var.enable_vpn_tunnel ? length(var.vpn_route_cidr_blocks) : 0
+  count                  = var.enable_vpn_peering ? length(var.vpn_route_cidr_blocks) : 0
   destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
   vpn_connection_id      = aws_vpn_connection.vpn_connection[0].id
+}
+
+###########################
+# Transit Gateway
+###########################
+
+resource "aws_route" "transit_route" {
+  count                     = var.enable_transit_gateway_peering ? length(var.transit_subnet_route_cidr_blocks) : 0
+  destination_cidr_block    = var.transit_subnet_route_cidr_blocks[count.index]
+  route_table_id            = aws_route_table.private_route_table[0].id
+  transit_gateway_id        = var.transit_gateway_id
 }
 
 ###########################
@@ -165,8 +183,8 @@ resource "aws_vpn_connection_route" "vpn_route" {
 ###########################
 
 resource "aws_key_pair" "deployer_key" {
-    key_name_prefix =   var.key_name_prefix
-    public_key      =   var.public_key
+  key_name_prefix = var.key_name_prefix
+  public_key      = var.public_key
 }
 
 ###########################
@@ -206,10 +224,10 @@ resource "aws_instance" "ec2" {
   }
   source_dest_check      = var.source_dest_check
   subnet_id              = aws_subnet.private_subnets[count.index].id
-  tags                   = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
   user_data              = data.template_file.user_data.rendered
-  volume_tags            = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   vpc_security_group_ids = [aws_security_group.sg.id]
 
   lifecycle {
@@ -227,7 +245,7 @@ resource "aws_ebs_volume" "log_volume" {
   encrypted         = var.encrypted
   size              = var.log_volume_size
   type              = var.log_volume_type
-  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
+  tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
 }
 
 resource "aws_volume_attachment" "log_volume_attachment" {
@@ -246,14 +264,14 @@ resource "aws_volume_attachment" "log_volume_attachment" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  actions_enabled           = true
-  alarm_actions             = []
-  alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name                = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.instance_count
-  datapoints_to_alarm       = 2
-  dimensions                = {
+  actions_enabled     = true
+  alarm_actions       = []
+  alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
+  alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  count               = var.instance_count
+  datapoints_to_alarm = 2
+  dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
@@ -272,14 +290,14 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
-  actions_enabled           = true
-  alarm_actions             = ["arn:aws:automate:${var.region}:ec2:recover"]
-  alarm_description         = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name                = format("%s-system-alarm", aws_instance.ec2[count.index].id)
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  count                     = var.instance_count
-  datapoints_to_alarm       = 2
-  dimensions                = {
+  actions_enabled     = true
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
+  alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  count               = var.instance_count
+  datapoints_to_alarm = 2
+  dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
@@ -298,129 +316,76 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 ###########################
 
 resource "aws_security_group" "sg" {
-    description = var.security_group_description
-    name        = var.security_group_name
-    tags        = merge(var.tags, map("Name", format("%s", var.security_group_name)))
-    vpc_id      = aws_vpc.vpc.id
+  description = var.security_group_description
+  name        = var.security_group_name
+  tags        = merge(var.tags, ({ "Name" = format("%s", var.security_group_name) }))
+  vpc_id      = aws_vpc.vpc.id
 
-    ingress {
-        from_port   = -1
-        to_port     = -1
-        protocol    = "icmp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Allow ICMP"
-    }
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Allow ICMP"
+  }
 
-    ingress {
-        from_port   = 162
-        to_port     = 162
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "SNMP Trap Ingester Port"
-    }
+  ingress {
+    from_port   = 162
+    to_port     = 162
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "SNMP Trap Ingester Port"
+  }
 
-    ingress {
-        from_port   = 13001
-        to_port     = 13001
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Firewall Syslog Ingester Port"
-    }
+/* 
+########################################
+# Syslog Port Mappings
+########################################
+Port - Description
+13001 - Firewalls
+13002 - Access Points
+13003 - Windows
+13004 - Switches and Routers
+13005 - NTAs (Corelight, Darktrace, Extrahop, etc)
+13006 - PDUs and UPS devices
+13007 - Linux
+13008 - Manage Engine ADAudit
+13009 - Vulnerability Scanners (Trace, Qualys, Nessus, etc)
+13010 - Hypervisors
+13011 - Reserved
+13012 - Web Proxy or Reverse Proxy (NGINX)
+13013 - Reserved
+13014 - Firewall Orchestration (Fortimanager, Cisco FMC, etc)
+13015 - SANs and NAS devices
+13016 - Security Cameras
+13017 - Dell iDRAC
+13018 - HP iLO
+13019 - Backup Platforms (Veeam)
+13020 - Endpoint Security (Carbon Black, Crowdstrike, Cylance, etc)
+ */
 
-    ingress {
-        from_port   = 13001
-        to_port     = 13001
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Firewall Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13001
+    to_port     = 13020
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "RIN Syslog Ingester Ports"
+  }
 
-    ingress {
-        from_port   = 13002
-        to_port     = 13002
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Access Point Syslog Ingester Port"
-    }
+  ingress {
+    from_port   = 13001
+    to_port     = 13020
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "RIN Syslog Ingester Ports"
+  }
 
-    ingress {
-        from_port   = 13002
-        to_port     = 13002
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Access Point Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13003
-        to_port     = 13003
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Windows Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13003
-        to_port     = 13003
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Windows Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13004
-        to_port     = 13004
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Routers and Switches Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13004
-        to_port     = 13004
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Routers and Switches Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13005
-        to_port     = 13005
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Corelight and Darktrace Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13005
-        to_port     = 13005
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Corelight and Darktrace Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13022
-        to_port     = 13022
-        protocol    = "udp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-    }
-
-    ingress {
-        from_port   = 13022
-        to_port     = 13022
-        protocol    = "tcp"
-        cidr_blocks = var.sg_cidr_blocks
-        description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-    }
-
-    egress {
-      from_port       = 0
-      to_port         = 0
-      protocol        = "-1"
-      cidr_blocks     = ["0.0.0.0/0"]
-    }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 ###################################################
@@ -479,3 +444,135 @@ resource "aws_iam_instance_profile" "this" {
 ##################
 # SSM association
 ##################
+
+######################################################
+# VPC Flow Logs
+######################################################
+
+###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "key" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  customer_master_key_spec = var.flow_key_customer_master_key_spec
+  description              = var.flow_key_description
+  deletion_window_in_days  = var.flow_key_deletion_window_in_days
+  enable_key_rotation      = var.flow_key_enable_key_rotation
+  key_usage                = var.flow_key_usage
+  is_enabled               = var.flow_key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
+        {
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+            },
+            "Action" = [
+                "kms:Encrypt*",
+                "kms:Decrypt*",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:Describe*"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "ArnEquals" = {
+                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+                }
+            }
+        }
+    ]
+})
+}
+
+resource "aws_kms_alias" "alias" {
+  count         = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  name_prefix   = var.flow_key_name_prefix
+  target_key_id = aws_kms_key.key[0].key_id
+}
+
+###########################
+# CloudWatch Log Group
+###########################
+
+resource "aws_cloudwatch_log_group" "log_group" {
+  count             = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  kms_key_id        = aws_kms_key.key[0].arn
+  name_prefix       = var.flow_cloudwatch_name_prefix
+  retention_in_days = var.flow_cloudwatch_retention_in_days
+  tags              = var.tags
+}
+
+###########################
+# IAM Policy
+###########################
+resource "aws_iam_policy" "policy" {
+  count       = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  description = var.flow_iam_policy_description
+  name_prefix = var.flow_iam_policy_name_prefix
+  path        = var.flow_iam_policy_path
+  tags        = var.tags
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+        Effect = "Allow",
+        Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        Resource = [
+            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+        ]
+        }]
+    })
+}
+
+###########################
+# IAM Role
+###########################
+
+resource "aws_iam_role" "role" {
+  count                 = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  assume_role_policy    = var.flow_iam_role_assume_role_policy
+  description           = var.flow_iam_role_description
+  force_detach_policies = var.flow_iam_role_force_detach_policies
+  max_session_duration  = var.flow_iam_role_max_session_duration
+  name_prefix           = var.flow_iam_role_name_prefix
+  permissions_boundary  = var.flow_iam_role_permissions_boundary
+}
+
+resource "aws_iam_role_policy_attachment" "role_attach" {
+  count      = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  role       = aws_iam_role.role[0].name
+  policy_arn = aws_iam_policy.policy[0].arn
+}
+
+###########################
+# VPC Flow Log
+###########################
+
+resource "aws_flow_log" "vpc_flow" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  iam_role_arn             = aws_iam_role.role[0].arn
+  log_destination_type     = var.flow_log_destination_type
+  log_destination          = aws_cloudwatch_log_group.log_group[0].arn
+  max_aggregation_interval = var.flow_max_aggregation_interval
+  tags                     = var.tags
+  traffic_type             = var.flow_traffic_type
+  vpc_id                   = aws_vpc.vpc.id
+}

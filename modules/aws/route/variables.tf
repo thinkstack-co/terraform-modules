@@ -27,12 +27,6 @@ variable "gateway_id" {
   default     = null
 }
 
-variable "instance_id" {
-  type        = string
-  description = "(Optional) An ID of an EC2 instance."
-  default     = null
-}
-
 variable "local_gateway_id" {
   type        = string
   description = "(Optional) Identifier of a Outpost local gateway."
@@ -46,7 +40,7 @@ variable "nat_gateway_id" {
 }
 
 variable "network_interface_id" {
-  type        = list
+  type        = string
   description = "(Optional) An ID of a network interface."
   default     = null
 }
@@ -69,7 +63,7 @@ variable "vpc_endpoint_id" {
 }
 
 variable "vpc_peering_connection_id" {
-  type = string
+  type        = string
   description = "(Optional) An ID of a VPC peering connection."
-  default = null
+  default     = null
 }
