@@ -123,7 +123,7 @@ resource "aws_route_table" "private_route_table" {
 }
 
 resource "aws_route" "private_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
+  count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
@@ -144,7 +144,7 @@ resource "aws_route_table" "db_route_table" {
 }
 
 resource "aws_route" "db_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
+  count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.db_route_table.*.id, count.index)
@@ -165,7 +165,7 @@ resource "aws_route_table" "dmz_route_table" {
 }
 
 resource "aws_route" "dmz_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
+  count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.dmz_route_table.*.id, count.index)
@@ -186,7 +186,7 @@ resource "aws_route_table" "mgmt_route_table" {
 }
 
 resource "aws_route" "mgmt_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
+  count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.mgmt_route_table.*.id, count.index)
@@ -207,7 +207,7 @@ resource "aws_route_table" "workspaces_route_table" {
 }
 
 resource "aws_route" "workspaces_default_route_natgw" {
-  count                  = var.enable_firewall ? 0 : length(var.azs)
+  count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
   route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
