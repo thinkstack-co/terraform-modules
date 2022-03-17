@@ -252,12 +252,6 @@ variable "vpn_type" {
   default     = "ipsec.1"
 }
 
-variable "allow_remote_vpc_dns_resolution" {
-  type        = string
-  description = "(Optional) Allow a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. This is not supported for inter-region VPC peering."
-  default     = true
-}
-
 variable "auto_accept" {
   type        = string
   description = "(Optional) Accept the peering (both VPCs need to be in the same AWS account)."

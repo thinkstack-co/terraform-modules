@@ -117,14 +117,6 @@ resource "aws_vpc_peering_connection" "peer" {
   peer_vpc_id   = var.peer_vpc_ids[count.index]
   tags          = var.tags
   vpc_id        = aws_vpc.vpc.id
-
-  accepter {
-    allow_remote_vpc_dns_resolution = var.allow_remote_vpc_dns_resolution
-  }
-
-  requester {
-    allow_remote_vpc_dns_resolution = var.allow_remote_vpc_dns_resolution
-  }
 }
 
 resource "aws_route" "vpc_peer_route" {
