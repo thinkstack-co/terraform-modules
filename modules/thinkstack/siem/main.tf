@@ -122,7 +122,7 @@ resource "aws_vpc_peering_connection" "peer" {
 resource "aws_route" "vpc_peer_route" {
   count                     = var.enable_vpc_peering ? 1 : 0
   destination_cidr_block    = var.peer_vpc_subnet
-  route_table_id            = aws_route_table.private_route_table[count.index].id
+  route_table_id            = aws_route_table.private_route_table[0].id
   vpc_peering_connection_id = aws_vpc_peering_connection.peer[count.index].id
 }
 
@@ -157,6 +157,17 @@ resource "aws_vpn_connection_route" "vpn_route" {
   count                  = var.enable_vpn_peering ? length(var.vpn_route_cidr_blocks) : 0
   destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
   vpn_connection_id      = aws_vpn_connection.vpn_connection[0].id
+}
+
+###########################
+# Transit Gateway
+###########################
+
+resource "aws_route" "transit_route" {
+  count                     = var.enable_transit_gateway_peering ? length(var.transit_subnet_route_cidr_blocks) : 0
+  destination_cidr_block    = var.transit_subnet_route_cidr_blocks[count.index]
+  route_table_id            = aws_route_table.private_route_table[0].id
+  transit_gateway_id        = var.transit_gateway_id
 }
 
 ###########################
@@ -318,116 +329,47 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-  ingress {
-    from_port   = 13001
-    to_port     = 13001
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Firewall Syslog Ingester Port"
-  }
+/* 
+########################################
+# Syslog Port Mappings
+########################################
+Port - Description
+13001 - Firewalls
+13002 - Access Points
+13003 - Windows
+13004 - Switches and Routers
+13005 - NTAs (Corelight, Darktrace, Extrahop, etc)
+13006 - PDUs and UPS devices
+13007 - Linux
+13008 - Manage Engine ADAudit
+13009 - Vulnerability Scanners (Trace, Qualys, Nessus, etc)
+13010 - Hypervisors
+13011 - Reserved
+13012 - Web Proxy or Reverse Proxy (NGINX)
+13013 - Reserved
+13014 - Firewall Orchestration (Fortimanager, Cisco FMC, etc)
+13015 - SANs and NAS devices
+13016 - Security Cameras
+13017 - Dell iDRAC
+13018 - HP iLO
+13019 - Backup Platforms (Veeam)
+13020 - Endpoint Security (Carbon Black, Crowdstrike, Cylance, etc)
+ */
 
   ingress {
     from_port   = 13001
-    to_port     = 13001
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Firewall Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13002
-    to_port     = 13002
+    to_port     = 13020
     protocol    = "udp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Access Point Syslog Ingester Port"
+    description = "RIN Syslog Ingester Ports"
   }
 
   ingress {
-    from_port   = 13002
-    to_port     = 13002
+    from_port   = 13001
+    to_port     = 13020
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Access Point Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13003
-    to_port     = 13003
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Windows Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13003
-    to_port     = 13003
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Windows Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13004
-    to_port     = 13004
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Routers and Switches Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13004
-    to_port     = 13004
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Routers and Switches Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13005
-    to_port     = 13005
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "NTA (Corelight, Darktrace, and ExtraHop) Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13005
-    to_port     = 13005
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "NTA (Corelight, Darktrace, and ExtraHop) Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13008
-    to_port     = 13008
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "ManageEngine ADAudit Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13008
-    to_port     = 13008
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "ManageEngine ADAudit Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13022
-    to_port     = 13022
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13022
-    to_port     = 13022
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
+    description = "RIN Syslog Ingester Ports"
   }
 
   egress {
@@ -494,3 +436,135 @@ resource "aws_iam_instance_profile" "this" {
 ##################
 # SSM association
 ##################
+
+######################################################
+# VPC Flow Logs
+######################################################
+
+###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "key" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  customer_master_key_spec = var.flow_key_customer_master_key_spec
+  description              = var.flow_key_description
+  deletion_window_in_days  = var.flow_key_deletion_window_in_days
+  enable_key_rotation      = var.flow_key_enable_key_rotation
+  key_usage                = var.flow_key_usage
+  is_enabled               = var.flow_key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
+        {
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+            },
+            "Action" = [
+                "kms:Encrypt*",
+                "kms:Decrypt*",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:Describe*"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "ArnEquals" = {
+                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+                }
+            }
+        }
+    ]
+})
+}
+
+resource "aws_kms_alias" "alias" {
+  count         = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  name_prefix   = var.flow_key_name_prefix
+  target_key_id = aws_kms_key.key[0].key_id
+}
+
+###########################
+# CloudWatch Log Group
+###########################
+
+resource "aws_cloudwatch_log_group" "log_group" {
+  count             = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  kms_key_id        = aws_kms_key.key[0].arn
+  name_prefix       = var.flow_cloudwatch_name_prefix
+  retention_in_days = var.flow_cloudwatch_retention_in_days
+  tags              = var.tags
+}
+
+###########################
+# IAM Policy
+###########################
+resource "aws_iam_policy" "policy" {
+  count       = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  description = var.flow_iam_policy_description
+  name_prefix = var.flow_iam_policy_name_prefix
+  path        = var.flow_iam_policy_path
+  tags        = var.tags
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+        Effect = "Allow",
+        Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        Resource = [
+            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+        ]
+        }]
+    })
+}
+
+###########################
+# IAM Role
+###########################
+
+resource "aws_iam_role" "role" {
+  count                 = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  assume_role_policy    = var.flow_iam_role_assume_role_policy
+  description           = var.flow_iam_role_description
+  force_detach_policies = var.flow_iam_role_force_detach_policies
+  max_session_duration  = var.flow_iam_role_max_session_duration
+  name_prefix           = var.flow_iam_role_name_prefix
+  permissions_boundary  = var.flow_iam_role_permissions_boundary
+}
+
+resource "aws_iam_role_policy_attachment" "role_attach" {
+  count      = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  role       = aws_iam_role.role[0].name
+  policy_arn = aws_iam_policy.policy[0].arn
+}
+
+###########################
+# VPC Flow Log
+###########################
+
+resource "aws_flow_log" "vpc_flow" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  iam_role_arn             = aws_iam_role.role[0].arn
+  log_destination_type     = var.flow_log_destination_type
+  log_destination          = aws_cloudwatch_log_group.log_group[0].arn
+  max_aggregation_interval = var.flow_max_aggregation_interval
+  tags                     = var.tags
+  traffic_type             = var.flow_traffic_type
+  vpc_id                   = aws_vpc.vpc.id
+}
