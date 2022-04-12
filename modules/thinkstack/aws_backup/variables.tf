@@ -118,8 +118,8 @@ variable "monthly_backup_retention" {
 }
 
 variable "dr_backup_retention" {
-  description = "(Required) The dr backup plan retention in days. By default this is 3 days."
-  default     = 3
+  description = "(Required) The dr backup plan retention in days. By default this is 7 days."
+  default     = 7
   type        = number
 }
 
