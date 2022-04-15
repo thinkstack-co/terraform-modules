@@ -126,6 +126,10 @@ resource "aws_backup_vault" "vault_disaster_recovery" {
 # Backup Plans
 ###############################################################
 
+###############################################################
+# Primary Backup
+###############################################################
+# The following plan and selection are for all services except EC2 instances or AMI backups
 resource "aws_backup_plan" "plan" {
   name = var.backup_plan_name
   tags = var.tags
@@ -133,12 +137,11 @@ resource "aws_backup_plan" "plan" {
   rule {
     rule_name                = "hourly_backup_rule"
     target_vault_name        = aws_backup_vault.vault_prod_hourly.name
-    schedule                 = "cron(20 * * * ? *)"
+    schedule                 = "cron(20 * * * * *)"
     enable_continuous_backup = false
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     lifecycle {
-      # cold_storage_after = ""
       delete_after       = var.hourly_backup_retention
     }
   }
@@ -146,19 +149,17 @@ resource "aws_backup_plan" "plan" {
   rule {
     rule_name                = "daily_backup_rule"
     target_vault_name        = aws_backup_vault.vault_prod_daily.name
-    schedule                 = "cron(20 7 * * ? *)"
+    schedule                 = "cron(20 7 * * * *)"
     enable_continuous_backup = false
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     copy_action {
       destination_vault_arn = aws_backup_vault.vault_disaster_recovery.arn
       lifecycle {
-          # cold_storage_after = ""
           delete_after       = var.dr_backup_retention
         }
     }
     lifecycle {
-      # cold_storage_after = ""
       delete_after       = var.daily_backup_retention
     }
   }
@@ -166,12 +167,12 @@ resource "aws_backup_plan" "plan" {
   rule {
     rule_name                = "monthly_backup_rule"
     target_vault_name        = aws_backup_vault.vault_prod_monthly.name
-    schedule                 = "cron(20 7 1 * ? *)"
+    schedule                 = "cron(20 7 1 * * *)"
     enable_continuous_backup = false
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     lifecycle {
-      # cold_storage_after = ""
+      # cold_storage_after = "90"
       delete_after       = var.monthly_backup_retention
     }
   }
@@ -188,41 +189,63 @@ resource "aws_backup_plan" "plan" {
 # Backup Selection
 ###############################################################
 
-resource "aws_backup_selection" "backup_tag" {
+resource "aws_backup_selection" "all_resources" {
   iam_role_arn = aws_iam_role.backup.arn
-  name         = "backup_tag"
+  name         = "all_except_ec2"
   plan_id      = aws_backup_plan.plan.id
+  resources    = [
+    "*"
+  ]
+  not_resources = [
+    "arn:aws:ec2:*:*:instance/*"
+  ]
+}
 
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "backup"
-    value = "true"
+###############################################################
+# EC2 AMI Backup
+###############################################################
+# The following plan and selection are for EC2 AMI
+resource "aws_backup_plan" "ec2_plan" {
+  name = var.ec2_backup_plan_name
+  tags = var.tags
+
+  rule {
+    rule_name                = "daily_backup_rule"
+    target_vault_name        = aws_backup_vault.vault_prod_daily.name
+    schedule                 = "cron(20 9 * * * *)"
+    enable_continuous_backup = false
+    start_window             = var.backup_plan_start_window
+    completion_window        = var.backup_plan_completion_window
+    copy_action {
+      destination_vault_arn = aws_backup_vault.vault_disaster_recovery.arn
+      lifecycle {
+          delete_after       = var.dr_backup_retention
+        }
+    }
+    lifecycle {
+      delete_after       = var.daily_backup_retention
+    }
   }
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "backup"
-    value = "True"
+
+  advanced_backup_setting {
+    backup_options = {
+      WindowsVSS = "enabled"
+    }
+    resource_type = "EC2"
   }
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "backup"
-    value = "TRUE"
-  }
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "backup"
-    value = "yes"
-  }
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "backup"
-    value = "Yes"
-  }
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "backup"
-    value = "YES"
-  }
+}
+
+###############################################################
+# Backup Selection
+###############################################################
+
+resource "aws_backup_selection" "all_ec2" {
+  iam_role_arn = aws_iam_role.backup.arn
+  name         = "all_ec2"
+  plan_id      = aws_backup_plan.ec2_plan.id
+  resources    = [
+    "arn:aws:ec2:*:*:instance/*"
+  ]
 }
 
 ###############################################################

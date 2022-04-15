@@ -99,6 +99,12 @@ variable "backup_plan_name" {
   type        = string
 }
 
+variable "ec2_backup_plan_name" {
+  description = "(Required) The display name of a backup plan."
+  default     = "ec2_prod_backups"
+  type        = string
+}
+
 variable "hourly_backup_retention" {
   description = "(Required) The hourly backup plan retention in days. By default this is 3 days."
   default     = 3
