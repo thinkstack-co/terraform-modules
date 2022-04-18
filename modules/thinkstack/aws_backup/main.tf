@@ -191,7 +191,7 @@ resource "aws_backup_plan" "plan" {
 
 resource "aws_backup_selection" "all_resources" {
   iam_role_arn = aws_iam_role.backup.arn
-  name         = "all_except_ec2"
+  name         = "all_except_ec2_and_s3"
   plan_id      = aws_backup_plan.plan.id
   resources    = [
     "*"
