@@ -152,5 +152,6 @@ variable "tags" {
     created_by  = "ThinkStack"
     environment = "prod"
     priority    = "critical"
+    aws_backup  = "true"
   }
 }
