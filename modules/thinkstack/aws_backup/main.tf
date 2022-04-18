@@ -197,7 +197,8 @@ resource "aws_backup_selection" "all_resources" {
     "*"
   ]
   not_resources = [
-    "arn:aws:ec2:*:*:instance/*"
+    "arn:aws:ec2:*:*:instance/*",
+    "arn:aws:s3:*"
   ]
 }
 
