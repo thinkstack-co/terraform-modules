@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = ">= 2.7.0"
+      version = ">= 3.0.0"
       configuration_aliases = [ aws.aws_prod_region, aws.aws_dr_region ]
     }
   }
