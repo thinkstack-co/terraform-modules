@@ -146,7 +146,7 @@ resource "aws_backup_vault_policy" "vault_prod_hourly" {
       "Action": [
         "backup:DeleteBackupVault",
         "backup:DeleteRecoveryPoint",
-        "backup:UpdateRecoveryPointLifecycle",
+        "backup:UpdateRecoveryPointLifecycle"
       ],
       "Resource": "${aws_backup_vault.vault_prod_hourly.arn}"
     }
@@ -172,7 +172,7 @@ resource "aws_backup_vault_policy" "vault_prod_daily" {
       "Action": [
         "backup:DeleteBackupVault",
         "backup:DeleteRecoveryPoint",
-        "backup:UpdateRecoveryPointLifecycle",
+        "backup:UpdateRecoveryPointLifecycle"
       ],
       "Resource": "${aws_backup_vault.vault_prod_daily.arn}"
     }
@@ -198,7 +198,7 @@ resource "aws_backup_vault_policy" "vault_prod_monthly" {
       "Action": [
         "backup:DeleteBackupVault",
         "backup:DeleteRecoveryPoint",
-        "backup:UpdateRecoveryPointLifecycle",
+        "backup:UpdateRecoveryPointLifecycle"
       ],
       "Resource": "${aws_backup_vault.vault_prod_monthly.arn}"
     }
@@ -224,7 +224,7 @@ resource "aws_backup_vault_policy" "vault_disaster_recovery" {
       "Action": [
         "backup:DeleteBackupVault",
         "backup:DeleteRecoveryPoint",
-        "backup:UpdateRecoveryPointLifecycle",
+        "backup:UpdateRecoveryPointLifecycle"
       ],
       "Resource": "${aws_backup_vault.vault_disaster_recovery.arn}"
     }
