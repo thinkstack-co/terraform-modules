@@ -128,7 +128,138 @@ resource "aws_backup_vault" "vault_disaster_recovery" {
 ###############################################################
 # Backup Vault Policy
 ###############################################################
-# To be added
+
+resource "aws_backup_vault_policy" "vault_prod_hourly" {
+  provider          = aws.aws_prod_region
+  backup_vault_name = aws_backup_vault.vault_prod_hourly.name
+  policy            = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "default",
+  "Statement": [
+    {
+      "Sid": "deny_all_delete",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": [
+        "backup:DeleteBackupVault",
+        "backup:DeleteRecoveryPoint",
+        "backup:UpdateRecoveryPointLifecycle",
+      ],
+      "Resource": "${aws_backup_vault.vault_prod_hourly.arn}"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_backup_vault_policy" "vault_prod_daily" {
+  provider          = aws.aws_prod_region
+  backup_vault_name = aws_backup_vault.vault_prod_daily.name
+  policy            = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "default",
+  "Statement": [
+    {
+      "Sid": "deny_all_delete",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": [
+        "backup:DeleteBackupVault",
+        "backup:DeleteRecoveryPoint",
+        "backup:UpdateRecoveryPointLifecycle",
+      ],
+      "Resource": "${aws_backup_vault.vault_prod_daily.arn}"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_backup_vault_policy" "vault_prod_monthly" {
+  provider          = aws.aws_prod_region
+  backup_vault_name = aws_backup_vault.vault_prod_monthly.name
+  policy            = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "default",
+  "Statement": [
+    {
+      "Sid": "deny_all_delete",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": [
+        "backup:DeleteBackupVault",
+        "backup:DeleteRecoveryPoint",
+        "backup:UpdateRecoveryPointLifecycle",
+      ],
+      "Resource": "${aws_backup_vault.vault_prod_monthly.arn}"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_backup_vault_policy" "vault_disaster_recovery" {
+  provider          = aws.aws_dr_region
+  backup_vault_name = aws_backup_vault.vault_disaster_recovery.name
+  policy            = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "default",
+  "Statement": [
+    {
+      "Sid": "deny_all_delete",
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": [
+        "backup:DeleteBackupVault",
+        "backup:DeleteRecoveryPoint",
+        "backup:UpdateRecoveryPointLifecycle",
+      ],
+      "Resource": "${aws_backup_vault.vault_disaster_recovery.arn}"
+    }
+  ]
+}
+POLICY
+}
+
+###############################################################
+# Backup Vault Lock
+###############################################################
+
+resource "aws_backup_vault_lock_configuration" "vault_prod_hourly" {
+  provider            = aws.aws_prod_region
+  backup_vault_name   = aws_backup_vault.vault_prod_hourly.name
+  changeable_for_days = 3
+}
+
+resource "aws_backup_vault_lock_configuration" "vault_prod_daily" {
+  provider            = aws.aws_prod_region
+  backup_vault_name   = aws_backup_vault.vault_prod_daily.name
+  changeable_for_days = 3
+}
+
+resource "aws_backup_vault_lock_configuration" "vault_prod_monthly" {
+  provider            = aws.aws_prod_region
+  backup_vault_name   = aws_backup_vault.vault_prod_monthly.name
+  changeable_for_days = 3
+}
+
+resource "aws_backup_vault_lock_configuration" "vault_disaster_recovery" {
+  provider            = aws.aws_dr_region
+  backup_vault_name   = aws_backup_vault.vault_disaster_recovery.name
+  changeable_for_days = 3
+}
 
 ###############################################################
 # Backup Plans
