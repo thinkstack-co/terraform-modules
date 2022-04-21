@@ -265,9 +265,9 @@ resource "aws_backup_vault_lock_configuration" "vault_disaster_recovery" {
 # Backup Plans
 ###############################################################
 
-###############################################################
+#######################################
 # Primary Backup
-###############################################################
+#######################################
 # The following plan and selection are for all services except EC2 instances or AMI backups
 resource "aws_backup_plan" "plan" {
   provider = aws.aws_prod_region
@@ -325,9 +325,9 @@ resource "aws_backup_plan" "plan" {
   }
 }
 
-###############################################################
+#######################################
 # Backup Selection
-###############################################################
+#######################################
 
 resource "aws_backup_selection" "all_resources" {
   provider      = aws.aws_prod_region
@@ -343,9 +343,9 @@ resource "aws_backup_selection" "all_resources" {
   ]
 }
 
-###############################################################
+#######################################
 # EC2 AMI Backup
-###############################################################
+#######################################
 # The following plan and selection are for EC2 AMI
 resource "aws_backup_plan" "ec2_plan" {
   provider = aws.aws_prod_region
@@ -378,9 +378,9 @@ resource "aws_backup_plan" "ec2_plan" {
   }
 }
 
-###############################################################
+#######################################
 # Backup Selection
-###############################################################
+#######################################
 
 resource "aws_backup_selection" "all_ec2" {
   provider     = aws.aws_prod_region
