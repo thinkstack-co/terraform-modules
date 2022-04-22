@@ -1,5 +1,4 @@
 # AWS Backups Module
-=================
 
 This module sets AWS DR backup jobs and associated services. 
 
