@@ -2,6 +2,16 @@
 
 This module sets AWS backup jobs and associated services. 
 
+# Usage
+
+    module "aws_prod_backups" {
+        source           = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup"
+        providers        = {
+            aws.aws_prod_region = aws.aws_prod_region
+            aws.aws_dr_region   = aws.aws_dr_region
+        }
+    }
+
 ## Requirements
 
 | Name | Version |
