@@ -102,6 +102,11 @@ variable "key_name" {
   description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
 }
 
+variable "iam_instance_profile" {
+  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
+  default     = ""
+}
+
 variable "instance_name_prefix" {
   description = "Used to populate the Name tag. Set in main.tf"
   default     = "aws_fw"
