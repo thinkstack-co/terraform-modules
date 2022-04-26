@@ -37,7 +37,7 @@ variable "file_triggers_enabled" {
 variable "global_remote_state" {
   description = "(Optional) Whether the workspace allows all workspaces in the organization to access its state data during runs. If false, then only specifically approved workspaces can access its state (remote_state_consumer_ids)."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "name" {
