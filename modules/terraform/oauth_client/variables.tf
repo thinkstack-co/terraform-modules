@@ -1,5 +1,5 @@
 variable "name" {
-  description = "(Optional) Display name for the OAuth Client. Defaults to the service_provider if not supplied."
+  description = "(Required) Display name for the OAuth Client. Defaults to the service_provider if not supplied."
   type = string
 }
 
