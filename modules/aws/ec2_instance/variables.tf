@@ -58,10 +58,10 @@ variable "instance_type" {
   description = "The AWS instance type  to utilize for the specifications of the instance"
 }
 
-variable "ipv6_address_count" {
-  description = "A number of IPv6 addresses to associate with the primary network interface. Amazon EC2 chooses the IPv6 addresses from the range of your subnet."
-  default     = 0
-}
+# variable "ipv6_address_count" {
+#   description = "A number of IPv6 addresses to associate with the primary network interface. Amazon EC2 chooses the IPv6 addresses from the range of your subnet."
+#   default     = 0
+# }
 
 variable "ipv6_addresses" {
   description = "Specify one or more IPv6 addresses from the range of the subnet to associate with the primary network interface"
