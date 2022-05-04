@@ -7,8 +7,10 @@ This module generates and manages an AWS Organization
         source                        = "github.com/thinkstack-co/terraform-modules//modules/aws/organization"
         
         aws_service_access_principals = [
-            "cloudtrail.amazonaws.com",
-            "config.amazonaws.com"
+            "aws-artifact-account-sync.amazonaws.com", 
+            "backup.amazonaws.com", 
+            "cloudtrail.amazonaws.com", 
+            "sso.amazonaws.com",
         ]
         enabled_policy_types          = ["TAG_POLICY"]
     }
