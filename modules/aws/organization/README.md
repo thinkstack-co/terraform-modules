@@ -4,11 +4,13 @@ This module generates and manages an AWS Organization
 # Usage
 
     module "thinkstack_organization" {
-        source    = "github.com/thinkstack-co/terraform-modules//modules/aws/organization"
+        source                        = "github.com/thinkstack-co/terraform-modules//modules/aws/organization"
         
-        name      = "client_prod_infrastructure"
-        email     = "aws_environments+client@thinkstack.co"
-        parent_id = var.clients_parent_id
+        aws_service_access_principals = [
+            "cloudtrail.amazonaws.com",
+            "config.amazonaws.com"
+        ]
+        enabled_policy_types          = ["TAG_POLICY"]
     }
 
 <!-- BEGIN_TF_DOCS -->
