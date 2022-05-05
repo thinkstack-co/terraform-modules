@@ -45,7 +45,7 @@ resource "aws_vpc_dhcp_options" "dc_dns" {
 
 resource "aws_vpc_dhcp_options_association" "dc_dns" {
   count               = var.enable_dhcp_options ? 1 : 0
-  dhcp_options_id = aws_vpc_dhcp_options.dc_dns.id
+  dhcp_options_id = aws_vpc_dhcp_options.dc_dns[*].id
   vpc_id          = var.vpc_id
 }
 
