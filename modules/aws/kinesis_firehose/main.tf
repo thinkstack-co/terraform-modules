@@ -42,6 +42,10 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
         log_stream_name = var.firehose_cloudwatch_logging_log_stream_name
       }
     }
+    dynamic_partitioning_configuration {
+      enabled        = var.firehose_dynamic_partitioning_enabled
+      retry_duration = var.firehose_dynamic_partitioning_retry_duration
+    } 
   }
 }
 

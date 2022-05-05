@@ -102,6 +102,18 @@ variable "firehose_cloudwatch_logging_log_stream_name" {
   default = null
 }
 
+variable "firehose_dynamic_partitioning_enabled" {
+  description = "(Optional) Enables or disables dynamic partitioning. Defaults to false."
+  type        = bool
+  default     = false
+}
+
+variable "firehose_dynamic_partitioning_retry_duration" {
+  description = "(Optional) Total amount of seconds Firehose spends on retries. Valid values between 0 and 7200. Default is 300."
+  type        = number
+  default     = 300
+}
+
 #################################
 # S3
 #################################
