@@ -26,6 +26,22 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     compression_format  = var.firehose_compression_format
     error_output_prefix = var.firehose_error_output_prefix
     kms_key_arn         = var.firehose_kms_key_arn
+    s3_backup_mode      = var.firehose_s3_backup_mode
+    s3_backup_configuration {
+      role_arn            = aws_iam_role.firehose_role.arn
+      bucket_arn          = aws_s3_bucket.firehose_bucket.arn
+      prefix              = var.firehose_backup_prefix
+      buffer_size         = var.firehose_buffer_size
+      buffer_interval     = var.firehose_buffer_interval
+      compression_format  = var.firehose_compression_format
+      error_output_prefix = var.firehose_backup_error_output_prefix
+      kms_key_arn         = var.firehose_kms_key_arn
+      cloudwatch_logging_options {
+        enabled         = var.firehose_cloudwatch_logging_enabled
+        log_group_name  = var.firehose_cloudwatch_logging_log_group_name
+        log_stream_name = var.firehose_cloudwatch_logging_log_stream_name
+      }
+    }
   }
 }
 
