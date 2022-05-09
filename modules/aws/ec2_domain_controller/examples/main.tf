@@ -10,6 +10,7 @@ module "aws_ec2_domain_controllers" {
   count                  = 2
   domain_name            = "ad.yourdomain.com"
   vpc_security_group_ids = [module.domain_controller_sg.id]
+  enable_dhcp_options    = true #can exclude argument if true, defaults to true.
 
   tags = {
     terraform         = "true"
@@ -17,9 +18,5 @@ module "aws_ec2_domain_controllers" {
     environment       = "prod"
     project           = "core_infrastructure"
     role              = "domain_controller"
-    backup            = "true"
-    hourly_retention  = "7"
-    daily_retention   = "14"
-    monthly_retention = "60"
   }
 }
