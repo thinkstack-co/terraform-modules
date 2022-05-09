@@ -1,3 +1,6 @@
+# EC2 Domain Controller Module
+Creates an EC2 instance, status checks, and optional DHCP option sets.
+
 ## Requirements
 
 | Name | Version |
