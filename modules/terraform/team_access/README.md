@@ -1,11 +1,21 @@
 # Usage
-
+## Simple
     module "example_team_access" {
         source       = "github.com/thinkstack-co/terraform-modules//modules/terraform/team_access"
 
         team_id      = module.team.id
         workspace_id = module.workspace.id
         access       = "read"
+    }
+
+## Complex for_each
+    module "example_team_access" {
+        source         = "github.com/thinkstack-co/terraform-modules//modules/terraform/team_access"
+        
+        for_each     = var.permissions_mapping
+        team_id      = each.key
+        workspace_id = module.workspace.id
+        access       = each.value
     }
 
 <!-- BEGIN_TF_DOCS -->
