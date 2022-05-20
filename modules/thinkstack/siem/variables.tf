@@ -100,6 +100,7 @@ variable "instance_tenancy" {
   default     = "default"
 }
 
+/* Removing these for now due to not needing them with this module
 variable "ipv6_address_count" {
   description = "A number of IPv6 addresses to associate with the primary network interface. Amazon EC2 chooses the IPv6 addresses from the range of your subnet."
   default     = 0
@@ -108,7 +109,7 @@ variable "ipv6_address_count" {
 variable "ipv6_addresses" {
   description = "Specify one or more IPv6 addresses from the range of the subnet to associate with the primary network interface"
   default     = []
-}
+} */
 
 variable "key_name_prefix" {
   description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
