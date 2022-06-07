@@ -1,7 +1,7 @@
 EC2 Instance Module
 =================
 
-This module sets up an EC2 instance with the parameters specified. This module has root block devices size and type modifiable.
+This module sets up an EC2 instance with the parameters specified. This module has root block devices size, length, and type modifiable.
 
 
 # Usage
