@@ -30,7 +30,7 @@ resource "aws_s3_bucket" "s3_bucket" {
   }
 }
 resource "aws_s3_bucket_lifecycle_configuration" "example" {
-  bucket = aws_s3_bucket.bucket.id
+  bucket = aws_s3_bucket.s3_bucket.id
 
   rule {
     id = var.lifecycle_rule_id
