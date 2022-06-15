@@ -27,7 +27,7 @@ variable "lifecycle_rule_enabled" {
 
 variable "lifecycle_rule_prefix" {
   type        = string
-  description = "(Optional) Prefix identifying one or more objects to which the rule applies. Defaults to an empty string ("") if not specified."
+  description = "(Optional) Prefix identifying one or more objects to which the rule applies. Defaults to an empty string if not specified."
   default     = ""
 }
 
