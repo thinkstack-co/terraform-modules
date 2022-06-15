@@ -39,9 +39,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "example" {
     expiration {
       days = var.lifecycle_expiration_days
     }
-
-
-    status = "Enabled"
   }
 }
 }
