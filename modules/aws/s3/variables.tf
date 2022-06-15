@@ -13,6 +13,31 @@ variable "kms_master_key_id" {
   default     = ""
 }
 
+variable "lifecycle_rule_id" {
+  type        = string
+  description = "(Required) Unique identifier for the rule. The value cannot be longer than 255 characters."
+  default     = null
+}
+
+variable "lifecycle_rule_enabled" {
+  type        = string
+  description = "(Required) Whether the rule is currently being applied. Valid values: Enabled or Disabled."
+  default     = "disabled"
+}
+lifecycle_rule_prefix
+
+variable "lifecycle_rule_prefix" {
+  type        = string
+  description = "(Optional) Prefix identifying one or more objects to which the rule applies. Defaults to an empty string ("") if not specified."
+  default     = ""
+}
+
+variable "lifecycle_expiration_days" {
+  type        = number
+  description = "(Optional, Conflicts with date) The number of days after creation when objects are transitioned to the specified storage class. The value must be a positive integer. If both days and date are not specified, defaults to 0. Valid values depend on storage_class, see Transition objects using Amazon S3 Lifecycle for more details."
+  default     = null
+}
+
 variable "policy" {
   description = "(Optional) A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy."
   default     = ""

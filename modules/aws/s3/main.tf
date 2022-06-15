@@ -29,5 +29,19 @@ resource "aws_s3_bucket" "s3_bucket" {
     }
   }
 
-  tags = var.tags
+resource "aws_s3_bucket_lifecycle_configuration" "example" {
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    id = var.lifecycle_rule_id
+    status = var.lifecycle_rule_enabled
+    prefix = var.lifecycle_rule_prefix
+    expiration {
+      days = var.lifecycle_expiration_days
+    }
+
+
+    status = "Enabled"
+  }
+}
 }
