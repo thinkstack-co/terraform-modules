@@ -129,3 +129,12 @@ variable "oauth_token_id" {
   description = "(Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe_oauth_client resource."
   type        = string
 }
+
+##############################
+# Terraform Team Access/Permissions
+##############################
+
+variable "workspace_permissions_mapping" {
+  description = "(Required) The permissions map which maps the team_id to the permission access level. Exampe: 'terraform_all_admin = {id = team-fdsa5122q6rwYXP, access = admin}'"
+  type        = map(map)
+}
