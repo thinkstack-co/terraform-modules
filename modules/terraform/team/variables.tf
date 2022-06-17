@@ -58,12 +58,3 @@ variable "manage_modules" {
   type        = bool
   default     = false
 }
-
-##############################
-# Terraform Team Access/Permissions
-##############################
-
-variable "workspace_id" {
-  description = "(Required) ID of the workspace to which the team will be added."
-  type = string
-}
