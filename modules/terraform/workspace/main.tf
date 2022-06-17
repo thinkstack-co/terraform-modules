@@ -1,3 +1,7 @@
+##############################
+# Terraform Workspace
+##############################
+
 resource "tfe_workspace" "this" {
   agent_pool_id                 = var.agent_pool_id
   allow_destroy_plan            = var.allow_destroy_plan
@@ -23,4 +27,17 @@ resource "tfe_workspace" "this" {
     ingress_submodules          = var.ingress_submodules
     oauth_token_id              = var.oauth_token_id
   }
+}
+
+##############################
+# Terraform Team Access/Permissions
+##############################
+
+resource "tfe_team_access" "this" {
+
+  for_each = var.workspace_permissions_mapping
+  
+  team_id      = each.value.id
+  workspace_id = tfe_workspace.this.id
+  access       = each.value.access
 }

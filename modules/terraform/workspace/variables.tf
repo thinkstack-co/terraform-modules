@@ -1,3 +1,7 @@
+##############################
+# Terraform Workspace
+##############################
+
 variable "agent_pool_id" {
   description = "(Optional) The ID of an agent pool to assign to the workspace. Requires execution_mode to be set to agent. This value must not be provided if execution_mode is set to any other value or if operations is provided."
   type        = string
@@ -124,4 +128,13 @@ variable "ingress_submodules" {
 variable "oauth_token_id" {
   description = "(Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe_oauth_client resource."
   type        = string
+}
+
+##############################
+# Terraform Team Access/Permissions
+##############################
+
+variable "workspace_permissions_mapping" {
+  description = "(Required) The permissions map which maps the team_id to the permission access level. Exampe: 'terraform_all_admin = {id = team-fdsa5122q6rwYXP, access = admin}'"
+  type        = map
 }
