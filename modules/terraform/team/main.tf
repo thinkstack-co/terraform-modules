@@ -1,3 +1,6 @@
+##############################
+# Terraform Team
+##############################
 resource "tfe_team" "this" {
   name         = var.name
   organization = var.organization
@@ -11,4 +14,17 @@ resource "tfe_team" "this" {
     manage_providers        = var.manage_providers
     manage_modules          = var.manage_modules
   }
+}
+
+##############################
+# Terraform Team Access/Permissions
+##############################
+
+resource "tfe_team_access" "this" {
+
+  for_each = var.workspace_permissions_mapping
+  
+  team_id      = each.value.id
+  workspace_id = tfe_team.this.id
+  access       = each.value.access
 }

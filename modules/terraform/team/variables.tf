@@ -1,3 +1,6 @@
+##############################
+# Terraform Team
+##############################
 variable "name" {
   description = "(Required) Name of the team."
   type        = string
@@ -54,4 +57,13 @@ variable "manage_modules" {
   description = "(Optional) Allow members to publish and delete modules in the organization's private registry."
   type        = bool
   default     = false
+}
+
+##############################
+# Terraform Team Access/Permissions
+##############################
+
+variable "workspace_id" {
+  description = "(Required) ID of the workspace to which the team will be added."
+  type = string
 }
