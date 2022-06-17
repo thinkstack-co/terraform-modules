@@ -1,3 +1,7 @@
+##############################
+# Terraform Workspace
+##############################
+
 variable "agent_pool_id" {
   description = "(Optional) The ID of an agent pool to assign to the workspace. Requires execution_mode to be set to agent. This value must not be provided if execution_mode is set to any other value or if operations is provided."
   type        = string
