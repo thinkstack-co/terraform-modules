@@ -201,9 +201,6 @@ resource "aws_instance" "ec2" {
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  # Removing as it's unnecessary in this module
-  # ipv6_address_count                   = var.ipv6_address_count
-  # ipv6_addresses                       = var.ipv6_addresses
   key_name                             = aws_key_pair.deployer_key.id
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
@@ -569,3 +566,19 @@ resource "aws_flow_log" "vpc_flow" {
   traffic_type             = var.flow_traffic_type
   vpc_id                   = aws_vpc.vpc.id
 }
+
+######################################################
+# SIEM Monitor for AWS CloudTrail
+######################################################
+
+###########################
+# CloudTrail
+###########################
+
+###########################
+# KMS
+###########################
+
+###########################
+# SQS
+###########################
