@@ -85,11 +85,6 @@ variable "subnet_id" {
   default     = ""
 }
 
-# variable "private_ip" {
-#   description = "Private IP address to associate with the instance in a VPC"
-#   default     = ""
-# }
-
 variable "source_dest_check" {
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
@@ -144,11 +139,6 @@ variable "network_interface" {
   description = "Customize network interfaces to be attached at instance boot time"
   default     = []
 }
-
-# variable "private_ips" {
-#   description = "Private IP to assign to the eni"
-#   default     = []
-# }
 
 variable "private_ips_count" {
   description = "Number of private IPs to assign to the eni"
