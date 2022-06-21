@@ -1,11 +1,10 @@
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = ">= 0.15.0"
 }
 
 ###########################
 # Data Sources
 ###########################
-
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
@@ -28,7 +27,7 @@ resource "aws_vpc" "vpc" {
 resource "aws_subnet" "private_subnets" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.private_subnets_list[count.index]
-  availability_zone = element(list(format("%sa", var.region), format("%sb", var.region), format("%sc", var.region)), count.index)
+  availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
   tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index)) }))
 }
@@ -69,7 +68,7 @@ resource "aws_nat_gateway" "natgw" {
 ###########################
 
 resource "aws_route_table" "public_route_table" {
-  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
+  propagating_vgws = var.enable_vpn_peering ? [aws_vpn_gateway.vpn_gateway[0].id] : []
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-public", var.name) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -82,7 +81,7 @@ resource "aws_route" "public_default_route" {
 
 resource "aws_route_table" "private_route_table" {
   count            = length(var.azs)
-  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
+  propagating_vgws = var.enable_vpn_peering ? [aws_vpn_gateway.vpn_gateway[0].id] : []
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -118,20 +117,12 @@ resource "aws_vpc_peering_connection" "peer" {
   peer_vpc_id   = var.peer_vpc_ids[count.index]
   tags          = var.tags
   vpc_id        = aws_vpc.vpc.id
-
-  accepter {
-    allow_remote_vpc_dns_resolution = var.allow_remote_vpc_dns_resolution
-  }
-
-  requester {
-    allow_remote_vpc_dns_resolution = var.allow_remote_vpc_dns_resolution
-  }
 }
 
 resource "aws_route" "vpc_peer_route" {
   count                     = var.enable_vpc_peering ? 1 : 0
   destination_cidr_block    = var.peer_vpc_subnet
-  route_table_id            = aws_route_table.private_route_table[count.index].id
+  route_table_id            = aws_route_table.private_route_table[0].id
   vpc_peering_connection_id = aws_vpc_peering_connection.peer[count.index].id
 }
 
@@ -140,12 +131,13 @@ resource "aws_route" "vpc_peer_route" {
 ###########################
 
 resource "aws_vpn_gateway" "vpn_gateway" {
+  count      = var.enable_vpn_peering ? 1 : 0
   vpc_id = aws_vpc.vpc.id
   tags   = merge(var.tags, ({ "Name" = format("%s_vpn_gw", var.name) }))
 }
 
 resource "aws_customer_gateway" "customer_gateway" {
-  count      = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
+  count      = var.enable_vpn_peering ? length(var.vpn_peer_ip_address) : 0
   bgp_asn    = var.bgp_asn
   ip_address = var.vpn_peer_ip_address[count.index]
   type       = var.vpn_type
@@ -153,18 +145,29 @@ resource "aws_customer_gateway" "customer_gateway" {
 }
 
 resource "aws_vpn_connection" "vpn_connection" {
-  count               = var.enable_vpn_tunnel ? length(var.vpn_peer_ip_address) : 0
+  count               = var.enable_vpn_peering ? length(var.vpn_peer_ip_address) : 0
   customer_gateway_id = aws_customer_gateway.customer_gateway[count.index].id
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
   type                = var.vpn_type
-  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway.id
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway[0].id
 }
 
 resource "aws_vpn_connection_route" "vpn_route" {
-  count                  = var.enable_vpn_tunnel ? length(var.vpn_route_cidr_blocks) : 0
+  count                  = var.enable_vpn_peering ? length(var.vpn_route_cidr_blocks) : 0
   destination_cidr_block = var.vpn_route_cidr_blocks[count.index]
   vpn_connection_id      = aws_vpn_connection.vpn_connection[0].id
+}
+
+###########################
+# Transit Gateway
+###########################
+
+resource "aws_route" "transit_route" {
+  count                     = var.enable_transit_gateway_peering ? length(var.transit_subnet_route_cidr_blocks) : 0
+  destination_cidr_block    = var.transit_subnet_route_cidr_blocks[count.index]
+  route_table_id            = aws_route_table.private_route_table[0].id
+  transit_gateway_id        = var.transit_gateway_id
 }
 
 ###########################
@@ -198,8 +201,9 @@ resource "aws_instance" "ec2" {
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  ipv6_address_count                   = var.ipv6_address_count
-  ipv6_addresses                       = var.ipv6_addresses
+  # Removing as it's unnecessary in this module
+  # ipv6_address_count                   = var.ipv6_address_count
+  # ipv6_addresses                       = var.ipv6_addresses
   key_name                             = aws_key_pair.deployer_key.id
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
@@ -280,7 +284,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${var.region}:ec2:recover"]
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -326,100 +330,47 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-  ingress {
-    from_port   = 13001
-    to_port     = 13001
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Firewall Syslog Ingester Port"
-  }
+/* 
+########################################
+# Syslog Port Mappings
+########################################
+Port - Description
+13001 - Firewalls
+13002 - Access Points
+13003 - Windows
+13004 - Switches and Routers
+13005 - NTAs (Corelight, Darktrace, Extrahop, etc)
+13006 - PDUs and UPS devices
+13007 - Linux
+13008 - Manage Engine ADAudit
+13009 - Vulnerability Scanners (Trace, Qualys, Nessus, etc)
+13010 - Hypervisors
+13011 - Reserved
+13012 - Web Proxy or Reverse Proxy (NGINX)
+13013 - Reserved
+13014 - Firewall Orchestration (Fortimanager, Cisco FMC, etc)
+13015 - SANs and NAS devices
+13016 - Security Cameras
+13017 - Dell iDRAC
+13018 - HP iLO
+13019 - Backup Platforms (Veeam)
+13020 - Endpoint Security (Carbon Black, Crowdstrike, Cylance, etc)
+ */
 
   ingress {
     from_port   = 13001
-    to_port     = 13001
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Firewall Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13002
-    to_port     = 13002
+    to_port     = 13020
     protocol    = "udp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Access Point Syslog Ingester Port"
+    description = "RIN Syslog Ingester Ports"
   }
 
   ingress {
-    from_port   = 13002
-    to_port     = 13002
+    from_port   = 13001
+    to_port     = 13020
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "Access Point Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13003
-    to_port     = 13003
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Windows Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13003
-    to_port     = 13003
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Windows Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13004
-    to_port     = 13004
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Routers and Switches Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13004
-    to_port     = 13004
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Routers and Switches Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13005
-    to_port     = 13005
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Corelight and Darktrace Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13005
-    to_port     = 13005
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Corelight and Darktrace Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13022
-    to_port     = 13022
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
-  }
-
-  ingress {
-    from_port   = 13022
-    to_port     = 13022
-    protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "Fortimanager and Fortianalyzer Syslog Ingester Port"
+    description = "RIN Syslog Ingester Ports"
   }
 
   egress {
@@ -487,200 +438,134 @@ resource "aws_iam_instance_profile" "this" {
 # SSM association
 ##################
 
-###################################################
-# AWS CloudTrail Datasource Configuration
-###################################################
+######################################################
+# VPC Flow Logs
+######################################################
 
 ###########################
 # KMS Encryption Key
 ###########################
 
-resource "aws_kms_key" "cloudtrail" {
-  customer_master_key_spec = var.key_customer_master_key_spec
-  description              = var.key_description
-  deletion_window_in_days  = var.key_deletion_window_in_days
-  enable_key_rotation      = var.key_enable_key_rotation
-  key_usage                = var.key_usage
-  is_enabled               = var.key_is_enabled
+resource "aws_kms_key" "key" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  customer_master_key_spec = var.flow_key_customer_master_key_spec
+  description              = var.flow_key_description
+  deletion_window_in_days  = var.flow_key_deletion_window_in_days
+  enable_key_rotation      = var.flow_key_enable_key_rotation
+  key_usage                = var.flow_key_usage
+  is_enabled               = var.flow_key_is_enabled
   tags                     = var.tags
   policy                   = jsonencode({
     "Version" = "2012-10-17",
-    "Id" = "Key policy created by CloudTrail",
     "Statement" = [
         {
             "Sid" = "Enable IAM User Permissions",
             "Effect" = "Allow",
-            "Principal" = {"AWS": [
-                "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            ]},
-            "Action": "kms:*",
-            "Resource": "*"
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
         },
         {
-            "Sid": "Allow CloudTrail to encrypt logs",
-            "Effect": "Allow",
-            "Principal": {"Service": ["cloudtrail.amazonaws.com"]},
-            "Action": "kms:GenerateDataKey*",
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition": {"StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}}
-        },
-        {
-            "Sid": "Allow CloudTrail to describe key",
-            "Effect": "Allow",
-            "Principal": {"Service": ["cloudtrail.amazonaws.com"]},
-            "Action": "kms:DescribeKey",
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
-        },
-        {
-            "Sid": "Allow principals in the account to decrypt log files",
-            "Effect": "Allow",
-            "Principal": {"AWS": "*"},
-            "Action": [
-                "kms:Decrypt",
-                "kms:ReEncryptFrom"
-            ],
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition": {
-                "StringEquals": {"kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"},
-                "StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}
-            }
-        },
-        {
-            "Sid": "Allow alias creation during setup",
-            "Effect": "Allow",
-            "Principal": {"AWS": "*"},
-            "Action": "kms:CreateAlias",
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition": {"StringEquals": {
-                "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com",
-                "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
-            }}
-        },
-        {
-            "Sid": "Enable cross account log decryption",
-            "Effect": "Allow",
-            "Principal": {"AWS": "*"},
-            "Action": [
-                "kms:Decrypt",
-                "kms:ReEncryptFrom"
-            ],
-            "Resource": "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition": {
-                "StringEquals": {"kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"},
-                "StringLike": {"kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"}
-            }
-        }
-    ]
-  })
-}
-
-###########################
-# S3 Bucket
-###########################
-resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-  acl           = "private"
-  bucket_prefix = var.s3_bucket_prefix
-  tags          = var.tags
-
-  versioning {
-    enabled    = var.s3_versioning_enabled
-    mfa_delete = var.s3_mfa_delete
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.cloudtrail.key_id
-        sse_algorithm     = "aws:kms"
-      }
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
-  policy = jsonencode({
-    "Version" = "2012-10-17",
-    "Statement" = [
-        {
-            "Sid" = "AWSCloudTrailAclCheck",
             "Effect" = "Allow",
             "Principal" = {
-                "Service" = "cloudtrail.amazonaws.com"
+                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
             },
-            "Action" = "s3:GetBucketAcl",
-            "Resource" = "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
-        },
-        {
-            "Sid" = "AWSCloudTrailWrite",
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "cloudtrail.amazonaws.com"
-            },
-            "Action" = "s3:PutObject",
-            "Resource" = "${aws_s3_bucket.cloudtrail_s3_bucket.arn}/*",
+            "Action" = [
+                "kms:Encrypt*",
+                "kms:Decrypt*",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:Describe*"
+            ],
+            "Resource" = "*",
             "Condition" = {
-                "StringEquals" = {
-                    "AWS:SourceArn" = "${aws_cloudtrail.cloudtrail.arn}",
-                    "s3:x-amz-acl" = "bucket-owner-full-control"
+                "ArnEquals" = {
+                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
                 }
             }
         }
     ]
-  })
+})
+}
+
+resource "aws_kms_alias" "alias" {
+  count         = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  name_prefix   = var.flow_key_name_prefix
+  target_key_id = aws_kms_key.key[0].key_id
 }
 
 ###########################
-# Cloudtrail
+# CloudWatch Log Group
 ###########################
 
-resource "aws_cloudtrail" "cloudtrail" {
-    enable_log_file_validation      =   var.cloudtrail_enable_log_file_validation
-    include_global_service_events   =   var.cloudtrail_include_global_service_events
-    is_multi_region_trail           =   var.cloudtrail_is_multi_region_trail
-    kms_key_id                      =   aws_kms_key.cloudtrail.arn
-    name                            =   var.cloudtrail_name
-    s3_bucket_name                  =   aws_s3_bucket.cloudtrail_s3_bucket.id
-    s3_key_prefix                   =   var.cloudtrail_s3_key_prefix
-    insight_selector {
-      insight_type = var.cloudtrail_insight_type
-    }
+resource "aws_cloudwatch_log_group" "log_group" {
+  count             = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  kms_key_id        = aws_kms_key.key[0].arn
+  name_prefix       = var.flow_cloudwatch_name_prefix
+  retention_in_days = var.flow_cloudwatch_retention_in_days
+  tags              = var.tags
 }
 
-##################
-# SQS
-##################
+###########################
+# IAM Policy
+###########################
+resource "aws_iam_policy" "policy" {
+  count       = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  description = var.flow_iam_policy_description
+  name_prefix = var.flow_iam_policy_name_prefix
+  path        = var.flow_iam_policy_path
+  tags        = var.tags
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+        Effect = "Allow",
+        Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        Resource = [
+            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+        ]
+        }]
+    })
+}
 
-resource "aws_sqs_queue" "terraform_queue" {
-  name                              = var.sqs_name
-  visibility_timeout_seconds        = var.sqs_visibility_timeout_seconds
-  message_retention_seconds         = var.sqs_message_retention_seconds
-  max_message_size                  = var.sqs_max_message_size
-  delay_seconds                     = var.sqs_delay_seconds
-  receive_wait_time_seconds         = var.sqs_receive_wait_time_seconds
-  redrive_policy                    = var.sqs_redrive_policy
-  fifo_queue                        = var.sqs_fifo_queue
-  content_based_deduplication       = var.sqs_content_based_deduplication
-  kms_master_key_id                 = var.sqs_kms_master_key_id
-  kms_data_key_reuse_period_seconds = var.sqs_kms_data_key_reuse_period_seconds
-  tags                              = var.tags
+###########################
+# IAM Role
+###########################
 
-  policy = jsonencode({
-    "Version" = "2012-10-17",
-    "Id" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_sqs_queue",
-    "Statement" = [{
-        "Sid" = "Sid1591029198479",
-        "Effect" = "Allow",
-        "Principal" = {
-            "AWS" = "*"
-        },
-        "Action" = "SQS:*",
-        "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_sqs_queue",
-        "Condition" = {
-            "ArnLike" = {
-                "aws:SourceArn": "<S3 Bucket ARN>"
-            }
-        }
-    }]
-  })
+resource "aws_iam_role" "role" {
+  count                 = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  assume_role_policy    = var.flow_iam_role_assume_role_policy
+  description           = var.flow_iam_role_description
+  force_detach_policies = var.flow_iam_role_force_detach_policies
+  max_session_duration  = var.flow_iam_role_max_session_duration
+  name_prefix           = var.flow_iam_role_name_prefix
+  permissions_boundary  = var.flow_iam_role_permissions_boundary
+}
+
+resource "aws_iam_role_policy_attachment" "role_attach" {
+  count      = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  role       = aws_iam_role.role[0].name
+  policy_arn = aws_iam_policy.policy[0].arn
+}
+
+###########################
+# VPC Flow Log
+###########################
+
+resource "aws_flow_log" "vpc_flow" {
+  count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
+  iam_role_arn             = aws_iam_role.role[0].arn
+  log_destination_type     = var.flow_log_destination_type
+  log_destination          = aws_cloudwatch_log_group.log_group[0].arn
+  max_aggregation_interval = var.flow_max_aggregation_interval
+  tags                     = var.tags
+  traffic_type             = var.flow_traffic_type
+  vpc_id                   = aws_vpc.vpc.id
 }

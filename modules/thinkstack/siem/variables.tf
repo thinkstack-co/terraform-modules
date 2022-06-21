@@ -63,9 +63,9 @@ variable "enable_vpc_peering" {
   default     = false
 }
 
-variable "enable_vpn_tunnel" {
+variable "enable_vpn_peering" {
   description = "(Required)Boolean which should be set to true if you want to enable and set up a vpn tunnel"
-  default     = true
+  default     = false
 }
 
 variable "encrypted" {
@@ -100,6 +100,7 @@ variable "instance_tenancy" {
   default     = "default"
 }
 
+/* Removing these for now due to not needing them with this module
 variable "ipv6_address_count" {
   description = "A number of IPv6 addresses to associate with the primary network interface. Amazon EC2 chooses the IPv6 addresses from the range of your subnet."
   default     = 0
@@ -108,7 +109,7 @@ variable "ipv6_address_count" {
 variable "ipv6_addresses" {
   description = "Specify one or more IPv6 addresses from the range of the subnet to associate with the primary network interface"
   default     = []
-}
+} */
 
 variable "key_name_prefix" {
   description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
@@ -225,25 +226,6 @@ variable "static_routes_only" {
   default     = true
 }
 
-variable "region" {
-  type        = string
-  description = "(Required) AWS region in which the VPC and all rersources will be created in"
-}
-
-variable "tags" {
-  description = "A map of tags to add to all resources"
-  default = {
-    backup      = "true"
-    created_by  = "Your Name"
-    terraform   = "true"
-    environment = "prod"
-    project     = "SIEM Implementation"
-    service     = "soc"
-    team        = "Security Team"
-    used_by     = "ThinkStack"
-  }
-}
-
 variable "tenancy" {
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
@@ -269,12 +251,6 @@ variable "vpn_route_cidr_blocks" {
 variable "vpn_type" {
   description = "Type of VPN tunnel. Currently only supports ipsec.1"
   default     = "ipsec.1"
-}
-
-variable "allow_remote_vpc_dns_resolution" {
-  type        = string
-  description = "(Optional) Allow a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. This is not supported for inter-region VPC peering."
-  default     = true
 }
 
 variable "auto_accept" {
@@ -318,179 +294,208 @@ variable "iam_role_name" {
   default     = "siem-ssm-service-role"
 }
 
+###########################
+# Transit Gateway
+###########################
+
+variable "transit_gateway_id" {
+  type        = string
+  description = "(Optional) Identifier of an EC2 Transit Gateway."
+  default     = null
+}
+
+variable "transit_subnet_route_cidr_blocks" {
+  type        = list
+  description = "(Optional) The destination CIDR blocks to send to the transit gateway."
+  default     = null
+}
 
 ###########################
 # KMS Encryption Key
 ###########################
 
-variable "key_customer_master_key_spec" {
+variable "flow_key_customer_master_key_spec" {
     description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
     default     = "SYMMETRIC_DEFAULT"
     type        = string
 }
 
-variable "key_description" {
+variable "flow_key_description" {
     description = "(Optional) The description of the key as viewed in AWS console."
-    default     = "Cloudtrail kms key used to encrypt audit logs"
+    default     = "CloudWatch kms key used to encrypt flow logs"
     type        = string
 }
 
-variable "key_deletion_window_in_days" {
+variable "flow_key_deletion_window_in_days" {
     description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
     default     = 30
     type        = number
 }
 
-variable "key_enable_key_rotation" {
+variable "flow_key_enable_key_rotation" {
   description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
   default     = true
   type        = bool
 }
 
-variable "key_usage" {
+variable "flow_key_usage" {
   description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
   default     = "ENCRYPT_DECRYPT"
   type        = string
 }
 
-variable "key_is_enabled" {
+variable "flow_key_is_enabled" {
   description = "(Optional) Specifies whether the key is enabled. Defaults to true."
   default     = true
   type        = string
 }
 
-variable "key_name_prefix" {
+variable "flow_key_name_prefix" {
   description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
-  default     = "alias/cloudtrail_key_"
+  default     = "alias/flow_logs_key_"
   type        = string
 }
 
 ###########################
-# S3 Bucket
+# CloudWatch Log Group
 ###########################
 
-variable "s3_bucket_prefix" {
-  description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
-  default     = "siem-cloudtrail-"
+variable "flow_cloudwatch_name_prefix" {
+  description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix."
+  default     = "flow_logs_"
   type        = string
 }
 
-variable "s3_versioning_enabled" {
-  description = "(Optional) Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket."
+variable "flow_cloudwatch_retention_in_days" {
+  description = "(Optional) Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire."
+  default     = 365
+  type        = number
+}
+
+###########################
+# IAM Policy
+###########################
+
+variable "flow_iam_policy_description" {
+    description = "(Optional, Forces new resource) Description of the IAM policy."
+    default     = "Used with flow logs to send packet capture logs to a CloudWatch log group"
+    type        = string
+}
+
+variable "flow_iam_policy_name_prefix" {
+    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+    default     = "flow_log_policy_"
+    type        = string
+}
+
+variable "flow_iam_policy_path" {
+    type = string
+    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
+    default = "/"
+}
+
+###########################
+# IAM Role
+###########################
+
+variable "flow_iam_role_assume_role_policy" {
+  type        = string
+  description = "(Required) The policy that grants an entity permission to assume the role."
+  default = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "vpc-flow-logs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+}
+
+variable "flow_iam_role_description" {
+  type        = string
+  description = "(Optional) The description of the role."
+  default     = "Role utilized for EC2 instances ENI flow logs. This role allows creation of log streams and adding logs to the log streams in cloudwatch"
+}
+
+variable "flow_iam_role_force_detach_policies" {
+  type        = bool
+  description = "(Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false."
   default     = false
 }
 
-variable "s3_mfa_delete" {
-  description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
-  default     = true
+variable "flow_iam_role_max_session_duration" {
+  type        = number
+  description = "(Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours."
+  default     = 3600
+}
+
+variable "flow_iam_role_name_prefix" {
+  type        = string
+  description = "(Required, Forces new resource) Creates a unique friendly name beginning with the specified prefix. Conflicts with name."
+  default     = "flow_logs_role_"
+}
+
+variable "flow_iam_role_permissions_boundary" {
+  type        = string
+  description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
+  default     = ""
 }
 
 ###########################
-# Cloudtrail
+# VPC Flow Log
 ###########################
 
-variable "cloudtrail_enable_log_file_validation" {
-  description = "(Optional) Whether log file integrity validation is enabled. Defaults to false."
-  default     = true
-  type        = bool
-}
-
-variable "cloudtrail_include_global_service_events" {
-  description = "(Optional) Whether the trail is publishing events from global services such as IAM to the log files. Defaults to true."
-  default     = true
-  type        = bool
-}
-
-variable "cloudtrail_is_multi_region_trail" {
-  description = "(Optional) Whether the trail is created in the current region or in all regions. Defaults to false."
-  default     = true
-  type        = bool
-}
-
-variable "cloudtrail_name" {
-  description = "(Required) Name of the trail."
-  default     = "cloudtrail"
+variable "flow_log_destination_type" {
   type        = string
+  description = "(Optional) The type of the logging destination. Valid values: cloud-watch-logs, s3. Default: cloud-watch-logs."
+  default     = "cloud-watch-logs"
 }
 
-variable "cloudtrail_s3_key_prefix" {
-  description = "(Optional) S3 key prefix that follows the name of the bucket you have designated for log file delivery."
-  default     = null
+variable "flow_max_aggregation_interval" {
+  type        = number
+  description = "(Optional) The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid Values: 60 seconds (1 minute) or 600 seconds (10 minutes). Default: 600."
+  default     = 60
+}
+
+variable "flow_traffic_type" {
   type        = string
+  description = "(Optional) The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL."
+  default     = "ALL"
 }
 
-variable "cloudtrail_insight_type" {
-  type        = string
-  description = "(Optional) Type of insights to log on a trail. The valid value is ApiCallRateInsight"
-  default     = "ApiCallRateInsight"
-}
 
-##################
-# SQS
-##################
+###############################################################
+# General Use Variables
+###############################################################
 
-variable "sqs_name" {
-  type        = string
-  description = "(Optional) This is the human-readable name of the queue. If omitted, Terraform will assign a random name."
-  default     = "siem_sqs_queue"
-}
-
-variable "sqs_visibility_timeout_seconds" {
-  type        = number
-  description = "(Optional) The visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see AWS docs."
-  default     = 30
-}
-
-variable "sqs_message_retention_seconds" {
-  type        = number
-  description = "(Optional) The number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days)."
-  default     = 345600
-}
-
-variable "sqs_max_message_size" {
-  type        = number
-  description = "(Optional) The limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 262144 bytes (256 KiB). The default for this attribute is 262144 (256 KiB)."
-  default     = 262144
-}
-
-variable "sqs_delay_seconds" {
-  type        = number
-  description = "(Optional) The time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds."
-  default     = 0
-}
-
-variable "sqs_receive_wait_time_seconds" {
-  type        = number
-  description = "(Optional) The time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately."
-  default     = 0
-}
-
-variable "sqs_redrive_policy" {
-  type        = string
-  description = "(Optional) The JSON policy to set up the Dead Letter Queue, see AWS docs. Note: when specifying maxReceiveCount, you must specify it as an integer (5), and not a string ('5')."
-  default     = null
-}
-
-variable "sqs_fifo_queue" {
-  type        = bool
-  description = "(Optional) Boolean designating a FIFO queue. If not set, it defaults to false making it standard."
+variable "enable_transit_gateway_peering" {
+  description = "(Optional) A boolean flag to enable/disable the use of a transit gateway. Defaults false."
   default     = false
-}
-
-variable "sqs_content_based_deduplication" {
   type        = bool
-  description = "(Optional) Enables content-based deduplication for FIFO queues. For more information, see the related documentation"
-  default     = false
 }
 
-variable "sqs_kms_master_key_id" {
-  type        = string
-  description = "(Optional) The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see Key Terms."
-  default     = "alias/aws/sqs"
+variable "enable_vpc_flow_logs" {
+  description = "(Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults true."
+  default     = true
+  type        = bool
 }
 
-variable "sqs_kms_data_key_reuse_period_seconds" {
-  type        = number
-  description = "(Optional) The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes)."
-  default     = 300
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  default = {
+    backup      = "true"
+    created_by  = "Your Name"
+    terraform   = "true"
+    environment = "prod"
+    project     = "SIEM Implementation"
+    service     = "soc"
+    team        = "Security Team"
+    used_by     = "ThinkStack"
+  }
 }

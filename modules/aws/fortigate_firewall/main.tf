@@ -92,14 +92,15 @@ resource "aws_network_interface" "fw_dmz_nic" {
 }
 
 resource "aws_instance" "ec2_instance" {
-  ami           = var.ami_id
-  count         = var.number
-  ebs_optimized = var.ebs_optimized
-  instance_type = var.instance_type
-  key_name      = var.key_name
-  monitoring    = var.monitoring
-  volume_tags   = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
-  tags          = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
+  ami                  = var.ami_id
+  count                = var.number
+  ebs_optimized        = var.ebs_optimized
+  iam_instance_profile = var.iam_instance_profile
+  instance_type        = var.instance_type
+  key_name             = var.key_name
+  monitoring           = var.monitoring
+  volume_tags          = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
+  tags                 = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
 
   network_interface {
     network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
