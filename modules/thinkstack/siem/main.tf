@@ -887,13 +887,15 @@ resource "aws_iam_policy" "siem_cloudtrail_policy" {
 ###########################
 
 resource "aws_iam_group" "siem_cloudtrail_group" {
-  name = "siem"
-  path = "/siem/"
+  count = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name  = "siem"
+  path  = "/siem/"
 }
 
 resource "aws_iam_group_policy_attachment" "siem_policy_siem_group" {
-  group      = aws_iam_group.siem_cloudtrail_group.name
-  policy_arn = aws_iam_policy.siem_cloudtrail_policy.arn
+  count      = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  group      = aws_iam_group.siem_cloudtrail_group[0].name
+  policy_arn = aws_iam_policy.siem_cloudtrail_policy[0].arn
 }
 
 ###########################
@@ -901,14 +903,16 @@ resource "aws_iam_group_policy_attachment" "siem_policy_siem_group" {
 ###########################
 
 resource "aws_iam_user" "siem_cloudtrail_user" {
-  name = "siem"
-  path = "/siem/"
-  tags = var.tags
+  count = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name  = "siem"
+  path  = "/siem/"
+  tags  = var.tags
 }
 
 resource "aws_iam_user_group_membership" "siem_user" {
-  user = aws_iam_user.siem_cloudtrail_user.name
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  user   = aws_iam_user.siem_cloudtrail_user[0].name
   groups = [
-    aws_iam_group.siem_cloudtrail_group.name,
+    aws_iam_group.siem_cloudtrail_group[0].name,
   ]
 }
