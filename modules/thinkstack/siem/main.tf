@@ -698,8 +698,8 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
   count                     = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
   name                      = "siem-cloudtrail"
   delay_seconds             = 0
-  max_message_size          = 256
-  message_retention_seconds = 86400
+  max_message_size          = 262144
+  message_retention_seconds = 345600
   policy = jsonencode([
 {
   "Version": "2012-10-17",
@@ -791,7 +791,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket
 
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.cloudtrail_key.arn
+      kms_master_key_id = aws_kms_key.cloudtrail_key[0].arn
       sse_algorithm     = "aws:kms"
     }
   }
@@ -831,7 +831,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation    = true
   include_global_service_events = true
   is_multi_region_trail         = true
-  kms_key_id                    = aws_kms_key.cloudtrail_key.id
+  kms_key_id                    = aws_kms_key.cloudtrail_key[0].id
   name                          = "siem-cloudtrail"
   s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket[0].id
   insight_selector {
