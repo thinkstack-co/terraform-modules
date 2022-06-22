@@ -714,7 +714,7 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
     "Resource": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
     "Condition": {
       "ArnLike": {
-        "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
+        "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
       }
     }
   }]
@@ -737,13 +737,13 @@ resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
 
 resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
   acl    = "private"
 }
 
 resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_block" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
 
   block_public_acls   = true
   block_public_policy = true
@@ -751,7 +751,7 @@ resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_bl
 
 resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
   policy = <<POLICY
 {
     "Version": "2012-10-17",
@@ -763,7 +763,7 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:GetBucketAcl",
-            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
         },
         {
             "Sid": "AWSCloudTrailWrite",
@@ -772,7 +772,7 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
               "Service": "cloudtrail.amazonaws.com"
             },
             "Action": "s3:PutObject",
-            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}/*",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
             "Condition": {
                 "StringEquals": {
                     "s3:x-amz-acl": "bucket-owner-full-control",
@@ -787,7 +787,7 @@ POLICY
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket_encryption" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.bucket
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].bucket
 
   rule {
     apply_server_side_encryption_by_default {
@@ -799,7 +799,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket
 
 resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
 
   rule {
     id     = "30_day_delete"
@@ -814,7 +814,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
 
 resource "aws_s3_bucket_notification" "cloudtrail_bucket_notification" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
 
   queue {
     queue_arn     = aws_sqs_queue.cloudtrail_queue.arn
@@ -833,7 +833,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   is_multi_region_trail         = true
   kms_key_id                    = aws_kms_key.cloudtrail_key.id
   name                          = "siem-cloudtrail"
-  s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket.id
+  s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket[0].id
   insight_selector {
     insight_type = "ApiCallRateInsight"
   }
