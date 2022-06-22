@@ -817,7 +817,7 @@ resource "aws_s3_bucket_notification" "cloudtrail_bucket_notification" {
   bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
 
   queue {
-    queue_arn     = aws_sqs_queue.cloudtrail_queue.arn
+    queue_arn     = aws_sqs_queue.cloudtrail_queue[0].arn
     events        = ["s3:ObjectCreated:Put"]
   }
 }
