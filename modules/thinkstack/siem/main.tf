@@ -568,7 +568,7 @@ resource "aws_flow_log" "vpc_flow" {
 }
 
 ######################################################
-# SIEM Monitor for AWS CloudTrail
+# SIEM Monitoring for AWS CloudTrail
 ######################################################
 
 ###########################
@@ -703,7 +703,7 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
   policy = jsonencode([
 {
   "Version": "2012-10-17",
-  "Id": "arn:aws:sqs:<AWS Region>:<AWS Account Number>:<SQS Queue Name>",
+  "Id": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
   "Statement": [{
     "Sid": "Sid1591029198479",
     "Effect": "Allow",
@@ -711,17 +711,15 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
       "AWS": "*"
     },
     "Action": "SQS:*",
-    "Resource": "arn:aws:sqs:<AWS Region>:<AWS Account Number>:<SQS Queue Name>",
+    "Resource": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
     "Condition": {
       "ArnLike": {
-        "aws:SourceArn": "<S3 Bucket ARN>"
+        "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
       }
     }
   }]
 }
   ])
-
-
 
   receive_wait_time_seconds = 0
   tags = var.tags
