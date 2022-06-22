@@ -696,23 +696,27 @@ resource "aws_kms_alias" "cloudtrail_alias" {
 
 resource "aws_sqs_queue" "cloudtrail_queue" {
   count                     = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  name                      = "siem-cloudtrail"
+  name                      = "siem_cloudtrail_queue"
   delay_seconds             = 0
   max_message_size          = 262144
   message_retention_seconds = 345600
   policy = jsonencode([
 {
   "Version" = "2012-10-17",
-  "Id" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
-  "Statement" = [{
-    "Sid" = "Sid1591029198479",
-    "Effect" = "Allow",
-    "Principal" = {
-      "AWS" = "*"
-    },
-    "Action" = "SQS:*",
-    "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
+  "Id" = "siem-access-policy-1",
+  "Statement" = [
+    {
+      "Sid" = "queueid1",
+      "Effect" = "Allow",
+      "Principal" = {
+        "Service" = "s3.amazonaws.com"
+      },
+    "Action" = "SQS:SendMessage",
+    "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_cloudtrail_queue",
     "Condition" = {
+      "StringEquals" = {
+        "aws:SourceAccount": "${data.aws_caller_identity.current.account_id}"
+      }
       "ArnLike" = {
         "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
       }
