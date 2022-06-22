@@ -840,3 +840,7 @@ resource "aws_cloudtrail" "cloudtrail" {
     insight_type = "ApiCallRateInsight"
   }
 }
+
+###########################
+# IAM User
+###########################
