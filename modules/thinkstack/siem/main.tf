@@ -886,10 +886,29 @@ resource "aws_iam_policy" "siem_cloudtrail_policy" {
 # IAM Group
 ###########################
 
+resource "aws_iam_group" "siem_cloudtrail_group" {
+  name = "siem"
+  path = "/siem/"
+}
 
+resource "aws_iam_group_policy_attachment" "siem_policy_siem_group" {
+  group      = aws_iam_group.siem_cloudtrail_group.name
+  policy_arn = aws_iam_policy.siem_cloudtrail_policy.arn
+}
 
 ###########################
 # IAM User
 ###########################
 
+resource "aws_iam_user" "siem_cloudtrail_user" {
+  name = "siem"
+  path = "/siem/"
+  tags = var.tags
+}
 
+resource "aws_iam_user_group_membership" "siem_user" {
+  user = aws_iam_user.siem_cloudtrail_user.name
+  groups = [
+    aws_iam_group.siem_cloudtrail_group.name,
+  ]
+}
