@@ -779,8 +779,7 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
             "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
             "Condition": {
                 "StringEquals": {
-                    "s3:x-amz-acl": "bucket-owner-full-control",
-                    "AWS:SourceArn": "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
+                    "s3:x-amz-acl": "bucket-owner-full-control"
                 }
             }
         }
