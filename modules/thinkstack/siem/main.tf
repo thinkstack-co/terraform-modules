@@ -842,5 +842,54 @@ resource "aws_cloudtrail" "cloudtrail" {
 }
 
 ###########################
+# IAM Policy
+###########################
+
+resource "aws_iam_policy" "siem_cloudtrail_policy" {
+  count       = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  description = "Used with the SIEM, KMS, Cloudtrail, SQS, and S3 to retrieve Cloudtrail logs"
+  name_prefix = "siem_policy_"
+  path        = "/"
+  tags        = var.tags
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:DeleteMessage",
+          "s3:GetObject",
+          "sqs:GetQueueUrl",
+          "sqs:ChangeMessageVisibility",
+          "kms:Decrypt",
+          "sqs:PurgeQueue",
+          "sqs:ReceiveMessage"
+        ],
+        Resource = [
+          "${aws_sqs_queue.cloudtrail_queue[0].arn}",
+          "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
+          "${aws_kms_key.cloudtrail_key[0].arn}"
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:ListQueues"
+        ],
+        Resource = "*"
+      }
+        ]
+    })
+}
+
+###########################
+# IAM Group
+###########################
+
+
+
+###########################
 # IAM User
 ###########################
+
+
