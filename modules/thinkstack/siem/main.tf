@@ -700,6 +700,29 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
   delay_seconds             = 0
   max_message_size          = 256
   message_retention_seconds = 86400
+  policy = jsonencode([
+{
+  "Version": "2012-10-17",
+  "Id": "arn:aws:sqs:<AWS Region>:<AWS Account Number>:<SQS Queue Name>",
+  "Statement": [{
+    "Sid": "Sid1591029198479",
+    "Effect": "Allow",
+    "Principal": {
+      "AWS": "*"
+    },
+    "Action": "SQS:*",
+    "Resource": "arn:aws:sqs:<AWS Region>:<AWS Account Number>:<SQS Queue Name>",
+    "Condition": {
+      "ArnLike": {
+        "aws:SourceArn": "<S3 Bucket ARN>"
+      }
+    }
+  }]
+}
+  ])
+
+
+
   receive_wait_time_seconds = 0
   tags = var.tags
 }
