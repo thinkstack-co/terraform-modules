@@ -572,11 +572,7 @@ resource "aws_flow_log" "vpc_flow" {
 ######################################################
 
 ###########################
-# CloudTrail
-###########################
-
-###########################
-# KMS Encryption Key
+# KMS
 ###########################
 
 resource "aws_kms_key" "cloudtrail_key" {
@@ -694,6 +690,24 @@ resource "aws_kms_alias" "cloudtrail_alias" {
   target_key_id = aws_kms_key.cloudtrail_key[0].key_id
 }
 
+###########################
+# SQS
+###########################
+
+resource "aws_sqs_queue" "cloudtrail_queue" {
+  count                     = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name                      = "siem-cloudtrail"
+  delay_seconds             = 0
+  max_message_size          = 256
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 0
+  tags = var.tags
+}
+
+###########################
+# S3 Bucket
+###########################
+
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
   count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
   bucket_prefix = var.bucket_prefix
@@ -777,6 +791,20 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
   }
 }
 
+resource "aws_s3_bucket_notification" "cloudtrail_bucket_notification" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  queue {
+    queue_arn     = aws_sqs_queue.cloudtrail_queue.arn
+    events        = ["s3:ObjectCreated:Put"]
+  }
+}
+
+###########################
+# Cloudtrail
+###########################
+
 resource "aws_cloudtrail" "cloudtrail" {
   count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
   enable_log_file_validation    = true
@@ -789,16 +817,3 @@ resource "aws_cloudtrail" "cloudtrail" {
     insight_type = "ApiCallRateInsight"
   }
 }
-
-
-###########################
-# S3 Bucket
-###########################
-
-###########################
-# KMS
-###########################
-
-###########################
-# SQS
-###########################
