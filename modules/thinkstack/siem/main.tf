@@ -702,18 +702,18 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
   message_retention_seconds = 345600
   policy = jsonencode([
 {
-  "Version": "2012-10-17",
-  "Id": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
-  "Statement": [{
-    "Sid": "Sid1591029198479",
-    "Effect": "Allow",
-    "Principal": {
-      "AWS": "*"
+  "Version" = "2012-10-17",
+  "Id" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
+  "Statement" = [{
+    "Sid" = "Sid1591029198479",
+    "Effect" = "Allow",
+    "Principal" = {
+      "AWS" = "*"
     },
-    "Action": "SQS:*",
-    "Resource": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
-    "Condition": {
-      "ArnLike": {
+    "Action" = "SQS:*",
+    "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem-cloudtrail",
+    "Condition" = {
+      "ArnLike" = {
         "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
       }
     }
@@ -831,7 +831,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation    = true
   include_global_service_events = true
   is_multi_region_trail         = true
-  kms_key_id                    = aws_kms_key.cloudtrail_key[0].id
+  kms_key_id                    = aws_kms_key.cloudtrail_key[0].arn
   name                          = "siem-cloudtrail"
   s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket[0].id
   insight_selector {
