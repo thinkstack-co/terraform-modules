@@ -25,6 +25,8 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
         transit_gateway_id             = "tgw-fdsajfkdlsaljk"
         transit_subnet_route_cidr_blocks = ["10.24.0.0/16", "10.1.1.0/24"]
 
+        enable_siem_cloudtrail_logs    = true
+
         tags                           = {
             created_by  = "Zachary Hill"
             terraform   = "true"
