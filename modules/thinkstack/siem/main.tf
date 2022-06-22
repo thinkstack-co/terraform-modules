@@ -576,6 +576,226 @@ resource "aws_flow_log" "vpc_flow" {
 ###########################
 
 ###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "cloudtrail_key" {
+  count                    = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  customer_master_key_spec = var.cloudtrail_key_customer_master_key_spec
+  description              = var.cloudtrail_key_description
+  deletion_window_in_days  = var.cloudtrail_key_deletion_window_in_days
+  enable_key_rotation      = var.cloudtrail_key_enable_key_rotation
+  key_usage                = var.cloudtrail_key_usage
+  is_enabled               = var.cloudtrail_key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Id" = "Key policy created by CloudTrail",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = [
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                ]
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
+        {
+            "Sid" = "Allow CloudTrail to encrypt logs",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "cloudtrail.amazonaws.com"
+            },
+            "Action" = "kms:GenerateDataKey*",
+            "Resource" = "*",
+            "Condition" = {
+                "StringEquals" = {
+                    "AWS:SourceArn": "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        },
+        {
+            "Sid" = "Allow CloudTrail to describe key",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action" = "kms:DescribeKey",
+            "Resource" = "*"
+        },
+        {
+            "Sid" = "Allow principals in the account to decrypt log files",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        },
+        {
+            "Sid" = "Allow alias creation during setup",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = "kms:CreateAlias",
+            "Resource" = "*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}",
+                    "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Sid" = "Enable cross account log decryption",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        }
+    ]
+  })
+}
+
+resource "aws_kms_alias" "cloudtrail_alias" {
+  count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name_prefix   = var.cloudtrail_key_name_prefix
+  target_key_id = aws_kms_key.cloudtrail_key[0].key_id
+}
+
+resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
+  count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket_prefix = var.bucket_prefix
+  tags          = var.tags
+}
+
+resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_block" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  block_public_acls   = true
+  block_public_policy = true
+}
+
+resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}"
+        },
+        {
+            "Sid": "AWSCloudTrailWrite",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket.arn}/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control",
+                    "AWS:SourceArn": "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        }
+    ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket_encryption" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.cloudtrail_key.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  rule {
+    id     = "30_day_delete"
+    status = "Enabled"
+
+    filter {}
+    expiration {
+      days = 30
+    }    
+  }
+}
+
+resource "aws_cloudtrail" "cloudtrail" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  enable_log_file_validation    = true
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  kms_key_id                    = aws_kms_key.cloudtrail_key.id
+  name                          = "siem-cloudtrail"
+  s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket.id
+  insight_selector {
+    insight_type = "ApiCallRateInsight"
+  }
+}
+
+
+###########################
+# S3 Bucket
+###########################
+
+###########################
 # KMS
 ###########################
 
