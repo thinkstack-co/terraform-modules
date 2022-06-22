@@ -606,11 +606,8 @@ resource "aws_kms_key" "cloudtrail_key" {
                 "Service" = "cloudtrail.amazonaws.com"
             },
             "Action" = "kms:GenerateDataKey*",
-            "Resource" = "*",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition" = {
-                "StringEquals" = {
-                    "AWS:SourceArn": "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
-                },
                 "StringLike" = {
                     "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
                 }
@@ -623,7 +620,7 @@ resource "aws_kms_key" "cloudtrail_key" {
                 "Service": "cloudtrail.amazonaws.com"
             },
             "Action" = "kms:DescribeKey",
-            "Resource" = "*"
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
         },
         {
             "Sid" = "Allow principals in the account to decrypt log files",
@@ -635,7 +632,7 @@ resource "aws_kms_key" "cloudtrail_key" {
                 "kms:Decrypt",
                 "kms:ReEncryptFrom"
             ],
-            "Resource" = "*",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition" = {
                 "StringEquals" = {
                     "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
@@ -670,7 +667,7 @@ resource "aws_kms_key" "cloudtrail_key" {
                 "kms:Decrypt",
                 "kms:ReEncryptFrom"
             ],
-            "Resource" = "*",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
             "Condition" = {
                 "StringEquals" = {
                     "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
