@@ -697,30 +697,32 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
   delay_seconds             = 0
   max_message_size          = 262144
   message_retention_seconds = 345600
-  policy = jsonencode([
+  policy = <<POLICY
 {
-  "Version" = "2012-10-17",
-  "Id" = "siem-access-policy-1",
-  "Statement" = [
+  "Version": "2012-10-17",
+  "Id": "access-policy-id-1",
+  "Statement": [
     {
-      "Sid" = "queueid1",
-      "Effect" = "Allow",
-      "Principal" = {
-        "Service" = "s3.amazonaws.com"
+      "Sid": "queueid1",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
       },
-    "Action" = "SQS:SendMessage",
-    "Resource" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_cloudtrail_queue",
-    "Condition" = {
-      "StringEquals" = {
-        "aws:SourceAccount": "${data.aws_caller_identity.current.account_id}"
-      }
-      "ArnLike" = {
-        "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
+      "Action": "SQS:SendMessage",
+      "Resource": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_cloudtrail_queue",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "${data.aws_caller_identity.current.account_id}"
+        },
+        "ArnLike": {
+          "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
+        }
       }
     }
-  }]
+  ]
 }
-  ])
+POLICY
+
 
   receive_wait_time_seconds = 0
   tags = var.tags
