@@ -1,3 +1,7 @@
+##############################
+# VPN Gateway
+##############################
+
 variable "vpc_id" {
   type        = string
   description = "(Required) The VPC ID to create in."
@@ -14,6 +18,10 @@ variable "amazon_side_asn" {
   description = "(Optional) The Autonomous System Number (ASN) for the Amazon side of the gateway. If you don't specify an ASN, the virtual private gateway is created with the default ASN."
   default     = null
 }
+
+##############################
+# Customer Gateway
+##############################
 
 variable "customer_gw_name" {
   type        = list
@@ -47,6 +55,10 @@ variable "ip_address" {
   description = "(Required) The IPv4 address for the customer gateway device's outside interface."
 }
 
+##############################
+# VPN Connection
+##############################
+
 variable "vpn_type" {
   type        = string
   description = "(Required) The type of customer gateway. The only type AWS supports at this time is ipsec.1"
@@ -63,6 +75,48 @@ variable "transit_gateway_id" {
   type        = string
   description = "(Optional) The ID of the EC2 Transit Gateway."
   default     = null
+}
+
+variable "tunnel_phase1_dh_group_numbers" {
+  type        = list(string)
+  description = "(Optional) List of one or more Diffie-Hellman group numbers that are permitted for the first VPN tunnel for phase 1 IKE negotiations. Valid values are 2 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24."
+  default     = ["14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"]
+}
+
+variable "tunnel_phase1_encryption_algorithms" {
+  type        = list(string)
+  description = "(Optional) List of one or more encryption algorithms that are permitted for the first VPN tunnel for phase 1 IKE negotiations. Valid values are AES128 | AES256 | AES128-GCM-16 | AES256-GCM-16."
+  default     = ["AES256", "AES256-GCM-16"]
+}
+
+variable "tunnel_phase1_integrity_algorithms" {
+  type        = list(string)
+  description = "(Optional) One or more integrity algorithms that are permitted for the first VPN tunnel for phase 1 IKE negotiations. Valid values are SHA1 | SHA2-256 | SHA2-384 | SHA2-512."
+  default     = ["SHA2-256", "SHA2-384", "SHA2-512"]
+}
+
+variable "phase2_dh_group_numbers" {
+  type        = list(string)
+  description = "(Optional) List of one or more Diffie-Hellman group numbers that are permitted for the first VPN tunnel for phase 2 IKE negotiations. Valid values are 2 | 5 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24."
+  default     = ["14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"]
+}
+
+variable "tunnel_phase2_encryption_algorithms" {
+  type        = list(string)
+  description = "(Optional) List of one or more encryption algorithms that are permitted for the first VPN tunnel for phase 2 IKE negotiations. Valid values are AES128 | AES256 | AES128-GCM-16 | AES256-GCM-16."
+  default     = ["AES256", "AES256-GCM-16"]
+}
+
+variable "tunnel_phase2_integrity_algorithms" {
+  type        = list(string)
+  description = "(Optional) List of one or more integrity algorithms that are permitted for the first VPN tunnel for phase 2 IKE negotiations. Valid values are SHA1 | SHA2-256 | SHA2-384 | SHA2-512."
+  default     = ["SHA2-256", "SHA2-384", "SHA2-512"]
+}
+
+variable "tunnel_startup_action" {
+  type        = string
+  description = "(Optional, Default add) The action to take when the establishing the tunnel for the first VPN connection. By default, your customer gateway device must initiate the IKE negotiation and bring up the tunnel. Specify start for AWS to initiate the IKE negotiation. Valid values are add | start."
+  default     = "add"
 }
 
 ###################################
