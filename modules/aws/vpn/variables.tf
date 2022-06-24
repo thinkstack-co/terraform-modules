@@ -37,8 +37,9 @@ variable "bgp_asn" {
 }
 
 variable "certificate_arn" {
-  type = string
+  type        = string
   description = "(Optional) The Amazon Resource Name (ARN) for the customer gateway certificate."
+  default     = null
 }
 
 variable "ip_address" {
