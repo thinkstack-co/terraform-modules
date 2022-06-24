@@ -49,8 +49,8 @@ resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   tunnel1_phase1_integrity_algorithms  = var.tunnel_phase1_integrity_algorithms
   tunnel2_phase1_integrity_algorithms  = var.tunnel_phase1_integrity_algorithms
   ## Phase 2
-  tunnel1_phase2_dh_group_numbers      = var.tunnel.phase2_dh_group_numbers
-  tunnel2_phase2_dh_group_numbers      = var.tunnel.phase2_dh_group_numbers
+  tunnel1_phase2_dh_group_numbers      = var.tunnel_phase2_dh_group_numbers
+  tunnel2_phase2_dh_group_numbers      = var.tunnel_phase2_dh_group_numbers
   tunnel1_phase2_encryption_algorithms = var.tunnel_phase2_encryption_algorithms
   tunnel2_phase2_encryption_algorithms = var.tunnel_phase2_encryption_algorithms
   tunnel1_phase2_integrity_algorithms  = var.tunnel_phase2_integrity_algorithms
