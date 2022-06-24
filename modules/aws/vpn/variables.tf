@@ -95,7 +95,7 @@ variable "tunnel_phase1_integrity_algorithms" {
   default     = ["SHA2-256", "SHA2-384", "SHA2-512"]
 }
 
-variable "phase2_dh_group_numbers" {
+variable "tunnel_phase2_dh_group_numbers" {
   type        = list(string)
   description = "(Optional) List of one or more Diffie-Hellman group numbers that are permitted for the first VPN tunnel for phase 2 IKE negotiations. Valid values are 2 | 5 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24."
   default     = ["14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"]
