@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.0.0"
+}
+
 resource "aws_ec2_transit_gateway" "transit_gateway" {  
     description                     = var.description
     amazon_side_asn                 = var.amazon_side_asn
