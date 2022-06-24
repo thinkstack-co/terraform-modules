@@ -80,9 +80,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_customer_gateway_bgp_asn"></a> [customer\_gateway\_bgp\_asn](#output\_customer\_gateway\_bgp\_asn) | n/a |
 | <a name="output_customer_gateway_id"></a> [customer\_gateway\_id](#output\_customer\_gateway\_id) | n/a |
-| <a name="output_customer_gateway_ip_address"></a> [customer\_gateway\_ip\_address](#output\_customer\_gateway\_ip\_address) | n/a |
 | <a name="output_customer_gateway_type"></a> [customer\_gateway\_type](#output\_customer\_gateway\_type) | n/a |
 | <a name="output_vpn_gateway_id"></a> [vpn\_gateway\_id](#output\_vpn\_gateway\_id) | n/a |
 <!-- END_TF_DOCS -->
