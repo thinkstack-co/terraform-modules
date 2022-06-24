@@ -65,6 +65,10 @@ variable "transit_gateway_id" {
   default     = null
 }
 
+###################################
+# General Usage Variables
+###################################
+
 variable "enable_transit_gateway_attachment" {
   type        = bool
   description = "(Required) A boolean flag to enable/disable the use of a transit gateway attachment rather than VPN gateway attachment. Defaults false."

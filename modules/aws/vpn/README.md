@@ -2,10 +2,27 @@ VPN Module
 =====================================
 
 # Usage
-    module "vpn" {
-        source = "github.com/thinkstack-co/terraform-modules//modules/aws/vpn"
+## Transit Gateway Attachment
+    module "hq_meraki_comcast" {
+        source                            = "github.com/thinkstack-co/terraform-modules//modules/aws/vpn"
 
-        
+        enable_transit_gateway_attachment = true
+        transit_gateway_id                = module.transit_gateway.id
+        customer_gw_name                  = ["hq_meraki_comcast"]
+        ip_address                        = ["8.8.8.8"]
+        name                              = "hq_meraki_comcast"
+        vpc_id                            = module.sdwan_vpc.vpc_id
+    }
+
+## VPN Gateway Attachment
+    module "hq_meraki_comcast" {
+        source                            = "github.com/thinkstack-co/terraform-modules//modules/aws/vpn"
+
+        enable_transit_gateway_attachment = false
+        customer_gw_name                  = ["hq_meraki_comcast"]
+        ip_address                        = ["8.8.8.8"]
+        name                              = "hq_meraki_comcast"
+        vpc_id                            = module.sdwan_vpc.vpc_id
     }
 
 <!-- BEGIN_TF_DOCS -->
