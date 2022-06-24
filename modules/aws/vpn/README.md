@@ -58,7 +58,7 @@ No modules.
 | <a name="input_amazon_side_asn"></a> [amazon\_side\_asn](#input\_amazon\_side\_asn) | (Optional) The Autonomous System Number (ASN) for the Amazon side of the gateway. If you don't specify an ASN, the virtual private gateway is created with the default ASN. | `number` | `null` | no |
 | <a name="input_availability_zone"></a> [availability\_zone](#input\_availability\_zone) | (Optional) The Availability Zone for the virtual private gateway. | `string` | `null` | no |
 | <a name="input_bgp_asn"></a> [bgp\_asn](#input\_bgp\_asn) | (Required) The gateway's Border Gateway Protocol (BGP) Autonomous System Number (ASN). | `number` | `65000` | no |
-| <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | (Optional) The Amazon Resource Name (ARN) for the customer gateway certificate. | `string` | n/a | yes |
+| <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | (Optional) The Amazon Resource Name (ARN) for the customer gateway certificate. | `string` | `null` | no |
 | <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways | `list` | n/a | yes |
 | <a name="input_enable_transit_gateway_attachment"></a> [enable\_transit\_gateway\_attachment](#input\_enable\_transit\_gateway\_attachment) | (Required) A boolean flag to enable/disable the use of a transit gateway attachment rather than VPN gateway attachment. Defaults false. | `bool` | `false` | no |
 | <a name="input_ip_address"></a> [ip\_address](#input\_ip\_address) | (Required) The IPv4 address for the customer gateway device's outside interface. | `list(string)` | n/a | yes |
@@ -77,8 +77,5 @@ No modules.
 | <a name="output_customer_gateway_id"></a> [customer\_gateway\_id](#output\_customer\_gateway\_id) | n/a |
 | <a name="output_customer_gateway_ip_address"></a> [customer\_gateway\_ip\_address](#output\_customer\_gateway\_ip\_address) | n/a |
 | <a name="output_customer_gateway_type"></a> [customer\_gateway\_type](#output\_customer\_gateway\_type) | n/a |
-| <a name="output_vpn_connection_id"></a> [vpn\_connection\_id](#output\_vpn\_connection\_id) | n/a |
-| <a name="output_vpn_connection_tunnel1_address"></a> [vpn\_connection\_tunnel1\_address](#output\_vpn\_connection\_tunnel1\_address) | n/a |
-| <a name="output_vpn_connection_tunnel2_address"></a> [vpn\_connection\_tunnel2\_address](#output\_vpn\_connection\_tunnel2\_address) | n/a |
 | <a name="output_vpn_gateway_id"></a> [vpn\_gateway\_id](#output\_vpn\_gateway\_id) | n/a |
 <!-- END_TF_DOCS -->
