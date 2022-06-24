@@ -3,7 +3,7 @@ terraform {
 }
 
 resource "aws_vpn_gateway" "vpn_gateway" {
-  count             = var.enable_transit_gateway_attachment ? 1 : 0
+  count             = var.enable_transit_gateway_attachment ? 0 : 1
   vpc_id            = var.vpc_id
   availability_zone = var.availability_zone
   tags              = merge(var.tags, ({ "Name" = format("%s_vpn_gw", var.name) }))
