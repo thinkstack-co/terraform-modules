@@ -36,5 +36,5 @@ resource "aws_vpn_connection" "vpn_connection_vpn_gateway_attachment" {
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
   type                = var.vpn_type
-  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway.id
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway[0].id
 }
