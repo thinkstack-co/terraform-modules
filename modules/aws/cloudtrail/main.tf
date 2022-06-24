@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
@@ -13,7 +13,6 @@ resource "aws_cloudtrail" "cloudtrail" {
 }
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-  acl           = var.acl
   bucket_prefix = var.bucket_prefix
 
   versioning {
@@ -30,8 +29,39 @@ resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
     }
   }
 
-  tags = {
-    terraform = "true"
+  tags = var.tags
+}
+
+resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  acl    = var.acl
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_block" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  block_public_acls   = true
+  block_public_policy = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  rule {
+    id     = "30_day_delete"
+    status = "Enabled"
+
+    filter {}
+    expiration {
+      days = 30
+    }    
+  }
+}
+
+resource "aws_s3_bucket_versioning" "cloudtrail_bucket_versioning" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  versioning_configuration {
+    status = var.enabled
   }
 }
 
