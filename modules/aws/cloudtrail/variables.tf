@@ -7,7 +7,8 @@ variable "acl" {
   default     = "private"
 }
 
-variable "enabled" {
+variable "enable_versioning" {
+  type        = bool
   description = "(Optional) Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket."
   default     = true
 }
