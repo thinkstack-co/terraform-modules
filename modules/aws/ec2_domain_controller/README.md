@@ -5,7 +5,7 @@ Creates an EC2 instance, status checks, and optional DHCP option sets.
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12.0 |
+| terraform | >= 1.0.0 |
 
 ## Providers
 
