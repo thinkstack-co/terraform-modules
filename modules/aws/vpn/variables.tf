@@ -77,6 +77,12 @@ variable "transit_gateway_id" {
   default     = null
 }
 
+variable "tunnel_ike_versions" {
+  type        = list(string)
+  description = "(Optional) The IKE versions that are permitted for the first VPN tunnel. Valid values are ikev1 | ikev2."
+  default     = ["ikev2"]
+}
+
 variable "tunnel_phase1_dh_group_numbers" {
   type        = list(string)
   description = "(Optional) List of one or more Diffie-Hellman group numbers that are permitted for the first VPN tunnel for phase 1 IKE negotiations. Valid values are 2 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24."
