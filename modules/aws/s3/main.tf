@@ -42,3 +42,18 @@ resource "aws_s3_bucket_lifecycle_configuration" "example" {
   }
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+
+  rule {
+    id     = "30_day_delete"
+    status = "Enabled"
+
+    filter {}
+    expiration {
+      days = 30
+    }    
+  }
+}
+
