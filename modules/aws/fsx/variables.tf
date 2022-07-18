@@ -35,8 +35,8 @@ variable "automatic_backup_retention_days" {
 }
 
 variable "copy_tags_to_backups" {
-    description = "(Optional) A boolean flag indicating whether tags on the file system should be copied to backups. Defaults to false."
-    default = false
+    description = "(Optional) A boolean flag indicating whether tags on the file system should be copied to backups. Defaults to true."
+    default = true
 }
 
 variable "daily_automatic_backup_start_time" {
@@ -95,11 +95,11 @@ variable "domain_name" {
     description = "(Required) The fully qualified domain name of the self-managed AD directory. For example, corp.example.com."
 }
 
-variable "fsx_password" {
+variable "password" {
     description = "(Required) The password for the service account on your self-managed AD domain that Amazon FSx will use to join to your AD domain."
 }
 
-variable "fsx_username" {
+variable "username" {
     description = "(Required) The user name for the service account on your self-managed AD domain that Amazon FSx will use to join to your AD domain."
 }
 
@@ -144,10 +144,6 @@ variable "is_enabled" {
   description = "(Optional) Specifies whether the key is enabled. Defaults to true."
   default     = true
   type        = string
-}
-
-variable "policy" {
-    description = ""
 }
 
 ###########################

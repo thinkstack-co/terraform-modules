@@ -30,8 +30,8 @@ resource "aws_fsx_windows_file_system" "fsx" {
   self_managed_active_directory {
     dns_ips                                = var.dns_ips
     domain_name                            = var.domain_name
-    password                               = var.fsx_password #should be stored in TF cloud workspace
-    username                               = var.fsx_username #should be stored in TF cloud workspace
+    password                               = var.password #should be stored in TF cloud workspace
+    username                               = var.username #should be stored in TF cloud workspace
     file_system_administrators_group       = var.file_system_administrators_group
     organizational_unit_distinguished_name = var.organizational_unit_distinguished_name
   }
