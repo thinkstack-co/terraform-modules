@@ -19,6 +19,7 @@ variable "throughput_capacity" {
 
 variable "backup_id" {
     description = "(Optional) The ID of the source backup to create the filesystem from."
+    default = ""
 }
 
 variable "active_directory_id" {
@@ -75,6 +76,7 @@ variable "deployment_type" {
 
 variable "preferred_subnet_id" {
     description = "(Optional) Specifies the subnet in which you want the preferred file server to be located. Required for when deployment type is MULTI_AZ_1."
+    default = ""
 }
 
 variable "storage_type" {
@@ -187,6 +189,7 @@ variable "cloudwatch_retention_in_days" {
 #IAM
 variable "iam_policy_description" {
     description = "(Optional), Forces new resource Description of the IAM policy."
+    default = "IAM policy for FSx logs role."
 }
 
 variable "iam_policy_name_prefix" {
