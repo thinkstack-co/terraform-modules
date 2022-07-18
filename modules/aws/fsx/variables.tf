@@ -116,26 +116,34 @@ variable "organizational_unit_distinguished_name" {
 # KMS Key
 ###########################
 
-variable "description" {
-    description = "description"
-    default = "KMS key to be used with FSx instance."
+variable "key_description" {
+    description = "(Optional) The description of the key as viewed in AWS console."
+    default     = "CloudWatch kms key used to encrypt flow logs"
+    type        = string
 }
 
 variable "deletion_window_in_days" {
-    description = ""
+    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+    default     = 30
+    type        = number
 }
 
 variable "enable_key_rotation" {
-    description = ""
-    default = 
+    description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
+    default     = 30
+    type        = number 
 }
 
 variable "key_usage" {
-    description = ""
+  description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
+  default     = "ENCRYPT_DECRYPT"
+  type        = string
 }
 
 variable "is_enabled" {
-    description = ""
+  description = "(Optional) Specifies whether the key is enabled. Defaults to true."
+  default     = true
+  type        = string
 }
 
 variable "policy" {
@@ -168,23 +176,29 @@ variable "file_share_access_audit_log_level" {
 #Cloudwatch Log Group
 
 variable "cloudwatch_name_prefix" {
-    description = ""  
+    description = ""
+    default     = "fsx_access_logs_"
+    type        = string  
 }
 
 variable "cloudwatch_retention_in_days" {
-    description = ""
+    description = "(Optional) Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire."
+    default     = 90
+    type        = number
 }
 
 
 #IAM
 variable "iam_policy_description" {
-    description = ""
+    description = "(Optional), Forces new resource Description of the IAM policy."
 }
 
 variable "iam_policy_name_prefix" {
-    description = ""
+    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+    default = "fsx_log_policy_"
 }
 
 variable "iam_policy_path" {
-    description = ""
+    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
+    default = "/"
 }
