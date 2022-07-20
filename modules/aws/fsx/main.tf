@@ -21,7 +21,7 @@ resource "aws_fsx_windows_file_system" "fsx" {
   deployment_type                   = var.deployment_type
   preferred_subnet_id               = var.preferred_subnet_id
   audit_log_configuration {
-    audit_log_destination             = aws_cloudwatch_event_rule.event_rule
+    audit_log_destination             = aws_cloudwatch_log_group.log_group
     file_access_audit_log_level       = var.file_access_audit_log_level
     file_share_access_audit_log_level = var.file_access_audit_log_level
   }
@@ -61,7 +61,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_cloudwatch_log_group" "log_group" {
   count             = (var.enable_audit_logs == true ? 1 : 0)
-  kms_key_id        = aws_kms_key.key[0].arn
+  kms_key_id        = aws_kms_key.key.arn
   name_prefix       = var.cloudwatch_name_prefix
   retention_in_days = var.cloudwatch_retention_in_days
   tags              = var.tags

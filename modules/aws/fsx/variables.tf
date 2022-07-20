@@ -125,6 +125,13 @@ variable "description" {
     type        = string
 }
 
+variable "name" {
+    description = "Name of the KMS key"
+    default = "fsx_kms_key"
+    type    = string
+  
+}
+
 variable "deletion_window_in_days" {
     description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
     default     = 30
