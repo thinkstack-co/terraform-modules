@@ -3,7 +3,7 @@
 ###########################
 
 resource "aws_fsx_windows_file_system" "fsx" {
-  kms_key_id                        = aws_kms_key.key.key_id
+  kms_key_id                        = aws_kms_key.key.arn
   storage_capacity                  = var.storage_capacity
   subnet_ids                        = var.subnet_ids
   throughput_capacity               = var.throughput_capacity
