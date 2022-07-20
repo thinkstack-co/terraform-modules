@@ -21,7 +21,7 @@ resource "aws_fsx_windows_file_system" "fsx" {
   deployment_type                   = var.deployment_type
   preferred_subnet_id               = var.preferred_subnet_id
   audit_log_configuration {
-    audit_log_destination             = aws_cloudwatch_log_group.log_group.id
+    audit_log_destination             = aws_cloudwatch_log_group.log_group[0]
     file_access_audit_log_level       = var.file_access_audit_log_level
     file_share_access_audit_log_level = var.file_access_audit_log_level
   }
