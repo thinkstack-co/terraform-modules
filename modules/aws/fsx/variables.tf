@@ -134,7 +134,7 @@ variable "deletion_window_in_days" {
 variable "enable_key_rotation" {
     description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
     default     = true
-    type        = number 
+    type        = bool
 }
 
 variable "key_usage" {
