@@ -127,7 +127,7 @@ variable "description" {
 
 variable "name" {
     description = "Name of the KMS key"
-    default = "fsx_kms_key"
+    default = "alias/fsx_kms_key"
     type    = string
   
 }
