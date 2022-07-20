@@ -190,7 +190,7 @@ variable "file_share_access_audit_log_level" {
 
 variable "cloudwatch_name_prefix" {
     description = ""
-    default     = "fsx_access_logs_"
+    default     = "/aws/fsx/fsx_access_logs_"
     type        = string  
 }
 
