@@ -119,7 +119,7 @@ variable "organizational_unit_distinguished_name" {
 # KMS Key
 ###########################
 
-variable "key_description" {
+variable "description" {
     description = "(Optional) The description of the key as viewed in AWS console."
     default     = "CloudWatch kms key used to encrypt flow logs"
     type        = string
