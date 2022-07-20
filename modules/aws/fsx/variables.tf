@@ -14,7 +14,7 @@ variable "subnet_ids" {
 
 variable "throughput_capacity" {
     description = "(Required) Throughput (megabytes per second) of the file system in power of 2 increments. Minimum of 8 and maximum of 2048."
-    default = "50"
+    default = "64"
 }
 
 variable "backup_id" {
