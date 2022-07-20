@@ -22,10 +22,10 @@ variable "backup_id" {
     default = ""
 }
 
-variable "active_directory_id" {
-    description = "(Optional) The ID for an existing Microsoft Active Directory instance that the file system should join when it's created. Cannot be specified with self_managed_active_directory."
-    default = ""
-}
+# variable "active_directory_id" {
+#     description = "(Optional) The ID for an existing Microsoft Active Directory instance that the file system should join when it's created. Cannot be specified with self_managed_active_directory."
+#     default = ""
+# }
 
 variable "aliases" {
     description = "(Optional) An array DNS alias names that you want to associate with the Amazon FSx file system. For more information, see Working with DNS Aliases."

@@ -8,7 +8,7 @@ resource "aws_fsx_windows_file_system" "fsx" {
   subnet_ids                        = var.subnet_ids
   throughput_capacity               = var.throughput_capacity
   backup_id                         = var.backup_id
-  active_directory_id               = var.active_directory_id
+  #active_directory_id               = var.active_directory_id
   aliases                           = var.aliases
   automatic_backup_retention_days   = var.automatic_backup_retention_days
   copy_tags_to_backups              = var.copy_tags_to_backups
