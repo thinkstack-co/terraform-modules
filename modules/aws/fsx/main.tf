@@ -67,50 +67,50 @@ resource "aws_cloudwatch_log_group" "log_group" {
   tags              = var.tags
 }
 
-###########################
-# IAM Policy
-###########################
-resource "aws_iam_policy" "policy" {
-  count       = (var.enable_audit_logs == true ? 1 : 0)
-  description = var.iam_policy_description
-  name_prefix = var.iam_policy_name_prefix
-  path        = var.iam_policy_path
-  tags        = var.tags
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Action = [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "logs:DescribeLogGroups",
-        "logs:DescribeLogStreams"
-      ],
-      Resource = [
-        "${aws_cloudwatch_log_group.log_group[0].arn}:*"
-      ]
-    }]
-  })
-}
+# ###########################
+# # IAM Policy
+# ###########################
+# resource "aws_iam_policy" "policy" {
+#   count       = (var.enable_audit_logs == true ? 1 : 0)
+#   description = var.iam_policy_description
+#   name_prefix = var.iam_policy_name_prefix
+#   path        = var.iam_policy_path
+#   tags        = var.tags
+#   policy = jsonencode({
+#     Version = "2012-10-17",
+#     Statement = [{
+#       Effect = "Allow",
+#       Action = [
+#         "logs:CreateLogGroup",
+#         "logs:CreateLogStream",
+#         "logs:PutLogEvents",
+#         "logs:DescribeLogGroups",
+#         "logs:DescribeLogStreams"
+#       ],
+#       Resource = [
+#         "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+#       ]
+#     }]
+#   })
+# }
 
-###########################
-# IAM Role
-###########################
+# ###########################
+# # IAM Role
+# ###########################
 
-resource "aws_iam_role" "role" {
-  count                 = (var.enable_audit_logs == true ? 1 : 0)
-  assume_role_policy    = var.iam_role_assume_role_policy
-  description           = var.iam_role_description
-  force_detach_policies = var.iam_role_force_detach_policies
-  max_session_duration  = var.iam_role_max_session_duration
-  name_prefix           = var.iam_role_name_prefix
-  permissions_boundary  = var.iam_role_permissions_boundary
-}
+# resource "aws_iam_role" "role" {
+#   count                 = (var.enable_audit_logs == true ? 1 : 0)
+#   assume_role_policy    = var.iam_role_assume_role_policy
+#   description           = var.iam_role_description
+#   force_detach_policies = var.iam_role_force_detach_policies
+#   max_session_duration  = var.iam_role_max_session_duration
+#   name_prefix           = var.iam_role_name_prefix
+#   permissions_boundary  = var.iam_role_permissions_boundary
+# }
 
-resource "aws_iam_role_policy_attachment" "role_attach" {
-  count      = (var.enable_audit_logs == true ? 1 : 0)
-  role       = aws_iam_role.role[0].name
-  policy_arn = aws_iam_policy.policy[0].arn
-}
+# resource "aws_iam_role_policy_attachment" "role_attach" {
+#   count      = (var.enable_audit_logs == true ? 1 : 0)
+#   role       = aws_iam_role.role[0].name
+#   policy_arn = aws_iam_policy.policy[0].arn
+# }
 

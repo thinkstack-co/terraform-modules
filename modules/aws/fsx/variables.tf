@@ -133,7 +133,7 @@ variable "deletion_window_in_days" {
 
 variable "enable_key_rotation" {
     description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
-    default     = 30
+    default     = true
     type        = number 
 }
 
@@ -194,18 +194,37 @@ variable "cloudwatch_retention_in_days" {
 }
 
 
-#IAM
-variable "iam_policy_description" {
-    description = "(Optional), Forces new resource Description of the IAM policy."
-    default = "IAM policy for FSx logs role."
-}
+# #IAM
+# variable "iam_policy_description" {
+#     description = "(Optional), Forces new resource Description of the IAM policy."
+#     default = "IAM policy for FSx logs role."
+# }
 
-variable "iam_policy_name_prefix" {
-    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
-    default = "fsx_log_policy_"
-}
+# variable "iam_policy_name_prefix" {
+#     description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+#     default = "fsx_log_policy_"
+# }
 
-variable "iam_policy_path" {
-    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
-    default = "/"
-}
+# variable "iam_policy_path" {
+#     description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
+#     default = "/"
+# }
+
+# variable "iam_role_assume_role_policy" {
+#   type        = string
+#   description = "(Required) The policy that grants an entity permission to assume the role."
+#   default = <<POLICY
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Effect": "Allow",
+#       "Principal": {
+#         "Service": "vpc-flow-logs.amazonaws.com"
+#       },
+#       "Action": "sts:AssumeRole"
+#     }
+#   ]
+# }
+# POLICY
+# }
