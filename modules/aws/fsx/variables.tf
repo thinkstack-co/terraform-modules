@@ -22,11 +22,6 @@ variable "backup_id" {
     default = ""
 }
 
-# variable "active_directory_id" {
-#     description = "(Optional) The ID for an existing Microsoft Active Directory instance that the file system should join when it's created. Cannot be specified with self_managed_active_directory."
-#     default = ""
-# }
-
 variable "aliases" {
     description = "(Optional) An array DNS alias names that you want to associate with the Amazon FSx file system. For more information, see Working with DNS Aliases."
 }
@@ -171,11 +166,6 @@ variable "enable_audit_logs" {
     default = true
 }
 
-#FSx Configuration block variables.
-# variable "audit_log_destination" {
-#     description = "(Optional) The Amazon Resource Name (ARN) for the destination of the audit logs. The destination can be any Amazon CloudWatch Logs log group ARN or Amazon Kinesis Data Firehose delivery stream ARN. Can be specified when file_access_audit_log_level and file_share_access_audit_log_level are not set to DISABLED. The name of the Amazon CloudWatch Logs log group must begin with the /aws/fsx prefix. The name of the Amazon Kinesis Data Firehouse delivery stream must begin with the aws-fsx prefix. If you do not provide a destination in audit_log_destionation, Amazon FSx will create and use a log stream in the CloudWatch Logs /aws/fsx/windows log group."  
-# }
-
 variable "file_access_audit_log_level" {
     description = "(Optional) Sets which attempt type is logged by Amazon FSx for file and folder accesses. Valid values are SUCCESS_ONLY, FAILURE_ONLY, SUCCESS_AND_FAILURE, and DISABLED. Default value is DISABLED."
     default = "SUCCESS_AND_FAILURE"
@@ -199,39 +189,3 @@ variable "cloudwatch_retention_in_days" {
     default     = 90
     type        = number
 }
-
-
-# #IAM
-# variable "iam_policy_description" {
-#     description = "(Optional), Forces new resource Description of the IAM policy."
-#     default = "IAM policy for FSx logs role."
-# }
-
-# variable "iam_policy_name_prefix" {
-#     description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
-#     default = "fsx_log_policy_"
-# }
-
-# variable "iam_policy_path" {
-#     description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
-#     default = "/"
-# }
-
-# variable "iam_role_assume_role_policy" {
-#   type        = string
-#   description = "(Required) The policy that grants an entity permission to assume the role."
-#   default = <<POLICY
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Principal": {
-#         "Service": "vpc-flow-logs.amazonaws.com"
-#       },
-#       "Action": "sts:AssumeRole"
-#     }
-#   ]
-# }
-# POLICY
-# }
