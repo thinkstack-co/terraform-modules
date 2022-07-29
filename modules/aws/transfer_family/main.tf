@@ -65,7 +65,7 @@ resource "aws_transfer_server" "this" {
   identity_provider_type           = var.identity_provider_type
   directory_id                     = var.directory_id
   function                         = var.function
-  logging_role                     = var.logging_role
+  logging_role                     = aws_iam_role.cloudwatch_logging_role.arn
   force_destroy                    = var.force_destroy
   post_authentication_login_banner = var.post_authentication_login_banner
   pre_authentication_login_banner  = var.pre_authentication_login_banner

@@ -1,7 +1,3 @@
-##################################
-# IAM role for cloudwatch logging Variables
-##################################
-
 ###########################
 # IAM Policy Variables
 ###########################
@@ -25,7 +21,7 @@ variable "iam_policy_path" {
 }
 
 ###########################
-# IAM Role
+# IAM Role Variables
 ###########################
 
 variable "iam_role_assume_role_policy" {
@@ -141,11 +137,6 @@ variable "function" {
     default = null
 }
 
-variable "logging_role" {
-    type = string
-    description = "(Optional) Amazon Resource Name (ARN) of an IAM role that allows the service to write your SFTP users’ activity to your Amazon CloudWatch logs for monitoring and auditing purposes."
-}
-
 variable "force_destroy" {
     type = bool
     description = "(Optional) A boolean that indicates all users associated with the server should be deleted so that the Server can be destroyed without error. The default value is false. This option only applies to servers configured with a SERVICE_MANAGED identity_provider_type."
@@ -207,4 +198,3 @@ variable "tags" {
     type = map
     description = "(Required) A map of tags to assign to the resource. If configured with a provider default_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level."
 }
-
