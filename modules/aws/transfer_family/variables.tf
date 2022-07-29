@@ -36,7 +36,11 @@ variable "iam_role_assume_role_policy" {
       "Principal": {
         "Service": "transfer.amazonaws.com"
       },
-      "Action": "sts:AssumeRole"
+      "Action": "sts:AssumeRole",
+      "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "${data.aws_caller_identity.current.account_id}"
+                }
     }
   ]
 }
