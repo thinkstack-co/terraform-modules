@@ -155,7 +155,7 @@ variable "security_group_ids" {
 }
 
 variable "subnet_ids" {
-    type = list(string)
+    type = list
     description = "(Optional) A list of subnet IDs that are required to host your SFTP server endpoint in your VPC. This property can only be used when endpoint_type is set to VPC."
     default = null
 }
