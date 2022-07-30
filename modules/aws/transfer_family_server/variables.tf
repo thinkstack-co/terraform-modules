@@ -124,7 +124,7 @@ variable "force_destroy" {
     default = false
 }
 
-variable "post_authenticaiton_login_banner" {
+variable "post_authentication_login_banner" {
     type = string
     description = "(Optional) Specify a string to display when users connect to a server. This string is displayed after the user authenticates. The SFTP protocol does not support post-authentication display banners."
     default = null
