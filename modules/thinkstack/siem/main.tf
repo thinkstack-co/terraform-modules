@@ -180,14 +180,6 @@ resource "aws_key_pair" "deployer_key" {
 }
 
 ###########################
-# EC2 - User Data
-###########################
-
-data "template_file" "user_data" {
-  template = file("${path.module}/snypr_centos_script.txt")
-}
-
-###########################
 # EC2 - Instance
 ###########################
 
@@ -216,7 +208,7 @@ resource "aws_instance" "ec2" {
   subnet_id              = aws_subnet.private_subnets[count.index].id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
-  user_data              = data.template_file.user_data.rendered
+  user_data              = templatefile("${path.module}/snypr_centos_script.txt")
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   vpc_security_group_ids = [aws_security_group.sg.id]
 
