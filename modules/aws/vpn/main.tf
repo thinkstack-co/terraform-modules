@@ -41,6 +41,8 @@ resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   transit_gateway_id  = var.transit_gateway_id
 
   # Tunnel Settings
+  tunnel1_ike_versions = var.tunnel_ike_versions
+  tunnel2_ike_versions = var.tunnel_ike_versions
   # Phase 1
   tunnel1_phase1_dh_group_numbers      = var.tunnel_phase1_dh_group_numbers
   tunnel2_phase1_dh_group_numbers      = var.tunnel_phase1_dh_group_numbers

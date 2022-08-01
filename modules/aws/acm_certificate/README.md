@@ -1,3 +1,18 @@
+# Usage
+    module "cert_example_com" {
+        source = "github.com/thinkstack-co/terraform-modules//modules/aws/acm_certificate?ref=v1.13.3"
+
+        domain_name               = "www.example.com"
+        validation_method         = "DNS"
+        subject_alternative_names = ["example.com"]
+        tags                      = {
+            terraform   = "true"
+            created_by  = "Zachary Hill"
+            environment = "prod"
+            role        = "dns"
+            }
+    }
+
 ## Requirements
 
 | Name | Version |
