@@ -15,20 +15,6 @@ resource "aws_cloudtrail" "cloudtrail" {
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
   bucket_prefix = var.bucket_prefix
 
-  versioning {
-    enabled    = var.enabled
-    mfa_delete = var.mfa_delete
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = var.kms_master_key_id
-        sse_algorithm     = var.sse_algorithm
-      }
-    }
-  }
-
   tags = var.tags
 }
 
@@ -61,7 +47,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
 resource "aws_s3_bucket_versioning" "cloudtrail_bucket_versioning" {
   bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
   versioning_configuration {
-    status = var.enable_versioning
+    status     = var.enable_versioning
+    mfa_delete = var.mfa_delete
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket_encryption" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = var.kms_master_key_id
+      sse_algorithm     = var.sse_algorithm
+    }
   }
 }
 
