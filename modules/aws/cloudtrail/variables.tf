@@ -7,10 +7,10 @@ variable "acl" {
   default     = "private"
 }
 
-variable "enable_versioning" {
-  type        = bool
-  description = "(Optional) Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket."
-  default     = true
+variable "versioning_status" {
+  type        = string
+  description = "(Required) The versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets."
+  default     = "Enabled"
 }
 
 variable "kms_master_key_id" {
@@ -26,8 +26,9 @@ variable "sse_algorithm" {
 }
 
 variable "mfa_delete" {
-  description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
-  default     = true
+  type        = string
+  description = "(Optional) Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
+  default     = "Disabled"
 }
 
 variable "name" {

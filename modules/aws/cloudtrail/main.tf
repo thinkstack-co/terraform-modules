@@ -47,7 +47,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
 resource "aws_s3_bucket_versioning" "cloudtrail_bucket_versioning" {
   bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
   versioning_configuration {
-    status     = var.enable_versioning
+    status     = var.versioning_status
     mfa_delete = var.mfa_delete
   }
 }
