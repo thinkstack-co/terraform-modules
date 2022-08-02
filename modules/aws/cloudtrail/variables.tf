@@ -59,3 +59,13 @@ variable "enable_log_file_validation" {
   description = "Enabled log file validation to all logs sent to S3"
   default     = true
 }
+
+######################
+# Global Variables
+######################
+
+variable "tags" {
+  type        = map
+  description = "(Optional) A mapping of tags to assign to the resource."
+  default     = null
+}
