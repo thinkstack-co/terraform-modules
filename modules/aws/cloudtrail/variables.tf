@@ -50,7 +50,7 @@ variable "sse_algorithm" {
 variable "mfa_delete" {
   type        = string
   description = "(Optional) Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
-  default     = "Enabled"
+  default     = "Disabled"
 }
 
 variable "name" {
