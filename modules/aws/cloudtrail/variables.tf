@@ -11,6 +11,18 @@ variable "acl" {
   default     = "private"
 }
 
+variable "bucket_lifecycle_rule_id" {
+  type        = string
+  description = "(Required) Unique identifier for the rule. The value cannot be longer than 255 characters."
+  default     = "365_day_delete"
+}
+
+variable "bucket_lifecycle_expiration_days" {
+  type        = number
+  description = "(Optional) The lifetime, in days, of the objects that are subject to the rule. The value must be a non-zero positive integer."
+  default     = 365
+}
+
 variable "versioning_status" {
   type        = string
   description = "(Required) The versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets."
