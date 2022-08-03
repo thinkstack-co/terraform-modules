@@ -14,8 +14,7 @@ resource "aws_cloudtrail" "cloudtrail" {
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
   bucket_prefix = var.bucket_prefix
-
-  tags = var.tags
+  tags          = var.tags
 }
 
 resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
@@ -24,8 +23,7 @@ resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
 }
 
 resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_block" {
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
-
+  bucket                  = aws_s3_bucket.cloudtrail_s3_bucket.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
