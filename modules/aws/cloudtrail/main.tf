@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
@@ -13,25 +13,54 @@ resource "aws_cloudtrail" "cloudtrail" {
 }
 
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-  acl           = var.acl
   bucket_prefix = var.bucket_prefix
+  tags          = var.tags
+}
 
-  versioning {
-    enabled    = var.enabled
-    mfa_delete = var.mfa_delete
-  }
+resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  acl    = var.acl
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = var.kms_master_key_id
-        sse_algorithm     = var.sse_algorithm
-      }
+resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_block" {
+  bucket                  = aws_s3_bucket.cloudtrail_s3_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  rule {
+    id     = var.bucket_lifecycle_rule_id
+    status = "Enabled"
+
+    filter {}
+    expiration {
+      days = var.bucket_lifecycle_expiration_days
     }
   }
+}
 
-  tags = {
-    terraform = "true"
+resource "aws_s3_bucket_versioning" "cloudtrail_bucket_versioning" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+  versioning_configuration {
+    status     = var.versioning_status
+    mfa_delete = var.mfa_delete
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket_encryption" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.bucket
+
+  rule {
+    bucket_key_enabled = var.bucket_key_enabled
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = var.kms_master_key_id
+      sse_algorithm     = var.sse_algorithm
+    }
   }
 }
 
