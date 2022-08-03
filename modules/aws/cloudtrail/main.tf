@@ -36,12 +36,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
   bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
 
   rule {
-    id     = "365_day_delete"
+    id     = "730_day_delete"
     status = "Enabled"
 
     filter {}
     expiration {
-      days = 365
+      days = 730
     }
   }
 }
