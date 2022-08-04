@@ -83,6 +83,17 @@ variable "enable_log_file_validation" {
   default     = true
 }
 
+variable "logging_bucket" {
+  type        = string
+  description = "(Required) The name of the bucket where you want Amazon S3 to store server access logs."
+}
+
+variable "logging_prefix" {
+  type        = string
+  description = "(Required) A prefix for all log object keys."
+  default     = "logs/"
+}
+
 ######################
 # Global Variables
 ######################

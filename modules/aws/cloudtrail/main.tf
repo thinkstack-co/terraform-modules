@@ -97,3 +97,10 @@ resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
 }
 POLICY
 }
+
+resource "aws_s3_bucket_logging" "cloudtrail_bucket_logging" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  target_bucket = var.logging_bucket
+  target_prefix = var.logging_prefix
+}
