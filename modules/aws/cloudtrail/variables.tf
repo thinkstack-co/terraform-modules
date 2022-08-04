@@ -86,6 +86,7 @@ variable "enable_log_file_validation" {
 variable "logging_bucket" {
   type        = string
   description = "(Required) The name of the bucket where you want Amazon S3 to store server access logs."
+  default     = null
 }
 
 variable "logging_prefix" {
