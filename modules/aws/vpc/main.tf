@@ -25,6 +25,31 @@ resource "aws_vpc" "vpc" {
 }
 
 ###########################
+# VPC Endpoints
+###########################
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id       = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${data.aws_region.current.name}.ssm"
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
+resource "aws_vpc_endpoint" "ec2messages" {
+  vpc_id       = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id       = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
+###########################
 # Subnets
 ###########################
 
@@ -285,39 +310,39 @@ resource "aws_kms_key" "key" {
   key_usage                = var.key_usage
   is_enabled               = var.key_is_enabled
   tags                     = var.tags
-  policy                   = jsonencode({
+  policy = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
-        {
-            "Sid" = "Enable IAM User Permissions",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            },
-            "Action" = "kms:*",
-            "Resource" = "*"
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        {
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
-            },
-            "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:Describe*"
-            ],
-            "Resource" = "*",
-            "Condition" = {
-                "ArnEquals" = {
-                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
-                }
-            }
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "ArnEquals" = {
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+          }
         }
+      }
     ]
-})
+  })
 }
 
 resource "aws_kms_alias" "alias" {
@@ -347,22 +372,22 @@ resource "aws_iam_policy" "policy" {
   name_prefix = var.iam_policy_name_prefix
   path        = var.iam_policy_path
   tags        = var.tags
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-        Effect = "Allow",
-        Action = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogGroups",
-            "logs:DescribeLogStreams"
-        ],
-        Resource = [
-            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
-        ]
-        }]
-    })
+      Effect = "Allow",
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ],
+      Resource = [
+        "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+      ]
+    }]
+  })
 }
 
 ###########################
