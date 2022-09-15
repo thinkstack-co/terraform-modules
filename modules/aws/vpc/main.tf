@@ -33,7 +33,7 @@ module "ssm_vpc_endpoint_sg" {
   cidr_blocks = [var.vpc_cidr]
   description = "SSM VPC service endpoint SG"
   name        = "ssm_vpc_endpoint_sg"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.vpc.id
 }
 
 resource "aws_vpc_endpoint" "ssm" {
