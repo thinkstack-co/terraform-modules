@@ -39,21 +39,21 @@ module "ssm_vpc_endpoint_sg" {
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id             = aws_vpc.vpc.id
   service_name       = "com.amazonaws.${data.aws_region.current.name}.ssm"
-  security_group_ids = module.ssm_vpc_endpoint_sg.id
+  security_group_ids = [module.ssm_vpc_endpoint_sg.id]
   tags               = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
   vpc_id             = aws_vpc.vpc.id
   service_name       = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
-  security_group_ids = module.ssm_vpc_endpoint_sg.id
+  security_group_ids = [module.ssm_vpc_endpoint_sg.id]
   tags               = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_id             = aws_vpc.vpc.id
   service_name       = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
-  security_group_ids = module.ssm_vpc_endpoint_sg.id
+  security_group_ids = [module.ssm_vpc_endpoint_sg.id]
   tags               = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
 
