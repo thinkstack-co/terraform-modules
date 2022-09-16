@@ -42,7 +42,7 @@ resource "aws_vpc_endpoint" "ssm" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id]
+  subnet_ids          = aws_subnet.private_subnets.*.id
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -53,7 +53,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id]
+  subnet_ids          = aws_subnet.private_subnets.*.id
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -64,7 +64,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id]
+  subnet_ids          = aws_subnet.private_subnets.*.id
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
