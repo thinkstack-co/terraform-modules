@@ -59,6 +59,12 @@ variable "ip_address" {
 # VPN Connection
 ##############################
 
+variable "outside_ip_address_type" {
+  type        = string
+  description = "(Optional, Default PublicIpv4) Indicates if a Public S2S VPN or Private S2S VPN over AWS Direct Connect. Valid values are PublicIpv4 | PrivateIpv4"
+  default     = "PublicIpv4"
+}
+
 variable "vpn_type" {
   type        = string
   description = "(Required) The type of customer gateway. The only type AWS supports at this time is ipsec.1"
