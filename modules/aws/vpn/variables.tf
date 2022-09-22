@@ -59,6 +59,12 @@ variable "ip_address" {
 # VPN Connection
 ##############################
 
+variable "outside_ip_address_type" {
+  type        = string
+  description = "(Optional, Default PublicIpv4) Indicates if a Public S2S VPN or Private S2S VPN over AWS Direct Connect. Valid values are PublicIpv4 | PrivateIpv4"
+  default     = "PublicIpv4"
+}
+
 variable "vpn_type" {
   type        = string
   description = "(Required) The type of customer gateway. The only type AWS supports at this time is ipsec.1"
@@ -74,6 +80,12 @@ variable "static_routes_only" {
 variable "transit_gateway_id" {
   type        = string
   description = "(Optional) The ID of the EC2 Transit Gateway."
+  default     = null
+}
+
+variable "transport_transit_gateway_attachment_id" {
+  type        = string
+  description = "(Required when outside_ip_address_type is set to PrivateIpv4). The attachment ID of the Transit Gateway attachment to Direct Connect Gateway. The ID is obtained through a data source only."
   default     = null
 }
 
