@@ -83,6 +83,12 @@ variable "transit_gateway_id" {
   default     = null
 }
 
+variable "transport_transit_gateway_attachment_id" {
+  type        = string
+  description = "(Required when outside_ip_address_type is set to PrivateIpv4). The attachment ID of the Transit Gateway attachment to Direct Connect Gateway. The ID is obtained through a data source only."
+  default     = null
+}
+
 variable "tunnel_ike_versions" {
   type        = list(string)
   description = "(Optional) The IKE versions that are permitted for the first VPN tunnel. Valid values are ikev1 | ikev2."

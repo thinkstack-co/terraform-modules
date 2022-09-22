@@ -38,6 +38,7 @@ resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   outside_ip_address_type = var.outside_ip_address_type
   static_routes_only      = var.static_routes_only
   tags                    = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
+  transport_transit_gateway_attachment_id = var.transport_transit_gateway_attachment_id
   type                    = var.vpn_type
   transit_gateway_id      = var.transit_gateway_id
 
