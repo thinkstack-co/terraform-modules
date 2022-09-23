@@ -58,3 +58,9 @@ variable "manage_modules" {
   type        = bool
   default     = false
 }
+
+variable "manage_run_tasks" {
+  description = "(Optional) Allow members to create, edit, and delete the organization's run tasks."
+  type        = bool
+  default     = false
+}

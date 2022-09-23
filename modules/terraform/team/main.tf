@@ -13,5 +13,6 @@ resource "tfe_team" "this" {
     manage_vcs_settings     = var.manage_vcs_settings
     manage_providers        = var.manage_providers
     manage_modules          = var.manage_modules
+    manage_run_tasks        = var.manage_run_tasks
   }
 }
