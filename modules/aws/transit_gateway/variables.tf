@@ -49,6 +49,12 @@ variable "tags" {
   }
 }
 
+variable "transit_gateway_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) One or more IPv4 or IPv6 CIDR blocks for the transit gateway. Must be a size /24 CIDR block or larger for IPv4, or a size /64 CIDR block or larger for IPv6."
+  default     = null
+}
+
 variable "vpn_ecmp_support" {
   description = "(Optional) Whether VPN Equal Cost Multipath Protocol support is enabled."
   default     = "enable"
