@@ -43,7 +43,7 @@ resource "aws_network_interface" "fw_public_nic" {
   count             = var.number
   description       = var.public_nic_description
   private_ips       = var.wan_private_ips
-  security_groups   = [aws_security_group.fortigate_fw_sg.id]
+  security_groups   = [aws_security_group.cato_sdwan_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.public_subnet_id, count.index)
   tags              = merge(var.tags, ({ "Name" = format("%s%d_public", var.instance_name_prefix, count.index + 1) }))
@@ -57,7 +57,7 @@ resource "aws_network_interface" "fw_private_nic" {
   count             = var.number
   description       = var.private_nic_description
   private_ips       = [element(var.lan_private_ips, count.index)]
-  security_groups   = [aws_security_group.fortigate_fw_sg.id]
+  security_groups   = [aws_security_group.cato_sdwan_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.private_subnet_id, count.index)
   tags              = merge(var.tags, ({ "Name" = format("%s%d_private", var.instance_name_prefix, count.index + 1) }))
@@ -76,7 +76,7 @@ resource "aws_network_interface" "fw_dmz_nic" {
   count             = var.enable_dmz ? var.number : 0
   description       = var.dmz_nic_description
   private_ips       = [element(var.dmz_private_ips, count.index)]
-  security_groups   = [aws_security_group.fortigate_fw_sg.id]
+  security_groups   = [aws_security_group.cato_sdwan_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.dmz_subnet_id, count.index)
   tags              = merge(var.tags, ({ "Name" = format("%s%d_dmz", var.instance_name_prefix, count.index + 1) }))
