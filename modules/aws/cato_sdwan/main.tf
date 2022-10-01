@@ -2,6 +2,10 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
+############################################
+# Security Groups
+############################################
+
 resource "aws_security_group" "cato_wan_mgmt_sg" {
   name        = var.wan_mgmt_sg_name
   description = "Security group applied to Cato SDWAN instance WAN and MGMT NICs"
@@ -31,6 +35,10 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
   tags = merge(var.tags, ({ "Name" = format("%s", var.sg_name) }))
 }
 
+############################################
+# EIP
+############################################
+
 resource "aws_eip" "wan_external_ip" {
   vpc   = true
   count = var.number
@@ -45,6 +53,10 @@ resource "aws_eip_association" "wan_external_ip" {
   allocation_id        = element(aws_eip.wan_external_ip.*.id, count.index)
   network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
 }
+
+############################################
+# ENI
+############################################
 
 resource "aws_network_interface" "public_nic" {
   count             = var.number
@@ -97,6 +109,10 @@ resource "aws_network_interface" "fw_dmz_nic" {
     ignore_changes = [subnet_id]
   }
 }
+
+############################################
+# EC2 Instance
+############################################
 
 resource "aws_instance" "ec2_instance" {
   ami                  = var.ami_id
