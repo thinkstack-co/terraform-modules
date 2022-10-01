@@ -1,5 +1,5 @@
 module "aws_ec2_fortigate_fw" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/fortigate_firewall"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/cato_sdwan"
 
   vpc_id               = module.vpc.vpc_id
   number_of_instances  = 2

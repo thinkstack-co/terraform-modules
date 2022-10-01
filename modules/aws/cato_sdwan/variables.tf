@@ -27,9 +27,9 @@ variable "ebs_optimized" {
   type        = bool
 }
 
-variable "sg_name" {
+variable "wan_mgmt_sg_name" {
   description = "Name of the security group"
-  default     = "fortigate_fw_sg"
+  default     = "cato_wan_mgmt_sg"
   type        = string
 }
 

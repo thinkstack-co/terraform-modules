@@ -2,9 +2,9 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
-resource "aws_security_group" "cato_sdwan_sg" {
-  name        = var.sg_name
-  description = "Security group applied to Cato SDWAN instances"
+resource "aws_security_group" "cato_wan_mgmt_sg" {
+  name        = var.wan_mgmt_sg_name
+  description = "Security group applied to Cato SDWAN instance WAN and MGMT NICs"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -15,16 +15,23 @@ resource "aws_security_group" "cato_sdwan_sg" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "UDP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = merge(var.tags, ({ "Name" = format("%s", var.sg_name) }))
 }
 
-resource "aws_eip" "external_ip" {
+resource "aws_eip" "wan_external_ip" {
   vpc   = true
   count = var.number
 
@@ -33,13 +40,13 @@ resource "aws_eip" "external_ip" {
   }
 }
 
-resource "aws_eip_association" "fw_external_ip" {
+resource "aws_eip_association" "wan_external_ip" {
   count                = var.number
-  allocation_id        = element(aws_eip.external_ip.*.id, count.index)
+  allocation_id        = element(aws_eip.wan_external_ip.*.id, count.index)
   network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
 }
 
-resource "aws_network_interface" "fw_public_nic" {
+resource "aws_network_interface" "public_nic" {
   count             = var.number
   description       = var.public_nic_description
   private_ips       = var.wan_private_ips
