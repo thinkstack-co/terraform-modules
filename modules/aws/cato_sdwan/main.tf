@@ -42,10 +42,6 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
 resource "aws_eip" "wan_external_ip" {
   vpc   = true
   count = var.number
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_eip_association" "wan_external_ip" {
@@ -58,7 +54,8 @@ resource "aws_eip_association" "wan_external_ip" {
 # ENI
 ############################################
 
-resource "aws_network_interface" "public_nic" {
+# Fix these
+resource "aws_network_interface" "mgmt_nic" {
   count             = var.number
   description       = var.public_nic_description
   private_ips       = var.wan_private_ips
@@ -66,13 +63,9 @@ resource "aws_network_interface" "public_nic" {
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.public_subnet_id, count.index)
   tags              = merge(var.tags, ({ "Name" = format("%s%d_public", var.instance_name_prefix, count.index + 1) }))
-
-  lifecycle {
-    ignore_changes = [subnet_id]
-  }
 }
 
-resource "aws_network_interface" "fw_private_nic" {
+resource "aws_network_interface" "public_nic" {
   count             = var.number
   description       = var.private_nic_description
   private_ips       = [element(var.lan_private_ips, count.index)]
@@ -85,13 +78,9 @@ resource "aws_network_interface" "fw_private_nic" {
     instance     = element(aws_instance.ec2_instance.*.id, count.index)
     device_index = 1
   }
-
-  lifecycle {
-    ignore_changes = [subnet_id]
-  }
 }
 
-resource "aws_network_interface" "fw_dmz_nic" {
+resource "aws_network_interface" "private_nic" {
   count             = var.enable_dmz ? var.number : 0
   description       = var.dmz_nic_description
   private_ips       = [element(var.dmz_private_ips, count.index)]
@@ -103,10 +92,6 @@ resource "aws_network_interface" "fw_dmz_nic" {
   attachment {
     instance     = element(aws_instance.ec2_instance.*.id, count.index)
     device_index = 2
-  }
-
-  lifecycle {
-    ignore_changes = [subnet_id]
   }
 }
 
@@ -124,6 +109,7 @@ resource "aws_instance" "ec2_instance" {
   monitoring           = var.monitoring
   volume_tags          = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
   tags                 = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
+  user_data            = var.user_data
 
   network_interface {
     network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
