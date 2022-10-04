@@ -154,6 +154,11 @@ variable "root_ebs_volume_encrypted" {
   type        = bool
 }
 
+variable "user_data" {
+  description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."
+  default     = null
+}
+
 ###############################################################
 # General Use Variables
 ###############################################################
