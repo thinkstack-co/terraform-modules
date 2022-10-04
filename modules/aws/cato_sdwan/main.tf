@@ -3,6 +3,12 @@ terraform {
 }
 
 ############################################
+# Data Sources
+############################################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+############################################
 # Security Groups
 ############################################
 
@@ -25,7 +31,29 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, ({ "Name" = format("%s", var.sg_name) }))
+  tags = merge(var.tags, ({ "Name" = format("%s", var.wan_mgmt_sg_name) }))
+}
+
+resource "aws_security_group" "cato_lan_sg" {
+  name        = var.lan_sg_name
+  description = "Security group applied to Cato SDWAN instance LAN NICs for SDWAN communication"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = var.cato_lan_cidr_blocks
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags, ({ "Name" = format("%s", var.lan_sg_name) }))
 }
 
 ############################################
@@ -47,25 +75,22 @@ resource "aws_eip_association" "wan_external_ip" {
 # ENI
 ############################################
 
-# Fix these
 resource "aws_network_interface" "mgmt_nic" {
   count             = var.number
-  description       = var.public_nic_description
-  private_ips       = var.wan_private_ips
+  description       = var.mgmt_nic_description
+  private_ips       = var.mgmt_private_ips
   security_groups   = [aws_security_group.cato_sdwan_sg.id]
-  source_dest_check = var.source_dest_check
-  subnet_id         = element(var.public_subnet_id, count.index)
-  tags              = merge(var.tags, ({ "Name" = format("%s%d_public", var.instance_name_prefix, count.index + 1) }))
+  subnet_id         = element(var.mgmt_subnet_id, count.index)
+  tags              = merge(var.tags, ({ "Name" = format("%s%d_mgmt", var.instance_name_prefix, count.index + 1) }))
 }
 
 resource "aws_network_interface" "public_nic" {
   count             = var.number
-  description       = var.private_nic_description
-  private_ips       = [element(var.lan_private_ips, count.index)]
+  description       = var.public_nic_description
+  private_ips       = [element(var.public_ips, count.index)]
   security_groups   = [aws_security_group.cato_sdwan_sg.id]
-  source_dest_check = var.source_dest_check
-  subnet_id         = element(var.private_subnet_id, count.index)
-  tags              = merge(var.tags, ({ "Name" = format("%s%d_private", var.instance_name_prefix, count.index + 1) }))
+  subnet_id         = element(var.public_subnet_id, count.index)
+  tags              = merge(var.tags, ({ "Name" = format("%s%d_public", var.instance_name_prefix, count.index + 1) }))
 
   attachment {
     instance     = element(aws_instance.ec2_instance.*.id, count.index)
@@ -74,13 +99,13 @@ resource "aws_network_interface" "public_nic" {
 }
 
 resource "aws_network_interface" "private_nic" {
-  count             = var.enable_dmz ? var.number : 0
-  description       = var.dmz_nic_description
-  private_ips       = [element(var.dmz_private_ips, count.index)]
+  count             = var.number
+  description       = var.private_nic_description
+  private_ips       = [element(var.private_ips, count.index)]
   security_groups   = [aws_security_group.cato_sdwan_sg.id]
   source_dest_check = var.source_dest_check
-  subnet_id         = element(var.dmz_subnet_id, count.index)
-  tags              = merge(var.tags, ({ "Name" = format("%s%d_dmz", var.instance_name_prefix, count.index + 1) }))
+  subnet_id         = element(var.private_subnet_id, count.index)
+  tags              = merge(var.tags, ({ "Name" = format("%s%d_private", var.instance_name_prefix, count.index + 1) }))
 
   attachment {
     instance     = element(aws_instance.ec2_instance.*.id, count.index)
@@ -105,14 +130,16 @@ resource "aws_instance" "ec2_instance" {
   user_data            = var.user_data
 
   network_interface {
-    network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
+    network_interface_id = element(aws_network_interface.mgmt_nic.*.id, count.index)
     device_index         = 0
   }
 
   root_block_device {
     volume_type = var.root_volume_type
     volume_size = var.root_volume_size
+    encrypted   = var.root_ebs_volume_encrypted
   }
+
   ebs_block_device {
     device_name = var.ebs_device_name
     volume_type = var.ebs_volume_type
@@ -162,7 +189,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${var.region}:ec2:recover"]
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance.*.id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"

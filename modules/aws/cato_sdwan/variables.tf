@@ -1,16 +1,16 @@
-variable "dmz_nic_description" {
-  description = "Description of the dmz network interface"
-  default     = "Fortigate FW DMZ nic"
+variable "mgmt_nic_description" {
+  description = "Description of the mgmt network interface"
+  default     = "Fortigate FW mgmt nic"
   type        = string
 }
 
-variable "dmz_private_ips" {
+variable "mgmt_private_ips" {
   description = "(Optional) List of private IPs to assign to the ENI."
   default     = ["10.11.101.10", "10.11.102.10"]
   type        = list(string)
 }
 
-variable "dmz_subnet_id" {
+variable "mgmt_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
   type        = list
 }
@@ -36,6 +36,18 @@ variable "wan_mgmt_sg_name" {
 variable "vpc_id" {
   description = "The VPC id to add the security group"
   type        = string
+}
+
+variable "lan_sg_name" {
+  description = "Name of the security group"
+  default     = "cato_lan_sg"
+  type        = string
+}
+
+variable "cato_lan_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) List of CIDR blocks allowed to utilize the Cato instance for SDWAN communication."
+  default     = null
 }
 
 variable "tags" {
@@ -126,11 +138,6 @@ variable "instance_name_prefix" {
   type        = string
 }
 
-variable "region" {
-  type        = string
-  description = "(Required) VPC Region the resources exist in"
-}
-
 variable "root_volume_type" {
   description = "Root volume EBS type"
   default     = "gp3"
@@ -140,6 +147,12 @@ variable "root_volume_type" {
 variable "root_volume_size" {
   description = "root volume disk size"
   default     = "20"
+}
+
+variable "root_ebs_volume_encrypted" {
+  description = "(Optional) Whether to enable volume encryption on the root ebs volume. Defaults to true. Must be configured to perform drift detection."
+  default     = true
+  type        = bool
 }
 
 variable "ebs_device_name" {
@@ -160,7 +173,7 @@ variable "ebs_volume_size" {
 }
 
 variable "ebs_volume_encrypted" {
-  description = "Boolean whether or not the ebs volume is encrypted"
+  description = "(Optional) Whether to enable volume encryption on the ebs volume. Defaults to true. Must be configured to perform drift detection."
   default     = true
   type        = bool
 }
