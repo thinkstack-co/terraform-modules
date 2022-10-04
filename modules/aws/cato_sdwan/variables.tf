@@ -102,7 +102,7 @@ variable "monitoring" {
   type        = bool
 }
 
-variable "ami_id" {
+variable "ami" {
   description = "(Required) AMI to use for the instance. Required unless launch_template is specified and the Launch Template specifes an AMI. If an AMI is specified in the Launch Template, setting ami will override the AMI specified in the Launch Template."
   type        = string
 }
