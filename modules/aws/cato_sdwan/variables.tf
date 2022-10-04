@@ -109,7 +109,7 @@ variable "ami_id" {
 
 variable "instance_type" {
   description = "(Optional) Instance type to use for the instance. Updates to this field will trigger a stop/start of the EC2 instance."
-  default     = "c5.large"
+  default     = "c5.xlarge"
   type        = string
 }
 
@@ -138,8 +138,8 @@ variable "root_volume_type" {
 
 variable "root_volume_size" {
   description = "(Optional) Size of the root volume in gibibytes (GiB)."
-  type        = number
   default     = 16
+  type        = number
 }
 
 variable "root_ebs_volume_encrypted" {
@@ -154,17 +154,17 @@ variable "root_ebs_volume_encrypted" {
 
 variable "tags" {
   description = "(Optional) Map of tags to assign to the device."
-  type        = map
   default     = {
     created_by  = "terraform"
     terraform   = "true"
     environment = "prod"
     role        = "cato_sdwan"
   }
+  type        = map
 }
 
 variable "number" {
   description = "(Optional) Quantity of resources to make with this module. Example: Setting this to 2 will create 2 of all the required resources. Default: 1"
-  type        = number
   default     = 1
+  type        = number
 }
