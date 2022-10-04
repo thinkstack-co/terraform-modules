@@ -90,6 +90,12 @@ variable "source_dest_check" {
 # EC2 Instance
 ############################################
 
+variable "availability_zone" {
+  description = "(Optional) AZ to start the instance in."
+  default     = null
+  type        = list(string)
+}
+
 variable "ebs_optimized" {
   description = "(Optional) If true, the launched EC2 instance will be EBS-optimized. Note that if this is not set on an instance type that is optimized by default then this will show as disabled but if the instance type is optimized by default then there is no need to set this and there is no effect to disabling it. See the EBS Optimized section of the AWS User Guide for more information."
   default     = true
