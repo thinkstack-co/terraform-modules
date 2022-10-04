@@ -68,7 +68,7 @@ resource "aws_eip" "wan_external_ip" {
 resource "aws_eip_association" "wan_external_ip" {
   count                = var.number
   allocation_id        = element(aws_eip.wan_external_ip.*.id, count.index)
-  network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
+  network_interface_id = element(aws_network_interface.public_nic.*.id, count.index)
 }
 
 ############################################
@@ -78,7 +78,7 @@ resource "aws_eip_association" "wan_external_ip" {
 resource "aws_network_interface" "mgmt_nic" {
   count             = var.number
   description       = var.mgmt_nic_description
-  private_ips       = var.mgmt_private_ips
+  private_ips       = var.mgmt_ips
   security_groups   = [aws_security_group.cato_sdwan_sg.id]
   subnet_id         = element(var.mgmt_subnet_id, count.index)
   tags              = merge(var.tags, ({ "Name" = format("%s%d_mgmt", var.instance_name_prefix, count.index + 1) }))
@@ -138,17 +138,6 @@ resource "aws_instance" "ec2_instance" {
     volume_type = var.root_volume_type
     volume_size = var.root_volume_size
     encrypted   = var.root_ebs_volume_encrypted
-  }
-
-  ebs_block_device {
-    device_name = var.ebs_device_name
-    volume_type = var.ebs_volume_type
-    volume_size = var.ebs_volume_size
-    encrypted   = var.ebs_volume_encrypted
-  }
-
-  lifecycle {
-    ignore_changes = [ebs_block_device]
   }
 }
 
