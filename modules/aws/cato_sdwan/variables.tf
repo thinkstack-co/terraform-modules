@@ -15,12 +15,6 @@ variable "mgmt_subnet_id" {
   type        = list
 }
 
-variable "enable_dmz" {
-  description = "describe your variable"
-  default     = true
-  type        = bool
-}
-
 variable "ebs_optimized" {
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
@@ -28,7 +22,7 @@ variable "ebs_optimized" {
 }
 
 variable "wan_mgmt_sg_name" {
-  description = "Name of the security group"
+  description = "(Optional, Forces new resource) Name of the security group. If omitted, Terraform will assign a random, unique name."
   default     = "cato_wan_mgmt_sg"
   type        = string
 }
@@ -39,7 +33,7 @@ variable "vpc_id" {
 }
 
 variable "lan_sg_name" {
-  description = "Name of the security group"
+  description = "(Optional, Forces new resource) Name of the security group. If omitted, Terraform will assign a random, unique name."
   default     = "cato_lan_sg"
   type        = string
 }
