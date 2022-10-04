@@ -91,8 +91,7 @@ variable "source_dest_check" {
 ############################################
 
 variable "availability_zone" {
-  description = "(Optional) AZ to start the instance in."
-  default     = null
+  description = "(Required) AZ to start the instance in."
   type        = list(string)
 }
 
