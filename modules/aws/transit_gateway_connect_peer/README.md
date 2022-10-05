@@ -4,6 +4,7 @@
 
         bgp_asn                       = 64513
         inside_cidr_blocks            = 
+        name                          = "sdwan_peer"
         peer_address                  = 
         transit_gateway_address       = 
         transit_gateway_attachment_id = 

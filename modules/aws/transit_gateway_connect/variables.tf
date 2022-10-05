@@ -1,3 +1,8 @@
+variable "name" {
+  description = "(Required) The name of the transit gateway"
+  type        = string
+}
+
 variable "protocol" {
     type        = string
     description = "(Optional) The tunnel protocol. Valida values: gre. Default is gre."
