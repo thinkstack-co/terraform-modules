@@ -20,6 +20,12 @@ variable "auto_apply" {
   default     = false
 }
 
+variable "assessments_enabled" {
+  description = "(Optional) Whether to regularly run health assessments such as drift detection on the workspace. Defaults to true."
+  type        = bool
+  default     = true
+}
+
 variable "description" {
   description = "(Optional) A description for the workspace."
   type        = string
