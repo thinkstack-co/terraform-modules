@@ -4,5 +4,5 @@ resource "aws_ec2_transit_gateway_connect_peer" "peer" {
   peer_address                  = var.peer_address
   tags                          = merge(tomap({Name = var.name}),var.tags)
   transit_gateway_attachment_id = var.transit_gateway_attachment_id
-  transit_gateway_address = var.transit_gateway_address
+  transit_gateway_address       = var.transit_gateway_address
 }
