@@ -37,7 +37,7 @@ variable "mgmt_nic_description" {
 
 variable "mgmt_ips" {
   description = "(Optional) List of private IPs to assign to the ENI."
-  default     = ["10.11.101.12", "10.11.102.12", "10.11.103.12"]
+  default     = ["10.11.61.12", "10.11.62.12", "10.11.63.12"]
   type        = list(string)
 }
 
