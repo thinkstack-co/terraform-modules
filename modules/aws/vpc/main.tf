@@ -21,7 +21,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags                 = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 ###########################
@@ -52,7 +52,7 @@ resource "aws_vpc_endpoint" "ssm" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
@@ -71,7 +71,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 resource "aws_vpc_endpoint" "ec2" {
@@ -90,7 +90,7 @@ resource "aws_vpc_endpoint" "ec2" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -109,7 +109,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 resource "aws_vpc_endpoint" "kms" {
@@ -128,7 +128,7 @@ resource "aws_vpc_endpoint" "kms" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 resource "aws_vpc_endpoint" "logs" {
@@ -147,7 +147,7 @@ resource "aws_vpc_endpoint" "logs" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -166,7 +166,7 @@ resource "aws_vpc_endpoint" "s3" {
     aws_subnet.workspaces_subnets[*].id
   ]
 
-  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 ###########################
