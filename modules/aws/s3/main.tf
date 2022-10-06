@@ -29,7 +29,7 @@ resource "aws_s3_bucket" "s3_bucket" {
     }
   }
 }
-resource "aws_s3_bucket_lifecycle_configuration" "example" {
+resource "aws_s3_bucket_lifecycle_configuration" "rule" {
   bucket = aws_s3_bucket.s3_bucket.id
 
   rule {
