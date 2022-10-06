@@ -42,7 +42,7 @@ resource "aws_vpc_endpoint" "ssm" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -53,7 +53,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -64,7 +64,7 @@ resource "aws_vpc_endpoint" "ec2" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -75,7 +75,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -86,7 +86,7 @@ resource "aws_vpc_endpoint" "kms" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -97,7 +97,7 @@ resource "aws_vpc_endpoint" "logs" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
@@ -108,7 +108,7 @@ resource "aws_vpc_endpoint" "s3" {
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id, aws_subnet.public_subnets[*].id, aws_subnet.dmz_subnets[*].id, aws_subnet.mgmt_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.db_subnets[*].id, aws_subnet.workspaces_subnets[*].id]
 
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
