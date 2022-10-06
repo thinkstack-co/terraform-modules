@@ -12,11 +12,6 @@ variable "name" {
   description = "(Optional, Forces new resource) The name of the security group. If omitted, Terraform will assign a random, unique name"
 }
 
-variable "security_groups" {
-  description = "(Optional) List of security group Group Names if using EC2-Classic, or Group IDs if using a VPC."
-  default     = []
-}
-
 variable "tags" {
   description = "(Optional) A mapping of tags to assign to the resource."
   default     = {
