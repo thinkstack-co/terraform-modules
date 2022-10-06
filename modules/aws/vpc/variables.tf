@@ -26,6 +26,17 @@ variable "instance_tenancy" {
 }
 
 ###########################
+# VPC Endpoints
+###########################
+
+variable "enable_vpc_endpoints" {
+  type        = bool
+  description = "(Optional) A boolean flag to enable/disable common VPC endpoints (SSM, EC2, S3, Logs, KMS). Defaults true."
+  default     = true
+}
+
+
+###########################
 # Subnets
 ###########################
 
