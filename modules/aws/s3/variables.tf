@@ -22,7 +22,7 @@ variable "lifecycle_rule_id" {
 variable "lifecycle_rule_enabled" {
   type        = string
   description = "(Required) Whether the rule is currently being applied. Valid values: Enabled or Disabled."
-  default     = "disabled"
+  default     = "Disabled"
 }
 
 variable "lifecycle_rule_prefix" {
