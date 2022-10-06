@@ -16,7 +16,13 @@ variable "kms_master_key_id" {
 variable "lifecycle_rule_id" {
   type        = string
   description = "(Required) Unique identifier for the rule. The value cannot be longer than 255 characters."
-  default     = ""
+  default     = "lifecycle_rule"
+}
+
+variable "lifecycle_rule_create" {
+  type        = bool
+  description = "(Required) Whether the rule is created when using the S3 module. Valid values: True or False."
+  default     = false
 }
 
 variable "lifecycle_rule_enabled" {

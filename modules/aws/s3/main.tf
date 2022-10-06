@@ -30,6 +30,7 @@ resource "aws_s3_bucket" "s3_bucket" {
   }
 }
 resource "aws_s3_bucket_lifecycle_configuration" "rule" {
+  count  = (var.lifecycle_rule_create == true ? 1 : 0)
   bucket = aws_s3_bucket.s3_bucket.id
 
   rule {
