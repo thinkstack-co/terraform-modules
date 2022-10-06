@@ -16,7 +16,7 @@ variable "kms_master_key_id" {
 variable "lifecycle_rule_id" {
   type        = string
   description = "(Required) Unique identifier for the rule. The value cannot be longer than 255 characters."
-  default     = null
+  default     = ""
 }
 
 variable "lifecycle_rule_enabled" {
