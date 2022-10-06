@@ -58,9 +58,53 @@ resource "aws_vpc_endpoint" "ec2messages" {
   tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
 }
 
+resource "aws_vpc_endpoint" "ec2" {
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
 resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
+resource "aws_vpc_endpoint" "kms" {
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.kms"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.logs"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+
+  tags = merge({ "Name" = format("%s", var.name) }, var.tags, )
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.s3"
   security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
