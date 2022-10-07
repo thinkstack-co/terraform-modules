@@ -41,6 +41,18 @@ variable "transit_gateway_id" {
   type        = string
 }
 
+variable "transit_gateway_default_route_table_association" {
+  type        = bool
+  description = "(Optional) Boolean whether the VPC Attachment should be associated with the EC2 Transit Gateway association default route table. This cannot be configured or perform drift detection with Resource Access Manager shared EC2 Transit Gateways. Default value: true."
+  default     = true
+}
+
+variable "transit_gateway_default_route_table_propagation" {
+  type        = bool
+  description = "(Optional) Boolean whether the VPC Attachment should propagate routes with the EC2 Transit Gateway propagation default route table. This cannot be configured or perform drift detection with Resource Access Manager shared EC2 Transit Gateways. Default value: true."
+  default     = true
+}
+
 variable "vpc_id" {
   description = "(Required) Identifier of the VPC."
   type        = string
