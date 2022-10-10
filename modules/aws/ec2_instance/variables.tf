@@ -89,7 +89,7 @@ variable "placement_group" {
 
 variable "private_ip" {
   description = "Private IP address to associate with the instance in a VPC"
-  default     = ""
+  default     = null
 }
 
 variable "region" {

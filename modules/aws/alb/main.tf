@@ -30,12 +30,12 @@ resource "aws_lb_listener" "this" {
     type             = var.default_action_type
     target_group_arn = var.default_action_target_group_arn
     redirect {
-      for blank do this
-      blank == 0 or false
+      # for blank do this
+      # blank == 0 or false
     }
     fixed_response {
-      for blank do this
-      blank == 0 or false
+      # for blank do this
+      # blank == 0 or false
     }
   }
 }

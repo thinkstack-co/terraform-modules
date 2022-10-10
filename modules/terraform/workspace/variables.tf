@@ -1,3 +1,7 @@
+##############################
+# Terraform Workspace
+##############################
+
 variable "agent_pool_id" {
   description = "(Optional) The ID of an agent pool to assign to the workspace. Requires execution_mode to be set to agent. This value must not be provided if execution_mode is set to any other value or if operations is provided."
   type        = string
@@ -14,6 +18,12 @@ variable "auto_apply" {
   description = "(Optional) Whether to automatically apply changes when a Terraform plan is successful. Defaults to false."
   type        = bool
   default     = false
+}
+
+variable "assessments_enabled" {
+  description = "(Optional) Whether to regularly run health assessments such as drift detection on the workspace. Defaults to true."
+  type        = bool
+  default     = true
 }
 
 variable "description" {
@@ -83,7 +93,7 @@ variable "structured_run_output_enabled" {
 variable "terraform_version" {
   description = "(Optional) The version of Terraform to use for this workspace. This can be either an exact version or a version constraint (like ~> 1.0.0); if you specify a constraint, the workspace will always use the newest release that meets that constraint. Defaults to the latest available version."
   type        = string
-  default     = "~>1.1.0"
+  default     = "~>1.2.0"
 }
 
 variable "trigger_prefixes" {
@@ -124,4 +134,13 @@ variable "ingress_submodules" {
 variable "oauth_token_id" {
   description = "(Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe_oauth_client resource."
   type        = string
+}
+
+##############################
+# Terraform Team Access/Permissions
+##############################
+
+variable "permission_map" {
+  description = "(Required) The permissions map which maps the team_id to the permission access level. Exampe: 'terraform_all_admin = {id = team-fdsa5122q6rwYXP, access = admin}'"
+  type        = map
 }

@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.15.0"
+  required_version = ">= 1.0.0"
 }
 
 ###########################
@@ -180,14 +180,6 @@ resource "aws_key_pair" "deployer_key" {
 }
 
 ###########################
-# EC2 - User Data
-###########################
-
-data "template_file" "user_data" {
-  template = file("${path.module}/snypr_centos_script.txt")
-}
-
-###########################
 # EC2 - Instance
 ###########################
 
@@ -201,9 +193,6 @@ resource "aws_instance" "ec2" {
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  # Removing as it's unnecessary in this module
-  # ipv6_address_count                   = var.ipv6_address_count
-  # ipv6_addresses                       = var.ipv6_addresses
   key_name                             = aws_key_pair.deployer_key.id
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
@@ -219,7 +208,7 @@ resource "aws_instance" "ec2" {
   subnet_id              = aws_subnet.private_subnets[count.index].id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
-  user_data              = data.template_file.user_data.rendered
+  user_data              = file("${path.module}/snypr_centos_script.sh")
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   vpc_security_group_ids = [aws_security_group.sg.id]
 
@@ -568,4 +557,354 @@ resource "aws_flow_log" "vpc_flow" {
   tags                     = var.tags
   traffic_type             = var.flow_traffic_type
   vpc_id                   = aws_vpc.vpc.id
+}
+
+######################################################
+# SIEM Monitoring for AWS CloudTrail
+######################################################
+
+###########################
+# KMS
+###########################
+
+resource "aws_kms_key" "cloudtrail_key" {
+  count                    = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  customer_master_key_spec = var.cloudtrail_key_customer_master_key_spec
+  description              = var.cloudtrail_key_description
+  deletion_window_in_days  = var.cloudtrail_key_deletion_window_in_days
+  enable_key_rotation      = var.cloudtrail_key_enable_key_rotation
+  key_usage                = var.cloudtrail_key_usage
+  is_enabled               = var.cloudtrail_key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Id" = "Key policy created by CloudTrail",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = [
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                ]
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
+        {
+            "Sid" = "Allow CloudTrail to encrypt logs",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "cloudtrail.amazonaws.com"
+            },
+            "Action" = "kms:GenerateDataKey*",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition" = {
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        },
+        {
+            "Sid" = "Allow CloudTrail to describe key",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action" = "kms:DescribeKey",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
+        },
+        {
+            "Sid" = "Allow principals in the account to decrypt log files",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        },
+        {
+            "Sid" = "Allow alias creation during setup",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = "kms:CreateAlias",
+            "Resource" = "*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}",
+                    "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Sid" = "Enable cross account log decryption",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        }
+    ]
+  })
+}
+
+resource "aws_kms_alias" "cloudtrail_alias" {
+  count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name_prefix   = var.cloudtrail_key_name_prefix
+  target_key_id = aws_kms_key.cloudtrail_key[0].key_id
+}
+
+###########################
+# SQS
+###########################
+
+resource "aws_sqs_queue" "cloudtrail_queue" {
+  count                     = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name                      = "siem_cloudtrail_queue"
+  delay_seconds             = 0
+  max_message_size          = 262144
+  message_retention_seconds = 345600
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "access-policy-id-1",
+  "Statement": [
+    {
+      "Sid": "queueid1",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "SQS:SendMessage",
+      "Resource": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_cloudtrail_queue",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "${data.aws_caller_identity.current.account_id}"
+        },
+        "ArnLike": {
+          "aws:SourceArn": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
+        }
+      }
+    }
+  ]
+}
+POLICY
+
+
+  receive_wait_time_seconds = 0
+  tags = var.tags
+}
+
+###########################
+# S3 Bucket
+###########################
+
+resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
+  count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket_prefix = var.bucket_prefix
+  tags          = var.tags
+}
+
+resource "aws_s3_bucket_acl" "cloudtrail_bucket_acl" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_block" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+
+  block_public_acls   = true
+  block_public_policy = true
+}
+
+resource "aws_s3_bucket_policy" "cloudtrail_bucket_policy" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}"
+        },
+        {
+            "Sid": "AWSCloudTrailWrite",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+            }
+        }
+    ]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket_encryption" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.cloudtrail_key[0].arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+
+  rule {
+    id     = "30_day_delete"
+    status = "Enabled"
+
+    filter {}
+    expiration {
+      days = 30
+    }    
+  }
+}
+
+resource "aws_s3_bucket_notification" "cloudtrail_bucket_notification" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+
+  queue {
+    queue_arn     = aws_sqs_queue.cloudtrail_queue[0].arn
+    events        = ["s3:ObjectCreated:Put"]
+  }
+}
+
+###########################
+# Cloudtrail
+###########################
+
+resource "aws_cloudtrail" "cloudtrail" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  enable_log_file_validation    = true
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  kms_key_id                    = aws_kms_key.cloudtrail_key[0].arn
+  name                          = "siem-cloudtrail"
+  s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket[0].id
+  insight_selector {
+    insight_type = "ApiCallRateInsight"
+  }
+}
+
+###########################
+# IAM Policy
+###########################
+
+resource "aws_iam_policy" "siem_cloudtrail_policy" {
+  count       = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  description = "Used with the SIEM, KMS, Cloudtrail, SQS, and S3 to retrieve Cloudtrail logs"
+  name_prefix = "siem_policy_"
+  path        = "/"
+  tags        = var.tags
+  policy      = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:DeleteMessage",
+          "s3:GetObject",
+          "sqs:GetQueueUrl",
+          "sqs:ChangeMessageVisibility",
+          "kms:Decrypt",
+          "sqs:PurgeQueue",
+          "sqs:ReceiveMessage"
+        ],
+        Resource = [
+          "${aws_sqs_queue.cloudtrail_queue[0].arn}",
+          "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
+          "${aws_kms_key.cloudtrail_key[0].arn}"
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:ListQueues"
+        ],
+        Resource = "*"
+      }
+        ]
+    })
+}
+
+###########################
+# IAM Group
+###########################
+
+resource "aws_iam_group" "siem_cloudtrail_group" {
+  count = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name  = "siem"
+  path  = "/siem/"
+}
+
+resource "aws_iam_group_policy_attachment" "siem_policy_siem_group" {
+  count      = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  group      = aws_iam_group.siem_cloudtrail_group[0].name
+  policy_arn = aws_iam_policy.siem_cloudtrail_policy[0].arn
+}
+
+###########################
+# IAM User
+###########################
+
+resource "aws_iam_user" "siem_cloudtrail_user" {
+  count = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name  = "siem"
+  path  = "/siem/"
+  tags  = var.tags
+}
+
+resource "aws_iam_user_group_membership" "siem_user" {
+  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  user   = aws_iam_user.siem_cloudtrail_user[0].name
+  groups = [
+    aws_iam_group.siem_cloudtrail_group[0].name,
+  ]
 }

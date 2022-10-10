@@ -1,4 +1,3 @@
-<!-- BEGIN_TF_DOCS -->
 # Terraform Workspace Module
 This module generates and manages a terraform cloud workspace
 
@@ -11,8 +10,23 @@ This module generates and manages a terraform cloud workspace
         name              = "client_prod_security"
         oauth_token_id    = var.github_oauth_token_id
         organization      = var.organization
-        terraform_version = "1.1.9"
+        terraform_version = "~>1.2.0"
+        permission_map    = var.workspace_permissions_mapping
     }
+
+    variable "thinkstack_workspace_permissions_mapping" {
+        description = "Map of permissions to set with each terraform workspace."
+        type        = map
+        default     = {
+            "all_admin"      = {"id" = "team-fjkdlsafjska2411", "access" = "admin"}
+            "cloud_read"     = {"id" = "team-fndsabfak2010144", "access" = "read"}
+            "cloud_write"    = {"id" = "team-fdjkslajflkn4591", "access" = "write"}
+            "security_read"  = {"id" = "team-fdsahfkdsnalka40", "access" = "read"}
+            "security_write" = {"id" = "team-fjdkslajfdsa0140", "access" = "write"}
+        }
+    }
+
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 No requirements.
@@ -31,6 +45,7 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [tfe_team_access.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/team_access) | resource |
 | [tfe_workspace.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/workspace) | resource |
 
 ## Inputs
@@ -50,13 +65,14 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name of the workspace. | `string` | n/a | yes |
 | <a name="input_oauth_token_id"></a> [oauth\_token\_id](#input\_oauth\_token\_id) | (Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe\_oauth\_client resource. | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | (Required) Name of the organization. | `string` | n/a | yes |
+| <a name="input_permission_map"></a> [permission\_map](#input\_permission\_map) | (Required) The permissions map which maps the team\_id to the permission access level. Exampe: 'terraform\_all\_admin = {id = team-fdsa5122q6rwYXP, access = admin}' | `map` | n/a | yes |
 | <a name="input_queue_all_runs"></a> [queue\_all\_runs](#input\_queue\_all\_runs) | (Optional) Whether the workspace should start automatically performing runs immediately after its creation. Defaults to true. When set to false, runs triggered by a webhook (such as a commit in VCS) will not be queued until at least one run has been manually queued. Note: This default differs from the Terraform Cloud API default, which is false. The provider uses true as any workspace provisioned with false would need to then have a run manually queued out-of-band before accepting webhooks. | `bool` | `true` | no |
 | <a name="input_remote_state_consumer_ids"></a> [remote\_state\_consumer\_ids](#input\_remote\_state\_consumer\_ids) | (Optional) The set of workspace IDs set as explicit remote state consumers for the given workspace. | `list(string)` | `null` | no |
 | <a name="input_speculative_enabled"></a> [speculative\_enabled](#input\_speculative\_enabled) | (Optional) Whether this workspace allows speculative plans. Defaults to true. Setting this to false prevents Terraform Cloud or the Terraform Enterprise instance from running plans on pull requests, which can improve security if the VCS repository is public or includes untrusted contributors. | `bool` | `true` | no |
 | <a name="input_ssh_key_id"></a> [ssh\_key\_id](#input\_ssh\_key\_id) | (Optional) The ID of an SSH key to assign to the workspace. | `string` | `null` | no |
 | <a name="input_structured_run_output_enabled"></a> [structured\_run\_output\_enabled](#input\_structured\_run\_output\_enabled) | (Optional) Whether this workspace should show output from Terraform runs using the enhanced UI when available. Defaults to true. Setting this to false ensures that all runs in this workspace will display their output as text logs. | `bool` | `true` | no |
 | <a name="input_tag_names"></a> [tag\_names](#input\_tag\_names) | (Optional) A list of tag names for this workspace. Note that tags must only contain letters, numbers or colons. | `list(string)` | `null` | no |
-| <a name="input_terraform_version"></a> [terraform\_version](#input\_terraform\_version) | (Optional) The version of Terraform to use for this workspace. This can be either an exact version or a version constraint (like ~> 1.0.0); if you specify a constraint, the workspace will always use the newest release that meets that constraint. Defaults to the latest available version. | `string` | `"~>1.1.0"` | no |
+| <a name="input_terraform_version"></a> [terraform\_version](#input\_terraform\_version) | (Optional) The version of Terraform to use for this workspace. This can be either an exact version or a version constraint (like ~> 1.0.0); if you specify a constraint, the workspace will always use the newest release that meets that constraint. Defaults to the latest available version. | `string` | `"~>1.2.0"` | no |
 | <a name="input_trigger_prefixes"></a> [trigger\_prefixes](#input\_trigger\_prefixes) | (Optional) List of repository-root-relative paths which describe all locations to be tracked for changes. | `list(string)` | `null` | no |
 | <a name="input_working_directory"></a> [working\_directory](#input\_working\_directory) | (Optional) A relative path that Terraform will execute within. Defaults to the root of your repository. | `string` | `null` | no |
 
