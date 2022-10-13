@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
 }
 
 ###########################
@@ -21,7 +21,128 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags                 = merge({ "Name" = format("%s", var.name) }, var.tags, )
+  tags                 = merge(tomap({Name = var.name}),var.tags)
+}
+
+###########################
+# VPC Endpoints
+###########################
+
+module "ssm_vpc_endpoint_sg" {
+  count       = var.enable_ssm_vpc_endpoints ? 1 : 0
+  source      = "./security_groups/ssm_vpc_endpoint_sg"
+  cidr_blocks = [var.vpc_cidr]
+  description = "SSM VPC service endpoint SG"
+  name        = "ssm_vpc_endpoint_sg"
+  vpc_id      = aws_vpc.vpc.id
+}
+
+resource "aws_vpc_endpoint" "ec2messages" {
+  count               = var.enable_ssm_vpc_endpoints ? 1 : 0
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
+    aws_subnet.workspaces_subnets[*].id
+  ]
+  tags                 = merge(tomap({Name = var.name}),var.tags)
+}
+
+resource "aws_vpc_endpoint" "kms" {
+  count               = var.enable_ssm_vpc_endpoints ? 1 : 0
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.kms"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
+    aws_subnet.workspaces_subnets[*].id
+  ]
+  tags                 = merge(tomap({Name = var.name}),var.tags)
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  count               = var.enable_ssm_vpc_endpoints ? 1 : 0
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
+    aws_subnet.workspaces_subnets[*].id
+  ]
+  tags                 = merge(tomap({Name = var.name}),var.tags)
+}
+
+resource "aws_vpc_endpoint" "ssm-contacts" {
+  count               = var.enable_ssm_vpc_endpoints ? 1 : 0
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm-contacts"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
+    aws_subnet.workspaces_subnets[*].id
+  ]
+  tags                 = merge(tomap({Name = var.name}),var.tags)
+}
+
+resource "aws_vpc_endpoint" "ssm-incidents" {
+  count               = var.enable_ssm_vpc_endpoints ? 1 : 0
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm-incidents"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
+    aws_subnet.workspaces_subnets[*].id
+  ]
+  tags                 = merge(tomap({Name = var.name}),var.tags)
+}
+
+resource "aws_vpc_endpoint" "ssmmessages" {
+  count               = var.enable_ssm_vpc_endpoints ? 1 : 0
+  vpc_id              = aws_vpc.vpc.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = [
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
+    aws_subnet.workspaces_subnets[*].id
+  ]
+  tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
 ###########################
@@ -33,7 +154,7 @@ resource "aws_subnet" "private_subnets" {
   cidr_block        = var.private_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index)) }))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index))}))
 }
 
 resource "aws_subnet" "public_subnets" {
@@ -42,7 +163,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = element(var.azs, count.index)
   map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = length(var.public_subnets_list)
-  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index)) }))
+  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index))}))
 }
 
 resource "aws_subnet" "dmz_subnets" {
@@ -50,7 +171,7 @@ resource "aws_subnet" "dmz_subnets" {
   cidr_block        = var.dmz_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.dmz_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index)) }))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index))}))
 }
 
 resource "aws_subnet" "db_subnets" {
@@ -58,7 +179,7 @@ resource "aws_subnet" "db_subnets" {
   cidr_block        = var.db_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.db_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, element(var.azs, count.index)) }))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, element(var.azs, count.index))}))
 }
 
 resource "aws_subnet" "mgmt_subnets" {
@@ -66,7 +187,7 @@ resource "aws_subnet" "mgmt_subnets" {
   cidr_block        = var.mgmt_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.mgmt_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index)) }))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index))}))
 }
 
 resource "aws_subnet" "workspaces_subnets" {
@@ -74,7 +195,7 @@ resource "aws_subnet" "workspaces_subnets" {
   cidr_block        = var.workspaces_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.workspaces_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index)) }))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index))}))
 }
 
 ###########################
@@ -160,7 +281,7 @@ resource "aws_route" "db_default_route_fw" {
 resource "aws_route_table" "dmz_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.dmz_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index)) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index))}))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -181,7 +302,7 @@ resource "aws_route" "dmz_default_route_fw" {
 resource "aws_route_table" "mgmt_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.mgmt_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index)) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index))}))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -202,7 +323,7 @@ resource "aws_route" "mgmt_default_route_fw" {
 resource "aws_route_table" "workspaces_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.workspaces_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index)) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index))}))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -285,39 +406,39 @@ resource "aws_kms_key" "key" {
   key_usage                = var.key_usage
   is_enabled               = var.key_is_enabled
   tags                     = var.tags
-  policy                   = jsonencode({
+  policy = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
-        {
-            "Sid" = "Enable IAM User Permissions",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            },
-            "Action" = "kms:*",
-            "Resource" = "*"
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        {
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
-            },
-            "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:Describe*"
-            ],
-            "Resource" = "*",
-            "Condition" = {
-                "ArnEquals" = {
-                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
-                }
-            }
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "ArnEquals" = {
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+          }
         }
+      }
     ]
-})
+  })
 }
 
 resource "aws_kms_alias" "alias" {
@@ -347,22 +468,22 @@ resource "aws_iam_policy" "policy" {
   name_prefix = var.iam_policy_name_prefix
   path        = var.iam_policy_path
   tags        = var.tags
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-        Effect = "Allow",
-        Action = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogGroups",
-            "logs:DescribeLogStreams"
-        ],
-        Resource = [
-            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
-        ]
-        }]
-    })
+      Effect = "Allow",
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ],
+      Resource = [
+        "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+      ]
+    }]
+  })
 }
 
 ###########################
