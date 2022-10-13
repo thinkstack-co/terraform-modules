@@ -45,12 +45,11 @@ resource "aws_vpc_endpoint" "ec2messages" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [
-    aws_subnet.private_subnets[*].id, 
-    aws_subnet.public_subnets[*].id, 
-    aws_subnet.dmz_subnets[*].id, 
-    aws_subnet.mgmt_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
     aws_subnet.workspaces_subnets[*].id
   ]
   tags                 = merge(tomap({Name = var.name}),var.tags)
@@ -64,12 +63,11 @@ resource "aws_vpc_endpoint" "kms" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [
-    aws_subnet.private_subnets[*].id, 
-    aws_subnet.public_subnets[*].id, 
-    aws_subnet.dmz_subnets[*].id, 
-    aws_subnet.mgmt_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
     aws_subnet.workspaces_subnets[*].id
   ]
   tags                 = merge(tomap({Name = var.name}),var.tags)
@@ -83,12 +81,11 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [
-    aws_subnet.private_subnets[*].id, 
-    aws_subnet.public_subnets[*].id, 
-    aws_subnet.dmz_subnets[*].id, 
-    aws_subnet.mgmt_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
     aws_subnet.workspaces_subnets[*].id
   ]
   tags                 = merge(tomap({Name = var.name}),var.tags)
@@ -102,12 +99,11 @@ resource "aws_vpc_endpoint" "ssm-contacts" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [
-    aws_subnet.private_subnets[*].id, 
-    aws_subnet.public_subnets[*].id, 
-    aws_subnet.dmz_subnets[*].id, 
-    aws_subnet.mgmt_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
     aws_subnet.workspaces_subnets[*].id
   ]
   tags                 = merge(tomap({Name = var.name}),var.tags)
@@ -121,12 +117,11 @@ resource "aws_vpc_endpoint" "ssm-incidents" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [
-    aws_subnet.private_subnets[*].id, 
-    aws_subnet.public_subnets[*].id, 
-    aws_subnet.dmz_subnets[*].id, 
-    aws_subnet.mgmt_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
     aws_subnet.workspaces_subnets[*].id
   ]
   tags                 = merge(tomap({Name = var.name}),var.tags)
@@ -140,12 +135,11 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [
-    aws_subnet.private_subnets[*].id, 
-    aws_subnet.public_subnets[*].id, 
-    aws_subnet.dmz_subnets[*].id, 
-    aws_subnet.mgmt_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
-    aws_subnet.db_subnets[*].id, 
+    aws_subnet.private_subnets[*].id,
+    aws_subnet.public_subnets[*].id,
+    aws_subnet.dmz_subnets[*].id,
+    aws_subnet.mgmt_subnets[*].id,
+    aws_subnet.db_subnets[*].id,
     aws_subnet.workspaces_subnets[*].id
   ]
   tags                 = merge(tomap({Name = var.name}),var.tags)
