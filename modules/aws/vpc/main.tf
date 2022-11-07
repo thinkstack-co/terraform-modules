@@ -28,14 +28,34 @@ resource "aws_vpc" "vpc" {
 # VPC Endpoints
 ###########################
 
-module "ssm_vpc_endpoint_sg" {
-  count       = var.enable_ssm_vpc_endpoints ? 1 : 0
-  source      = "./security_groups/ssm_vpc_endpoint_sg"
-  cidr_blocks = [var.vpc_cidr]
-  description = "SSM VPC service endpoint SG"
-  name        = "ssm_vpc_endpoint_sg"
-  vpc_id      = aws_vpc.vpc.id
+resource "aws_security_group" "security_group" {
+    description = "SSM VPC service endpoint SG."
+    name        = "ssm_vpc_endpoint_sg"
+    tags        = var.tags
+    vpc_id      = var.vpc_id 
+
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = var.vpc_cidr
+    }  
+
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "udp"
+        cidr_blocks = var.vpc_cidr
+    } 
+
+    egress {
+        from_port       = 0
+        to_port         = 0
+        protocol        = "-1"
+        cidr_blocks     = ["0.0.0.0/0"]
+    }
 }
+
 
 resource "aws_vpc_endpoint" "ec2messages" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
