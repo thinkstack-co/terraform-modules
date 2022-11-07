@@ -32,7 +32,7 @@ resource "aws_security_group" "security_group" {
     description = "SSM VPC service endpoint SG."
     name        = "ssm_vpc_endpoint_sg"
     tags        = var.tags
-    vpc_id      = var.vpc_id 
+    vpc_id      = aws_vpc.vpc.id
 
     ingress {
         from_port   = 443
