@@ -38,14 +38,14 @@ resource "aws_security_group" "security_group" {
         from_port   = 443
         to_port     = 443
         protocol    = "tcp"
-        cidr_blocks = var.vpc_cidr
+        cidr_blocks = [var.vpc_cidr]
     }  
 
     ingress {
         from_port   = 443
         to_port     = 443
         protocol    = "udp"
-        cidr_blocks = var.vpc_cidr
+        cidr_blocks = [var.vpc_cidr]
     } 
 
     egress {
