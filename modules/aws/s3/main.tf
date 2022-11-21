@@ -26,11 +26,11 @@ resource "aws_s3_bucket" "s3_bucket" {
 
   tags = var.tags
 
+}
+
 resource "aws_s3_bucket_logging" "logging" {
   bucket = aws_s3_bucket.s3_bucket
 
   target_bucket = var.log_target_bucket
   target_prefix = var.target_prefix
-}
-
 }
