@@ -34,7 +34,7 @@ variable "tags" {
   }
 }
 
-variable "target_bucket" {
+variable "log_target_bucket" {
   type        = string
   description = "(Required) The name of the bucket that will receive the log objects."
   default     = ""
