@@ -28,30 +28,43 @@ resource "aws_vpc" "vpc" {
 # VPC Endpoints
 ###########################
 
-module "ssm_vpc_endpoint_sg" {
-  count       = var.enable_ssm_vpc_endpoints ? 1 : 0
-  source      = "./security_groups/ssm_vpc_endpoint_sg"
-  cidr_blocks = [var.vpc_cidr]
-  description = "SSM VPC service endpoint SG"
-  name        = "ssm_vpc_endpoint_sg"
-  vpc_id      = aws_vpc.vpc.id
+resource "aws_security_group" "security_group" {
+    description = "SSM VPC service endpoint SG."
+    name        = "ssm_vpc_endpoint_sg"
+    tags        = var.tags
+    vpc_id      = aws_vpc.vpc.id
+
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = [var.vpc_cidr]
+    }  
+
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "udp"
+        cidr_blocks = [var.vpc_cidr]
+    } 
+
+    egress {
+        from_port       = 0
+        to_port         = 0
+        protocol        = "-1"
+        cidr_blocks     = ["0.0.0.0/0"]
+    }
 }
+
 
 resource "aws_vpc_endpoint" "ec2messages" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
-  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [
-    aws_subnet.private_subnets[*].id,
-    aws_subnet.public_subnets[*].id,
-    aws_subnet.dmz_subnets[*].id,
-    aws_subnet.mgmt_subnets[*].id,
-    aws_subnet.db_subnets[*].id,
-    aws_subnet.workspaces_subnets[*].id
-  ]
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
   tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
@@ -59,17 +72,10 @@ resource "aws_vpc_endpoint" "kms" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.kms"
-  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [
-    aws_subnet.private_subnets[*].id,
-    aws_subnet.public_subnets[*].id,
-    aws_subnet.dmz_subnets[*].id,
-    aws_subnet.mgmt_subnets[*].id,
-    aws_subnet.db_subnets[*].id,
-    aws_subnet.workspaces_subnets[*].id
-  ]
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
   tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
@@ -77,17 +83,10 @@ resource "aws_vpc_endpoint" "ssm" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
-  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [
-    aws_subnet.private_subnets[*].id,
-    aws_subnet.public_subnets[*].id,
-    aws_subnet.dmz_subnets[*].id,
-    aws_subnet.mgmt_subnets[*].id,
-    aws_subnet.db_subnets[*].id,
-    aws_subnet.workspaces_subnets[*].id
-  ]
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
   tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
@@ -95,17 +94,10 @@ resource "aws_vpc_endpoint" "ssm-contacts" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm-contacts"
-  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [
-    aws_subnet.private_subnets[*].id,
-    aws_subnet.public_subnets[*].id,
-    aws_subnet.dmz_subnets[*].id,
-    aws_subnet.mgmt_subnets[*].id,
-    aws_subnet.db_subnets[*].id,
-    aws_subnet.workspaces_subnets[*].id
-  ]
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
   tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
@@ -113,17 +105,10 @@ resource "aws_vpc_endpoint" "ssm-incidents" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm-incidents"
-  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [
-    aws_subnet.private_subnets[*].id,
-    aws_subnet.public_subnets[*].id,
-    aws_subnet.dmz_subnets[*].id,
-    aws_subnet.mgmt_subnets[*].id,
-    aws_subnet.db_subnets[*].id,
-    aws_subnet.workspaces_subnets[*].id
-  ]
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
   tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
@@ -131,17 +116,10 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   count               = var.enable_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
-  security_group_ids  = [module.ssm_vpc_endpoint_sg.id]
+  security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [
-    aws_subnet.private_subnets[*].id,
-    aws_subnet.public_subnets[*].id,
-    aws_subnet.dmz_subnets[*].id,
-    aws_subnet.mgmt_subnets[*].id,
-    aws_subnet.db_subnets[*].id,
-    aws_subnet.workspaces_subnets[*].id
-  ]
+  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
   tags                 = merge(tomap({Name = var.name}),var.tags)
 }
 
