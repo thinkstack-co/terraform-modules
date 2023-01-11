@@ -1,3 +1,50 @@
+###########################
+# KMS Encryption Key
+###########################
+
+variable "cloudtrail_key_customer_master_key_spec" {
+    description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+    default     = "SYMMETRIC_DEFAULT"
+    type        = string
+}
+
+variable "cloudtrail_key_description" {
+    description = "(Optional) The description of the key as viewed in AWS console."
+    default     = "Cloudtrail kms key used to encrypt logs"
+    type        = string
+}
+
+variable "cloudtrail_key_deletion_window_in_days" {
+    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+    default     = 30
+    type        = number
+}
+
+variable "cloudtrail_key_enable_key_rotation" {
+  description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
+  default     = true
+  type        = bool
+}
+
+variable "cloudtrail_key_usage" {
+  description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
+  default     = "ENCRYPT_DECRYPT"
+  type        = string
+}
+
+variable "cloudtrail_key_is_enabled" {
+  description = "(Optional) Specifies whether the key is enabled. Defaults to true."
+  default     = true
+  type        = string
+}
+
+variable "cloudtrail_key_name_prefix" {
+  description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
+  default     = "alias/cloudtrail_logs_key_"
+  type        = string
+}
+
+
 ######################
 # S3 Variables
 ######################

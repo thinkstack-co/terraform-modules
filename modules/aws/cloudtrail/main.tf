@@ -6,8 +6,8 @@ terraform {
 # KMS Encryption Key
 ###########################
 
-resource "aws_kms_key" "key" {
-  count                    = (var.enable_cloudtrail_encryption == true ? 1 : 0)
+resource "aws_kms_key" "cloudtrail_key" {
+  count                    = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
   customer_master_key_spec = var.cloudtrail_key_customer_master_key_spec
   description              = var.cloudtrail_key_description
   deletion_window_in_days  = var.cloudtrail_key_deletion_window_in_days
@@ -17,44 +17,112 @@ resource "aws_kms_key" "key" {
   tags                     = var.tags
   policy                   = jsonencode({
     "Version" = "2012-10-17",
+    "Id" = "Key policy created by CloudTrail",
     "Statement" = [
         {
             "Sid" = "Enable IAM User Permissions",
             "Effect" = "Allow",
             "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                "AWS" = [
+                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+                ]
             },
             "Action" = "kms:*",
             "Resource" = "*"
         },
         {
+            "Sid" = "Allow CloudTrail to encrypt logs",
             "Effect" = "Allow",
             "Principal" = {
-                "Service" = "cloudtrail.${data.aws_region.current.name}.amazonaws.com"
+                "Service" = "cloudtrail.amazonaws.com"
+            },
+            "Action" = "kms:GenerateDataKey*",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition" = {
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        },
+        {
+            "Sid" = "Allow CloudTrail to describe key",
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action" = "kms:DescribeKey",
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
+        },
+        {
+            "Sid" = "Allow principals in the account to decrypt log files",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
             },
             "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:Describe*"
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
             ],
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+                }
+            }
+        },
+        {
+            "Sid" = "Allow alias creation during setup",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = "kms:CreateAlias",
             "Resource" = "*",
             "Condition" = {
-                "ArnEquals" = {
-                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cloudtrail:*"
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}",
+                    "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Sid" = "Enable cross account log decryption",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS": "*"
+            },
+            "Action" = [
+                "kms:Decrypt",
+                "kms:ReEncryptFrom"
+            ],
+            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+            "Condition" = {
+                "StringEquals" = {
+                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
+                },
+                "StringLike" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
                 }
             }
         }
     ]
-})
+  })
+}
+
+resource "aws_kms_alias" "cloudtrail_alias" {
+  count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  name_prefix   = var.cloudtrail_key_name_prefix
+  target_key_id = aws_kms_key.cloudtrail_key[0].key_id
 }
 
 resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation    = var.enable_log_file_validation
   include_global_service_events = var.include_global_service_events
   is_multi_region_trail         = var.is_multi_region_trail
-  kms_key_id                    = aws_kms_key.key.id
+  kms_key_id                    = aws_kms_key.cloudtrail_key[0].arn
   name                          = var.name
   s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket.id
   s3_key_prefix                 = var.s3_key_prefix
