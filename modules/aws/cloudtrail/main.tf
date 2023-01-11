@@ -3,11 +3,17 @@ terraform {
 }
 
 ###########################
+# Data Sources
+###########################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+###########################
 # KMS Encryption Key
 ###########################
 
 resource "aws_kms_key" "cloudtrail_key" {
-  count                    = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  count                    = (var.enable_cloudtrail_encryption == true ? 1 : 0)
   customer_master_key_spec = var.cloudtrail_key_customer_master_key_spec
   description              = var.cloudtrail_key_description
   deletion_window_in_days  = var.cloudtrail_key_deletion_window_in_days
@@ -113,7 +119,7 @@ resource "aws_kms_key" "cloudtrail_key" {
 }
 
 resource "aws_kms_alias" "cloudtrail_alias" {
-  count         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  count         = (var.enable_cloudtrail_encryption == true ? 1 : 0)
   name_prefix   = var.cloudtrail_key_name_prefix
   target_key_id = aws_kms_key.cloudtrail_key[0].key_id
 }
