@@ -2,11 +2,59 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
+###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "key" {
+  count                    = (var.enable_cloudtrail_encryption == true ? 1 : 0)
+  customer_master_key_spec = var.cloudtrail_key_customer_master_key_spec
+  description              = var.cloudtrail_key_description
+  deletion_window_in_days  = var.cloudtrail_key_deletion_window_in_days
+  enable_key_rotation      = var.cloudtrail_key_enable_key_rotation
+  key_usage                = var.cloudtrail_key_usage
+  is_enabled               = var.cloudtrail_key_is_enabled
+  tags                     = var.tags
+  policy                   = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+        {
+            "Sid" = "Enable IAM User Permissions",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action" = "kms:*",
+            "Resource" = "*"
+        },
+        {
+            "Effect" = "Allow",
+            "Principal" = {
+                "Service" = "cloudtrail.${data.aws_region.current.name}.amazonaws.com"
+            },
+            "Action" = [
+                "kms:Encrypt*",
+                "kms:Decrypt*",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*",
+                "kms:Describe*"
+            ],
+            "Resource" = "*",
+            "Condition" = {
+                "ArnEquals" = {
+                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:cloudtrail:*"
+                }
+            }
+        }
+    ]
+})
+}
+
 resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation    = var.enable_log_file_validation
   include_global_service_events = var.include_global_service_events
   is_multi_region_trail         = var.is_multi_region_trail
-  kms_key_id                    = var.kms_key_id
+  kms_key_id                    = aws_kms_key.key.id
   name                          = var.name
   s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket.id
   s3_key_prefix                 = var.s3_key_prefix
