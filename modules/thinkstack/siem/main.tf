@@ -197,6 +197,7 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
+  vpc_security_group_ids               = var.vpc_security_group_ids
 
   root_block_device {
     delete_on_termination = var.root_delete_on_termination

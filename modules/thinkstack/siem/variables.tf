@@ -237,6 +237,11 @@ variable "vpn_route_cidr_blocks" {
   default     = null
 }
 
+variable "vpc_security_group_ids" {
+  description = "A list of security group IDs to associate with"
+  type        = list
+}
+
 variable "vpn_type" {
   description = "Type of VPN tunnel. Currently only supports ipsec.1"
   default     = "ipsec.1"
