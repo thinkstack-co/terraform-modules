@@ -1,6 +1,6 @@
 resource "azuread_conditional_access_policy" "example" {
-  display_name = "example policy"
-  state        = "disabled"
+  display_name = var.display_name
+  state        = var.state
 
   conditions {
     client_app_types    = var.client_app_types
@@ -15,8 +15,8 @@ resource "azuread_conditional_access_policy" "example" {
 
     devices {
       filter {
-        mode = var.filter_mode
-        rule = var.filter_rule
+        mode = var.device_filter_mode
+        rule = var.device_filter_rule
       }
     }
 
@@ -32,11 +32,11 @@ resource "azuread_conditional_access_policy" "example" {
 
     users {
       excluded_groups = var.excluded_groups
-      excluded_roles = var.excluded_roles
-      excluded_users = var.excluded_users
+      excluded_roles  = var.excluded_roles
+      excluded_users  = var.excluded_users
       included_groups = var.included_groups
-      included_roles = var.included_roles
-      included_users = var.included_users
+      included_roles  = var.included_roles
+      included_users  = var.included_users
     }
   }
 

@@ -168,6 +168,32 @@ variable "included_users" {
 # Grant Controls
 ################
 
+variable "built_in_controls" {
+    type = list(string)
+    description = "(Required) List of built-in controls required by the policy. Possible values are: block, mfa, approvedApplication, compliantApplication, compliantDevice, domainJoinedDevice, passwordChange or unknownFutureValue."
+    default = null
+    validation {
+      condition = contains(["block", "mfa", "approvedApplication", "compliantApplication", "compliantDevice", "domainJoinedDevice", "passwordChange", "unknownFutureValue"])
+      error_message = "The built_in_controls value must be a list of strings and one or more from the following possible values: 'block', 'mfa', 'approvedApplication', 'compliantApplication', 'compliantDevice', 'domainJoinedDevice', 'passwordChange', 'unknownFutureValue'"
+    }
+}
+
+variable "custom_authentication_factors" {
+    type = list(string)
+    description = "(Optional) List of custom controls IDs required by the policy."
+    default = null
+}
+
+variable "operator" {
+    type = string
+    description = "(Required) Defines the relationship of the grant controls. Possible values are: AND, OR."
+}
+
+variable "terms_of_use" {
+    type = list(string)
+    description = "(Optional) List of terms of use IDs required by the policy."
+    default = null
+}
 
 ################
 # Session Controls
