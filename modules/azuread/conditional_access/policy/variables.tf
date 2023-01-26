@@ -43,3 +43,83 @@ variable "user_risk_levels" {
       error_message = "The user_risk_levels value must be a list of strings and one or more of the following possible values: 'low', 'medium', 'high', 'hidden', 'none', 'unknownFutureValue'"
     }
 }
+
+################
+# Conditions - Applications
+################
+
+variable "excluded_applications" {
+    type = list(string)
+    description = "(Optional) A list of application IDs explicitly excluded from the policy. Can also be set to Office365."
+    default = []
+}
+
+variable "included_applications" {
+    type = list(string)
+    description = "(Optional) A list of application IDs the policy applies to, unless explicitly excluded (in excluded_applications). Can also be set to All, None or Office365. Cannot be specified with included_user_actions. One of included_applications or included_user_actions must be specified."
+    default = []
+}
+
+variable "included_user_actions" {
+    type = list(string)
+    description = "(Optional) A list of user actions to include. Supported values are urn:user:registerdevice and urn:user:registersecurityinfo. Cannot be specified with included_applications. One of included_applications or included_user_actions must be specified."
+    default = []
+}
+
+################
+# Conditions - Devices
+################
+
+variable "device_filter_mode" {
+    type = string
+    description = "(Optional) Whether to include in, or exclude from, matching devices from the policy. Supported values are include or exclude."
+    default = ""
+    validation {
+        condition = contains(["include", "exclude"])
+        error_message = "The device_filter_mode value must be a string and one of the following possible values: 'include' or 'exclude'"
+    }
+}
+
+variable "device_filter_rule" {
+    type = string
+    description = "(Required) Condition filter to match devices. For more information, see official documentation."
+    default = ""
+}
+
+################
+# Conditions - Locations
+################
+
+variable "excluded_locations" {
+    type = list(string)
+    description = "(Optional) A list of location IDs excluded from scope of policy. Can also be set to AllTrusted."
+    default = []
+}
+
+variable "included_locations" {
+    type = list(string)
+    description = "(Required) A list of location IDs in scope of policy unless explicitly excluded. Can also be set to All, or AllTrusted."
+    default = []
+}
+
+################
+# Conditions - Platforms
+################
+
+variable "excluded_platforms" {
+    type = list(string)
+    description = "(Optional) A list of platforms explicitly excluded from the policy. Possible values are: all, android, iOS, linux, macOS, windows, windowsPhone or unknownFutureValue."
+    validation {
+      condition = contains(["all", "android", "iOS", "linux", "macOS", "windows", "windowsPhone", "unknownFutureValue"])
+      error_message = "The excluded_platforms value must be a list of strings and one or more from the following possible values: 'all', 'android', 'iOS', 'linux', 'macOS', 'windows', 'windowsPhone', 'unknownFutureValue'"
+    }
+}
+
+variable "included_platforms" {
+    type = list(string)
+    description = "(Required) A list of platforms the policy applies to, unless explicitly excluded. Possible values are: all, android, iOS, linux, macOS, windows, windowsPhone or unknownFutureValue."
+    validation {
+      condition = contains(["all", "android", "iOS", "linux", "macOS", "windows", "windowsPhone", "unknownFutureValue"])
+      error_message = "The included_platforms value must be a list of strings and one or more from the following possible values: 'all', 'android', 'iOS', 'linux', 'macOS', 'windows', 'windowsPhone', 'unknownFutureValue'"
+    }
+}
