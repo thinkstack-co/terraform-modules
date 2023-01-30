@@ -117,6 +117,12 @@ variable "daily_backup_retention" {
   type        = number
 }
 
+variable "ami_daily_backup_retention" {
+  description = "(Required) The daily backup plan retention in days. By default this is 30 days"
+  default     = 1
+  type        = number
+}
+
 variable "monthly_backup_retention" {
   description = "(Required) The daily backup plan retention in days. By default this is 365 days."
   default     = 365

@@ -366,7 +366,7 @@ resource "aws_backup_plan" "ec2_plan" {
         }
     }
     lifecycle {
-      delete_after       = var.daily_backup_retention
+      delete_after       = var.ami_daily_backup_retention
     }
   }
 
