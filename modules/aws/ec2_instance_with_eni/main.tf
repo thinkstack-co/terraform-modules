@@ -56,7 +56,7 @@ resource "aws_instance" "ec2" {
   # vpc_security_group_ids               = var.vpc_security_group_ids
 
   lifecycle {
-    ignore_changes = [user_data, volume_tags]
+    ignore_changes = [ami, user_data, volume_tags]
   }
 }
 
