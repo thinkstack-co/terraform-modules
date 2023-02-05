@@ -66,6 +66,54 @@ variable "firehose_kms_key_arn" {
   default     = ""
 }
 
+variable "firehose_s3_backup_mode" {
+  description = "(Optional) The Amazon S3 backup mode. Valid values are Disabled and Enabled. Default value is Enabled."
+  type        = string
+  default     = "Enabled"
+}
+
+variable "firehose_backup_prefix" {
+  description = "(Optional) The YYYY/MM/DD/HH time format prefix is automatically used for delivered S3 files. You can specify an extra prefix to be added in front of the time format prefix. Note that if the prefix ends with a slash, it appears as a folder in the S3 bucket"
+  type        = string
+  default     = ""
+}
+
+variable "firehose_backup_error_output_prefix" {
+  description = "(Optional) Prefix added to failed records before writing them to S3. Not currently supported for redshift destination. This prefix appears immediately following the bucket name. For information about how to specify this prefix, see Custom Prefixes for Amazon S3 Objects."
+  type        = string
+  default     = ""
+}
+
+variable "firehose_cloudwatch_logging_enabled" {
+  description = "(Optional) Enables or disables the logging. Defaults to false."
+  type = bool
+  default = false
+}
+
+variable "firehose_cloudwatch_logging_log_group_name" {
+  description = "(Optional) The CloudWatch group name for logging. This value is required if enabled is true."
+  type = string
+  default = null
+}
+
+variable "firehose_cloudwatch_logging_log_stream_name" {
+  description = "(Optional) The CloudWatch log stream name for logging. This value is required if enabled is true."
+  type = string
+  default = null
+}
+
+variable "firehose_dynamic_partitioning_enabled" {
+  description = "(Optional) Enables or disables dynamic partitioning. Defaults to false."
+  type        = bool
+  default     = false
+}
+
+variable "firehose_dynamic_partitioning_retry_duration" {
+  description = "(Optional) Total amount of seconds Firehose spends on retries. Valid values between 0 and 7200. Default is 300."
+  type        = number
+  default     = 300
+}
+
 #################################
 # S3
 #################################
