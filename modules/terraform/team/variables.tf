@@ -53,6 +53,12 @@ variable "manage_providers" {
   default     = false
 }
 
+variable "manage_projects" {
+  description = "(Optional) Allow members to publish and delete projects in the organization."
+  type        = bool
+  default     = false
+}
+
 variable "manage_modules" {
   description = "(Optional) Allow members to publish and delete modules in the organization's private registry."
   type        = bool
