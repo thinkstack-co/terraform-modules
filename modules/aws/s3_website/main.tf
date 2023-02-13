@@ -7,9 +7,6 @@ resource "aws_s3_bucket" "this" {
   policy        = var.policy
   tags          = var.tags
 
-  lifecycle {
-    prevent_destroy = var.prevent_destroy
-  }
 }
 
 resource "aws_s3_bucket_website_configuration" "this" {

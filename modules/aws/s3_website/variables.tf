@@ -17,12 +17,6 @@ variable "tags" {
   }
 }
 
-variable "prevent_destroy" {
-  type        = bool
-  description = "(Optional) Lifecycle rule which prevents destruction of the resource"
-  default     = true
-}
-
 variable "index_document" {
   description = "(Required, unless using redirect_all_requests_to) Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders."
   default     = "index.html"
