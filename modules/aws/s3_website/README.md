@@ -10,10 +10,6 @@ This module sets up an EC2 instance with the parameters specified. This module h
         
         policy = file("global/s3/bucket_policies/this-is-a-policy.json")
         bucket_prefix = "this-is-a-bucket-prefix"
-        region = "us-west-1"
-        acl    = "public-read"
-        
-    }
 
         tags                   = {
             terraform   = "yes"
@@ -21,6 +17,7 @@ This module sets up an EC2 instance with the parameters specified. This module h
             environment = "prod"
             role        = "website_bucket"
         }
+    }
 
 # Variables
 ## Required

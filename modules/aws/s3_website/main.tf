@@ -2,29 +2,24 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
-resource "aws_s3_bucket" "s3_bucket" {
-  acl           = var.acl
+resource "aws_s3_bucket" "this" {
   bucket_prefix = var.bucket_prefix
   policy        = var.policy
-
-  /*logging {
-        target_bucket = var.target_bucket
-        target_prefix = var.target_prefix
-    }*/
-
-  versioning {
-    enabled    = var.versioning
-    mfa_delete = var.mfa_delete
-  }
+  tags          = var.tags
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = var.prevent_destroy
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "this" {
+  bucket = aws_s3_bucket.this.bucket
+
+  index_document {
+    suffix = var.index_document
   }
 
-  website {
-    index_document = var.index_document
-    error_document = var.error_document
+  error_document {
+    key = var.error_document
   }
-
-  tags = var.tags
 }
