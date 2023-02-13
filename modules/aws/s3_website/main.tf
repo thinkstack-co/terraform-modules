@@ -4,9 +4,13 @@ terraform {
 
 resource "aws_s3_bucket" "this" {
   bucket_prefix = var.bucket_prefix
-  policy        = var.policy
   tags          = var.tags
 
+}
+
+resource "aws_s3_bucket_policy" "public_website_access" {
+  bucket = aws_s3_bucket.this.id
+  policy = var.policy
 }
 
 resource "aws_s3_bucket_website_configuration" "this" {
