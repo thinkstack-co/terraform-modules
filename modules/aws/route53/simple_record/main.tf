@@ -6,5 +6,4 @@ resource "aws_route53_record" "this" {
     records                          = var.records
 
     health_check_id                  = var.health_check_id
-    multivalue_answer_routing_policy = var.multivalue_answer_routing_policy_enabled
 }

@@ -29,9 +29,3 @@ variable "health_check_id" {
     description = "(Optional) The health check the record should be associated with."
     default     = null
 }
-
-variable "multivalue_answer_routing_policy_enabled" {
-    type        = bool
-    description = "(Optional) Set to true to indicate a multivalue answer routing policy. Conflicts with any other routing policy."
-    default     = false
-}
