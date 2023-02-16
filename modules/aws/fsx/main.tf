@@ -16,6 +16,7 @@ resource "aws_kms_key" "fsx" {
   enable_key_rotation     = var.enable_key_rotation
   key_usage               = var.key_usage
   is_enabled              = var.is_enabled
+  tags                    = var.tags
   policy                  = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
@@ -31,7 +32,7 @@ resource "aws_kms_key" "fsx" {
         {
             "Effect" = "Allow",
             "Principal" = {
-                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+                "Service" = "fsx.${data.aws_region.current.name}.amazonaws.com"
             },
             "Action" = [
                 "kms:Encrypt*",
@@ -43,20 +44,19 @@ resource "aws_kms_key" "fsx" {
             "Resource" = "*",
             "Condition" = {
                 "ArnEquals" = {
-                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+                    "kms:EncryptionContext:aws:fsx:arn": "arn:aws:fsx:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
                 }
             }
         }
     ]
 })
-
-  tags                    = var.tags
 }
 
 resource "aws_kms_alias" "fsx_alias" {
   name          = var.name
   target_key_id = aws_kms_key.cloudwatch.key_id
 }
+
 ####################
 # Cloudwatch Key
 ####################
@@ -66,6 +66,7 @@ resource "aws_kms_key" "cloudwatch" {
   enable_key_rotation     = var.enable_key_rotation
   key_usage               = var.key_usage
   is_enabled              = var.is_enabled
+  tags                    = var.tags
   policy                  = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
@@ -99,12 +100,10 @@ resource "aws_kms_key" "cloudwatch" {
         }
     ]
 })
-
-  tags                    = var.tags
 }
 
 resource "aws_kms_alias" "cloudwatch_alias" {
-  name          = var.name
+  name          = var.fsx_key_name
   target_key_id = aws_kms_key.cloudwatch.key_id
 }
 

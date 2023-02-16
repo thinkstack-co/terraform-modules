@@ -120,9 +120,16 @@ variable "description" {
     type        = string
 }
 
-variable "name" {
-    description = "Name of the KMS key"
+variable "fsx_key_name" {
+    description = "Name of the fsx KMS key"
     default = "alias/fsx_kms_key"
+    type    = string
+  
+}
+
+variable "fsx_cloudwatch_key_name" {
+    description = "Name of the cloudwatch for fsx KMS key"
+    default = "alias/fsx_cloudwatch_kms_key"
     type    = string
   
 }
