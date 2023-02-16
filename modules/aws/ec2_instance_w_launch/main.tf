@@ -43,7 +43,7 @@ launch_template {
   vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
-    ignore_changes = [user_data, launch_template]
+    ignore_changes = [ami, user_data, launch_template]
   }
 }
 
