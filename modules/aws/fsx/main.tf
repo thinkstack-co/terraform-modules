@@ -11,7 +11,7 @@ data "aws_region" "current" {}
 # FSX Key
 ####################
 resource "aws_kms_key" "fsx" {
-  description             = var.description
+  description             = var.fsx_key_description
   deletion_window_in_days = var.deletion_window_in_days
   enable_key_rotation     = var.enable_key_rotation
   key_usage               = var.key_usage
@@ -35,11 +35,13 @@ resource "aws_kms_key" "fsx" {
                 "Service" = "fsx.${data.aws_region.current.name}.amazonaws.com"
             },
             "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
+                "kms:Encrypt",
+                "kms:Decrypt",
                 "kms:ReEncrypt*",
                 "kms:GenerateDataKey*",
-                "kms:Describe*"
+                "kms:CreateGrant",
+                "kms:ListGrants",
+                "kms:DescribeKey"
             ],
             "Resource" = "*",
             "Condition" = {
@@ -61,7 +63,7 @@ resource "aws_kms_alias" "fsx_alias" {
 # Cloudwatch Key
 ####################
 resource "aws_kms_key" "cloudwatch" {
-  description             = var.description
+  description             = var.fsx_cloudwatch_key_description
   deletion_window_in_days = var.deletion_window_in_days
   enable_key_rotation     = var.enable_key_rotation
   key_usage               = var.key_usage

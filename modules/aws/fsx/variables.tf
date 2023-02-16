@@ -114,9 +114,9 @@ variable "organizational_unit_distinguished_name" {
 # KMS Key
 ###########################
 
-variable "description" {
+variable "fsx_key_description" {
     description = "(Optional) The description of the key as viewed in AWS console."
-    default     = "CloudWatch kms key used to encrypt flow logs"
+    default     = "fsx kms key used to encrypt fsx data at rest"
     type        = string
 }
 
@@ -132,6 +132,12 @@ variable "fsx_cloudwatch_key_name" {
     default = "alias/fsx_cloudwatch_kms_key"
     type    = string
   
+}
+
+variable "fsx_cloudwatch_key_description" {
+    description = "(Optional) The description of the key as viewed in AWS console."
+    default     = "CloudWatch kms key used to encrypt fsx logs"
+    type        = string
 }
 
 variable "deletion_window_in_days" {
