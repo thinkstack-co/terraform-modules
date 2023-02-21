@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.13.0"
 }
 
 resource "aws_s3_bucket" "s3_bucket" {
