@@ -35,8 +35,8 @@ resource "aws_kms_key" "fsx" {
                 "Service" = "fsx.${data.aws_region.current.name}.amazonaws.com"
             },
             "Action" = [
-                "kms:Encrypt",
-                "kms:Decrypt",
+                "kms:Encrypt*",
+                "kms:Decrypt*",
                 "kms:ReEncrypt*",
                 "kms:GenerateDataKey*",
                 "kms:CreateGrant",
@@ -44,11 +44,6 @@ resource "aws_kms_key" "fsx" {
                 "kms:DescribeKey"
             ],
             "Resource" = "*",
-            "Condition" = {
-                "ArnEquals" = {
-                    "kms:EncryptionContext:aws:fsx:arn": "arn:aws:fsx:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
-                }
-            }
         }
     ]
 })
