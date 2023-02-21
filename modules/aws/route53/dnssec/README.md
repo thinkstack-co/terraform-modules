@@ -2,7 +2,7 @@
     module "example_com_dnssec" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/dnssec"
 
-        hosted_zone_id = module.example_com_zone.id
+        hosted_zone_id = module.example_com_zone.zone_id
         name           = "example_com_signing_key"
         tags           = {
             terraform   = "true"
