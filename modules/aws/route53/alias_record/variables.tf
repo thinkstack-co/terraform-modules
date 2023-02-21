@@ -11,6 +11,10 @@ variable "name" {
 variable "type" {
     type        = string
     description =  "(Required) The record type. Valid values are A, AAAA, CAA, CNAME, DS, MX, NAPTR, NS, PTR, SOA, SPF, SRV and TXT."
+    validation {
+        condition     = contains(["A","AAAA","CAA","CNAME","DS","MX","NAPTR","NS","PTR","SOA","SPF","SRV","TXT"], var.type)
+        error_message = "The value must be one of A, AAAA, CAA, CNAME, DS, MX, NAPTR, NS, PTR, SOA, SPF, SRV or TXT."
+    }
 }
 
 variable "set_identifier" {
