@@ -70,6 +70,11 @@ resource "aws_kms_key" "dnssec" {
   })
 }
 
+resource "aws_kms_alias" "this" {
+  name_prefix   = var.name
+  target_key_id = aws_kms_key.dnssec.key_id
+}
+
 resource "aws_route53_key_signing_key" "this" {
   hosted_zone_id             = var.hosted_zone_id
   key_management_service_arn = aws_kms_key.dnssec.arn
