@@ -240,6 +240,7 @@ variable "vpn_route_cidr_blocks" {
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
   type        = list
+  default     = [aws_security_group.sg.id]
 }
 
 variable "vpn_type" {
