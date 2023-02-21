@@ -7,11 +7,6 @@ resource "aws_s3_bucket" "s3_bucket" {
   bucket_prefix = var.bucket_prefix
   policy        = var.policy
 
-  /*logging {
-        target_bucket = var.target_bucket
-        target_prefix = var.target_prefix
-    }*/
-
   versioning {
     enabled    = var.versioning
     mfa_delete = var.mfa_delete
@@ -29,8 +24,9 @@ resource "aws_s3_bucket" "s3_bucket" {
     }
   }
 }
+
 resource "aws_s3_bucket_lifecycle_configuration" "rule" {
-  count  = (var.lifecycle_rule_create == true ? 1 : 0)
+  count  = var.enable_lifecycle_rule == true ? 1 : 0
   bucket = aws_s3_bucket.s3_bucket.id
 
   rule {
