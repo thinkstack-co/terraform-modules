@@ -119,7 +119,7 @@ resource "aws_instance" "ec2_instance" {
   }
 
   lifecycle {
-    ignore_changes = [ebs_block_device]
+    ignore_changes = [ami, ebs_block_device]
   }
 }
 

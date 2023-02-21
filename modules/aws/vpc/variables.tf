@@ -26,6 +26,16 @@ variable "instance_tenancy" {
 }
 
 ###########################
+# VPC Endpoints
+###########################
+
+variable "enable_ssm_vpc_endpoints" {
+  type        = bool
+  description = "(Optional) A boolean flag to enable/disable SSM (Systems Manager) VPC endpoints. Defaults true."
+  default     = false
+}
+
+###########################
 # Subnets
 ###########################
 
