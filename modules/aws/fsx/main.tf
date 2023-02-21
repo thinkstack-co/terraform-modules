@@ -77,6 +77,28 @@ resource "aws_kms_key" "cloudwatch" {
             "Resource" = "*"
         },
         {
+            "Sid" = "Grant access to CMK manager",
+            "Effect" = "Allow",
+            "Principal" = {
+                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AmazonFSxManager"
+            },
+            "Action" = [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion"
+            ],
+            "Resource" = "*"
+        },
+        {
             "Effect" = "Allow",
             "Principal" = {
                 "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
