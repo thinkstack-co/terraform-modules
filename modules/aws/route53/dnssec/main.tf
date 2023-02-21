@@ -1,24 +1,42 @@
+###########################
+# Data Sources
+###########################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+########################################
+# KMS Keys
+########################################
+####################
+# DNSSEC Key
+####################
+
 resource "aws_kms_key" "dnssec" {
-  customer_master_key_spec = "ECC_NIST_P256"
-  deletion_window_in_days  = 7
-  key_usage                = "SIGN_VERIFY"
+  customer_master_key_spec = var.customer_master_key_spec
+  deletion_window_in_days  = var.deletion_window_in_days
+  description              = var.description
+  enable_key_rotation      = var.enable_key_rotation
+  key_usage                = var.key_usage
+  is_enabled               = var.is_enabled
+  tags                     = var.tags
   policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [
       {
+        Sid = "Allow Route 53 DNSSEC Service",
         Action = [
           "kms:DescribeKey",
           "kms:GetPublicKey",
           "kms:Sign",
         ],
-        Effect = "Allow"
+        Effect = "Allow",
         Principal = {
           Service = "dnssec-route53.amazonaws.com"
-        }
-        Sid      = "Allow Route 53 DNSSEC Service",
-        Resource = "*"
+        },
+        Resource = "*",
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            "aws:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
           }
           ArnLike = {
             "aws:SourceArn" = "arn:aws:route53:::hostedzone/*"
@@ -26,13 +44,13 @@ resource "aws_kms_key" "dnssec" {
         }
       },
       {
+        Sid = "Allow Route 53 DNSSEC Service to CreateGrant",
         Action = "kms:CreateGrant",
-        Effect = "Allow"
+        Effect = "Allow",
         Principal = {
           Service = "dnssec-route53.amazonaws.com"
         }
-        Sid      = "Allow Route 53 DNSSEC Service to CreateGrant",
-        Resource = "*"
+        Resource = "*",
         Condition = {
           Bool = {
             "kms:GrantIsForAWSResource" = "true"
@@ -40,28 +58,29 @@ resource "aws_kms_key" "dnssec" {
         }
       },
       {
-        Action = "kms:*"
-        Effect = "Allow"
+        Sid = "Enable IAM User Permissions",
+        Action = "kms:*",
+        Effect = "Allow",
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
+        },
         Resource = "*"
-        Sid      = "Enable IAM User Permissions"
       },
     ]
-    Version = "2012-10-17"
   })
 }
 
 resource "aws_route53_key_signing_key" "this" {
-  hosted_zone_id             = aws_route53_zone.example.id
-  key_management_service_arn = aws_kms_key.example.arn
-  name                       = "example"
+  hosted_zone_id             = var.hosted_zone_id
+  key_management_service_arn = aws_kms_key.dnssec.arn
+  name                       = var.name
+  status                     = var.status
 }
 
 resource "aws_route53_hosted_zone_dnssec" "this" {
   depends_on = [
-    aws_route53_key_signing_key.example
+    aws_route53_key_signing_key.this
   ]
-  hosted_zone_id = aws_route53_key_signing_key.example.hosted_zone_id
+  hosted_zone_id = aws_route53_key_signing_key.this.hosted_zone_id
+  signing_status = var.signing_status
 }
