@@ -1,46 +1,46 @@
 # Usage
  Example TXT record
-        module "domain_txt" {
-            source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
+    module "domain_txt" {
+        source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
 
-            zone_id = module.example_com_zone.zone_id
-            name    = "example.com"
-            type    = "TXT"
-            ttl     = 300
-            records = [
-                "v=spf1 include:_spf.google.com ~all",
-                "google-site-verification=h-218181818181818181818181818fdsa",
-                "v=DKIM1; k=rsa; p=fdjkslafjlkdsajoifjiofjdlskafjlkdsajklfdsoiafdsafdsafdsa/stf0Ga4z2XaZG7detZ+beakt9hF5I7hBarjspZuIwVNb+VnDJ2t21wlxnswHt5huiAxg52g+99x890fd09sa0fdsafdsa8f09dsa809fd80s9a/fdsafdsafdsafdsafdsafdsafdsa\"\"EtbJup2cDxlYAH8/HiLq+bhLIKnzwhsiu16k91DDJYAXjmOm2o3MRD9AVtVWIyRb59Qhi9FOlySNOezxxM+WPCXTzPqPs78jshMcMLZbLTrNFWkNcdrLCD79RdUN+DdXDBj4cemdjxs4Ul4J5IkwwIDAQAB",
-                "v=DKIM1; k=rsa; p=dfsa098fd809saf809dsa809fdhjsafhfdjsiafidosa/GASDFJUKALJKffdsa0+xEObmrCjxcG2VtNHiwZ+6sD0PGC2ldjAPIVaYtKJmoJaO+Dt/fds89a0f809dsa809fd809saf890dsa908fdsa/eJCh\"\"lZQzIOmNzp0CRJDSPy9+jOYqMpVyeThzWnIALam0Z6M8nJ/ue6ezygRBR70AbG/fd90sa890fds809af809dsa809f8d90safdsa/AC0nU5QmoKvd40qzMm0CA0ycXt5hb5iDR+T1Kx8ps9KPXQIDAQAB",
-            ]
-        }
+        zone_id = module.example_com_zone.zone_id
+        name    = "example.com"
+        type    = "TXT"
+        ttl     = 300
+        records = [
+            "v=spf1 include:_spf.google.com ~all",
+            "google-site-verification=h-218181818181818181818181818fdsa",
+            "v=DKIM1; k=rsa; p=fdjkslafjlkdsajoifjiofjdlskafjlkdsajklfdsoiafdsafdsafdsa/stf0Ga4z2XaZG7detZ+beakt9hF5I7hBarjspZuIwVNb+VnDJ2t21wlxnswHt5huiAxg52g+99x890fd09sa0fdsafdsa8f09dsa809fd80s9a/fdsafdsafdsafdsafdsafdsafdsa\"\"EtbJup2cDxlYAH8/HiLq+bhLIKnzwhsiu16k91DDJYAXjmOm2o3MRD9AVtVWIyRb59Qhi9FOlySNOezxxM+WPCXTzPqPs78jshMcMLZbLTrNFWkNcdrLCD79RdUN+DdXDBj4cemdjxs4Ul4J5IkwwIDAQAB",
+            "v=DKIM1; k=rsa; p=dfsa098fd809saf809dsa809fdhjsafhfdjsiafidosa/GASDFJUKALJKffdsa0+xEObmrCjxcG2VtNHiwZ+6sD0PGC2ldjAPIVaYtKJmoJaO+Dt/fds89a0f809dsa809fd809saf890dsa908fdsa/eJCh\"\"lZQzIOmNzp0CRJDSPy9+jOYqMpVyeThzWnIALam0Z6M8nJ/ue6ezygRBR70AbG/fd90sa890fds809af809dsa809f8d90safdsa/AC0nU5QmoKvd40qzMm0CA0ycXt5hb5iDR+T1Kx8ps9KPXQIDAQAB",
+        ]
+    }
 
 Example A record
-        module "test" {
-            source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
+    module "test" {
+        source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
 
-            zone_id = module.example_com_zone.zone_id
-            name    = "test.example.com"
-            type    = "A"
-            ttl     = 300
-            records = [
-                "1.1.1.1"
-            ]
-        }
+        zone_id = module.example_com_zone.zone_id
+        name    = "test.example.com"
+        type    = "A"
+        ttl     = 300
+        records = [
+            "1.1.1.1"
+        ]
+    }
 
 
 Example CNAME record
-        module "mail" {
-            source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
+    module "mail" {
+        source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
 
-            zone_id = module.example_com_zone.zone_id
-            name    = "mail.example.com"
-            type    = "CNAME"
-            ttl     = 300
-            records = [
-                "ghs.googlehosted.com."
-            ]
-        }
+        zone_id = module.example_com_zone.zone_id
+        name    = "mail.example.com"
+        type    = "CNAME"
+        ttl     = 300
+        records = [
+            "ghs.googlehosted.com."
+        ]
+    }
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
