@@ -71,7 +71,7 @@ resource "aws_kms_key" "dnssec" {
 }
 
 resource "aws_kms_alias" "this" {
-  name_prefix   = var.name
+  name_prefix   = var.name_prefix
   target_key_id = aws_kms_key.dnssec.key_id
 }
 

@@ -50,6 +50,12 @@ variable "tags" {
     }
 }
 
+variable "name_prefix" {
+  description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
+  default     = "alias/dnssec_"
+  type        = string
+}
+
 variable "hosted_zone_id" {
     type        = string
     description = "(Required) Identifier of the Route 53 Hosted Zone."
