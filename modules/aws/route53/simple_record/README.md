@@ -1,5 +1,6 @@
 # Usage
- Example TXT record
+### Example TXT record
+    
     module "domain_txt" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
 
@@ -15,7 +16,8 @@
         ]
     }
 
-Example A record
+### Example A record
+    
     module "test" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
 
@@ -29,7 +31,8 @@ Example A record
     }
 
 
-Example CNAME record
+### Example CNAME record
+    
     module "mail" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/simple_record"
 
