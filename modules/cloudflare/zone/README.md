@@ -26,7 +26,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [cloudflare_zone.example](https://registry.terraform.io/providers/hashicorp/cloudflare/latest/docs/resources/zone) | resource |
+| [cloudflare_zone.this](https://registry.terraform.io/providers/hashicorp/cloudflare/latest/docs/resources/zone) | resource |
 
 ## Inputs
 
@@ -41,5 +41,11 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_id"></a> [id](#output\_id) | n/a |
+| <a name="output_name_servers"></a> [name\_servers](#output\_name\_servers) | n/a |
+| <a name="output_status"></a> [status](#output\_status) | n/a |
+| <a name="output_vanity_name_servers"></a> [vanity\_name\_servers](#output\_vanity\_name\_servers) | n/a |
+| <a name="output_verification_key"></a> [verification\_key](#output\_verification\_key) | n/a |
 <!-- END_TF_DOCS -->

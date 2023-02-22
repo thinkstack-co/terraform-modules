@@ -1,4 +1,4 @@
-resource "cloudflare_zone" "example" {
+resource "cloudflare_zone" "this" {
   account_id = var.account_id
   jump_start = var.jump_start
   paused     = var.paused
