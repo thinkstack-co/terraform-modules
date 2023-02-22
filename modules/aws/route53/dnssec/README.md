@@ -57,5 +57,16 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_digest_algorithm_mnemonic"></a> [digest\_algorithm\_mnemonic](#output\_digest\_algorithm\_mnemonic) | n/a |
+| <a name="output_digest_algorithm_type"></a> [digest\_algorithm\_type](#output\_digest\_algorithm\_type) | n/a |
+| <a name="output_digest_value"></a> [digest\_value](#output\_digest\_value) | n/a |
+| <a name="output_dnskey_record"></a> [dnskey\_record](#output\_dnskey\_record) | n/a |
+| <a name="output_ds_record"></a> [ds\_record](#output\_ds\_record) | n/a |
+| <a name="output_flag"></a> [flag](#output\_flag) | n/a |
+| <a name="output_key_tag"></a> [key\_tag](#output\_key\_tag) | n/a |
+| <a name="output_public_key"></a> [public\_key](#output\_public\_key) | n/a |
+| <a name="output_signing_algorithm_mnemonic"></a> [signing\_algorithm\_mnemonic](#output\_signing\_algorithm\_mnemonic) | n/a |
+| <a name="output_signing_algorithm_type"></a> [signing\_algorithm\_type](#output\_signing\_algorithm\_type) | n/a |
 <!-- END_TF_DOCS -->
