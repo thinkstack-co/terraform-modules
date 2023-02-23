@@ -14,9 +14,6 @@ jobs:
       ##########################
       - name: Checkout
         uses: actions/checkout@v3
-      
-      - name: Print working directory
-        run: pwd
 
       ##########################
       #       Run TFSEC        #
@@ -25,7 +22,7 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
           working_directory: .
-          verbose: true
+          additional_args: verbose
 
       - name: Write tfsec comments
         uses: tfsec/tfsec-pr-commenter-action@main
