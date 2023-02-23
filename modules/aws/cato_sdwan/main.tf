@@ -18,6 +18,7 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
   vpc_id      = var.vpc_id
 
   egress {
+    description = "HTTPS Tunnel"
     from_port   = 443
     to_port     = 443
     protocol    = "TCP"
@@ -25,6 +26,7 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
   }
 
   egress {
+    description = "HTTPS Tunnel"
     from_port   = 443
     to_port     = 443
     protocol    = "UDP"
@@ -40,6 +42,7 @@ resource "aws_security_group" "cato_lan_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -47,6 +50,7 @@ resource "aws_security_group" "cato_lan_sg" {
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
