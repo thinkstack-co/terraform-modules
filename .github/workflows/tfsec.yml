@@ -17,12 +17,12 @@ jobs:
       ##########################
       #       Run TFSEC        #
       ##########################
-      - name: tfsec
+      - name: tfsec scan
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          args: --format=default
+          args: --format=Checkstyle
 
-      - name: tfsec
+      - name: Write tfsec comments
         uses: tfsec/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
