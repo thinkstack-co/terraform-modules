@@ -95,6 +95,18 @@ variable "mfa_delete" {
   default     = "Disabled"
 }
 
+variable "target_bucket" {
+  type        = string
+  description = "(Optional) The name of the bucket that will receive the logs. Required if logging of the S3 bucket is set to true."
+  default     = null
+}
+
+variable "target_prefix" {
+  type        = string
+  description = "(Optional) The prefix that is prepended to all log object keys. If not set, the logs are stored in the root of the bucket."
+  default     = "log/"
+}
+
 ###########################
 # CloudWatch Log Group Variables
 ###########################
@@ -223,6 +235,12 @@ variable "enable_log_file_validation" {
 ######################
 # Global Variables
 ######################
+
+variable "enable_logging" {
+  type        = bool
+  description = "(Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target_bucket' is required. Defaults to true."
+  default     = true
+}
 
 variable "tags" {
   type        = map
