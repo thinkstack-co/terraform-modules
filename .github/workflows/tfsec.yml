@@ -16,8 +16,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: ls -lha
-        run: ls -lha
-        
+        run: ls -lha ./modules/aws
+
+      - name: output file test
+        run: cat ./modules/aws/cloudtrail/main.tf
+
       ##########################
       #       Run TFSEC        #
       ##########################
