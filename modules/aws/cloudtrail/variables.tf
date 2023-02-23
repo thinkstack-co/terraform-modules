@@ -236,7 +236,7 @@ variable "enable_log_file_validation" {
 # Global Variables
 ######################
 
-variable "enable_logging" {
+variable "enable_s3_bucket_logging" {
   type        = bool
   description = "(Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target_bucket' is required. Defaults to true."
   default     = true
