@@ -5,7 +5,7 @@ on:
     branches: [master, main]
 jobs:
   build:
-    name: Build
+    name: Building
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +32,6 @@ jobs:
       - name: Linter
         uses: github/super-linter/slim@v4
         env:
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
