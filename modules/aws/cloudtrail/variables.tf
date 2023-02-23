@@ -50,10 +50,12 @@ variable "key_name_prefix" {
 
 variable "bucket_prefix" {
   description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
+  type        = string
 }
 
 variable "acl" {
   description = "(Optional) The canned ACL to apply. Defaults to 'private'."
+  type        = string
   default     = "private"
 }
 
@@ -95,25 +97,30 @@ variable "mfa_delete" {
 
 variable "name" {
   description = "Name of the trail"
+  type        = string
   default     = "cloudtrail"
 }
 
 variable "s3_key_prefix" {
+  type        = string
   description = "S3 key prefix to be applied to all logs"
   default     = "cloudtrail-logs"
 }
 
 variable "include_global_service_events" {
+  type        = bool
   description = "Specifies whether the trail is publishing events from global services such as IAM to the log files"
   default     = true
 }
 
 variable "is_multi_region_trail" {
+  type        = bool
   description = "Determines whether or not the cloudtrail is created for all regions"
   default     = true
 }
 
 variable "enable_log_file_validation" {
+  type        = bool
   description = "Enabled log file validation to all logs sent to S3"
   default     = true
 }
