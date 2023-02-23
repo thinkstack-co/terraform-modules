@@ -1,18 +1,37 @@
 ---
-
-name: tfsec
+name: Build
 on:
-  push:
-    branches:
-      - main
   pull_request:
+    branches: [master, main]
 jobs:
-  tfsec:
+  build:
     name: tfsec
     runs-on: ubuntu-latest
 
     steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper
+          # list of changed files within `super-linter`
+          fetch-depth: 0
+      ##########################
+      #       Run TFSEC        #
+      ##########################
       - name: tfsec
         uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          args: --format=checkstyle
+
+      ################################
+      # Run Linter against code base #
+      ################################
+      - name: Linter
+        uses: github/super-linter/slim@v4
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
