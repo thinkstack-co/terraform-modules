@@ -24,7 +24,7 @@ jobs:
       - name: tfsec scan
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          directory: .
+          working_directory: .
           args: --verbose
 
       - name: Write tfsec comments
