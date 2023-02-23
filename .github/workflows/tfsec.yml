@@ -15,13 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+
+
       ##########################
       #       Run TFSEC        #
       ##########################
       - name: tfsec scan
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          working_directory: .
+          working_directory: /home/runner/work/terraform-modules/terraform-modules
           additional_args: --verbose
 
       - name: Write tfsec comments
