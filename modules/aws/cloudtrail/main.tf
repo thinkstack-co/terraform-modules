@@ -108,7 +108,7 @@ resource "aws_iam_policy" "cloudtrail" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Sid = "Allow CloudTrail to write CloudWatch logs"
+      Sid = "Allow CloudTrail to write logs"
       Effect = "Allow",
       Action = [
         "logs:CreateLogStream",
