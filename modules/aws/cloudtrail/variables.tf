@@ -135,7 +135,7 @@ variable "iam_policy_description" {
 
 variable "iam_policy_name_prefix" {
     description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
-    default     = "flow_log_policy_"
+    default     = "cloudtrail_policy_"
     type        = string
 }
 
