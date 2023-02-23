@@ -24,7 +24,7 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
           soft_fail: true
-          additional_args: --verbose --force-all-dirs
+          additional_args: --force-all-dirs
 
       - name: Write tfsec comments
         uses: tfsec/tfsec-pr-commenter-action@main
