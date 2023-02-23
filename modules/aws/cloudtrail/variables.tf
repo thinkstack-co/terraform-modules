@@ -6,6 +6,10 @@ variable "key_customer_master_key_spec" {
     description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
     default     = "SYMMETRIC_DEFAULT"
     type        = string
+    validation {
+      condition     = can(regex("^(SYMMETRIC_DEFAULT|RSA_2048|RSA_3072|RSA_4096|ECC_NIST_P256|ECC_NIST_P384|ECC_NIST_P521|ECC_SECG_P256K1)$", var.key_customer_master_key_spec))
+      error_message = "The value must be one of SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1."
+    }
 }
 
 variable "key_description" {
@@ -18,6 +22,10 @@ variable "key_deletion_window_in_days" {
     description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
     default     = 30
     type        = number
+    validation {
+      condition     = can(regex("^[7-9]|[1-2][0-9]|30$", var.key_deletion_window_in_days))
+      error_message = "The value must be between 7 and 30 days."
+    }
 }
 
 variable "key_enable_key_rotation" {
@@ -69,30 +77,50 @@ variable "bucket_lifecycle_expiration_days" {
   type        = number
   description = "(Optional) The lifetime, in days, of the objects that are subject to the rule. The value must be a non-zero positive integer."
   default     = 365
+  validation {
+    condition     = can(regex("^[1-9][0-9]*$", var.bucket_lifecycle_expiration_days))
+    error_message = "The value must be a non-zero positive integer."
+  }
 }
 
 variable "versioning_status" {
   type        = string
   description = "(Required) The versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets."
   default     = "Enabled"
+  validation {
+    condition     = can(regex("Enabled|Suspended|Disabled", var.versioning_status))
+    error_message = "The value must be Enabled, Suspended, or Disabled."
+  }
 }
 
 variable "bucket_key_enabled" {
   type        = bool
   description = "(Optional) Whether or not to use Amazon S3 Bucket Keys for SSE-KMS."
   default     = true
+  validation {
+    condition     = can(regex("true|false", var.bucket_key_enabled))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "sse_algorithm" {
   type        = string
   description = "(Required) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
   default     = "aws:kms"
+  validation {
+    condition     = can(regex("AES256|aws:kms", var.sse_algorithm))
+    error_message = "The value must be AES256 or aws:kms."
+  }
 }
 
 variable "mfa_delete" {
   type        = string
   description = "(Optional) Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
   default     = "Disabled"
+  validation {
+    condition     = can(regex("Enabled|Disabled", var.mfa_delete))
+    error_message = "The value must be Enabled or Disabled."
+  }
 }
 
 variable "target_bucket" {
@@ -178,6 +206,10 @@ variable "iam_role_force_detach_policies" {
   type        = bool
   description = "(Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false."
   default     = false
+  validation {
+    condition     = can(regex("true|false", var.iam_role_force_detach_policies))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "iam_role_max_session_duration" {
@@ -218,18 +250,30 @@ variable "include_global_service_events" {
   type        = bool
   description = "Specifies whether the trail is publishing events from global services such as IAM to the log files"
   default     = true
+  validation {
+    condition     = can(regex("true|false", var.include_global_service_events))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "is_multi_region_trail" {
   type        = bool
   description = "Determines whether or not the cloudtrail is created for all regions"
   default     = true
+  validation {
+    condition     = can(regex("true|false", var.is_multi_region_trail))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "enable_log_file_validation" {
   type        = bool
   description = "Enabled log file validation to all logs sent to S3"
   default     = true
+  validation {
+    condition     = can(regex("true|false", var.enable_log_file_validation))
+    error_message = "The value must be true or false."
+  }
 }
 
 ######################
@@ -240,6 +284,10 @@ variable "enable_s3_bucket_logging" {
   type        = bool
   description = "(Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target_bucket' is required. Defaults to true."
   default     = true
+  validation {
+    condition     = can(regex("true|false", var.enable_s3_bucket_logging))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "tags" {
