@@ -10,21 +10,15 @@ jobs:
 
     steps:
       ##########################
-      # Checkout the code base #
+      # Checkout the code base
       ##########################
       - name: Checkout
         uses: actions/checkout@v3
 
       ##########################
-      #       Run TFSEC        #
+      # Run TFSEC
       ##########################
-      - name: tfsec scan
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          soft_fail: true
-          additional_args: --force-all-dirs
-
-      - name: Write tfsec comments
+      - name: Run tfsec and write pull request comments
         uses: tfsec/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
