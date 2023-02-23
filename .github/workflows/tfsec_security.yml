@@ -4,19 +4,15 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: tfsec
+name: Nightly - tfsec Security Scan
 
 on:
-  push:
-    branches: 
-      - main
-  pull_request:
   schedule:
     - cron: '33 11 * * 1'
 
 jobs:
   tfsec:
-    name: Run tfsec sarif report
+    name: Run tfsec Security Scan Report
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -27,7 +23,7 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v3
 
-      - name: Run tfsec
+      - name: Run tfsec scan with SARIF output
         uses: aquasecurity/tfsec-sarif-action@master
         with:
           sarif_file: tfsec.sarif
