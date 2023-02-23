@@ -23,8 +23,8 @@ jobs:
       - name: tfsec scan
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          working_directory: /home/runner/work/terraform-modules/terraform-modules
-          additional_args: --verbose
+          # working_directory: /home/runner/work/terraform-modules/terraform-modules
+          additional_args: --verbose --force-all-dirs
 
       - name: Write tfsec comments
         uses: tfsec/tfsec-pr-commenter-action@main
