@@ -208,7 +208,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cloudtrail_bucket
   rule {
     bucket_key_enabled = var.bucket_key_enabled
     apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.cloudtrail.key_id
+      kms_master_key_id = aws_kms_key.cloudtrail.arn
       sse_algorithm     = var.sse_algorithm
     }
   }
