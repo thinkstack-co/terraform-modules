@@ -19,7 +19,7 @@ variable "syslog_log_group_name" {
 }
 
 variable "management_subnet_id" {
-  type        = string
+  type        = list(string)
   description = "Subnet ID for management traffic (needs to be able to reach the internet)"
 }
 
@@ -29,7 +29,7 @@ variable "management_security_group_ids" {
 }
 
 variable "data_subnet_id" {
-  type        = string
+  type        = list(string)
   description = "Subnet ID for data traffic"
 }
 
