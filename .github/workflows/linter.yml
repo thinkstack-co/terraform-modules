@@ -1,11 +1,11 @@
 ---
-name: Build
+name: Build - Linter
 on:
   pull_request:
     branches: [master, main]
 jobs:
   build:
-    name: Building
+    name: Linter
     runs-on: ubuntu-latest
 
     steps:
@@ -18,13 +18,6 @@ jobs:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
           fetch-depth: 0
-      ##########################
-      #       Run TFSEC        #
-      ##########################
-      - name: tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          args: --format=checkstyle
 
       ################################
       # Run Linter against code base #

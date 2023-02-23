@@ -1,0 +1,23 @@
+---
+name: Build - tfsec
+on:
+  pull_request:
+    branches: [master, main]
+jobs:
+  build:
+    name: tfsec
+    runs-on: ubuntu-latest
+
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout
+        uses: actions/checkout@v3
+      ##########################
+      #       Run TFSEC        #
+      ##########################
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          args: --format=checkstyle
