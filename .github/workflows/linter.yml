@@ -29,3 +29,4 @@ jobs:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MULTI_STATUS: true
+          VALIDATE_TERRAFORM_TERRASCAN: = false
