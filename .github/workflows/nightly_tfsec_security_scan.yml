@@ -8,7 +8,7 @@ name: Nightly - tfsec Security Scan
 
 on:
   schedule:
-    - cron: '33 9 * * *'
+    - cron: '33 21 * * *'
 
 jobs:
   tfsec:
