@@ -2,7 +2,7 @@
 name: Build - tfsec
 on:
   pull_request:
-    branches: [master, main]
+
 jobs:
   build:
     name: tfsec
