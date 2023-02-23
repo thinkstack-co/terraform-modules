@@ -24,10 +24,10 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
           soft_fail: true
-          additional_args: --force-all-dirs
+          args: --force-all-dirs
 
       - name: Write tfsec comments
         uses: tfsec/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          additional_args: --force-all-dirs
+          args: --force-all-dirs
