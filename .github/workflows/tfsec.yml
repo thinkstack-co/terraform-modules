@@ -14,9 +14,9 @@ jobs:
       ##########################
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: ls -lha
-        run: ls -lha ./modules/aws
+      
+      - name: Print directory
+        run: pwd
 
       - name: output file test
         run: cat ./modules/aws/cloudtrail/main.tf
