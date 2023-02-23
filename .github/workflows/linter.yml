@@ -25,8 +25,8 @@ jobs:
       - name: Linter
         uses: github/super-linter/slim@v4
         env:
-          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MULTI_STATUS: true
-          VALIDATE_TERRAFORM_TERRASCAN: = false
+          VALIDATE_TERRAFORM_TERRASCAN: false
+          VALIDATE_ALL_CODEBASE: false
