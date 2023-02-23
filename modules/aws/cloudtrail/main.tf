@@ -117,7 +117,8 @@ resource "aws_iam_policy" "cloudtrail" {
         "logs:DescribeLogStreams"
       ],
       Resource = [
-        "${aws_cloudwatch_log_group.cloudtrail.arn}"
+        "${aws_cloudwatch_log_group.cloudtrail.arn}",
+        "${aws_cloudwatch_log_group.cloudtrail.arn}:log-stream:*"
       ]
     }]
   })
