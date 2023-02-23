@@ -111,7 +111,6 @@ resource "aws_iam_policy" "cloudtrail" {
       Sid = "Allow CloudTrail to write CloudWatch logs"
       Effect = "Allow",
       Action = [
-        "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents",
         "logs:DescribeLogGroups",
