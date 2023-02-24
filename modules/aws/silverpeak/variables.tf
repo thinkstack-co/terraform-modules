@@ -43,9 +43,13 @@ variable "iam_instance_profile" {
 }
 
 variable "instance_initiated_shutdown_behavior" {
-  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
-  description = "Shutdown behavior for the instance"
-  default     = ""
+  type        = string
+  description = "(Optional) Shutdown behavior for the instance. Amazon defaults this to stop for EBS-backed instances and terminate for instance-store instances. Cannot be set on instance-store instances. See Shutdown Behavior for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior"
+  default     = "stop"
+  validation {
+    condition     = can(regex("stop|terminate", var.instance_initiated_shutdown_behavior))
+    error_message = "The value must be either stop or terminate."
+  }
 }
 
 variable "instance_type" {

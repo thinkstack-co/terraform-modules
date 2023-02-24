@@ -48,7 +48,7 @@ resource "aws_network_interface" "wan0_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_wan0", var.name, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2.*.id, count.index)
+    instance     = element(aws_instance.ec2[*].id, count.index)
     device_index = 1
   }
 }
@@ -63,7 +63,7 @@ resource "aws_network_interface" "lan0_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_lan0", var.name, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2.*.id, count.index)
+    instance     = element(aws_instance.ec2[*].id, count.index)
     device_index = 2
   }
 }
