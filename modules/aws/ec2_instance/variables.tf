@@ -151,8 +151,9 @@ variable "root_volume_type" {
 }
 
 variable "root_iops" {
+  type        = number
   description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = ""
+  default     = null
 }
 
 variable "source_dest_check" {
@@ -195,14 +196,4 @@ variable "user_data" {
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
   type        = list
-}
-
-variable "launch_template_id" {
-  type        = string
-  description = "the id for launch template"
-  default     = null
-}
-variable "launch_template_version" {
-  description = ""
-  default = ""
 }
