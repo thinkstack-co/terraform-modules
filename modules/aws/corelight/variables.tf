@@ -57,6 +57,7 @@ variable "nlb_name" {
 }
 
 variable "number" {
+  type        = number
   description = "(Optional) Number of instances and resources to launch"
   default     = 1
 }
@@ -67,22 +68,10 @@ variable "listener_nic_description" {
   default     = "Corelight listener nic"
 }
 
-variable "listener_nic_private_ips" {
-  type        = list
-  description = "(Optional) List of private IPs to assign to the ENI."
-  default     = []
-}
-
 variable "mgmt_nic_description" {
   type        = string
   description = "(Optional) A description for the network interface."
   default     = "Corelight mgmt nic"
-}
-
-variable "mgmt_nic_private_ips" {
-  type        = list
-  description = "(Optional) List of private IPs to assign to the ENI."
-  default     = []
 }
 
 variable "ami" {
@@ -216,28 +205,15 @@ variable "listener_subnet_ids" {
 }
 
 variable "tenancy" {
+  type        = string
   description = "(Optional) The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
-  default     = "default"
+  default     =  "default"
+  validation {
+    condition     = can(regex("^(default|dedicated|host)$", var.tenancy))
+    error_message = "The value must be either default, dedicated, or host."
+  }
 }
 
 variable "user_data" {
   description = "(Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421'"
 }
-
-/*variable "log_volume_device_name" {
-  type        = string
-  description = "The device name to expose to the instance (for example, /dev/sdh or xvdf)"
-  default     = "xvdf"
-}
-
-variable "log_volume_size" {
-  type        = string
-  description = "(Optional) The size of the volume in gigabytes."
-  default     = "500"
-}
-
-variable "log_volume_type" {
-  type        = string
-  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
-  default     = "gp2"
-}*/
