@@ -100,7 +100,6 @@ resource "aws_cloudwatch_log_group" "cloudtrail" {
 ###########################
 # IAM Policy
 ###########################
-#tfsec:ignore:aws-iam-no-policy-wildcards
 resource "aws_iam_policy" "cloudtrail" {
   description = var.iam_policy_description
   name_prefix = var.iam_policy_name_prefix
