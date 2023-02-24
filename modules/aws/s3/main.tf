@@ -57,6 +57,7 @@ resource "aws_s3_bucket_policy" "this" {
 }
 
 resource "aws_s3_bucket_notification" "this" {
+  count  = var.enable_s3_bucket_notification ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   lambda_function {
