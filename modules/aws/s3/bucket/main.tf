@@ -15,22 +15,6 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = var.restrict_public_buckets
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "rule" {
-  count  = var.enable_lifecycle_rule == true ? 1 : 0
-  bucket = aws_s3_bucket.this.id
-
-  rule {
-    id     = var.lifecycle_rule_id
-    status = var.lifecycle_rule_enabled
-    prefix = var.lifecycle_rule_prefix
-
-    filter {}
-    expiration {
-      days = var.lifecycle_expiration_days
-    }
-  }
-}
-
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
   versioning_configuration {
@@ -54,18 +38,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 resource "aws_s3_bucket_policy" "this" {
   bucket = aws_s3_bucket.this.id
   policy = var.policy
-}
-
-resource "aws_s3_bucket_notification" "this" {
-  count  = var.enable_s3_bucket_notification ? 1 : 0
-  bucket = aws_s3_bucket.this.id
-
-  lambda_function {
-    lambda_function_arn = var.lambda_function_arn
-    events              = var.lambda_function_events
-    filter_prefix       = var.lambda_function_filter_prefix
-    filter_suffix       = var.lambda_function_filter_suffix
-  }
 }
 
 resource "aws_s3_bucket_logging" "this" {
