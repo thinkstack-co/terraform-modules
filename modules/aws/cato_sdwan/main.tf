@@ -141,6 +141,11 @@ resource "aws_instance" "ec2_instance" {
   tags                 = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
   user_data            = var.user_data
 
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
+
   network_interface {
     network_interface_id = element(aws_network_interface.mgmt_nic[*].id, count.index)
     device_index         = 0

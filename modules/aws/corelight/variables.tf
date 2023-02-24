@@ -150,6 +150,26 @@ variable "placement_group" {
   default     = ""
 }
 
+variable "http_endpoint" {
+  type        = string
+  description = "(Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled."
+  default     = "enabled"
+  validation {
+    condition     = can(regex("^(enabled|disabled)$", var.http_endpoint))
+    error_message = "The value must be either enabled or disabled."
+  }
+}
+
+variable "http_tokens" {
+  type        = string
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional."
+  default     = "required"
+  validation {
+    condition     = can(regex("^(optional|required)$", var.http_tokens))
+    error_message = "The value must be either optional or required."
+  }
+}
+
 variable "region" {
   type        = string
   description = "(Required) VPC Region the resources exist in"

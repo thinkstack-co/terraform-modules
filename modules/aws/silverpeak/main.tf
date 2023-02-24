@@ -94,6 +94,11 @@ resource "aws_instance" "ec2" {
   key_name                             = var.key_name
   monitoring                           = var.monitoring
 
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
+
   network_interface {
     network_interface_id = aws_network_interface.mgmt0_nic.id
     device_index         = 0

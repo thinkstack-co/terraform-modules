@@ -46,6 +46,11 @@ resource "aws_instance" "ec2" {
   volume_tags = merge(var.tags, ({ "Name" = format("%s%01d", var.name, count.index + 1) }))
   # root_block_device                    = var.root_block_device
 
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
+
 
   network_interface {
     network_interface_id  = aws_network_interface.eni.id

@@ -16,6 +16,12 @@ resource "aws_instance" "ec2_instance" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = element(var.private_ip, count.index)
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
+
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted

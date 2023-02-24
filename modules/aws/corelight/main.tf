@@ -107,6 +107,11 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
 
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
+
   network_interface {
     network_interface_id = aws_network_interface.listener_nic[count.index].id
     device_index         = 0

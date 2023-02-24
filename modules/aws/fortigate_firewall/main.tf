@@ -108,6 +108,11 @@ resource "aws_instance" "ec2_instance" {
   volume_tags          = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
   tags                 = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
 
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
+
   network_interface {
     network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)
     device_index         = 0
