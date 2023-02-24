@@ -130,7 +130,6 @@ resource "aws_network_interface" "private_nic" {
 
 resource "aws_instance" "ec2_instance" {
   ami                  = var.ami
-  # availability_zone    = var.availability_zone
   count                = var.number
   ebs_optimized        = var.ebs_optimized
   iam_instance_profile = var.iam_instance_profile

@@ -90,11 +90,6 @@ variable "source_dest_check" {
 # EC2 Instance
 ############################################
 
-variable "availability_zone" {
-  description = "(Required) AZ to start the instance in."
-  type        = list(string)
-}
-
 variable "ebs_optimized" {
   description = "(Optional) If true, the launched EC2 instance will be EBS-optimized. Note that if this is not set on an instance type that is optimized by default then this will show as disabled but if the instance type is optimized by default then there is no need to set this and there is no effect to disabling it. See the EBS Optimized section of the AWS User Guide for more information."
   default     = true
@@ -154,6 +149,7 @@ variable "root_ebs_volume_encrypted" {
 }
 
 variable "user_data" {
+  type        = string
   description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."
   default     = null
 }
