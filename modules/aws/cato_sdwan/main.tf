@@ -23,6 +23,8 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "TCP"
+    # CATO Cloud requires this port to be open to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -31,6 +33,8 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "UDP"
+    # CATO Cloud requires this port to be open to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -55,6 +59,8 @@ resource "aws_security_group" "cato_lan_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # CATO Cloud requires this port to be open to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 

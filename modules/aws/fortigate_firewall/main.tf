@@ -8,16 +8,22 @@ resource "aws_security_group" "fortigate_fw_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Fortigate Firewall requires communication from all devices
+    #tfsec:ignore:aws-ec2-no-public-ingress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Fortigate Firewall requires communication to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 

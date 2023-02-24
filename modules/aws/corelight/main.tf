@@ -36,9 +36,12 @@ resource "aws_security_group" "corelight_sg" {
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Corelight communicates with the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
