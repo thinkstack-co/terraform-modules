@@ -35,11 +35,6 @@ variable "customer_gw_name" {
   default     = null
 }
 
-variable "created_by" {
-  type        = string
-  description = "(Required) the full name of the person who is created the resource in terraform"
-}
-
 variable "disable_api_termination" {
   type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
