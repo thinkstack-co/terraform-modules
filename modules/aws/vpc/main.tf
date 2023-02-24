@@ -55,6 +55,8 @@ resource "aws_security_group" "security_group" {
       from_port       = 0
       to_port         = 0
       protocol        = "-1"
+      # Allow SSM outbound traffic to SSM endpoint
+      #tfsec:ignore:aws-ec2-no-public-egress-sgr
       cidr_blocks     = ["0.0.0.0/0"]
     }
 }
