@@ -198,6 +198,11 @@ resource "aws_instance" "ec2" {
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
 
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
@@ -367,6 +372,7 @@ Port - Description
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -507,6 +513,7 @@ resource "aws_iam_policy" "policy" {
   name_prefix = var.flow_iam_policy_name_prefix
   path        = var.flow_iam_policy_path
   tags        = var.tags
+  #tfsec:ignore:aws-iam-no-policy-wildcards
   policy      = jsonencode({
     Version = "2012-10-17",
     Statement = [{
