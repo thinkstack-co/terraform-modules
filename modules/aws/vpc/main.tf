@@ -144,6 +144,8 @@ resource "aws_subnet" "public_subnets" {
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.public_subnets_list[count.index]
   availability_zone       = element(var.azs, count.index)
+  # Allow public IP assignment for public subnets and zone
+  #tfsec:ignore:aws-ec2-no-public-ip-subnet
   map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = length(var.public_subnets_list)
   tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index))}))
