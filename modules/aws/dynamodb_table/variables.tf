@@ -15,7 +15,7 @@ variable "hash_key" {
 }
 
 variable "local_secondary_index" {
-  type        = maps
+  type        = map
   description = "(Optional, Forces new resource) Describe an LSI on the table; these can only be allocated at creation so you cannot change this definition after you have created the resource."
   default     = {}
 }
