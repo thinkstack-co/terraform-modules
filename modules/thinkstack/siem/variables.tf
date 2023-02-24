@@ -1,20 +1,32 @@
 variable "ami" {
+  type        = string
   description = "ID of AMI to use for the instance"
 }
 
 variable "associate_public_ip_address" {
+  type        = bool
   description = "If true, the EC2 instance will have associated public IP address"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.associate_public_ip_address))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "azs" {
+  type        = list(string)
   description = "A list of availability zones in the region which will be utilized by this VPC"
   default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "bgp_asn" {
+  type        = number
   description = "BGP ASN used for dynamic routing between the customer gateway and AWS gateway"
   default     = 65077
+  validation {
+    condition     = can(regex("^[0-9]+$", var.bgp_asn))
+    error_message = "The value must be a number."
+  }
 }
 
 variable "customer_gw_name" {
@@ -29,49 +41,94 @@ variable "created_by" {
 }
 
 variable "disable_api_termination" {
+  type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.disable_api_termination))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "ebs_optimized" {
+  type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.ebs_optimized))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_dns_hostnames" {
+  type        = bool
   description = "should be true if you want to use private DNS within the VPC"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_dns_hostnames))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_dns_support" {
+  type        = bool
   description = "should be true if you want to use private DNS within the VPC"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_dns_support))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_firewall" {
+  type        = bool
   description = "should be true if you are using a firewall to NAT traffic for the private subnets"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_firewall))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_nat_gateway" {
+  type        = bool
   description = "should be true if you want to provision NAT Gateways for each of your private networks"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_nat_gateway))
+    error_message = "The value must be either true or false."
+  }
+  
 }
 
 variable "enable_vpc_peering" {
+  type        = bool
   description = "(Required)Boolean which should be set to true if you want to enable and set up vpc peering"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_vpc_peering))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_vpn_peering" {
+  type        = bool
   description = "(Required)Boolean which should be set to true if you want to enable and set up a vpn tunnel"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_vpn_peering))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "encrypted" {
-  type        = string
+  type        = bool
   description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.encrypted))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "http_endpoint" {
@@ -95,11 +152,13 @@ variable "http_tokens" {
 }
 
 variable "iam_instance_profile" {
+  type        = string
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = "siem-ssm-service-role"
 }
 
 variable "instance_count" {
+  type        = number
   description = "Number of instances to launch"
   default     = 1
 }
@@ -111,16 +170,19 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "instance_type" {
+  type        = string
   description = "The type of instance to start"
   default     = "t3a.medium"
 }
 
 variable "instance_tenancy" {
+  type        = string
   description = "A tenancy option for instances launched into the VPC"
   default     = "default"
 }
 
 variable "key_name_prefix" {
+  type        = string
   description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
   default     = "siem_keypair"
 }
@@ -144,50 +206,60 @@ variable "log_volume_type" {
 }
 
 variable "map_public_ip_on_launch" {
+  type        = bool
   description = "should be false if you do not want to auto-assign public IP on launch"
   default     = false
 }
 
 variable "monitoring" {
+  type        = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = false
 }
 
 variable "name" {
+  type        = string
   description = "Name to be used on all the resources as identifier"
   default     = "siem"
 }
 
 variable "placement_group" {
+  type        = string
   description = "The Placement Group to start the instance in"
   default     = ""
 }
 
 variable "private_ip" {
+  type        = string
   description = "Private IP address to associate with the instance in a VPC"
   default     = "10.77.1.70"
 }
 
 variable "private_propagating_vgws" {
+  type        = list(string)
   description = "A list of VGWs the private route table should propagate."
   default     = []
 }
 
 variable "private_subnets_list" {
+  type        = list(string)
   description = "A list of private subnets inside the VPC."
   default     = ["10.77.1.64/26", "10.77.1.192/26"]
 }
 
 variable "public_key" {
+  type        = string
   description = "(Required) Public rsa key"
 }
 
 variable "public_propagating_vgws" {
+  type        = list(string)
   description = "A list of VGWs the public route table should propagate."
   default     = []
 }
 
 variable "public_subnets_list" {
+  type        = list(string)
   description = "A list of public subnets inside the VPC."
   default     = ["10.77.1.0/26", "10.77.1.128/26"]
 }
@@ -211,36 +283,59 @@ variable "root_volume_type" {
 }
 
 variable "security_group_description" {
+  type        = string
   description = "Description of the security group"
   default     = "SIEM Collector Security Group"
 }
 
 variable "security_group_name" {
+  type        = string
   description = "Name of the security group used for SIEM"
   default     = "siem_collector_sg"
 }
 
 variable "single_nat_gateway" {
+  type        = bool
   description = "should be true if you want to provision a single shared NAT Gateway across all of your private networks"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.single_nat_gateway))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "source_dest_check" {
+  type        = bool
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.source_dest_check))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "static_routes_only" {
+  type        = bool
   description = "Flag to determine whether or not dynamic or static routing is enabled"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.static_routes_only))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "tenancy" {
+  type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
+  validation {
+    condition     = can(regex("^(default|dedicated|host)$", var.tenancy))
+    error_message = "The value must be either default, dedicated or host."
+  }
 }
 
 variable "vpc_cidr" {
+  type        = string
   description = "The CIDR block for the VPC"
   default     = "10.77.1.0/24"
 }
@@ -258,6 +353,7 @@ variable "vpn_route_cidr_blocks" {
 }
 
 variable "vpn_type" {
+  type        = string
   description = "Type of VPN tunnel. Currently only supports ipsec.1"
   default     = "ipsec.1"
 }
@@ -561,6 +657,7 @@ variable "enable_siem_cloudtrail_logs" {
 }
 
 variable "tags" {
+  type        = map(string)
   description = "A map of tags to add to all resources"
   default = {
     backup      = "true"
