@@ -1,0 +1,25 @@
+---
+name: Build - tfsec
+on:
+  pull_request:
+
+jobs:
+  build:
+    name: tfsec
+    runs-on: ubuntu-latest
+
+    steps:
+      ##########################
+      # Checkout the code base
+      ##########################
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      ##########################
+      # Run TFSEC
+      ##########################
+      - name: Run tfsec and write pull request comments
+        uses: tfsec/tfsec-pr-commenter-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tfsec_args: --force-all-dirs

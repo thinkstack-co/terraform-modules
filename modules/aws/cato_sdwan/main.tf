@@ -1,11 +1,12 @@
 terraform {
   required_version = ">= 1.0.0"
 }
+# tflint-ignore: terraform_required_providers
 
 ############################################
 # Data Sources
 ############################################
-data "aws_caller_identity" "current" {}
+# data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 ############################################
@@ -18,6 +19,7 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
   vpc_id      = var.vpc_id
 
   egress {
+    description = "HTTPS Tunnel"
     from_port   = 443
     to_port     = 443
     protocol    = "TCP"
@@ -25,6 +27,7 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
   }
 
   egress {
+    description = "HTTPS Tunnel"
     from_port   = 443
     to_port     = 443
     protocol    = "UDP"
@@ -40,6 +43,7 @@ resource "aws_security_group" "cato_lan_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -47,6 +51,7 @@ resource "aws_security_group" "cato_lan_sg" {
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -67,8 +72,8 @@ resource "aws_eip" "wan_external_ip" {
 
 resource "aws_eip_association" "wan_external_ip" {
   count                = var.number
-  allocation_id        = element(aws_eip.wan_external_ip.*.id, count.index)
-  network_interface_id = element(aws_network_interface.public_nic.*.id, count.index)
+  allocation_id        = element(aws_eip.wan_external_ip[*].id, count.index)
+  network_interface_id = element(aws_network_interface.public_nic[*].id, count.index)
 }
 
 ############################################
@@ -93,7 +98,7 @@ resource "aws_network_interface" "public_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_public", var.instance_name_prefix, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2_instance.*.id, count.index)
+    instance     = element(aws_instance.ec2_instance[*].id, count.index)
     device_index = 1
   }
 }
@@ -108,7 +113,7 @@ resource "aws_network_interface" "private_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_private", var.instance_name_prefix, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2_instance.*.id, count.index)
+    instance     = element(aws_instance.ec2_instance[*].id, count.index)
     device_index = 2
   }
 }
@@ -131,7 +136,7 @@ resource "aws_instance" "ec2_instance" {
   user_data            = var.user_data
 
   network_interface {
-    network_interface_id = element(aws_network_interface.mgmt_nic.*.id, count.index)
+    network_interface_id = element(aws_network_interface.mgmt_nic[*].id, count.index)
     device_index         = 0
   }
 
@@ -154,12 +159,12 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled     = true
   alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2_instance.*.id, count.index))
+  alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
   count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
+    InstanceId = element(aws_instance.ec2_instance[*].id, count.index)
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -181,12 +186,12 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
   alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance.*.id, count.index))
+  alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
   count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = element(aws_instance.ec2_instance.*.id, count.index)
+    InstanceId = element(aws_instance.ec2_instance[*].id, count.index)
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
