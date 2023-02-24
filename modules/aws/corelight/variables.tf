@@ -117,7 +117,7 @@ variable "instance_initiated_shutdown_behavior" {
   # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
   type        = string
   description = "(Optional) Shutdown behavior for the instance"
-  default     = ""
+  default     = null
 }
 
 variable "instance_type" {
