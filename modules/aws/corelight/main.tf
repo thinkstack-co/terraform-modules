@@ -86,7 +86,7 @@ resource "aws_network_interface" "mgmt_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_mgmt", var.name, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2.*.id, count.index)
+    instance     = element(aws_instance.ec2[*].id, count.index)
     device_index = 1
   }
 }
@@ -134,29 +134,6 @@ resource "aws_instance" "ec2" {
   }
 }
 
-
-#######################
-# EBS Volume Module
-#######################
-
-# Corelight AMI already includes a 500GB log EBS volume
-/*resource "aws_ebs_volume" "logs" {
-  availability_zone = element(var.availability_zones, count.index)
-  count             = var.number
-  encrypted         = var.encrypted
-  size              = var.log_volume_size
-  type              = var.log_volume_type
-  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
-}
-
-resource "aws_volume_attachment" "log_volume_attach" {
-  count       = var.number
-  device_name = var.log_volume_device_name
-  instance_id = aws_instance.ec2[count.index].id
-  volume_id   = aws_ebs_volume.logs[count.index].id
-}*/
-
-
 ###################################################
 # CloudWatch Alarms
 ###################################################
@@ -185,7 +162,6 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
 
 #####################
@@ -212,5 +188,4 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
