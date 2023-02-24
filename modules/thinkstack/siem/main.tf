@@ -199,8 +199,8 @@ resource "aws_instance" "ec2" {
   private_ip                           = var.private_ip
 
   metadata_options {
-    http_endpoint = "enabled"
-    http_tokens   = "required"
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
   }
 
   root_block_device {
