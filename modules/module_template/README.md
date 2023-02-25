@@ -82,6 +82,8 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- terraform-docs output will be input automatically below-->
+<!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
 
 <!-- END_TF_DOCS -->
