@@ -57,7 +57,6 @@ No modules.
 | [aws_network_interface.public_nic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
 | [aws_security_group.cato_lan_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.cato_wan_mgmt_sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
@@ -65,9 +64,10 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_ami"></a> [ami](#input\_ami) | (Required) AMI to use for the instance. Required unless launch\_template is specified and the Launch Template specifes an AMI. If an AMI is specified in the Launch Template, setting ami will override the AMI specified in the Launch Template. | `string` | n/a | yes |
-| <a name="input_availability_zone"></a> [availability\_zone](#input\_availability\_zone) | (Required) AZ to start the instance in. | `list(string)` | n/a | yes |
 | <a name="input_cato_lan_cidr_blocks"></a> [cato\_lan\_cidr\_blocks](#input\_cato\_lan\_cidr\_blocks) | (Optional) List of CIDR blocks allowed to utilize the Cato instance for SDWAN communication. | `list(string)` | `null` | no |
 | <a name="input_ebs_optimized"></a> [ebs\_optimized](#input\_ebs\_optimized) | (Optional) If true, the launched EC2 instance will be EBS-optimized. Note that if this is not set on an instance type that is optimized by default then this will show as disabled but if the instance type is optimized by default then there is no need to set this and there is no effect to disabling it. See the EBS Optimized section of the AWS User Guide for more information. | `bool` | `true` | no |
+| <a name="input_http_endpoint"></a> [http\_endpoint](#input\_http\_endpoint) | (Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled. | `string` | `"enabled"` | no |
+| <a name="input_http_tokens"></a> [http\_tokens](#input\_http\_tokens) | (Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional. | `string` | `"required"` | no |
 | <a name="input_iam_instance_profile"></a> [iam\_instance\_profile](#input\_iam\_instance\_profile) | (Optional) IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile. Ensure your credentials have the correct permission to assign the instance profile according to the EC2 documentation, notably iam:PassRole. | `string` | `null` | no |
 | <a name="input_instance_name_prefix"></a> [instance\_name\_prefix](#input\_instance\_name\_prefix) | (Optional) Used to populate the Name tag. | `string` | `"aws_prod_cato"` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | (Optional) Instance type to use for the instance. Updates to this field will trigger a stop/start of the EC2 instance. | `string` | `"c5.xlarge"` | no |
@@ -89,7 +89,7 @@ No modules.
 | <a name="input_root_volume_type"></a> [root\_volume\_type](#input\_root\_volume\_type) | (Optional) Type of volume. Valid values include standard, gp2, gp3, io1, io2, sc1, or st1. Defaults to gp3 | `string` | `"gp3"` | no |
 | <a name="input_source_dest_check"></a> [source\_dest\_check](#input\_source\_dest\_check) | (Optional) Whether to enable source destination checking for the ENI. Default false. | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) Map of tags to assign to the device. | `map` | <pre>{<br>  "created_by": "terraform",<br>  "environment": "prod",<br>  "role": "cato_sdwan",<br>  "terraform": "true"<br>}</pre> | no |
-| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | (Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user\_data\_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user\_data\_replace\_on\_change is set then updates to this field will trigger a destroy and recreate. | `any` | `null` | no |
+| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | (Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user\_data\_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user\_data\_replace\_on\_change is set then updates to this field will trigger a destroy and recreate. | `string` | `null` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Required, Forces new resource) VPC ID. Defaults to the region's default VPC. | `string` | n/a | yes |
 | <a name="input_wan_mgmt_sg_name"></a> [wan\_mgmt\_sg\_name](#input\_wan\_mgmt\_sg\_name) | (Optional, Forces new resource) Name of the security group. If omitted, Terraform will assign a random, unique name. | `string` | `"cato_wan_mgmt_sg"` | no |
 

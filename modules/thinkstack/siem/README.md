@@ -50,7 +50,6 @@ This module sets up all of the necesarry components for the ThinkStack SIEM secu
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
-| <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
@@ -114,16 +113,15 @@ No modules.
 | [aws_vpn_gateway.vpn_gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
-| [template_file.user_data](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ami"></a> [ami](#input\_ami) | ID of AMI to use for the instance | `any` | n/a | yes |
+| <a name="input_ami"></a> [ami](#input\_ami) | ID of AMI to use for the instance | `string` | n/a | yes |
 | <a name="input_associate_public_ip_address"></a> [associate\_public\_ip\_address](#input\_associate\_public\_ip\_address) | If true, the EC2 instance will have associated public IP address | `bool` | `false` | no |
 | <a name="input_auto_accept"></a> [auto\_accept](#input\_auto\_accept) | (Optional) Accept the peering (both VPCs need to be in the same AWS account). | `string` | `true` | no |
-| <a name="input_azs"></a> [azs](#input\_azs) | A list of availability zones in the region which will be utilized by this VPC | `list` | <pre>[<br>  "us-east-1a",<br>  "us-east-1b"<br>]</pre> | no |
+| <a name="input_azs"></a> [azs](#input\_azs) | A list of availability zones in the region which will be utilized by this VPC | `list(string)` | <pre>[<br>  "us-east-1a",<br>  "us-east-1b"<br>]</pre> | no |
 | <a name="input_bgp_asn"></a> [bgp\_asn](#input\_bgp\_asn) | BGP ASN used for dynamic routing between the customer gateway and AWS gateway | `number` | `65077` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. Must be lowercase and less than or equal to 37 characters in length | `string` | `"siem-cloudtrail-"` | no |
 | <a name="input_cloudtrail_key_customer_master_key_spec"></a> [cloudtrail\_key\_customer\_master\_key\_spec](#input\_cloudtrail\_key\_customer\_master\_key\_spec) | (Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC\_DEFAULT, RSA\_2048, RSA\_3072, RSA\_4096, ECC\_NIST\_P256, ECC\_NIST\_P384, ECC\_NIST\_P521, or ECC\_SECG\_P256K1. Defaults to SYMMETRIC\_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide. | `string` | `"SYMMETRIC_DEFAULT"` | no |
@@ -133,7 +131,6 @@ No modules.
 | <a name="input_cloudtrail_key_is_enabled"></a> [cloudtrail\_key\_is\_enabled](#input\_cloudtrail\_key\_is\_enabled) | (Optional) Specifies whether the key is enabled. Defaults to true. | `string` | `true` | no |
 | <a name="input_cloudtrail_key_name_prefix"></a> [cloudtrail\_key\_name\_prefix](#input\_cloudtrail\_key\_name\_prefix) | (Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/). | `string` | `"alias/cloudtrail_logs_key_"` | no |
 | <a name="input_cloudtrail_key_usage"></a> [cloudtrail\_key\_usage](#input\_cloudtrail\_key\_usage) | (Optional) Specifies the intended use of the key. Defaults to ENCRYPT\_DECRYPT, and only symmetric encryption and decryption are supported. | `string` | `"ENCRYPT_DECRYPT"` | no |
-| <a name="input_created_by"></a> [created\_by](#input\_created\_by) | (Required) the full name of the person who is created the resource in terraform | `string` | n/a | yes |
 | <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order | `list` | `null` | no |
 | <a name="input_disable_api_termination"></a> [disable\_api\_termination](#input\_disable\_api\_termination) | If true, enables EC2 Instance Termination Protection | `bool` | `false` | no |
 | <a name="input_ebs_optimized"></a> [ebs\_optimized](#input\_ebs\_optimized) | If true, the launched EC2 instance will be EBS-optimized | `bool` | `false` | no |
@@ -146,7 +143,7 @@ No modules.
 | <a name="input_enable_vpc_flow_logs"></a> [enable\_vpc\_flow\_logs](#input\_enable\_vpc\_flow\_logs) | (Optional) A boolean flag to enable/disable the use of VPC flow logs with the VPC. Defaults true. | `bool` | `true` | no |
 | <a name="input_enable_vpc_peering"></a> [enable\_vpc\_peering](#input\_enable\_vpc\_peering) | (Required)Boolean which should be set to true if you want to enable and set up vpc peering | `bool` | `false` | no |
 | <a name="input_enable_vpn_peering"></a> [enable\_vpn\_peering](#input\_enable\_vpn\_peering) | (Required)Boolean which should be set to true if you want to enable and set up a vpn tunnel | `bool` | `false` | no |
-| <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | (Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection. | `string` | `true` | no |
+| <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | (Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection. | `bool` | `true` | no |
 | <a name="input_flow_cloudwatch_name_prefix"></a> [flow\_cloudwatch\_name\_prefix](#input\_flow\_cloudwatch\_name\_prefix) | (Optional, Forces new resource) Creates a unique name beginning with the specified prefix. | `string` | `"flow_logs_"` | no |
 | <a name="input_flow_cloudwatch_retention_in_days"></a> [flow\_cloudwatch\_retention\_in\_days](#input\_flow\_cloudwatch\_retention\_in\_days) | (Optional) Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `365` | no |
 | <a name="input_flow_iam_policy_description"></a> [flow\_iam\_policy\_description](#input\_flow\_iam\_policy\_description) | (Optional, Forces new resource) Description of the IAM policy. | `string` | `"Used with flow logs to send packet capture logs to a CloudWatch log group"` | no |
@@ -168,10 +165,12 @@ No modules.
 | <a name="input_flow_log_destination_type"></a> [flow\_log\_destination\_type](#input\_flow\_log\_destination\_type) | (Optional) The type of the logging destination. Valid values: cloud-watch-logs, s3. Default: cloud-watch-logs. | `string` | `"cloud-watch-logs"` | no |
 | <a name="input_flow_max_aggregation_interval"></a> [flow\_max\_aggregation\_interval](#input\_flow\_max\_aggregation\_interval) | (Optional) The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid Values: 60 seconds (1 minute) or 600 seconds (10 minutes). Default: 600. | `number` | `60` | no |
 | <a name="input_flow_traffic_type"></a> [flow\_traffic\_type](#input\_flow\_traffic\_type) | (Optional) The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL. | `string` | `"ALL"` | no |
+| <a name="input_http_endpoint"></a> [http\_endpoint](#input\_http\_endpoint) | (Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled. | `string` | `"enabled"` | no |
+| <a name="input_http_tokens"></a> [http\_tokens](#input\_http\_tokens) | (Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional. | `string` | `"required"` | no |
 | <a name="input_iam_instance_profile"></a> [iam\_instance\_profile](#input\_iam\_instance\_profile) | The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile. | `string` | `"siem-ssm-service-role"` | no |
 | <a name="input_iam_role_name"></a> [iam\_role\_name](#input\_iam\_role\_name) | (Optional, Forces new resource) The name of the role. If omitted, Terraform will assign a random, unique name. | `string` | `"siem-ssm-service-role"` | no |
 | <a name="input_instance_count"></a> [instance\_count](#input\_instance\_count) | Number of instances to launch | `number` | `1` | no |
-| <a name="input_instance_initiated_shutdown_behavior"></a> [instance\_initiated\_shutdown\_behavior](#input\_instance\_initiated\_shutdown\_behavior) | Shutdown behavior for the instance | `string` | `""` | no |
+| <a name="input_instance_initiated_shutdown_behavior"></a> [instance\_initiated\_shutdown\_behavior](#input\_instance\_initiated\_shutdown\_behavior) | (Optional) Shutdown behavior for the instance. Amazon defaults this to stop for EBS-backed instances and terminate for instance-store instances. Cannot be set on instance-store instances. See Shutdown Behavior for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior | `string` | `"stop"` | no |
 | <a name="input_instance_tenancy"></a> [instance\_tenancy](#input\_instance\_tenancy) | A tenancy option for instances launched into the VPC | `string` | `"default"` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | The type of instance to start | `string` | `"t3a.medium"` | no |
 | <a name="input_key_name_prefix"></a> [key\_name\_prefix](#input\_key\_name\_prefix) | SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments | `string` | `"siem_keypair"` | no |
@@ -187,11 +186,11 @@ No modules.
 | <a name="input_peer_vpc_subnet"></a> [peer\_vpc\_subnet](#input\_peer\_vpc\_subnet) | (Optional) The subnet cidr block of the VPC which will be a peer | `string` | `""` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | The Placement Group to start the instance in | `string` | `""` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | Private IP address to associate with the instance in a VPC | `string` | `"10.77.1.70"` | no |
-| <a name="input_private_propagating_vgws"></a> [private\_propagating\_vgws](#input\_private\_propagating\_vgws) | A list of VGWs the private route table should propagate. | `list` | `[]` | no |
-| <a name="input_private_subnets_list"></a> [private\_subnets\_list](#input\_private\_subnets\_list) | A list of private subnets inside the VPC. | `list` | <pre>[<br>  "10.77.1.64/26",<br>  "10.77.1.192/26"<br>]</pre> | no |
-| <a name="input_public_key"></a> [public\_key](#input\_public\_key) | (Required) Public rsa key | `any` | n/a | yes |
-| <a name="input_public_propagating_vgws"></a> [public\_propagating\_vgws](#input\_public\_propagating\_vgws) | A list of VGWs the public route table should propagate. | `list` | `[]` | no |
-| <a name="input_public_subnets_list"></a> [public\_subnets\_list](#input\_public\_subnets\_list) | A list of public subnets inside the VPC. | `list` | <pre>[<br>  "10.77.1.0/26",<br>  "10.77.1.128/26"<br>]</pre> | no |
+| <a name="input_private_propagating_vgws"></a> [private\_propagating\_vgws](#input\_private\_propagating\_vgws) | A list of VGWs the private route table should propagate. | `list(string)` | `[]` | no |
+| <a name="input_private_subnets_list"></a> [private\_subnets\_list](#input\_private\_subnets\_list) | A list of private subnets inside the VPC. | `list(string)` | <pre>[<br>  "10.77.1.64/26",<br>  "10.77.1.192/26"<br>]</pre> | no |
+| <a name="input_public_key"></a> [public\_key](#input\_public\_key) | (Required) Public rsa key | `string` | n/a | yes |
+| <a name="input_public_propagating_vgws"></a> [public\_propagating\_vgws](#input\_public\_propagating\_vgws) | A list of VGWs the public route table should propagate. | `list(string)` | `[]` | no |
+| <a name="input_public_subnets_list"></a> [public\_subnets\_list](#input\_public\_subnets\_list) | A list of public subnets inside the VPC. | `list(string)` | <pre>[<br>  "10.77.1.0/26",<br>  "10.77.1.128/26"<br>]</pre> | no |
 | <a name="input_root_delete_on_termination"></a> [root\_delete\_on\_termination](#input\_root\_delete\_on\_termination) | (Optional) Whether the volume should be destroyed on instance termination (Default: true) | `string` | `true` | no |
 | <a name="input_root_volume_size"></a> [root\_volume\_size](#input\_root\_volume\_size) | (Optional) The size of the volume in gigabytes. | `string` | `"100"` | no |
 | <a name="input_root_volume_type"></a> [root\_volume\_type](#input\_root\_volume\_type) | (Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard) | `string` | `"gp2"` | no |
@@ -201,7 +200,7 @@ No modules.
 | <a name="input_single_nat_gateway"></a> [single\_nat\_gateway](#input\_single\_nat\_gateway) | should be true if you want to provision a single shared NAT Gateway across all of your private networks | `bool` | `false` | no |
 | <a name="input_source_dest_check"></a> [source\_dest\_check](#input\_source\_dest\_check) | Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs. | `bool` | `true` | no |
 | <a name="input_static_routes_only"></a> [static\_routes\_only](#input\_static\_routes\_only) | Flag to determine whether or not dynamic or static routing is enabled | `bool` | `true` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map` | <pre>{<br>  "backup": "true",<br>  "created_by": "Your Name",<br>  "environment": "prod",<br>  "project": "SIEM Implementation",<br>  "service": "soc",<br>  "team": "Security Team",<br>  "terraform": "true",<br>  "used_by": "ThinkStack"<br>}</pre> | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | <pre>{<br>  "backup": "true",<br>  "created_by": "Your Name",<br>  "environment": "prod",<br>  "project": "SIEM Implementation",<br>  "service": "soc",<br>  "team": "Security Team",<br>  "terraform": "true",<br>  "used_by": "ThinkStack"<br>}</pre> | no |
 | <a name="input_tenancy"></a> [tenancy](#input\_tenancy) | The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host. | `string` | `"default"` | no |
 | <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | (Optional) Identifier of an EC2 Transit Gateway. | `string` | `null` | no |
 | <a name="input_transit_subnet_route_cidr_blocks"></a> [transit\_subnet\_route\_cidr\_blocks](#input\_transit\_subnet\_route\_cidr\_blocks) | (Optional) The destination CIDR blocks to send to the transit gateway. | `list` | `null` | no |
