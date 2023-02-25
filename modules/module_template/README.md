@@ -26,7 +26,6 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -55,19 +54,6 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -76,59 +62,6 @@
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
-
-
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://github.com/thinkstack-co/terraform-modules)
-
-These terraform modules were originally created as part of a six month adoption of 'Infrastructure as Code' at Think|Stack. They serve as the basis to an iterative approach to managing infrastructure. They've grown and expanded to be the workhorse of our organization that we wish to share and collaborate with the world. We are ever evolving and this code will continues to evolve as features, needs, and best practices do.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-### Built With
-
-* [![Terraform][Terraform.io]][Terraform-url]
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-To get a local copy up and running, simply clone this repo.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* MacOS
-  ```sh
-  brew install terraform
-  ```
-* Debian/Ubuntu
-  ```sh
-  apt install terraform
-  ```
-* Windows
-  ```sh
-  choco install -y terraform
-  ```
-
-### Installation
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/thinkstack-co/terraform-modules.git
-   ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- USAGE EXAMPLES -->
