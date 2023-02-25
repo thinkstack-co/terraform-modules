@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "sqs_queue_map" {
       source           = "github.com/thinkstack-co/terraform-modules//modules/aws/lambda_event_source_mapping"
       

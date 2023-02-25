@@ -4,7 +4,7 @@
  - lan0 - Typically on the private/server subnet
  - mgmt0 - Typically set in a mgmt subnet
 
-# Usage
+## Usage
     module "aws_prod_silverpeak" {
       source            = "github.com/thinkstack-co/terraform-modules//modules/aws/silverpeak"
       

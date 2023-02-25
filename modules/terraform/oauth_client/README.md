@@ -2,7 +2,7 @@
 # Terraform OAuth Module
 This module generates and manages a terraform cloud oauth id with your version control system
 
-# Usage
+## Usage
 
     module "prod_oauth" {
         source           = "github.com/thinkstack-co/terraform-modules//modules/terraform/oauth_client"

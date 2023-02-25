@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "cert_example_com" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/acm_certificate"
 

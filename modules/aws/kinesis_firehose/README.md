@@ -4,7 +4,7 @@ Kinesis Firehose Module
 This module sets up each componenet required to build a Kinesis Firehose stream that will deliver to a dedicated S3 bucket. By default this module will be set up to work without any changes to variables. The result of this module creates a unique S3 bucket with a prefix of 'kinesis-firehose-', an IAM policy and IAM role which can be used with to deliver logs or data to that S3 bucket.
 
 
-# Usage
+## Usage
 
     module "kinesis_firehose" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/kinesis_firehose"

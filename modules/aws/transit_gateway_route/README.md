@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "destination_name_transit_gateway_route" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/transit_gateway_route"
 

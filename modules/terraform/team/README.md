@@ -1,4 +1,4 @@
-# Usage
+## Usage
 
     module "example_team" {
         source            = "github.com/thinkstack-co/terraform-modules//modules/terraform/team"

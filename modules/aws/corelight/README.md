@@ -5,7 +5,7 @@ Utilized to deploy a corelight collector
 - eth0 - Collecto listener. Send VPC Mirror traffic to this interface
 - eth1 - Management
 
-# Usage
+## Usage
     module "aws_prod_corelight" {
       source              = "github.com/thinkstack-co/terraform-modules//modules/aws/corelight"
       

@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "aws_prod_cato" {
         source               = "github.com/thinkstack-co/terraform-modules//modules/aws/cato_sdwan"
 

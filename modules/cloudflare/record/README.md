@@ -1,4 +1,4 @@
-# Usage
+## Usage
 
     module "www.example.com" {
         source     = "github.com/thinkstack-co/terraform-modules//modules/cloudflare/record"

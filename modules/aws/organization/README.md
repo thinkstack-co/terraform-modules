@@ -1,7 +1,7 @@
 # AWS Organization Module
 This module generates and manages an AWS Organization
 
-# Usage
+## Usage
 
     module "thinkstack_organization" {
         source                        = "github.com/thinkstack-co/terraform-modules//modules/aws/organization"

@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "dev" {
         source                       = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/alias_record"
 

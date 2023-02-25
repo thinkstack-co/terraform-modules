@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "example_com_dnssec" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/dnssec"
 

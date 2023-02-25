@@ -2,7 +2,7 @@
 # VPC Peering Connection
 Utilized to create a VPC Peering Connection
 
-# Usage
+## Usage
     module "vpc_peer" {
       source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc_peering_connection"
       

@@ -1,4 +1,4 @@
-# Usage
+## Usage
 ## Simple
     module "example_team_access" {
         source       = "github.com/thinkstack-co/terraform-modules//modules/terraform/team_access"

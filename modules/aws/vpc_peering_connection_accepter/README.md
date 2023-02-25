@@ -2,7 +2,7 @@
 # VPC Peering Connection Accepter
 Utilized to create a VPC Peering Connection Accepter
 
-# Usage
+## Usage
     module "vpc_peer_accepter" {
       source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc_peering_connection_accepter"
       

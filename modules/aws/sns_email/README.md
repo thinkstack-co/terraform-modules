@@ -3,7 +3,7 @@ SNS Email Module
 
 This module sets up 
 
-# Usage
+## Usage
     module "ad_connector" {
     source              = "github.com/thinkstack-co/terraform-modules//modules/aws/directory_service_microsoftad?ref=v0.17.0"
 

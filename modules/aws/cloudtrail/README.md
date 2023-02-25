@@ -5,7 +5,7 @@ This module sets up and enables CloudTrail for all regions. The module handles s
 
 It is highly recommended that mfa_delete be enabled after the initial build has completed.
 
-# Usage
+## Usage
     module "cloudtrail" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudtrail"
 

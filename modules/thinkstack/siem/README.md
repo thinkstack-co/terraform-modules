@@ -3,7 +3,7 @@ ThinkStack SIEM Module
 
 This module sets up all of the necesarry components for the ThinkStack SIEM security platform.
 
-# Usage
+### Usage
     module "siem" {
         source                         = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem"
 

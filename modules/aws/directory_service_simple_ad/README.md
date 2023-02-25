@@ -3,7 +3,7 @@ Directory Services ADConnector Module
 
 This module sets up the ADConnector within AWS Directory Services. This can later be used to domain join instances.
 
-# Usage
+## Usage
     module "ad_connector" {
         source              = "github.com/thinkstack-co/terraform-modules//modules/aws/directory_service_ad_connector?ref=v0.8.0"
 

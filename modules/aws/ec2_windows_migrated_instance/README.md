@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "migrated_instance" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_windows_migrated_instance"
 

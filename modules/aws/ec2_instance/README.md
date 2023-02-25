@@ -4,7 +4,7 @@ EC2 Instance Module
 This module sets up an EC2 instance with the parameters specified. This module has root block devices modifiable
 
 
-# Usage
+## Usage
         module "app_server" {
         source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
             

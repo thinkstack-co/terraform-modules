@@ -4,7 +4,7 @@ S3 Website Bucket Module
 This module sets up an EC2 instance with the parameters specified. This module has root block devices modifiable
 
 
-# Usage
+## Usage
         module "s3_prod_website_pub_bucket" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/s3_website"
         

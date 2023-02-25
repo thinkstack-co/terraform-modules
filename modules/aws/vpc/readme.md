@@ -18,7 +18,7 @@ Creates the following
 -   IAM role
 -   VPC flow log
 
-# Usage
+## Usage
     module "vpc" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc"
 

@@ -1,7 +1,7 @@
 # EC2 Domain Controller Module
 Creates an EC2 instance, status checks, and optional DHCP option sets.
 
-# Usage
+## Usage
     module "domain_controllers" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_domain_controller"
 

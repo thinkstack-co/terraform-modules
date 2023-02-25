@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "aws_ec2_fortigate_fw" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/fortigate_firewall"
 

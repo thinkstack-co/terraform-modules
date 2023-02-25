@@ -1,7 +1,7 @@
 # Terraform Workspace Module
 This module generates and manages a terraform cloud workspace
 
-# Usage
+## Usage
 
     module "client_prod_security" {
         source           = "github.com/thinkstack-co/terraform-modules//modules/terraform/workspace"

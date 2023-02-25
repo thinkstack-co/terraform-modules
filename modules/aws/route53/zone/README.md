@@ -2,7 +2,7 @@
 # Route53 Zone
 Utilized to create a Route53 Domain Zone
 
-# Usage
+## Usage
     module "route53_zone" {
       source  = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/zone"
       

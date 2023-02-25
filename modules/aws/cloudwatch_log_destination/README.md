@@ -4,7 +4,7 @@ Name Module
 Description of what this module accomplishes
 
 
-# Usage
+## Usage
 
     module "name" {
         source = "github.com/thinkstack-co/terraform-modules//modules/aws/name"

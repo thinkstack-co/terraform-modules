@@ -1,4 +1,4 @@
-# Usage
+## Usage
 ### Example TXT record
     
     module "domain_txt" {

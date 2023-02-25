@@ -1,7 +1,7 @@
 VPN Module
 =====================================
 
-# Usage
+## Usage
 ## Transit Gateway Attachment
     module "hq_meraki_comcast" {
         source                            = "github.com/thinkstack-co/terraform-modules//modules/aws/vpn"

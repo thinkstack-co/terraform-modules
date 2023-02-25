@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "sdwan_vpc_transit_gateway_attachment" {
         source             = "github.com/thinkstack-co/terraform-modules//modules/aws/transit_gateway_attachment"
 

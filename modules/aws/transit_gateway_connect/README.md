@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "transit_gateway_sdwan_connect" {
         source                  = "github.com/thinkstack-co/terraform-modules//modules/aws/transit_gateway_connect"
 

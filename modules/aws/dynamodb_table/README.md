@@ -1,4 +1,4 @@
-# Usage
+## Usage
     module "aws_prod_dynamodb" {
       source              = "github.com/thinkstack-co/terraform-modules//modules/aws/dynamodb_table"
       

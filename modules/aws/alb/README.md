@@ -4,7 +4,7 @@ Application Load Balancer Module
 This module sets up an Application Load Balancer with the parameters specified.
 
 
-# Usage
+## Usage
         module "app_server" {
         source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
             

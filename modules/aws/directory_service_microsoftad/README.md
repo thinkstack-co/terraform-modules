@@ -3,7 +3,7 @@ Directory Services MicrosoftAD Module
 
 This module sets up the MicrosoftAD within AWS Directory Services. This can later be used to domain join instances or run your entire domain off of. This includes a Microsoft Active Directory which requires AD management software in order to manage.
 
-# Usage
+## Usage
     module "ad_connector" {
     source              = "github.com/thinkstack-co/terraform-modules//modules/aws/directory_service_microsoftad?ref=v0.17.0"
 

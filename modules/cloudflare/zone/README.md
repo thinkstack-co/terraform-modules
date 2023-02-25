@@ -1,4 +1,4 @@
-# Usage
+## Usage
 
     module "example_com_zone" {
         source     = "github.com/thinkstack-co/terraform-modules//modules/cloudflare/zone"

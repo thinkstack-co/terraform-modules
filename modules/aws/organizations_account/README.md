@@ -1,7 +1,7 @@
 # AWS Organization Account Module
 This module generates and manages an AWS Organization Account
 
-# Usage
+## Usage
 
     module "client_prod_infrastructure" {
         source    = "github.com/thinkstack-co/terraform-modules//modules/aws/organizations_account"
