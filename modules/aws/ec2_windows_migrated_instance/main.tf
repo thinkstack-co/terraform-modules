@@ -14,15 +14,11 @@ resource "aws_instance" "ec2_instance" {
   vpc_security_group_ids = var.security_group_ids
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%01d", var.instance_name_prefix, count.index + 1) }))
   tags                   = merge(var.tags, ({ "Name" = format("%s%01d", var.instance_name_prefix, count.index + 1) }))
-  /*    root_block_device {
-        volume_type = var.root_volume_type
-        volume_size = var.root_volume_size
-        }
-    ebs_block_device {
-        device_name = var.ebs_device_name
-        volume_type = var.ebs_volume_type
-        volume_size = var.ebs_volume_size
-        }*/
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
   lifecycle {
     ignore_changes = [ami, user_data]

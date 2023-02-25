@@ -40,34 +40,29 @@ variable "security_group_ids" {
   description = "Lits of security group ids to attach to the instance"
 }
 
-/*variable "root_volume_type" {
-  description = "Root volume EBS type"
-  default     = "gp2"
-}
-
-variable "root_volume_size" {
-  description = "root volume disk size"
-  default     = "80"
-}
-
-variable "ebs_device_name" {
-  description = "ebs volume mount name"
-  default     = "/dev/sdf"
-}
-
-variable "ebs_volume_type" {
-  description = "ebs volume type"
-  default     = "gp2"
-}
-
-variable "ebs_volume_size" {
-  description = "ebs volume disk size"
-  default     = "8"
-}*/
-
 variable "region" {
   type        = string
   description = "(Required) VPC Region the resources exist in"
+}
+
+variable "http_endpoint" {
+  type        = string
+  description = "(Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled."
+  default     = "enabled"
+  validation {
+    condition     = can(regex("^(enabled|disabled)$", var.http_endpoint))
+    error_message = "The value must be either enabled or disabled."
+  }
+}
+
+variable "http_tokens" {
+  type        = string
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional."
+  default     = "required"
+  validation {
+    condition     = can(regex("^(optional|required)$", var.http_tokens))
+    error_message = "The value must be either optional or required."
+  }
 }
 
 variable "tags" {

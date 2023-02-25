@@ -4,6 +4,8 @@ resource "aws_lb" "this" {
   enable_deletion_protection       = var.enable_deletion_protection
   enable_http2                     = var.enable_http2
   idle_timeout                     = var.idle_timeout
+  # This is meant to allow the ability for an ALB to be internal or external
+  #tfsec:ignore:aws-elb-alb-not-public
   internal                         = var.internal
   ip_address_type                  = var.ip_address_type
   load_balancer_type               = var.load_balancer_type

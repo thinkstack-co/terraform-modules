@@ -8,16 +8,22 @@ resource "aws_security_group" "fortigate_fw_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Fortigate Firewall requires communication from all devices
+    #tfsec:ignore:aws-ec2-no-public-ingress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Fortigate Firewall requires communication to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -101,6 +107,11 @@ resource "aws_instance" "ec2_instance" {
   monitoring           = var.monitoring
   volume_tags          = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
   tags                 = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
   network_interface {
     network_interface_id = element(aws_network_interface.fw_public_nic.*.id, count.index)

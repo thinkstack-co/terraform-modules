@@ -15,7 +15,7 @@ variable "hash_key" {
 }
 
 variable "local_secondary_index" {
-  type        = maps
+  type        = map
   description = "(Optional, Forces new resource) Describe an LSI on the table; these can only be allocated at creation so you cannot change this definition after you have created the resource."
   default     = {}
 }
@@ -25,12 +25,10 @@ variable "name" {
   description = "(Required) The name of the table, this needs to be unique within a region."
 }
 
-variable "point_in_time_recovery" {
-  type        = map
-  description = "(Optional) Point-in-time recovery options."
-  default = {
-    enabled = false
-  }
+variable "enable_point_in_time_recovery" {
+  type        = bool
+  description = "(Optional) Whether to enable point-in-time recovery. It can take 10 minutes to enable for new tables. If the point_in_time_recovery block is not provided, this defaults to false."
+  default     = true
 }
 
 variable "range_key" {

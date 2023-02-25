@@ -57,6 +57,7 @@ variable "nlb_name" {
 }
 
 variable "number" {
+  type        = number
   description = "(Optional) Number of instances and resources to launch"
   default     = 1
 }
@@ -67,22 +68,10 @@ variable "listener_nic_description" {
   default     = "Corelight listener nic"
 }
 
-variable "listener_nic_private_ips" {
-  type        = list
-  description = "(Optional) List of private IPs to assign to the ENI."
-  default     = []
-}
-
 variable "mgmt_nic_description" {
   type        = string
   description = "(Optional) A description for the network interface."
   default     = "Corelight mgmt nic"
-}
-
-variable "mgmt_nic_private_ips" {
-  type        = list
-  description = "(Optional) List of private IPs to assign to the ENI."
-  default     = []
 }
 
 variable "ami" {
@@ -114,10 +103,13 @@ variable "iam_instance_profile" {
 }
 
 variable "instance_initiated_shutdown_behavior" {
-  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
   type        = string
-  description = "(Optional) Shutdown behavior for the instance"
-  default     = ""
+  description = "(Optional) Shutdown behavior for the instance. Amazon defaults this to stop for EBS-backed instances and terminate for instance-store instances. Cannot be set on instance-store instances. See Shutdown Behavior for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior"
+  default     = "stop"
+  validation {
+    condition     = can(regex("stop|terminate", var.instance_initiated_shutdown_behavior))
+    error_message = "The value must be either stop or terminate."
+  }
 }
 
 variable "instance_type" {
@@ -148,6 +140,26 @@ variable "placement_group" {
   type        = string
   description = "(Optional) The Placement Group to start the instance in"
   default     = ""
+}
+
+variable "http_endpoint" {
+  type        = string
+  description = "(Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled."
+  default     = "enabled"
+  validation {
+    condition     = can(regex("^(enabled|disabled)$", var.http_endpoint))
+    error_message = "The value must be either enabled or disabled."
+  }
+}
+
+variable "http_tokens" {
+  type        = string
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional."
+  default     = "required"
+  validation {
+    condition     = can(regex("^(optional|required)$", var.http_tokens))
+    error_message = "The value must be either optional or required."
+  }
 }
 
 variable "region" {
@@ -196,28 +208,15 @@ variable "listener_subnet_ids" {
 }
 
 variable "tenancy" {
+  type        = string
   description = "(Optional) The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
-  default     = "default"
+  default     =  "default"
+  validation {
+    condition     = can(regex("^(default|dedicated|host)$", var.tenancy))
+    error_message = "The value must be either default, dedicated, or host."
+  }
 }
 
 variable "user_data" {
   description = "(Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421'"
 }
-
-/*variable "log_volume_device_name" {
-  type        = string
-  description = "The device name to expose to the instance (for example, /dev/sdh or xvdf)"
-  default     = "xvdf"
-}
-
-variable "log_volume_size" {
-  type        = string
-  description = "(Optional) The size of the volume in gigabytes."
-  default     = "500"
-}
-
-variable "log_volume_type" {
-  type        = string
-  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
-  default     = "gp2"
-}*/
