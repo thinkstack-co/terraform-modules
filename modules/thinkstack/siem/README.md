@@ -1,43 +1,109 @@
-ThinkStack SIEM Module
-=====================================
+<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a name="readme-top"></a>
 
-This module sets up all of the necesarry components for the ThinkStack SIEM security platform.
 
-### Usage
-    module "siem" {
-        source                         = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem"
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-        ami                            = var.centos_ami[var.aws_region]
-        created_by                     = "Zachary Hill"
-        public_key                     = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
-        sg_cidr_blocks                 = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
 
-        enable_vpn_peering             = true
-        customer_gw_name               = ["hq_edge"]
-        vpn_peer_ip_address            = ["1.1.1.1"]
-        vpn_route_cidr_blocks          = ["192.168.1.0/24"]
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/thinkstack-co/terraform-modules">
+    <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
+  </a>
 
-        enable_vpc_peering             = true
-        peer_vpc_ids                   = ["vpc-insertiddhere"]
-        peer_vpc_subnet                = "10.11.0.0/16"
+<h3 align="center">ThinkStack SIEM Module</h3>
+  <p align="center">
+    This module sets up all of the necesarry components for the ThinkStack SIEM security platform.
+    <br />
+    <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://www.thinkstack.co/">Think|Stack</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Request Feature</a>
+  </p>
+</div>
 
-        enable_transit_gateway_peering = true
-        transit_gateway_id             = "tgw-fdsajfkdlsaljk"
-        transit_subnet_route_cidr_blocks = ["10.24.0.0/16", "10.1.1.0/24"]
 
-        enable_siem_cloudtrail_logs    = true
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#providers">Providers</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <li><a href="#outputs">Outputs</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-        tags                           = {
-            created_by  = "Zachary Hill"
-            terraform   = "true"
-            environment = "prod"
-            project     = "SIEM Implementation"
-            team        = "Security Team"
-            used_by     = "ThinkStack"
-        }
+
+<!-- USAGE EXAMPLES -->
+## Usage
+### Simple Example
+```
+module "siem" {
+    source                         = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/siem"
+
+    ami                            = var.centos_ami[var.aws_region]
+    created_by                     = "Zachary Hill"
+    public_key                     = "ssh-rsa IAMFAKE2478147921389jhkfdjskafdjklsfajdjslafdjksafljdsajkfdsjklafjdshhr32bn=="
+    sg_cidr_blocks                 = ["192.168.1.0/24", "10.1.1.0/24", "10.11.0.0/16"]
+
+    enable_vpn_peering             = true
+    customer_gw_name               = ["hq_edge"]
+    vpn_peer_ip_address            = ["1.1.1.1"]
+    vpn_route_cidr_blocks          = ["192.168.1.0/24"]
+
+    enable_vpc_peering             = true
+    peer_vpc_ids                   = ["vpc-insertiddhere"]
+    peer_vpc_subnet                = "10.11.0.0/16"
+
+    enable_transit_gateway_peering = true
+    transit_gateway_id             = "tgw-fdsajfkdlsaljk"
+    transit_subnet_route_cidr_blocks = ["10.24.0.0/16", "10.1.1.0/24"]
+
+    enable_siem_cloudtrail_logs    = true
+
+    tags                           = {
+        created_by  = "Zachary Hill"
+        terraform   = "true"
+        environment = "prod"
+        project     = "SIEM Implementation"
+        team        = "Security Team"
+        used_by     = "ThinkStack"
     }
+}
+```
 
+_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- terraform-docs output will be input automatically below-->
+<!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -244,3 +310,50 @@ No modules.
 | <a name="output_vpn_connection_tunnel2_address"></a> [vpn\_connection\_tunnel2\_address](#output\_vpn\_connection\_tunnel2\_address) | n/a |
 | <a name="output_vpn_gateway_id"></a> [vpn\_gateway\_id](#output\_vpn\_gateway\_id) | n/a |
 <!-- END_TF_DOCS -->
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+
+Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Zachary Hill](https://zacharyhill.co)
+* [Jake Jones](https://github.com/jakeasarus)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[forks-url]: https://github.com/thinkstack-co/terraform-modules/network/members
+[stars-shield]: https://img.shields.io/github/stars/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[stars-url]: https://github.com/thinkstack-co/terraform-modules/stargazers
+[issues-shield]: https://img.shields.io/github/issues/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[issues-url]: https://github.com/thinkstack-co/terraform-modules/issues
+[license-shield]: https://img.shields.io/github/license/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/company/thinkstack/
+[product-screenshot]: /images/screenshot.webp
+[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
+[Terraform-url]: https://terraform.io

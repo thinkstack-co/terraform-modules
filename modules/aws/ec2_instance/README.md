@@ -1,65 +1,164 @@
-EC2 Instance Module
-=================
+<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a name="readme-top"></a>
 
-This module sets up an EC2 instance with the parameters specified. This module has root block devices modifiable
+
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
 
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/thinkstack-co/terraform-modules">
+    <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
+  </a>
+
+<h3 align="center">EC2 Instance Module</h3>
+  <p align="center">
+    This module sets up an EC2 instance with the parameters specified. This module has root block devices modifiable
+    <br />
+    <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://www.thinkstack.co/">Think|Stack</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Request Feature</a>
+  </p>
+</div>
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#providers">Providers</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <li><a href="#outputs">Outputs</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+<!-- USAGE EXAMPLES -->
 ## Usage
-        module "app_server" {
-        source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
-            
-        name                   = "app_server"
-        ami                    = "ami-ffffffff"
-        count                  = 1
-        availability_zone      = module.vpc.availability_zone[0]
-        subnet_id              = module.vpc.private_subnet_ids[0]
-        instance_type          = "t2.large"
-        key_name               = module.keypair.key_name
-        vpc_security_group_ids = module.app_server_sg.id
-        region                 = "us-east-1"
-        root_volume_type       = "gp2"
-        root_volume_size       = "100"
+### Simple EC2 Instance Example
+```
+module "aws_sql" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
 
-        volume_tags            = {
-            os_drive    = "c"
-            device_name = "/dev/sda1"
-            terraform   = "yes"
-            created_by  = "terraform"
-            environment = "prod"
-            role        = "app_server"
-            backup      = "true"
-        }
+  ami                    = "ami-ffffffff"
+  availability_zone      = module.vpc.availability_zone[0]
+  count                  = 1
+  instance_type          = "m5.xlarge"
+  key_name               = module.keypair.key_name
+  monitoring             = true
+  name                   = "sql"
+  region                 = "us-east-1"
+  subnet_id              = module.vpc.private_subnet_ids[0]
+  vpc_security_group_ids = ["sg-ffffffff"]
+  volume_tags = {
+    os_drive    = "c"
+    device_name = "/dev/sda1"
+    terraform   = "true"
+    created_by  = "YOUR NAME"
+    environment = "prod"
+    role        = "sql"
+    backup      = "true"
+  }
+  tags = {
+    terraform        = "true"
+    created_by       = "YOUR NAME"
+    environment      = "prod"
+    role             = "sql"
+    backup           = "true"
+    hourly_retention = "7"
+  }
+}
+```
+
+### EC2 Instance With Second Attached EBS Volume
+```
+module "app_server" {
+    source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
         
-        tags                   = {
-            terraform   = "yes"
-            created_by  = "terraform"
-            environment = "prod"
-            role        = "app_server"
-            backup      = "true"
-            hourly_retention    = "7"
-        }
+    name                   = "app_server"
+    ami                    = "ami-ffffffff"
+    count                  = 1
+    availability_zone      = module.vpc.availability_zone[0]
+    subnet_id              = module.vpc.private_subnet_ids[0]
+    instance_type          = "t2.large"
+    key_name               = module.keypair.key_name
+    vpc_security_group_ids = module.app_server_sg.id
+    
+    root_volume_size       = "100"
+
+    volume_tags            = {
+        os_drive    = "c"
+        device_name = "/dev/sda1"
+        terraform   = "true"
+        created_by  = "terraform"
+        environment = "prod"
+        role        = "app_server"
+        backup      = "true"
     }
 
-    module "app_server_d_drive" {
-        source = "github.com/thinkstack-co/terraform-modules//modules/aws/ebs_volume"
-
-        availability_zone   = module.vpc.availability_zone[0]
-        size                = "50"
-        device_name         = "xvdb"
-        instance_id         = module.app_server.id[0]
-        tags                = {
-            Name        = "app_server"
-            os_drive    = "d"
-            device_name = "xvdb"
-            terraform   = "yes"
-            created_by  = "terraform"
-            environment = "prod"
-            role        = "app_server"
-            backup      = "true"
-        }
+    tags                   = {
+        terraform   = "true"
+        created_by  = "terraform"
+        environment = "prod"
+        role        = "app_server"
+        backup      = "true"
+        hourly_retention    = "7"
     }
+}
 
+module "app_server_d_drive" {
+    source = "github.com/thinkstack-co/terraform-modules//modules/aws/ebs_volume"
 
+    availability_zone   = module.vpc.availability_zone[0]
+    size                = "50"
+    device_name         = "xvdb"
+    instance_id         = module.app_server.id[0]
+    tags                = {
+        Name        = "app_server"
+        os_drive    = "d"
+        device_name = "xvdb"
+        terraform   = "true"
+        created_by  = "terraform"
+        environment = "prod"
+        role        = "app_server"
+        backup      = "true"
+    }
+}
+```
+
+_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- terraform-docs output will be input automatically below-->
+<!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -135,3 +234,50 @@ No modules.
 | <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | List of IDs of VPC subnets of instances |
 | <a name="output_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#output\_vpc\_security\_group\_ids) | List of associated security groups of instances, if running in non-default VPC |
 <!-- END_TF_DOCS -->
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+
+Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Zachary Hill](https://zacharyhill.co)
+* [Jake Jones](https://github.com/jakeasarus)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[forks-url]: https://github.com/thinkstack-co/terraform-modules/network/members
+[stars-shield]: https://img.shields.io/github/stars/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[stars-url]: https://github.com/thinkstack-co/terraform-modules/stargazers
+[issues-shield]: https://img.shields.io/github/issues/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[issues-url]: https://github.com/thinkstack-co/terraform-modules/issues
+[license-shield]: https://img.shields.io/github/license/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/company/thinkstack/
+[product-screenshot]: /images/screenshot.webp
+[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
+[Terraform-url]: https://terraform.io
