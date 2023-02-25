@@ -134,12 +134,13 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Navigate to the folder for the provider and subsequent module, service, or infrastructure you're looking to utilize. Within each module a README.md has documented the usage instructions and examples for that module. Included in each README.md is also an output of automated `terraform-docs` which has requirements, inputs, and outputs.
+```
+module test {
+    source = 
 
-### Examples:
-* [CloudTrail](https://github.com/thinkstack-co/terraform-modules/tree/main/modules/aws/cloudtrail)
-* [EC2](https://github.com/thinkstack-co/terraform-modules/tree/main/modules/aws/ec2_instance)
-* [VPC](https://github.com/thinkstack-co/terraform-modules/tree/main/modules/aws/vpc)
+    variable = 
+}
+```
 
 _For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
@@ -186,7 +187,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/thinkstack-co) - info@thinkstack.co
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
 
