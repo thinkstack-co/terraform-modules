@@ -8,7 +8,7 @@ variable "associate_public_ip_address" {
   description = "If true, the EC2 instance will have associated public IP address"
   default     = false
   validation {
-    condition     = can(regex("^(true|false)$", var.disable_api_termination))
+    condition     = can(regex("^(true|false)$", var.associate_public_ip_address))
     error_message = "The value must be either true or false."
   }
 }
@@ -40,7 +40,7 @@ variable "ebs_optimized" {
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
   validation {
-    condition     = can(regex("^(true|false)$", var.disable_api_termination))
+    condition     = can(regex("^(true|false)$", var.ebs_optimized))
     error_message = "The value must be either true or false."
   }
 }
@@ -50,7 +50,7 @@ variable "encrypted" {
   description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
   default     = true
   validation {
-    condition     = can(regex("^(true|false)$", var.disable_api_termination))
+    condition     = can(regex("^(true|false)$", var.encrypted))
     error_message = "The value must be either true or false."
   }
 }
@@ -165,7 +165,7 @@ variable "source_dest_check" {
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
   validation {
-    condition     = can(regex("^(true|false)$", var.disable_api_termination))
+    condition     = can(regex("^(true|false)$", var.source_dest_check))
     error_message = "The value must be either true or false."
   }
 }
