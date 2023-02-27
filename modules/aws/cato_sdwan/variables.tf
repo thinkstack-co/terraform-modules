@@ -90,11 +90,6 @@ variable "source_dest_check" {
 # EC2 Instance
 ############################################
 
-variable "availability_zone" {
-  description = "(Required) AZ to start the instance in."
-  type        = list(string)
-}
-
 variable "ebs_optimized" {
   description = "(Optional) If true, the launched EC2 instance will be EBS-optimized. Note that if this is not set on an instance type that is optimized by default then this will show as disabled but if the instance type is optimized by default then there is no need to set this and there is no effect to disabling it. See the EBS Optimized section of the AWS User Guide for more information."
   default     = true
@@ -154,8 +149,29 @@ variable "root_ebs_volume_encrypted" {
 }
 
 variable "user_data" {
+  type        = string
   description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."
   default     = null
+}
+
+variable "http_endpoint" {
+  type        = string
+  description = "(Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled."
+  default     = "enabled"
+  validation {
+    condition     = can(regex("^(enabled|disabled)$", var.http_endpoint))
+    error_message = "The value must be either enabled or disabled."
+  }
+}
+
+variable "http_tokens" {
+  type        = string
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional."
+  default     = "required"
+  validation {
+    condition     = can(regex("^(optional|required)$", var.http_tokens))
+    error_message = "The value must be either optional or required."
+  }
 }
 
 ###############################################################

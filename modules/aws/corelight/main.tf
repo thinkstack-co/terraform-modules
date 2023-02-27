@@ -36,9 +36,12 @@ resource "aws_security_group" "corelight_sg" {
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Corelight communicates with the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -66,7 +69,6 @@ resource "aws_lb" "corelight_nlb" {
 resource "aws_network_interface" "listener_nic" {
   count       = var.number
   description = var.listener_nic_description
-  # private_ips         = var.listener_nic_private_ips
   security_groups   = [aws_security_group.corelight_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.listener_subnet_ids, count.index)
@@ -76,14 +78,13 @@ resource "aws_network_interface" "listener_nic" {
 resource "aws_network_interface" "mgmt_nic" {
   count       = var.number
   description = var.mgmt_nic_description
-  # private_ips         = var.mgmt_nic_private_ips
   security_groups   = [aws_security_group.corelight_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.mgmt_subnet_ids, count.index)
   tags              = merge(var.tags, ({ "Name" = format("%s%d_mgmt", var.name, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2.*.id, count.index)
+    instance     = element(aws_instance.ec2[*].id, count.index)
     device_index = 1
   }
 }
@@ -103,6 +104,11 @@ resource "aws_instance" "ec2" {
   key_name                             = var.key_name
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
   network_interface {
     network_interface_id = aws_network_interface.listener_nic[count.index].id
@@ -125,29 +131,6 @@ resource "aws_instance" "ec2" {
     ignore_changes = [user_data]
   }
 }
-
-
-#######################
-# EBS Volume Module
-#######################
-
-# Corelight AMI already includes a 500GB log EBS volume
-/*resource "aws_ebs_volume" "logs" {
-  availability_zone = element(var.availability_zones, count.index)
-  count             = var.number
-  encrypted         = var.encrypted
-  size              = var.log_volume_size
-  type              = var.log_volume_type
-  tags              = merge(var.tags, map("Name", format("%s%d", var.name, count.index + 1)))
-}
-
-resource "aws_volume_attachment" "log_volume_attach" {
-  count       = var.number
-  device_name = var.log_volume_device_name
-  instance_id = aws_instance.ec2[count.index].id
-  volume_id   = aws_ebs_volume.logs[count.index].id
-}*/
-
 
 ###################################################
 # CloudWatch Alarms
@@ -177,7 +160,6 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
 
 #####################
@@ -204,5 +186,4 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }

@@ -6,22 +6,25 @@ terraform {
 # EC2 instance Module
 #############################
 resource "aws_instance" "ec2" {
-  ami                         = var.ami
-  associate_public_ip_address = var.associate_public_ip_address
-  availability_zone           = var.availability_zone
-  count                       = var.number
-  disable_api_termination     = var.disable_api_termination
-  ebs_optimized               = var.ebs_optimized
-  # ephemeral_block_device               = var.ephemeral_block_device
+  ami                                  = var.ami
+  associate_public_ip_address          = var.associate_public_ip_address
+  availability_zone                    = var.availability_zone
+  count                                = var.number
+  disable_api_termination              = var.disable_api_termination
+  ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  # ipv6_address_count                   = var.ipv6_address_count
   ipv6_addresses                       = var.ipv6_addresses
   key_name                             = var.key_name
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
 
   root_block_device {

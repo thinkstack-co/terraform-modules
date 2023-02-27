@@ -12,16 +12,22 @@ resource "aws_security_group" "silverpeak_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Silverpeak is a SDWAN device and requires communication from other SDWAN devices
+    #tfsec:ignore:aws-ec2-no-public-ingress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
+    description = "All traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # Silverpeak is a SDWAN device and requires communication from other SDWAN devices
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -42,7 +48,7 @@ resource "aws_network_interface" "wan0_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_wan0", var.name, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2.*.id, count.index)
+    instance     = element(aws_instance.ec2[*].id, count.index)
     device_index = 1
   }
 }
@@ -57,7 +63,7 @@ resource "aws_network_interface" "lan0_nic" {
   tags              = merge(var.tags, ({ "Name" = format("%s%d_lan0", var.name, count.index + 1) }))
 
   attachment {
-    instance     = element(aws_instance.ec2.*.id, count.index)
+    instance     = element(aws_instance.ec2[*].id, count.index)
     device_index = 2
   }
 }
@@ -87,6 +93,11 @@ resource "aws_instance" "ec2" {
   instance_type                        = var.instance_type
   key_name                             = var.key_name
   monitoring                           = var.monitoring
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
   network_interface {
     network_interface_id = aws_network_interface.mgmt0_nic.id

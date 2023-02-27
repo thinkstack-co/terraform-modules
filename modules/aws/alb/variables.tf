@@ -54,7 +54,7 @@ variable "ip_address_type" {
 variable "load_balancer_type" {
   type        = string
   description = "(Optional) The type of load balancer to create. Possible values are application or network. The default value is application."
-  default     = application
+  default     = "application"
 }
 
 variable "name" {

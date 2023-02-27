@@ -23,6 +23,8 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "TCP"
+    # CATO Cloud requires this port to be open to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -31,6 +33,8 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "UDP"
+    # CATO Cloud requires this port to be open to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -55,6 +59,8 @@ resource "aws_security_group" "cato_lan_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    # CATO Cloud requires this port to be open to the internet
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -124,7 +130,6 @@ resource "aws_network_interface" "private_nic" {
 
 resource "aws_instance" "ec2_instance" {
   ami                  = var.ami
-  # availability_zone    = var.availability_zone
   count                = var.number
   ebs_optimized        = var.ebs_optimized
   iam_instance_profile = var.iam_instance_profile
@@ -134,6 +139,11 @@ resource "aws_instance" "ec2_instance" {
   volume_tags          = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
   tags                 = merge(var.tags, ({ "Name" = format("%s%d", var.instance_name_prefix, count.index + 1) }))
   user_data            = var.user_data
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
   network_interface {
     network_interface_id = element(aws_network_interface.mgmt_nic[*].id, count.index)
