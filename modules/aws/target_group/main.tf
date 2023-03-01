@@ -1,6 +1,10 @@
 terraform {
-  required_version = ">= 1.3.0"
+  required_version = ">= 0.12.0"
+  required_providers {
+    aws = ">= 3.45.0"
+  }
 }
+
 
 resource "aws_lb_target_group" "this" {
   name                   = var.name
