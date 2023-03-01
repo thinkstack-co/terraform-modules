@@ -62,7 +62,7 @@
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-### Simple EC2 Instance Example
+### Simple Target Group Example
 ```
 module "application_target_group" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/target_group"
