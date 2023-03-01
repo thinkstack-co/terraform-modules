@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 0.12.0"
+}
+
 resource "aws_lb_target_group" "this" {
   name                   = var.name
   port                   = var.port
