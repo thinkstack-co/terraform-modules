@@ -1,4 +1,3 @@
-<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
 
@@ -17,6 +16,7 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
+[![Terraform][Terraform.io]][Terraform-url]
 
 
 <!-- PROJECT LOGO -->
@@ -26,9 +26,10 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">EC2 Instance Module</h3>
+  <h3 align="center">Target Group Module</h3>
+
   <p align="center">
-    This module sets up an EC2 instance with the parameters specified. This module has root block devices modifiable
+    This module sets up a target group with the parameters specified. 
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -50,7 +51,7 @@
     <li><a href="#requirements">Requirements</a></li>
     <li><a href="#providers">Providers</a></li>
     <li><a href="#modules">Modules</a></li>
-    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#resources">Resources</a></li>
     <li><a href="#inputs">Inputs</a></li>
     <li><a href="#outputs">Outputs</a></li>
     <li><a href="#license">License</a></li>
@@ -62,7 +63,9 @@
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+
 ### Simple Target Group Example
+
 ```
 module "application_target_group" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/target_group"
