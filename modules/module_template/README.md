@@ -50,7 +50,7 @@
     <li><a href="#requirements">Requirements</a></li>
     <li><a href="#providers">Providers</a></li>
     <li><a href="#modules">Modules</a></li>
-    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#resources">Resources</a></li>
     <li><a href="#inputs">Inputs</a></li>
     <li><a href="#outputs">Outputs</a></li>
     <li><a href="#license">License</a></li>
@@ -103,9 +103,10 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
+* [Derek McCallister](https://github.com/TheJalpa)
+* [Wesley Bey](https://github.com/beywesley)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
