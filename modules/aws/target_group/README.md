@@ -1,3 +1,4 @@
+<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
 
@@ -16,7 +17,6 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-[![Terraform][Terraform.io]][Terraform-url]
 
 
 <!-- PROJECT LOGO -->
@@ -103,12 +103,13 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.45.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.45.0 |
 
 ## Modules
 
@@ -118,31 +119,37 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_lb_target_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
-
+| [aws_lb_target_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ami"></a> [ami](#input\_ami) | (Required) AMI ID to use when launching the instance | `string` | n/a | yes |
-
+| <a name="input_health_check_interval"></a> [health\_check\_interval](#input\_health\_check\_interval) | (Optional) Approximate amount of time, in seconds, between health checks of an individual target. The range is 5-300. For lambda target groups, it needs to be greater than the timeout of the underlying lambda. Defaults to 30. | `number` | `30` | no |
+| <a name="input_health_check_matcher"></a> [health\_check\_matcher](#input\_health\_check\_matcher) | (May be required) Response codes to use when checking for a healthy responses from a target. You can specify multiple values (for example, 200,202 for HTTP(s) or 0,12 for GRPC) or a range of values (for example, 200-299 or 0-99). Required for HTTP/HTTPS/GRPC ALB. Only applies to Application Load Balancers (i.e., HTTP/HTTPS/GRPC) not Network Load Balancers (i.e., TCP). | `list(number)` | <pre>[<br>  200,<br>  204,<br>  301,<br>  302<br>]</pre> | no |
+| <a name="input_health_check_path"></a> [health\_check\_path](#input\_health\_check\_path) | (May be required) Destination for the health check request. Required for HTTP/HTTPS ALB and HTTP NLB. Only applies to HTTP/HTTPS. | `string` | `"/"` | no |
+| <a name="input_health_check_port"></a> [health\_check\_port](#input\_health\_check\_port) | (Optional) The port the load balancer uses when performing health checks on targets. Default is traffic-port. | `number` | `80` | no |
+| <a name="input_health_check_protocol"></a> [health\_check\_protocol](#input\_health\_check\_protocol) | (Optional) Protocol the load balancer uses when performing health checks on targets. Must be either TCP, HTTP, or HTTPS. The TCP protocol is not supported for health checks if the protocol of the target group is HTTP or HTTPS. Defaults to HTTP. | `string` | `"HTTP"` | no |
+| <a name="input_health_check_threshold"></a> [health\_check\_threshold](#input\_health\_check\_threshold) | (Optional) Number of consecutive health check successes required before considering a target healthy. The range is 2-10. Defaults to 3. | `number` | `3` | no |
+| <a name="input_health_check_timeout"></a> [health\_check\_timeout](#input\_health\_check\_timeout) | (optional) Amount of time, in seconds, during which no response from a target means a failed health check. The range is 2–120 seconds. For target groups with a protocol of HTTP, the default is 6 seconds. For target groups with a protocol of TCP, TLS or HTTPS, the default is 10 seconds. For target groups with a protocol of GENEVE, the default is 5 seconds. If the target type is lambda, the default is 30 seconds. | `number` | `30` | no |
+| <a name="input_name"></a> [name](#input\_name) | (Optional, Forces new resource) Name of the target group. If omitted, Terraform will assign a random, unique name. | `string` | n/a | yes |
+| <a name="input_port"></a> [port](#input\_port) | (May be required, Forces new resource) Port on which targets receive traffic, unless overridden when registering a specific target. Required when target\_type is instance, ip or alb. Does not apply when target\_type is lambda. | `number` | n/a | yes |
+| <a name="input_protocol"></a> [protocol](#input\_protocol) | (May be required, Forces new resource) Protocol to use for routing traffic to the targets. Should be one of GENEVE, HTTP, HTTPS, TCP, TCP\_UDP, TLS, or UDP. Required when target\_type is instance, ip or alb. Does not apply when target\_type is lambda. | `string` | n/a | yes |
+| <a name="input_stickiness_cookie_duration"></a> [stickiness\_cookie\_duration](#input\_stickiness\_cookie\_duration) | (Optional) Only used when the type is lb\_cookie. The time period, in seconds, during which requests from a client should be routed to the same target. After this time period expires, the load balancer-generated cookie is considered stale. The range is 1 second to 1 week (604800 seconds). The default value is 1 day (86400 seconds). | `number` | `86400` | no |
+| <a name="input_stickiness_enabled"></a> [stickiness\_enabled](#input\_stickiness\_enabled) | (Optional) Boolean to enable / disable stickiness. Default is true. | `bool` | `true` | no |
+| <a name="input_stickiness_type"></a> [stickiness\_type](#input\_stickiness\_type) | (Required) The type of sticky sessions. The only current possible values are lb\_cookie, app\_cookie for ALBs, source\_ip for NLBs, and source\_ip\_dest\_ip, source\_ip\_dest\_ip\_proto for GWLBs. | `string` | `"lb_cookie"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) Map of tags to assign to the resource. If configured with a provider default\_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level. | `map(string)` | `{}` | no |
+| <a name="input_target_type"></a> [target\_type](#input\_target\_type) | (May be required, Forces new resource) Type of target that you must specify when registering targets with this target group. See doc for supported values. The default is instance. | `string` | `"instance"` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Optional, Forces new resource) Identifier of the VPC in which to create the target group. Required when target\_type is instance, ip or alb. Does not apply when target\_type is lambda. | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-|<a name="output_arn"></a> [arn] | The Amazon Resource Name (ARN) of the target group |
-<a name="output_name"></a> [name] | The name of the target group |
-<a name="output_port"></a> [port] | The port number on which the targets receive traffic |
-<a name="output_protocol"></a> [protocol] |	The protocol to use for routing traffic to the targets |
-<a name="output_health_check_path"></a> [health_check_path]	| The ping path that is the destination on the targets for health checks |
-<a name="output_health_check_port"></a> [health_check_port] |	The port number to use to connect with the target for health checks |
-<a name="output_health_check_protocol"></a> [health_check_protocol] |	The protocol to use for health checks |
-<a name="output_health_check_timeout"></a> [health_check_timeout] | The amount of time, in seconds, during which no response means a failed health check |
-<a name="output_health_check_threshold"></a> [health_check_threshold] | The number of consecutive health checks that must succeed before considering an unhealthy target healthy |
-<a name="output_health_check_matcher"></a> [health_check_matcher] | The HTTP codes to use when checking for a successful response from a target |
-
+| <a name="output_arn"></a> [arn](#output\_arn) | The Amazon Resource Name (ARN) of the target group |
+| <a name="output_arn_suffix"></a> [arn\_suffix](#output\_arn\_suffix) | The ARN suffix for use with CloudWatch Metrics |
+| <a name="output_id"></a> [id](#output\_id) | The ARN of the target group |
+| <a name="output_name"></a> [name](#output\_name) | The name of the target group |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
@@ -167,9 +174,10 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-* [Wesley Bey](https://github.com/beywesley)
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
+* [Derek McCallister](https://github.com/TheJalpa)
+* [Wesley Bey](https://github.com/beywesley)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
