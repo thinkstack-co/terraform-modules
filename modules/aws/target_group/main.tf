@@ -5,7 +5,6 @@ terraform {
   }
 }
 
-
 resource "aws_lb_target_group" "this" {
   name                   = var.name
   port                   = var.port
@@ -27,4 +26,8 @@ resource "aws_lb_target_group" "this" {
   }
 
   tags = merge(var.tags, ({"Name" = var.name}))
+}
+
+resource "aws_lb_target_group_attachment" "this" {
+  
 }

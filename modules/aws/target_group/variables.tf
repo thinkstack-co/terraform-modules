@@ -82,7 +82,9 @@ variable "target_type" {
 variable "tags" {
   description = "(Optional) Map of tags to assign to the resource. If configured with a provider default_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level."
   type        = map(string)
-  default     = {}
+  default     = {
+    "terraform" = "true"
+  }
 }
 
 variable "vpc_id" {
