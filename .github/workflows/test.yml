@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  test:
-    name: Test
+  test_terraform:
+    name: Test Terraform
     runs-on: ubuntu-latest
 
     steps:
@@ -22,3 +22,32 @@ jobs:
         id: fmt
         run: terraform fmt -check -diff -recursive
         #continue-on-error: true
+
+  test_linter:
+      name: Linter
+      runs-on: ubuntu-latest
+
+      steps:
+        ##########################
+        # Checkout the code base #
+        ##########################
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            # Full git history is needed to get a proper
+            # list of changed files within `super-linter`
+            fetch-depth: 0
+
+        ################################
+        # Run Linter against code base #
+        ################################
+        - name: Linter
+          uses: github/super-linter/slim@v4
+          env:
+            DEFAULT_BRANCH: main
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            MULTI_STATUS: true
+            VALIDATE_MARKDOWN: false
+            VALIDATE_NATURAL_LANGUAGE: false
+            VALIDATE_TERRAFORM_TERRASCAN: false
+            VALIDATE_ALL_CODEBASE: false
