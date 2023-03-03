@@ -234,12 +234,6 @@ variable "private_ip" {
   default     = "10.77.1.70"
 }
 
-variable "private_propagating_vgws" {
-  type        = list(string)
-  description = "A list of VGWs the private route table should propagate."
-  default     = []
-}
-
 variable "private_subnets_list" {
   type        = list(string)
   description = "A list of private subnets inside the VPC."
@@ -249,12 +243,6 @@ variable "private_subnets_list" {
 variable "public_key" {
   type        = string
   description = "(Required) Public rsa key"
-}
-
-variable "public_propagating_vgws" {
-  type        = list(string)
-  description = "A list of VGWs the public route table should propagate."
-  default     = []
 }
 
 variable "public_subnets_list" {
