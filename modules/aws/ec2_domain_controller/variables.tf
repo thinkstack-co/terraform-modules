@@ -1,13 +1,16 @@
 variable "ami" {
+  type        = string
   description = "The AMI to use"
 }
 
 variable "availability_zone" {
+  type        = string
   description = "The AZ to start the instance in"
   default     = ""
 }
 
 variable "number" {
+  type        = number
   description = "number of instances to make"
   default     = 2
 }
@@ -19,15 +22,18 @@ variable "enable_dhcp_options" {
 }
 
 variable "domain_name" {
+  type        = string
   description = "Domain name suffix to add to DHCP DNS"
 }
 
 variable "disable_api_termination" {
+  type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
   default     = false
 }
 
 variable "ebs_optimized" {
+  type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
 }
@@ -39,6 +45,7 @@ variable "encrypted" {
 }
 
 variable "iam_instance_profile" {
+  type        = string
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
 }
@@ -54,30 +61,36 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "instance_type" {
+  type        = string
   description = "Select the instance type. Set in main.tf"
-  default     = "t2.medium"
+  default     = "t3a.medium"
 }
 
 variable "key_name" {
+  type       = string
   description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
   default     = ""
 }
 
 variable "monitoring" {
+  type        = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = false
 }
 
 variable "name" {
+  type        = string
   description = "Name of the instance"
 }
 
 variable "placement_group" {
+  type        = string
   description = "The Placement Group to start the instance in"
   default     = ""
 }
 
 variable "private_ip" {
+  type        = list(string)
   description = "Private IP address to associate with the instance in a VPC"
   default     = null
 }
@@ -126,40 +139,47 @@ variable "root_volume_type" {
 }
 
 variable "root_iops" {
+  type        = number
   description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = ""
+  default     = null
 }
 
 variable "source_dest_check" {
+  type        = bool
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
 }
 
 variable "subnet_id" {
+  type        = list(string)
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
   default     = []
 }
 
 variable "tenancy" {
+  type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
 }
 
 variable "tags" {
+  type        = map(string)
   description = "A mapping of tags to assign to the resource"
   default     = {}
 }
 
 variable "user_data" {
+  type        = string
   description = "The user data to provide when launching the instance"
   default     = ""
 }
 
 variable "vpc_id" {
+  type        = string
   description = "The VPC id to add the security group"
 }
 
 variable "vpc_security_group_ids" {
-  description = "A list of security group IDs to associate with"
   type        = list(any)
+  description = "A list of security group IDs to associate with"
 }

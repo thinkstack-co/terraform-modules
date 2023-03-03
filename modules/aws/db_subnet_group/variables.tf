@@ -9,6 +9,7 @@ variable "name" {
 }
 
 variable "subnet_ids" {
+  type        = list(string)
   description = "(Required) A list of VPC subnet IDs."
   default     = []
 }

@@ -218,5 +218,6 @@ variable "tenancy" {
 }
 
 variable "user_data" {
+  type        = string
   description = "(Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421'"
 }

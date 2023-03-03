@@ -1,33 +1,34 @@
 variable "ami" {
+  type        = string
   description = "ID of AMI to use for the instance"
 }
 
 variable "associate_public_ip_address" {
+  type        = bool
   description = "If true, the EC2 instance will have associated public IP address"
   default     = false
 }
 
 variable "availability_zone" {
+  type        = string
   description = "The AZ to start the instance in"
   default     = ""
 }
 
 variable "number" {
+  type        = number
   description = "Number of resources to launch"
   default     = 1
 }
 
 variable "disable_api_termination" {
+  type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
   default     = false
 }
 
-variable "ebs_block_device" {
-  description = "Additional EBS block devices to attach to the instance"
-  default     = []
-}
-
 variable "ebs_optimized" {
+  type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
 }
@@ -38,12 +39,8 @@ variable "encrypted" {
   default     = true
 }
 
-variable "ephemeral_block_device" {
-  description = "Customize Ephemeral (also known as Instance Store) volumes on the instance"
-  default     = []
-}
-
 variable "iam_instance_profile" {
+  type        = string
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
 }
@@ -59,39 +56,47 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "instance_type" {
+  type        = string
   description = "The type of instance to start"
 }
 
 variable "ipv6_address_count" {
+  type        = number
   description = "A number of IPv6 addresses to associate with the primary network interface. Amazon EC2 chooses the IPv6 addresses from the range of your subnet."
   default     = 0
 }
 
 variable "ipv6_addresses" {
+  type        = list
   description = "Specify one or more IPv6 addresses from the range of the subnet to associate with the primary network interface"
   default     = []
 }
 
 variable "key_name" {
+  type        = string
   description = "The key name to use for the instance"
   default     = ""
 }
 
 variable "monitoring" {
+  type       = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = false
 }
 
 variable "name" {
+  type        = string
   description = "Name to be used on all resources as prefix"
 }
 
 variable "placement_group" {
+  type        = string
   description = "The Placement Group to start the instance in"
   default     = ""
 }
 
 variable "private_ip" {
+  type        = string
   description = "Private IP address to associate with the instance in a VPC"
   default     = null
 }
@@ -139,37 +144,37 @@ variable "root_volume_type" {
   default     = "gp3"
 }
 
-variable "root_iops" {
-  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = ""
-}
-
 variable "source_dest_check" {
+  type        = bool
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
 }
 
 variable "subnet_id" {
+  type        = string
   description = "The VPC Subnet ID to launch in"
   default     = ""
 }
 
 variable "tags" {
+  type        = map(string)
   description = "A mapping of tags to assign to the resource"
   default     = {}
 }
 
 variable "tenancy" {
+  type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
 }
 
 variable "user_data" {
+  type        = string
   description = "The user data to provide when launching the instance"
   default     = ""
 }
 
 variable "vpc_security_group_ids" {
-  description = "A list of security group IDs to associate with"
   type        = list(any)
+  description = "A list of security group IDs to associate with"
 }
