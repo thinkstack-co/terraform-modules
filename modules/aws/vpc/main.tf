@@ -69,7 +69,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -80,7 +80,7 @@ resource "aws_vpc_endpoint" "kms" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -91,7 +91,7 @@ resource "aws_vpc_endpoint" "ssm" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -102,7 +102,7 @@ resource "aws_vpc_endpoint" "ssm-contacts" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -113,7 +113,7 @@ resource "aws_vpc_endpoint" "ssm-incidents" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -124,7 +124,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
+  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -212,9 +212,9 @@ resource "aws_eip" "nateip" {
 resource "aws_nat_gateway" "natgw" {
   depends_on = [aws_internet_gateway.igw]
 
-  allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
+  allocation_id = element(aws_eip.nateip[*].id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
-  subnet_id     = element(aws_subnet.public_subnets.*.id, (var.single_nat_gateway ? 0 : count.index))
+  subnet_id     = element(aws_subnet.public_subnets[*].id, (var.single_nat_gateway ? 0 : count.index))
 }
 
 ###########################
@@ -231,15 +231,15 @@ resource "aws_route_table" "private_route_table" {
 resource "aws_route" "private_default_route_natgw" {
   count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
+  nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
+  route_table_id         = element(aws_route_table.private_route_table[*].id, count.index)
 }
 
 resource "aws_route" "private_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
-  route_table_id         = element(aws_route_table.private_route_table.*.id, count.index)
+  route_table_id         = element(aws_route_table.private_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "db_route_table" {
@@ -252,15 +252,15 @@ resource "aws_route_table" "db_route_table" {
 resource "aws_route" "db_default_route_natgw" {
   count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.db_route_table.*.id, count.index)
+  nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
+  route_table_id         = element(aws_route_table.db_route_table[*].id, count.index)
 }
 
 resource "aws_route" "db_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
-  route_table_id         = element(aws_route_table.db_route_table.*.id, count.index)
+  route_table_id         = element(aws_route_table.db_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "dmz_route_table" {
@@ -273,15 +273,15 @@ resource "aws_route_table" "dmz_route_table" {
 resource "aws_route" "dmz_default_route_natgw" {
   count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.dmz_route_table.*.id, count.index)
+  nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
+  route_table_id         = element(aws_route_table.dmz_route_table[*].id, count.index)
 }
 
 resource "aws_route" "dmz_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_dmz_network_interface_id, count.index)
-  route_table_id         = element(aws_route_table.dmz_route_table.*.id, count.index)
+  route_table_id         = element(aws_route_table.dmz_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "mgmt_route_table" {
@@ -294,15 +294,15 @@ resource "aws_route_table" "mgmt_route_table" {
 resource "aws_route" "mgmt_default_route_natgw" {
   count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.mgmt_route_table.*.id, count.index)
+  nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
+  route_table_id         = element(aws_route_table.mgmt_route_table[*].id, count.index)
 }
 
 resource "aws_route" "mgmt_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
-  route_table_id         = element(aws_route_table.mgmt_route_table.*.id, count.index)
+  route_table_id         = element(aws_route_table.mgmt_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "workspaces_route_table" {
@@ -315,15 +315,15 @@ resource "aws_route_table" "workspaces_route_table" {
 resource "aws_route" "workspaces_default_route_natgw" {
   count                  = var.enable_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = element(aws_nat_gateway.natgw.*.id, count.index)
-  route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
+  nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
+  route_table_id         = element(aws_route_table.workspaces_route_table[*].id, count.index)
 }
 
 resource "aws_route" "workspaces_default_route_fw" {
   count                  = var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
-  route_table_id         = element(aws_route_table.workspaces_route_table.*.id, count.index)
+  route_table_id         = element(aws_route_table.workspaces_route_table[*].id, count.index)
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -335,7 +335,7 @@ resource "aws_vpc_endpoint" "s3" {
 resource "aws_vpc_endpoint_route_table_association" "private_s3" {
   count           = var.enable_s3_endpoint ? length(var.private_subnets_list) : 0
   vpc_endpoint_id = aws_vpc_endpoint.s3[count.index]
-  route_table_id  = element(aws_route_table.private_route_table.*.id, count.index)
+  route_table_id  = element(aws_route_table.private_route_table[*].id, count.index)
 }
 
 resource "aws_vpc_endpoint_route_table_association" "public_s3" {
@@ -346,32 +346,32 @@ resource "aws_vpc_endpoint_route_table_association" "public_s3" {
 
 resource "aws_route_table_association" "private" {
   count          = length(var.private_subnets_list)
-  route_table_id = element(aws_route_table.private_route_table.*.id, count.index)
-  subnet_id      = element(aws_subnet.private_subnets.*.id, count.index)
+  route_table_id = element(aws_route_table.private_route_table[*].id, count.index)
+  subnet_id      = element(aws_subnet.private_subnets[*].id, count.index)
 }
 
 resource "aws_route_table_association" "public" {
   count          = length(var.public_subnets_list)
   route_table_id = aws_route_table.public_route_table.id
-  subnet_id      = element(aws_subnet.public_subnets.*.id, count.index)
+  subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
 }
 
 resource "aws_route_table_association" "db" {
   count          = length(var.db_subnets_list)
-  route_table_id = element(aws_route_table.db_route_table.*.id, count.index)
-  subnet_id      = element(aws_subnet.db_subnets.*.id, count.index)
+  route_table_id = element(aws_route_table.db_route_table[*].id, count.index)
+  subnet_id      = element(aws_subnet.db_subnets[*].id, count.index)
 }
 
 resource "aws_route_table_association" "dmz" {
   count          = length(var.dmz_subnets_list)
-  route_table_id = element(aws_route_table.dmz_route_table.*.id, count.index)
-  subnet_id      = element(aws_subnet.dmz_subnets.*.id, count.index)
+  route_table_id = element(aws_route_table.dmz_route_table[*].id, count.index)
+  subnet_id      = element(aws_subnet.dmz_subnets[*].id, count.index)
 }
 
 resource "aws_route_table_association" "workspaces" {
   count          = length(var.workspaces_subnets_list)
-  route_table_id = element(aws_route_table.workspaces_route_table.*.id, count.index)
-  subnet_id      = element(aws_subnet.workspaces_subnets.*.id, count.index)
+  route_table_id = element(aws_route_table.workspaces_route_table[*].id, count.index)
+  subnet_id      = element(aws_subnet.workspaces_subnets[*].id, count.index)
 }
 
 ######################################################

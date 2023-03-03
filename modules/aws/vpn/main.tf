@@ -34,7 +34,7 @@ resource "aws_customer_gateway" "customer_gateway" {
 # Used if enable_transit_gateway_attachment == true
 resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   count               = var.enable_transit_gateway_attachment ? length(var.ip_address) : 0
-  customer_gateway_id = element(aws_customer_gateway.customer_gateway.*.id, count.index)
+  customer_gateway_id = element(aws_customer_gateway.customer_gateway[*].id, count.index)
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
   type                = var.vpn_type
@@ -65,7 +65,7 @@ resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
 # Used if enable_transit_gateway_attachment == false
 resource "aws_vpn_connection" "vpn_connection_vpn_gateway_attachment" {
   count               = var.enable_transit_gateway_attachment ? 0 : length(var.ip_address)
-  customer_gateway_id = element(aws_customer_gateway.customer_gateway.*.id, count.index)
+  customer_gateway_id = element(aws_customer_gateway.customer_gateway[*].id, count.index)
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
   type                = var.vpn_type
