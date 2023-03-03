@@ -45,8 +45,7 @@ resource "aws_kms_key" "rds" {
             "kms:ViaService" = "rds.amazonaws.com"
           }
         }
-        }
-      },
+      }
     ]
   })
 }
