@@ -1,5 +1,59 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.13.0"
+}
+
+###########################
+# KMS Encryption Key
+###########################
+
+resource "aws_kms_key" "rds" {
+  customer_master_key_spec = var.key_customer_master_key_spec
+  description              = var.key_description
+  deletion_window_in_days  = var.key_deletion_window_in_days
+  enable_key_rotation      = var.key_enable_key_rotation
+  key_usage                = var.key_usage
+  is_enabled               = var.key_is_enabled
+  tags                     = var.tags
+  policy = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Sid"    = "Allow RDS to encrypt logs",
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "rds.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "StringEquals" = {
+            "kms:ViaService" = "rds.amazonaws.com"
+          }
+        }
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_kms_alias" "rds" {
+  name_prefix   = var.key_name_prefix
+  target_key_id = aws_kms_key.rds.key_id
 }
 
 resource "aws_rds_cluster" "cluster" {
@@ -13,16 +67,14 @@ resource "aws_rds_cluster" "cluster" {
   engine                          = var.engine
   engine_mode                     = var.engine_mode
   engine_version                  = var.engine_version
-  # final_snapshot_identifier           = var.final_snapshot_identifier
   iam_roles                           = var.iam_roles
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
-  kms_key_id                          = var.kms_key_id
+  kms_key_id                          = aws_kms_key.rds.arn
   master_password                     = var.master_password
   master_username                     = var.master_username
   port                                = var.port
   preferred_backup_window             = var.preferred_backup_window
   preferred_maintenance_window        = var.preferred_maintenance_window
-  # scaling_configuration               = var.scaling_configuration
   skip_final_snapshot    = var.skip_final_snapshot
   snapshot_identifier    = var.snapshot_identifier
   storage_encrypted      = var.storage_encrypted

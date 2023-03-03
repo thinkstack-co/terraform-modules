@@ -1,3 +1,69 @@
+###########################
+# KMS Variables
+###########################
+
+variable "key_customer_master_key_spec" {
+  description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+  default     = "SYMMETRIC_DEFAULT"
+  type        = string
+  validation {
+    condition     = can(regex("^(SYMMETRIC_DEFAULT|RSA_2048|RSA_3072|RSA_4096|ECC_NIST_P256|ECC_NIST_P384|ECC_NIST_P521|ECC_SECG_P256K1)$", var.key_customer_master_key_spec))
+    error_message = "The value must be one of SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1."
+  }
+}
+
+variable "key_description" {
+  description = "(Optional) The description of the key as viewed in AWS console."
+  default     = "CloudTrail kms key used to encrypt audit logs"
+  type        = string
+}
+
+variable "key_deletion_window_in_days" {
+  description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+  default     = 30
+  type        = number
+  validation {
+    condition     = can(regex("^[7-9]|[1-2][0-9]|30$", var.key_deletion_window_in_days))
+    error_message = "The value must be between 7 and 30 days."
+  }
+}
+
+variable "key_enable_key_rotation" {
+  description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
+  default     = true
+  type        = bool
+  validation {
+    condition     = can(regex("^(true|false)$", var.key_enable_key_rotation))
+    error_message = "The value must be true or false."
+  }
+}
+
+variable "key_usage" {
+  description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
+  default     = "ENCRYPT_DECRYPT"
+  type        = string
+}
+
+variable "key_is_enabled" {
+  description = "(Optional) Specifies whether the key is enabled. Defaults to true."
+  default     = true
+  type        = bool
+  validation {
+    condition     = can(regex("^(true|false)$", var.key_is_enabled))
+    error_message = "The value must be true or false."
+  }
+}
+
+variable "key_name_prefix" {
+  description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
+  default     = "alias/rds_key_"
+  type        = string
+}
+
+###########################
+# RDS Variables
+###########################
+
 variable "apply_immediately" {
   description = "(Optional) Specifies whether any cluster modifications are applied immediately, or during the next maintenance window. Default is false. See Amazon RDS Documentation for more information."
   default     = false
