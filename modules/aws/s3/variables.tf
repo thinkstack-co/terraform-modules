@@ -52,6 +52,11 @@ variable "versioning" {
 }
 
 variable "mfa_delete" {
-  description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
-  default     = false
+  type        = string
+  description = "(Optional) Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
+  default     = "Disabled"
+  validation {
+    condition     = can(regex("Enabled|Disabled", var.mfa_delete))
+    error_message = "The value must be Enabled or Disabled."
+  }
 }
