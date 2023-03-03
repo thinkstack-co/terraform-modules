@@ -137,9 +137,13 @@ variable "http_tokens" {
 }
 
 variable "root_delete_on_termination" {
-  type        = string
+  type        = bool
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.root_delete_on_termination))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "root_volume_size" {
@@ -150,8 +154,12 @@ variable "root_volume_size" {
 
 variable "root_volume_type" {
   type        = string
-  description = "(Optional) The type of volume. Can be standard, gp2, gp3 or io1. (Default: standard)"
+  description = "(Optional) Type of volume. Valid values include standard, gp2, gp3, io1, io2, sc1, or st1. Defaults to gp3."
   default     = "gp3"
+  validation {
+    condition     = can(regex("^(standard|gp2|gp3|io1|io2|sc1|st1)$", var.root_volume_type))
+    error_message = "The value must be either standard, gp2, gp3, io1, io2, sc1, or st1."
+  }
 }
 
 variable "root_iops" {
