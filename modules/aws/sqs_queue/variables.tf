@@ -84,9 +84,9 @@ variable "fifo_queue" {
 }
 
 variable "kms_data_key_reuse_period_seconds" {
-  type = number
+  type        = number
   description = "(Optional) The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes)."
-  default = 300
+  default     = 300
   validation {
     condition = can(regex("^[6-9][0-9]{1,4}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|86400$", var.kms_data_key_reuse_period_seconds))
   }
@@ -106,7 +106,7 @@ variable "name" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the queue."
   default     = {}
 }

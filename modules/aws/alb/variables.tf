@@ -8,7 +8,7 @@ variable "access_logs_enabled" {
   description = "(Optional) Boolean to enable / disable access_logs. Defaults to false, even when bucket is specified."
   default     = true
   validation {
-    condition = can(regex("^true|false$", var.access_logs_enabled))
+    condition     = can(regex("^true|false$", var.access_logs_enabled))
     error_message = "The value of access_logs_enabled must be true or false."
   }
 }
@@ -24,7 +24,7 @@ variable "drop_invalid_header_fields" {
   description = "(Optional) Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer (true) or routed to targets (false). The default is false. Elastic Load Balancing requires that message header names contain only alphanumeric characters and hyphens. Only valid for Load Balancers of type application."
   default     = true
   validation {
-    condition = can(regex("^true|false$", var.drop_invalid_header_fields))
+    condition     = can(regex("^true|false$", var.drop_invalid_header_fields))
     error_message = "The value of drop_invalid_header_fields must be true or false."
   }
 }
@@ -34,7 +34,7 @@ variable "enable_cross_zone_load_balancing" {
   description = "(Optional) If true, cross-zone load balancing of the load balancer will be enabled. This is a network load balancer feature. Defaults to false."
   default     = false
   validation {
-    condition = can(regex("^true|false$", var.enable_cross_zone_load_balancing))
+    condition     = can(regex("^true|false$", var.enable_cross_zone_load_balancing))
     error_message = "The value of enable_cross_zone_load_balancing must be true or false."
   }
 }
@@ -44,7 +44,7 @@ variable "enable_deletion_protection" {
   description = "(Optional) If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false."
   default     = false
   validation {
-    condition = can(regex("^true|false$", var.enable_deletion_protection))
+    condition     = can(regex("^true|false$", var.enable_deletion_protection))
     error_message = "The value of enable_deletion_protection must be true or false."
   }
 }
@@ -54,7 +54,7 @@ variable "enable_http2" {
   description = "(Optional) Indicates whether HTTP/2 is enabled in application load balancers. Defaults to true."
   default     = true
   validation {
-    condition = can(regex("^true|false$", var.enable_http2))
+    condition     = can(regex("^true|false$", var.enable_http2))
     error_message = "The value of enable_http2 must be true or false."
   }
 }
@@ -64,7 +64,7 @@ variable "idle_timeout" {
   description = "(Optional) The time in seconds that the connection is allowed to be idle. Only valid for Load Balancers of type application. Default: 60."
   default     = 60
   validation {
-    condition = can(regex("^([1-9][0-9]*)$", var.idle_timeout))
+    condition     = can(regex("^([1-9][0-9]*)$", var.idle_timeout))
     error_message = "The value of idle_timeout must be a number."
   }
 }
@@ -74,7 +74,7 @@ variable "internal" {
   description = "(Optional) If true, the LB will be internal."
   default     = false
   validation {
-    condition = can(regex("^true|false$", var.internal))
+    condition     = can(regex("^true|false$", var.internal))
     error_message = "The value of internal must be true or false."
   }
 }
@@ -90,7 +90,7 @@ variable "load_balancer_type" {
   description = "(Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application."
   default     = "application"
   validation {
-    condition = can(regex("^application|gateway|network$", var.load_balancer_type))
+    condition     = can(regex("^application|gateway|network$", var.load_balancer_type))
     error_message = "The value of load_balancer_type must be application, gateway, or network."
   }
 }
@@ -105,7 +105,7 @@ variable "number" {
   description = "(Optional) the number of resources to create"
   default     = 1
   validation {
-    condition = can(regex("^([1-9][0-9]*)$", var.number))
+    condition     = can(regex("^([1-9][0-9]*)$", var.number))
     error_message = "The value of number must be a positive integer."
   }
 }
