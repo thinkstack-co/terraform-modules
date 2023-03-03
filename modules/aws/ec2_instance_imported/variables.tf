@@ -67,7 +67,7 @@ variable "ipv6_address_count" {
 }
 
 variable "ipv6_addresses" {
-  type        = list
+  type        = list(any)
   description = "Specify one or more IPv6 addresses from the range of the subnet to associate with the primary network interface"
   default     = []
 }
@@ -79,7 +79,7 @@ variable "key_name" {
 }
 
 variable "monitoring" {
-  type       = bool
+  type        = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = false
 }

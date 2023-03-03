@@ -67,7 +67,7 @@ variable "instance_type" {
 }
 
 variable "key_name" {
-  type       = string
+  type        = string
   description = "keypair name to use for ec2 instance deployment. Keypairs are used to obtain the username/password"
   default     = ""
 }
