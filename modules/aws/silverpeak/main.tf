@@ -87,7 +87,6 @@ resource "aws_instance" "ec2" {
   count                                = var.count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
-  ephemeral_block_device               = var.ephemeral_block_device
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
@@ -106,8 +105,9 @@ resource "aws_instance" "ec2" {
 
   placement_group = var.placement_group
 
-  root_block_device = {
+  root_block_device {
     delete_on_termination = var.root_delete_on_termination
+    encrypted             = var.encrypted
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }

@@ -121,7 +121,6 @@ resource "aws_instance" "ec2_instance" {
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
-    tags                  = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }

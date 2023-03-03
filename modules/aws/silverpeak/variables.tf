@@ -126,22 +126,40 @@ variable "http_tokens" {
   }
 }
 
+variable "encrypted" {
+  type        = bool
+  description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
+  default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.encrypted))
+    error_message = "The value must be either true or false."
+  }
+}
+
 variable "root_delete_on_termination" {
-  type        = string
+  type        = bool
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.root_delete_on_termination))
+    error_message = "The value must be either true or false."
+  }
+}
+
+variable "root_volume_type" {
+  type        = string
+  description = "(Optional) Type of volume. Valid values include standard, gp2, gp3, io1, io2, sc1, or st1. Defaults to gp3."
+  default     = "gp3"
+  validation {
+    condition     = can(regex("^(standard|gp2|gp3|io1|io2|sc1|st1)$", var.root_volume_type))
+    error_message = "The value must be either standard, gp2, gp3, io1, io2, sc1, or st1."
+  }
 }
 
 variable "root_volume_size" {
   type        = string
   description = "(Optional) The size of the volume in gigabytes."
   default     = "100"
-}
-
-variable "root_volume_type" {
-  type        = string
-  description = "(Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard)"
-  default     = "gp2"
 }
 
 variable "sg_description" {
