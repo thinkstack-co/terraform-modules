@@ -102,12 +102,13 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -130,12 +131,12 @@ No modules.
 | <a name="input_availability_zone"></a> [availability\_zone](#input\_availability\_zone) | (Optional) The Availability Zone for the virtual private gateway. | `string` | `null` | no |
 | <a name="input_bgp_asn"></a> [bgp\_asn](#input\_bgp\_asn) | (Required) The gateway's Border Gateway Protocol (BGP) Autonomous System Number (ASN). | `number` | `65000` | no |
 | <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | (Optional) The Amazon Resource Name (ARN) for the customer gateway certificate. | `string` | `null` | no |
-| <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways | `list` | n/a | yes |
+| <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways | `list(any)` | n/a | yes |
 | <a name="input_enable_transit_gateway_attachment"></a> [enable\_transit\_gateway\_attachment](#input\_enable\_transit\_gateway\_attachment) | (Required) A boolean flag to enable/disable the use of a transit gateway attachment rather than VPN gateway attachment. Defaults false. | `bool` | `false` | no |
 | <a name="input_ip_address"></a> [ip\_address](#input\_ip\_address) | (Required) The IPv4 address for the customer gateway device's outside interface. | `list(string)` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name to be used on all the resources as identifier | `string` | n/a | yes |
 | <a name="input_static_routes_only"></a> [static\_routes\_only](#input\_static\_routes\_only) | (Optional, Default true) Whether the VPN connection uses static routes exclusively. Static routes must be used for devices that don't support BGP. | `bool` | `true` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A map of tags to assign to the resource. If configured with a provider default\_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level. | `map` | `{}` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A map of tags to assign to the resource. If configured with a provider default\_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level. | `map` | <pre>{<br>  "terraform": "true"<br>}</pre> | no |
 | <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | (Optional) The ID of the EC2 Transit Gateway. | `string` | `null` | no |
 | <a name="input_tunnel_ike_versions"></a> [tunnel\_ike\_versions](#input\_tunnel\_ike\_versions) | (Optional) The IKE versions that are permitted for the first VPN tunnel. Valid values are ikev1 \| ikev2. | `list(string)` | <pre>[<br>  "ikev2"<br>]</pre> | no |
 | <a name="input_tunnel_phase1_dh_group_numbers"></a> [tunnel\_phase1\_dh\_group\_numbers](#input\_tunnel\_phase1\_dh\_group\_numbers) | (Optional) List of one or more Diffie-Hellman group numbers that are permitted for the first VPN tunnel for phase 1 IKE negotiations. Valid values are 2 \| 14 \| 15 \| 16 \| 17 \| 18 \| 19 \| 20 \| 21 \| 22 \| 23 \| 24. | `list(string)` | <pre>[<br>  "14",<br>  "15",<br>  "16",<br>  "17",<br>  "18",<br>  "19",<br>  "20",<br>  "21",<br>  "22",<br>  "23",<br>  "24"<br>]</pre> | no |

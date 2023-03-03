@@ -108,13 +108,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -138,9 +139,10 @@ No modules.
 | <a name="input_availability_zone"></a> [availability\_zone](#input\_availability\_zone) | The AZ to start the instance in | `string` | `""` | no |
 | <a name="input_count"></a> [count](#input\_count) | The total number of resources to create | `number` | `1` | no |
 | <a name="input_disable_api_termination"></a> [disable\_api\_termination](#input\_disable\_api\_termination) | If true, enables EC2 Instance Termination Protection | `bool` | `false` | no |
-| <a name="input_dmz_subnet_id"></a> [dmz\_subnet\_id](#input\_dmz\_subnet\_id) | (Required) Subnet ID to create the ENI in. | `list` | n/a | yes |
+| <a name="input_dmz_subnet_id"></a> [dmz\_subnet\_id](#input\_dmz\_subnet\_id) | (Required) Subnet ID to create the ENI in. | `list(any)` | n/a | yes |
 | <a name="input_ebs_block_device"></a> [ebs\_block\_device](#input\_ebs\_block\_device) | Additional EBS block devices to attach to the instance | `list` | `[]` | no |
 | <a name="input_ebs_optimized"></a> [ebs\_optimized](#input\_ebs\_optimized) | If true, the launched EC2 instance will be EBS-optimized | `bool` | `false` | no |
+| <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | (Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection. | `bool` | `true` | no |
 | <a name="input_ephemeral_block_device"></a> [ephemeral\_block\_device](#input\_ephemeral\_block\_device) | Customize Ephemeral (also known as Instance Store) volumes on the instance | `list` | `[]` | no |
 | <a name="input_http_endpoint"></a> [http\_endpoint](#input\_http\_endpoint) | (Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled. | `string` | `"enabled"` | no |
 | <a name="input_http_tokens"></a> [http\_tokens](#input\_http\_tokens) | (Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional. | `string` | `"required"` | no |
@@ -149,17 +151,17 @@ No modules.
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | The type of instance to start | `string` | `"c4.large"` | no |
 | <a name="input_key_name"></a> [key\_name](#input\_key\_name) | The key name to use for the instance | `string` | `""` | no |
 | <a name="input_lan0_description"></a> [lan0\_description](#input\_lan0\_description) | (Optional) A description for the network interface. | `string` | `"Silverpeak lan0 nic"` | no |
-| <a name="input_lan0_private_ips"></a> [lan0\_private\_ips](#input\_lan0\_private\_ips) | (Optional) List of private IPs to assign to the ENI. | `list` | n/a | yes |
+| <a name="input_lan0_private_ips"></a> [lan0\_private\_ips](#input\_lan0\_private\_ips) | (Optional) List of private IPs to assign to the ENI. | `list(any)` | n/a | yes |
 | <a name="input_mgmt0_description"></a> [mgmt0\_description](#input\_mgmt0\_description) | (Optional) A description for the network interface. | `string` | `"Silverpeak mgmt0 nic"` | no |
-| <a name="input_mgmt0_private_ips"></a> [mgmt0\_private\_ips](#input\_mgmt0\_private\_ips) | (Optional) List of private IPs to assign to the ENI. | `list` | n/a | yes |
-| <a name="input_mgmt_subnet_id"></a> [mgmt\_subnet\_id](#input\_mgmt\_subnet\_id) | (Required) Subnet ID to create the ENI in. | `list` | n/a | yes |
+| <a name="input_mgmt0_private_ips"></a> [mgmt0\_private\_ips](#input\_mgmt0\_private\_ips) | (Optional) List of private IPs to assign to the ENI. | `list(any)` | n/a | yes |
+| <a name="input_mgmt_subnet_id"></a> [mgmt\_subnet\_id](#input\_mgmt\_subnet\_id) | (Required) Subnet ID to create the ENI in. | `list(any)` | n/a | yes |
 | <a name="input_monitoring"></a> [monitoring](#input\_monitoring) | If true, the launched EC2 instance will have detailed monitoring enabled | `bool` | `true` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name to be used on all resources as prefix | `any` | n/a | yes |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | The Placement Group to start the instance in | `string` | `""` | no |
-| <a name="input_private_subnet_id"></a> [private\_subnet\_id](#input\_private\_subnet\_id) | (Required) Subnet ID to create the ENI in. | `list` | n/a | yes |
-| <a name="input_root_delete_on_termination"></a> [root\_delete\_on\_termination](#input\_root\_delete\_on\_termination) | (Optional) Whether the volume should be destroyed on instance termination (Default: true) | `string` | `true` | no |
+| <a name="input_private_subnet_id"></a> [private\_subnet\_id](#input\_private\_subnet\_id) | (Required) Subnet ID to create the ENI in. | `list(any)` | n/a | yes |
+| <a name="input_root_delete_on_termination"></a> [root\_delete\_on\_termination](#input\_root\_delete\_on\_termination) | (Optional) Whether the volume should be destroyed on instance termination (Default: true) | `bool` | `true` | no |
 | <a name="input_root_volume_size"></a> [root\_volume\_size](#input\_root\_volume\_size) | (Optional) The size of the volume in gigabytes. | `string` | `"100"` | no |
-| <a name="input_root_volume_type"></a> [root\_volume\_type](#input\_root\_volume\_type) | (Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard) | `string` | `"gp2"` | no |
+| <a name="input_root_volume_type"></a> [root\_volume\_type](#input\_root\_volume\_type) | (Optional) Type of volume. Valid values include standard, gp2, gp3, io1, io2, sc1, or st1. Defaults to gp3. | `string` | `"gp3"` | no |
 | <a name="input_sg_description"></a> [sg\_description](#input\_sg\_description) | (Optional, Forces new resource) The security group description. Defaults to 'Managed by Terraform'. Cannot be ''. NOTE: This field maps to the AWS GroupDescription attribute, for which there is no Update API. If you'd like to classify your security groups in a way that can be updated, use tags. | `string` | `"Silverpeak SDWAN security group"` | no |
 | <a name="input_sg_name"></a> [sg\_name](#input\_sg\_name) | (Optional, Forces new resource) The name of the security group. If omitted, Terraform will assign a random, unique name | `string` | `"silverpeak_sg"` | no |
 | <a name="input_source_dest_check"></a> [source\_dest\_check](#input\_source\_dest\_check) | (Optional) Whether to enable source destination checking for the ENI. Default true. | `string` | `false` | no |
@@ -168,7 +170,7 @@ No modules.
 | <a name="input_user_data"></a> [user\_data](#input\_user\_data) | The user data to provide when launching the instance | `string` | `""` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Optional, Forces new resource) The VPC ID. | `any` | n/a | yes |
 | <a name="input_wan0_description"></a> [wan0\_description](#input\_wan0\_description) | (Optional) A description for the network interface. | `string` | `"Silverpeak wan0 nic"` | no |
-| <a name="input_wan0_private_ips"></a> [wan0\_private\_ips](#input\_wan0\_private\_ips) | (Optional) List of private IPs to assign to the ENI. | `list` | n/a | yes |
+| <a name="input_wan0_private_ips"></a> [wan0\_private\_ips](#input\_wan0\_private\_ips) | (Optional) List of private IPs to assign to the ENI. | `list(any)` | n/a | yes |
 
 ## Outputs
 

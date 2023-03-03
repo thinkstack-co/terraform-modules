@@ -88,13 +88,16 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -111,7 +114,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_auto_accept"></a> [auto\_accept](#input\_auto\_accept) | (Optional) Whether or not to accept the peering request. Defaults to false. | `string` | `false` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map` | <pre>{<br>  "created_by": "Jake Jones",<br>  "environment": "prod",<br>  "role": "vpc_peering_connection_accepter",<br>  "terraform": "true"<br>}</pre> | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | <pre>{<br>  "created_by": "Jake Jones",<br>  "environment": "prod",<br>  "role": "vpc_peering_connection_accepter",<br>  "terraform": "true"<br>}</pre> | no |
 | <a name="input_vpc_peering_connection_id"></a> [vpc\_peering\_connection\_id](#input\_vpc\_peering\_connection\_id) | (Required) The VPC Peering Connection ID to manage. | `string` | n/a | yes |
 
 ## Outputs

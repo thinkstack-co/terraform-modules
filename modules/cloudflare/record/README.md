@@ -84,13 +84,16 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_cloudflare"></a> [cloudflare](#requirement\_cloudflare) | 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_cloudflare"></a> [cloudflare](#provider\_cloudflare) | n/a |
+| <a name="provider_cloudflare"></a> [cloudflare](#provider\_cloudflare) | 4.0.0 |
 
 ## Modules
 
@@ -100,7 +103,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [cloudflare_record.this](https://registry.terraform.io/providers/hashicorp/cloudflare/latest/docs/resources/record) | resource |
+| [cloudflare_record.this](https://registry.terraform.io/providers/cloudflare/cloudflare/4.0.0/docs/resources/record) | resource |
 
 ## Inputs
 

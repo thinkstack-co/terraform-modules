@@ -90,13 +90,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -115,7 +116,7 @@ No modules.
 | <a name="input_description"></a> [description](#input\_description) | (Optional) The description of the DB parameter group. Defaults to 'Managed by Terraform'. | `string` | n/a | yes |
 | <a name="input_family"></a> [family](#input\_family) | (Required) The family of the DB parameter group. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | (Optional, Forces new resource) The name of the DB parameter group. If omitted, Terraform will assign a random, unique name. | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | n/a | yes |
 
 ## Outputs
 

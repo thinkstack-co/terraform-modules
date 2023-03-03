@@ -102,13 +102,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -144,10 +145,10 @@ No modules.
 | <a name="input_internal"></a> [internal](#input\_internal) | (Optional) If true, the LB will be internal. | `bool` | `true` | no |
 | <a name="input_key_name"></a> [key\_name](#input\_key\_name) | (Optional) The key name to use for the instance | `string` | `""` | no |
 | <a name="input_listener_nic_description"></a> [listener\_nic\_description](#input\_listener\_nic\_description) | (Optional) A description for the network interface. | `string` | `"Corelight listener nic"` | no |
-| <a name="input_listener_subnet_ids"></a> [listener\_subnet\_ids](#input\_listener\_subnet\_ids) | (Required) The VPC Subnet ID to launch in | `list` | n/a | yes |
-| <a name="input_mgmt_cidr_blocks"></a> [mgmt\_cidr\_blocks](#input\_mgmt\_cidr\_blocks) | (Optional) List of IP addresses and cidr blocks which are allowed to access SSH and HTTPS to this instance | `list` | `[]` | no |
+| <a name="input_listener_subnet_ids"></a> [listener\_subnet\_ids](#input\_listener\_subnet\_ids) | (Required) The VPC Subnet ID to launch in | `list(any)` | n/a | yes |
+| <a name="input_mgmt_cidr_blocks"></a> [mgmt\_cidr\_blocks](#input\_mgmt\_cidr\_blocks) | (Optional) List of IP addresses and cidr blocks which are allowed to access SSH and HTTPS to this instance | `list(any)` | `[]` | no |
 | <a name="input_mgmt_nic_description"></a> [mgmt\_nic\_description](#input\_mgmt\_nic\_description) | (Optional) A description for the network interface. | `string` | `"Corelight mgmt nic"` | no |
-| <a name="input_mgmt_subnet_ids"></a> [mgmt\_subnet\_ids](#input\_mgmt\_subnet\_ids) | (Required) The VPC Subnet ID for the mgmt nic | `list` | n/a | yes |
+| <a name="input_mgmt_subnet_ids"></a> [mgmt\_subnet\_ids](#input\_mgmt\_subnet\_ids) | (Required) The VPC Subnet ID for the mgmt nic | `list(any)` | n/a | yes |
 | <a name="input_monitoring"></a> [monitoring](#input\_monitoring) | (Optional) If true, the launched EC2 instance will have detailed monitoring enabled | `bool` | `false` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Optional) Name to be used on all resources as a prefix for tags and names | `string` | `"aws_prod_corelight"` | no |
 | <a name="input_nlb_name"></a> [nlb\_name](#input\_nlb\_name) | (Optional) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb. | `string` | `"aws-prod-corelight-nlb"` | no |
@@ -160,11 +161,11 @@ No modules.
 | <a name="input_sg_description"></a> [sg\_description](#input\_sg\_description) | (Optional, Forces new resource) The security group description. Defaults to 'Managed by Terraform'. Cannot be ''. NOTE: This field maps to the AWS GroupDescription attribute, for which there is no Update API. If you'd like to classify your security groups in a way that can be updated, use tags. | `string` | `"Corelight security group"` | no |
 | <a name="input_sg_name"></a> [sg\_name](#input\_sg\_name) | (Optional, Forces new resource) The name of the security group. If omitted, Terraform will assign a random, unique name | `string` | `"corelight_sg"` | no |
 | <a name="input_source_dest_check"></a> [source\_dest\_check](#input\_source\_dest\_check) | (Optional) Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs. | `bool` | `false` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map` | <pre>{<br>  "backup": "true",<br>  "created_by": "terraform",<br>  "environment": "prod",<br>  "role": "corelight network monitor",<br>  "terraform": "true"<br>}</pre> | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | <pre>{<br>  "backup": "true",<br>  "created_by": "terraform",<br>  "environment": "prod",<br>  "role": "corelight network monitor",<br>  "terraform": "true"<br>}</pre> | no |
 | <a name="input_tenancy"></a> [tenancy](#input\_tenancy) | (Optional) The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host. | `string` | `"default"` | no |
-| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | (Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421' | `any` | n/a | yes |
+| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | (Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421' | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Required, Forces new resource) The VPC ID. | `string` | n/a | yes |
-| <a name="input_vxlan_cidr_blocks"></a> [vxlan\_cidr\_blocks](#input\_vxlan\_cidr\_blocks) | (Required) List of IP addresses and cidr blocks which are allowed to send VPC mirror traffic | `list` | n/a | yes |
+| <a name="input_vxlan_cidr_blocks"></a> [vxlan\_cidr\_blocks](#input\_vxlan\_cidr\_blocks) | (Required) List of IP addresses and cidr blocks which are allowed to send VPC mirror traffic | `list(any)` | n/a | yes |
 
 ## Outputs
 

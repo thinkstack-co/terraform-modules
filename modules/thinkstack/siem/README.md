@@ -110,12 +110,13 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -197,7 +198,7 @@ No modules.
 | <a name="input_cloudtrail_key_is_enabled"></a> [cloudtrail\_key\_is\_enabled](#input\_cloudtrail\_key\_is\_enabled) | (Optional) Specifies whether the key is enabled. Defaults to true. | `string` | `true` | no |
 | <a name="input_cloudtrail_key_name_prefix"></a> [cloudtrail\_key\_name\_prefix](#input\_cloudtrail\_key\_name\_prefix) | (Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/). | `string` | `"alias/cloudtrail_logs_key_"` | no |
 | <a name="input_cloudtrail_key_usage"></a> [cloudtrail\_key\_usage](#input\_cloudtrail\_key\_usage) | (Optional) Specifies the intended use of the key. Defaults to ENCRYPT\_DECRYPT, and only symmetric encryption and decryption are supported. | `string` | `"ENCRYPT_DECRYPT"` | no |
-| <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order | `list` | `null` | no |
+| <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order | `list(any)` | `null` | no |
 | <a name="input_disable_api_termination"></a> [disable\_api\_termination](#input\_disable\_api\_termination) | If true, enables EC2 Instance Termination Protection | `bool` | `false` | no |
 | <a name="input_ebs_optimized"></a> [ebs\_optimized](#input\_ebs\_optimized) | If true, the launched EC2 instance will be EBS-optimized | `bool` | `false` | no |
 | <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | should be true if you want to use private DNS within the VPC | `bool` | `true` | no |
@@ -220,7 +221,7 @@ No modules.
 | <a name="input_flow_iam_role_force_detach_policies"></a> [flow\_iam\_role\_force\_detach\_policies](#input\_flow\_iam\_role\_force\_detach\_policies) | (Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false. | `bool` | `false` | no |
 | <a name="input_flow_iam_role_max_session_duration"></a> [flow\_iam\_role\_max\_session\_duration](#input\_flow\_iam\_role\_max\_session\_duration) | (Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours. | `number` | `3600` | no |
 | <a name="input_flow_iam_role_name_prefix"></a> [flow\_iam\_role\_name\_prefix](#input\_flow\_iam\_role\_name\_prefix) | (Required, Forces new resource) Creates a unique friendly name beginning with the specified prefix. Conflicts with name. | `string` | `"flow_logs_role_"` | no |
-| <a name="input_flow_iam_role_permissions_boundary"></a> [flow\_iam\_role\_permissions\_boundary](#input\_flow\_iam\_role\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `""` | no |
+| <a name="input_flow_iam_role_permissions_boundary"></a> [flow\_iam\_role\_permissions\_boundary](#input\_flow\_iam\_role\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `null` | no |
 | <a name="input_flow_key_customer_master_key_spec"></a> [flow\_key\_customer\_master\_key\_spec](#input\_flow\_key\_customer\_master\_key\_spec) | (Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC\_DEFAULT, RSA\_2048, RSA\_3072, RSA\_4096, ECC\_NIST\_P256, ECC\_NIST\_P384, ECC\_NIST\_P521, or ECC\_SECG\_P256K1. Defaults to SYMMETRIC\_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide. | `string` | `"SYMMETRIC_DEFAULT"` | no |
 | <a name="input_flow_key_deletion_window_in_days"></a> [flow\_key\_deletion\_window\_in\_days](#input\_flow\_key\_deletion\_window\_in\_days) | (Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days. | `number` | `30` | no |
 | <a name="input_flow_key_description"></a> [flow\_key\_description](#input\_flow\_key\_description) | (Optional) The description of the key as viewed in AWS console. | `string` | `"CloudWatch kms key used to encrypt flow logs"` | no |
@@ -248,31 +249,29 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | Name to be used on all the resources as identifier | `string` | `"siem"` | no |
 | <a name="input_peer_owner_id"></a> [peer\_owner\_id](#input\_peer\_owner\_id) | (Optional) The AWS account ID of the owner of the peer VPC. Defaults to the account ID the AWS provider is currently connected to. | `string` | `""` | no |
 | <a name="input_peer_region"></a> [peer\_region](#input\_peer\_region) | (Optional) The region of the accepter VPC of the [VPC Peering Connection]. auto\_accept must be false, and use the aws\_vpc\_peering\_connection\_accepter to manage the accepter side. | `string` | `""` | no |
-| <a name="input_peer_vpc_ids"></a> [peer\_vpc\_ids](#input\_peer\_vpc\_ids) | (Required) The ID of the VPC with which you are creating the VPC Peering Connection. | `list` | `[]` | no |
+| <a name="input_peer_vpc_ids"></a> [peer\_vpc\_ids](#input\_peer\_vpc\_ids) | (Required) The ID of the VPC with which you are creating the VPC Peering Connection. | `list(any)` | `[]` | no |
 | <a name="input_peer_vpc_subnet"></a> [peer\_vpc\_subnet](#input\_peer\_vpc\_subnet) | (Optional) The subnet cidr block of the VPC which will be a peer | `string` | `""` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | The Placement Group to start the instance in | `string` | `""` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | Private IP address to associate with the instance in a VPC | `string` | `"10.77.1.70"` | no |
-| <a name="input_private_propagating_vgws"></a> [private\_propagating\_vgws](#input\_private\_propagating\_vgws) | A list of VGWs the private route table should propagate. | `list(string)` | `[]` | no |
 | <a name="input_private_subnets_list"></a> [private\_subnets\_list](#input\_private\_subnets\_list) | A list of private subnets inside the VPC. | `list(string)` | <pre>[<br>  "10.77.1.64/26",<br>  "10.77.1.192/26"<br>]</pre> | no |
 | <a name="input_public_key"></a> [public\_key](#input\_public\_key) | (Required) Public rsa key | `string` | n/a | yes |
-| <a name="input_public_propagating_vgws"></a> [public\_propagating\_vgws](#input\_public\_propagating\_vgws) | A list of VGWs the public route table should propagate. | `list(string)` | `[]` | no |
 | <a name="input_public_subnets_list"></a> [public\_subnets\_list](#input\_public\_subnets\_list) | A list of public subnets inside the VPC. | `list(string)` | <pre>[<br>  "10.77.1.0/26",<br>  "10.77.1.128/26"<br>]</pre> | no |
 | <a name="input_root_delete_on_termination"></a> [root\_delete\_on\_termination](#input\_root\_delete\_on\_termination) | (Optional) Whether the volume should be destroyed on instance termination (Default: true) | `string` | `true` | no |
 | <a name="input_root_volume_size"></a> [root\_volume\_size](#input\_root\_volume\_size) | (Optional) The size of the volume in gigabytes. | `string` | `"100"` | no |
 | <a name="input_root_volume_type"></a> [root\_volume\_type](#input\_root\_volume\_type) | (Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard) | `string` | `"gp2"` | no |
 | <a name="input_security_group_description"></a> [security\_group\_description](#input\_security\_group\_description) | Description of the security group | `string` | `"SIEM Collector Security Group"` | no |
 | <a name="input_security_group_name"></a> [security\_group\_name](#input\_security\_group\_name) | Name of the security group used for SIEM | `string` | `"siem_collector_sg"` | no |
-| <a name="input_sg_cidr_blocks"></a> [sg\_cidr\_blocks](#input\_sg\_cidr\_blocks) | (Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector | `list` | n/a | yes |
+| <a name="input_sg_cidr_blocks"></a> [sg\_cidr\_blocks](#input\_sg\_cidr\_blocks) | (Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector | `list(any)` | n/a | yes |
 | <a name="input_single_nat_gateway"></a> [single\_nat\_gateway](#input\_single\_nat\_gateway) | should be true if you want to provision a single shared NAT Gateway across all of your private networks | `bool` | `false` | no |
 | <a name="input_source_dest_check"></a> [source\_dest\_check](#input\_source\_dest\_check) | Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs. | `bool` | `true` | no |
 | <a name="input_static_routes_only"></a> [static\_routes\_only](#input\_static\_routes\_only) | Flag to determine whether or not dynamic or static routing is enabled | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | <pre>{<br>  "backup": "true",<br>  "created_by": "Your Name",<br>  "environment": "prod",<br>  "project": "SIEM Implementation",<br>  "service": "soc",<br>  "team": "Security Team",<br>  "terraform": "true",<br>  "used_by": "ThinkStack"<br>}</pre> | no |
 | <a name="input_tenancy"></a> [tenancy](#input\_tenancy) | The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host. | `string` | `"default"` | no |
 | <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | (Optional) Identifier of an EC2 Transit Gateway. | `string` | `null` | no |
-| <a name="input_transit_subnet_route_cidr_blocks"></a> [transit\_subnet\_route\_cidr\_blocks](#input\_transit\_subnet\_route\_cidr\_blocks) | (Optional) The destination CIDR blocks to send to the transit gateway. | `list` | `null` | no |
+| <a name="input_transit_subnet_route_cidr_blocks"></a> [transit\_subnet\_route\_cidr\_blocks](#input\_transit\_subnet\_route\_cidr\_blocks) | (Optional) The destination CIDR blocks to send to the transit gateway. | `list(any)` | `null` | no |
 | <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | The CIDR block for the VPC | `string` | `"10.77.1.0/24"` | no |
-| <a name="input_vpn_peer_ip_address"></a> [vpn\_peer\_ip\_address](#input\_vpn\_peer\_ip\_address) | (Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with | `list` | `null` | no |
-| <a name="input_vpn_route_cidr_blocks"></a> [vpn\_route\_cidr\_blocks](#input\_vpn\_route\_cidr\_blocks) | (Required) CIDR block of the VPN subnets | `list` | `null` | no |
+| <a name="input_vpn_peer_ip_address"></a> [vpn\_peer\_ip\_address](#input\_vpn\_peer\_ip\_address) | (Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with | `list(any)` | `null` | no |
+| <a name="input_vpn_route_cidr_blocks"></a> [vpn\_route\_cidr\_blocks](#input\_vpn\_route\_cidr\_blocks) | (Required) CIDR block of the VPN subnets | `list(any)` | `null` | no |
 | <a name="input_vpn_type"></a> [vpn\_type](#input\_vpn\_type) | Type of VPN tunnel. Currently only supports ipsec.1 | `string` | `"ipsec.1"` | no |
 
 ## Outputs
