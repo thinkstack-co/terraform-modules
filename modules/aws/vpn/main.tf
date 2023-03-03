@@ -58,8 +58,8 @@ resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   tunnel1_phase2_integrity_algorithms  = var.tunnel_phase2_integrity_algorithms
   tunnel2_phase2_integrity_algorithms  = var.tunnel_phase2_integrity_algorithms
   ## Tunnel Startup
-  tunnel1_startup_action               = var.tunnel_startup_action
-  tunnel2_startup_action               = var.tunnel_startup_action
+  tunnel1_startup_action = var.tunnel_startup_action
+  tunnel2_startup_action = var.tunnel_startup_action
 }
 
 # Used if enable_transit_gateway_attachment == false

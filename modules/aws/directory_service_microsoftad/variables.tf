@@ -44,7 +44,7 @@ variable "size" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the resource."
   default     = {}
 }

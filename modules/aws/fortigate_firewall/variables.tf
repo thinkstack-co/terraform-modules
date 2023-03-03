@@ -12,7 +12,7 @@ variable "dmz_private_ips" {
 
 variable "dmz_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = list
+  type        = list(any)
 }
 
 variable "enable_dmz" {
@@ -54,12 +54,12 @@ variable "number" {
 
 variable "public_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = list
+  type        = list(any)
 }
 
 variable "private_subnet_id" {
   description = "The VPC subnet the instance(s) will be assigned. Set in main.tf"
-  type        = list
+  type        = list(any)
 }
 
 variable "private_nic_description" {

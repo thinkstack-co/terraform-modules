@@ -16,18 +16,18 @@ variable "vpc_id" {
 }
 
 variable "vxlan_cidr_blocks" {
-  type        = list
+  type        = list(any)
   description = "(Required) List of IP addresses and cidr blocks which are allowed to send VPC mirror traffic"
 }
 
 variable "mgmt_cidr_blocks" {
-  type        = list
+  type        = list(any)
   description = "(Optional) List of IP addresses and cidr blocks which are allowed to access SSH and HTTPS to this instance"
   default     = []
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the resource."
   default = {
     created_by  = "terraform"
@@ -198,19 +198,19 @@ variable "source_dest_check" {
 }
 
 variable "mgmt_subnet_ids" {
-  type        = list
+  type        = list(any)
   description = "(Required) The VPC Subnet ID for the mgmt nic"
 }
 
 variable "listener_subnet_ids" {
-  type        = list
+  type        = list(any)
   description = "(Required) The VPC Subnet ID to launch in"
 }
 
 variable "tenancy" {
   type        = string
   description = "(Optional) The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
-  default     =  "default"
+  default     = "default"
   validation {
     condition     = can(regex("^(default|dedicated|host)$", var.tenancy))
     error_message = "The value must be either default, dedicated, or host."

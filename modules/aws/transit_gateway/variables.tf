@@ -41,8 +41,8 @@ variable "name" {
 
 variable "tags" {
   description = "(Optional) Map of tags for the EC2 Transit Gateway."
-  type        = map
-  default     = {
+  type        = map(any)
+  default = {
     terraform   = "true"
     environment = "prod"
     project     = "core_infrastructure"

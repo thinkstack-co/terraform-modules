@@ -15,19 +15,19 @@ resource "aws_iam_policy" "firehose_policy" {
   name_prefix = var.iam_policy_name_prefix
   path        = var.iam_policy_path
   tags        = var.tags
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-        Effect = "Allow",
-        Action = [
-            "s3:AbortMultipartUpload",
-        ],
-        Resource = [
-            "${aws_s3_bucket.firehose_bucket.arn}",
-            "${aws_s3_bucket.firehose_bucket.arn}/*"
-        ]
-        }]
-    })
+      Effect = "Allow",
+      Action = [
+        "s3:AbortMultipartUpload",
+      ],
+      Resource = [
+        "${aws_s3_bucket.firehose_bucket.arn}",
+        "${aws_s3_bucket.firehose_bucket.arn}/*"
+      ]
+    }]
+  })
 }
 
 ###########################

@@ -14,7 +14,7 @@ variable "number" {
 
 variable "enable_dhcp_options" {
   description = "boolean to determine if DHCP options are enabled"
-  type        = bool    
+  type        = bool
   default     = true
 }
 
@@ -161,5 +161,5 @@ variable "vpc_id" {
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type        = list
+  type        = list(any)
 }

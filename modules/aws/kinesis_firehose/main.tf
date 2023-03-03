@@ -12,9 +12,9 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   tags        = var.tags
 
   server_side_encryption {
-      enabled  = var.firehose_server_side_encryption_enabled
-      key_type = var.firehose_key_type
-      key_arn  = var.firehose_key_arn
+    enabled  = var.firehose_server_side_encryption_enabled
+    key_type = var.firehose_key_type
+    key_arn  = var.firehose_key_arn
   }
 
   extended_s3_configuration {
@@ -81,24 +81,24 @@ resource "aws_iam_policy" "firehose_policy" {
   path        = var.iam_policy_path
   tags        = var.tags
   #tfsec:ignore:aws-iam-no-policy-wildcards
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-        Effect = "Allow",
-        Action = [
-            "s3:AbortMultipartUpload",
-            "s3:GetBucketLocation",
-            "s3:GetObject",
-            "s3:ListBucket",
-            "s3:ListBucketMultipartUploads",
-            "s3:PutObject"
-        ],
-        Resource = [
-            "${aws_s3_bucket.firehose_bucket.arn}",
-            "${aws_s3_bucket.firehose_bucket.arn}/*"
-        ]
-        }]
-    })
+      Effect = "Allow",
+      Action = [
+        "s3:AbortMultipartUpload",
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:PutObject"
+      ],
+      Resource = [
+        "${aws_s3_bucket.firehose_bucket.arn}",
+        "${aws_s3_bucket.firehose_bucket.arn}/*"
+      ]
+    }]
+  })
 }
 
 ###########################

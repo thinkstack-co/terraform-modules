@@ -16,7 +16,7 @@ variable "associate_public_ip_address" {
 variable "availability_zone" {
   type        = string
   description = "The AZ to start the instance in"
-  default     =  ""
+  default     = ""
 }
 
 variable "number" {
@@ -161,7 +161,7 @@ variable "root_iops" {
 }
 
 variable "source_dest_check" {
-  type       = bool
+  type        = bool
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
   validation {
@@ -171,13 +171,13 @@ variable "source_dest_check" {
 }
 
 variable "subnet_id" {
-  type       = string
+  type        = string
   description = "The VPC Subnet ID to launch in"
   default     = ""
 }
 
 variable "tags" {
-  type       = map(string)
+  type        = map(string)
   description = "A mapping of tags to assign to the resource"
   default     = {}
 }
@@ -199,5 +199,5 @@ variable "user_data" {
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type        = list
+  type        = list(any)
 }

@@ -4,7 +4,7 @@ variable "apply_immediately" {
 }
 
 variable "availability_zones" {
-  type        = list
+  type        = list(any)
   description = "(Optional) A list of EC2 Availability Zones that instances in the DB cluster can be created in"
 }
 
@@ -55,7 +55,7 @@ variable "engine_version" {
 }*/
 
 variable "iam_roles" {
-  type        = list
+  type        = list(any)
   description = "(Optional) A List of ARNs for the IAM roles to associate to the RDS Cluster."
   default     = []
 }
@@ -97,7 +97,7 @@ variable "preferred_maintenance_window" {
 }
 
 variable "scaling_configuration" {
-  type        = list
+  type        = list(any)
   description = "(Optional) Nested attribute with scaling properties. Only valid when engine_mode is set to serverless. More details below."
   default     = []
 }
@@ -120,7 +120,7 @@ variable "storage_encrypted" {
 }
 
 variable "vpc_security_group_ids" {
-  type        = list
+  type        = list(any)
   description = "(Optional) List of VPC security groups to associate with the Cluster"
   default     = []
 }

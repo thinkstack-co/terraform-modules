@@ -180,13 +180,13 @@ variable "http_tokens" {
 
 variable "tags" {
   description = "(Optional) Map of tags to assign to the device."
-  default     = {
+  default = {
     created_by  = "terraform"
     terraform   = "true"
     environment = "prod"
     role        = "cato_sdwan"
   }
-  type        = map
+  type = map(any)
 }
 
 variable "number" {

@@ -6,12 +6,12 @@ resource "aws_lb" "this" {
   idle_timeout                     = var.idle_timeout
   # This is meant to allow the ability for an ALB to be internal or external
   #tfsec:ignore:aws-elb-alb-not-public
-  internal                         = var.internal
-  ip_address_type                  = var.ip_address_type
-  load_balancer_type               = var.load_balancer_type
-  name                             = var.name
-  security_groups                  = var.security_groups
-  subnets                          = var.subnets
+  internal           = var.internal
+  ip_address_type    = var.ip_address_type
+  load_balancer_type = var.load_balancer_type
+  name               = var.name
+  security_groups    = var.security_groups
+  subnets            = var.subnets
 
   access_logs {
     bucket  = var.access_logs_bucket
@@ -19,7 +19,7 @@ resource "aws_lb" "this" {
     prefix  = var.access_logs_prefix
   }
 
-  tags = merge(var.tags, ({"Name" = format("%s%d", var.name, count.index + 1)}))
+  tags = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
 }
 
 resource "aws_lb_listener" "this" {

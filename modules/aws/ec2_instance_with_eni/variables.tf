@@ -57,7 +57,7 @@ variable "placement_group" {
 }
 
 variable "private_ips" {
-  type        = list
+  type        = list(any)
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
@@ -82,7 +82,7 @@ variable "instance_type" {
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type        = list
+  type        = list(any)
 }
 
 variable "subnet_id" {

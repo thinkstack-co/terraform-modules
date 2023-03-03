@@ -18,7 +18,7 @@ variable "disable_api_termination" {
 }
 
 variable "dmz_subnet_id" {
-  type        = list
+  type        = list(any)
   description = "(Required) Subnet ID to create the ENI in."
 }
 
@@ -68,7 +68,7 @@ variable "lan0_description" {
 }
 
 variable "lan0_private_ips" {
-  type        = list
+  type        = list(any)
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
@@ -78,12 +78,12 @@ variable "mgmt0_description" {
 }
 
 variable "mgmt0_private_ips" {
-  type        = list
+  type        = list(any)
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 
 variable "mgmt_subnet_id" {
-  type        = list
+  type        = list(any)
   description = "(Required) Subnet ID to create the ENI in."
 }
 
@@ -102,7 +102,7 @@ variable "placement_group" {
 }
 
 variable "private_subnet_id" {
-  type        = list
+  type        = list(any)
   description = "(Required) Subnet ID to create the ENI in."
 }
 
@@ -188,7 +188,7 @@ variable "wan0_description" {
 }
 
 variable "wan0_private_ips" {
-  type        = list
+  type        = list(any)
   description = "(Optional) List of private IPs to assign to the ENI."
 }
 

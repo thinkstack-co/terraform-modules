@@ -21,7 +21,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                 = merge(tomap({ Name = var.name }), var.tags)
 }
 
 ###########################
@@ -29,36 +29,36 @@ resource "aws_vpc" "vpc" {
 ###########################
 
 resource "aws_security_group" "security_group" {
-    description = "SSM VPC service endpoint SG."
-    name        = "ssm_vpc_endpoint_sg"
-    tags        = var.tags
-    vpc_id      = aws_vpc.vpc.id
+  description = "SSM VPC service endpoint SG."
+  name        = "ssm_vpc_endpoint_sg"
+  tags        = var.tags
+  vpc_id      = aws_vpc.vpc.id
 
-    ingress {
-      description = "SSM Communication over HTTPS"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = [var.vpc_cidr]
-    }  
+  ingress {
+    description = "SSM Communication over HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
 
-    ingress {
-      description = "SSM Communication over HTTPS"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "udp"
-      cidr_blocks = [var.vpc_cidr]
-    } 
+  ingress {
+    description = "SSM Communication over HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "udp"
+    cidr_blocks = [var.vpc_cidr]
+  }
 
-    egress {
-      description     = "All traffic"
-      from_port       = 0
-      to_port         = 0
-      protocol        = "-1"
-      # Allow SSM outbound traffic to SSM endpoint
-      #tfsec:ignore:aws-ec2-no-public-egress-sgr
-      cidr_blocks     = ["0.0.0.0/0"]
-    }
+  egress {
+    description = "All traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    # Allow SSM outbound traffic to SSM endpoint
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 
@@ -70,7 +70,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
 resource "aws_vpc_endpoint" "kms" {
@@ -81,7 +81,7 @@ resource "aws_vpc_endpoint" "kms" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
 resource "aws_vpc_endpoint" "ssm" {
@@ -92,7 +92,7 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
 resource "aws_vpc_endpoint" "ssm-contacts" {
@@ -103,7 +103,7 @@ resource "aws_vpc_endpoint" "ssm-contacts" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
 resource "aws_vpc_endpoint" "ssm-incidents" {
@@ -114,7 +114,7 @@ resource "aws_vpc_endpoint" "ssm-incidents" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -125,7 +125,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = [aws_subnet.private_subnets.*.id[0]]
-  tags                 = merge(tomap({Name = var.name}),var.tags)
+  tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
 ###########################
@@ -137,18 +137,18 @@ resource "aws_subnet" "private_subnets" {
   cidr_block        = var.private_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.private_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "public_subnets" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = var.public_subnets_list[count.index]
-  availability_zone       = element(var.azs, count.index)
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = var.public_subnets_list[count.index]
+  availability_zone = element(var.azs, count.index)
   # Allow public IP assignment for public subnets and zone
   #tfsec:ignore:aws-ec2-no-public-ip-subnet
   map_public_ip_on_launch = var.map_public_ip_on_launch
   count                   = length(var.public_subnets_list)
-  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index))}))
+  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "dmz_subnets" {
@@ -156,7 +156,7 @@ resource "aws_subnet" "dmz_subnets" {
   cidr_block        = var.dmz_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.dmz_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "db_subnets" {
@@ -164,7 +164,7 @@ resource "aws_subnet" "db_subnets" {
   cidr_block        = var.db_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.db_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "mgmt_subnets" {
@@ -172,7 +172,7 @@ resource "aws_subnet" "mgmt_subnets" {
   cidr_block        = var.mgmt_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.mgmt_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, element(var.azs, count.index)) }))
 }
 
 resource "aws_subnet" "workspaces_subnets" {
@@ -180,7 +180,7 @@ resource "aws_subnet" "workspaces_subnets" {
   cidr_block        = var.workspaces_subnets_list[count.index]
   availability_zone = element(var.azs, count.index)
   count             = length(var.workspaces_subnets_list)
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index))}))
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, element(var.azs, count.index)) }))
 }
 
 ###########################
@@ -266,7 +266,7 @@ resource "aws_route" "db_default_route_fw" {
 resource "aws_route_table" "dmz_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.dmz_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -287,7 +287,7 @@ resource "aws_route" "dmz_default_route_fw" {
 resource "aws_route_table" "mgmt_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.mgmt_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -308,7 +308,7 @@ resource "aws_route" "mgmt_default_route_fw" {
 resource "aws_route_table" "workspaces_route_table" {
   count            = length(var.azs)
   propagating_vgws = var.workspaces_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index))}))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 

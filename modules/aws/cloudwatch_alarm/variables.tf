@@ -30,7 +30,7 @@ variable "datapoints_to_alarm" {
 }
 
 variable "dimensions" {
-  type        = map
+  type        = map(any)
   description = "(Optional) The dimensions for the alarm's associated metric. For the list of available dimensions see the AWS documentation"
 }
 

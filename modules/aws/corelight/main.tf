@@ -67,8 +67,8 @@ resource "aws_lb" "corelight_nlb" {
 #######################
 
 resource "aws_network_interface" "listener_nic" {
-  count       = var.number
-  description = var.listener_nic_description
+  count             = var.number
+  description       = var.listener_nic_description
   security_groups   = [aws_security_group.corelight_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.listener_subnet_ids, count.index)
@@ -76,8 +76,8 @@ resource "aws_network_interface" "listener_nic" {
 }
 
 resource "aws_network_interface" "mgmt_nic" {
-  count       = var.number
-  description = var.mgmt_nic_description
+  count             = var.number
+  description       = var.mgmt_nic_description
   security_groups   = [aws_security_group.corelight_sg.id]
   source_dest_check = var.source_dest_check
   subnet_id         = element(var.mgmt_subnet_ids, count.index)
