@@ -39,6 +39,7 @@ variable "vpc_id" {
 }
 
 variable "tags" {
+  type = map
   default = {
     created_by  = "terraform"
     terraform   = "yes"
@@ -48,6 +49,7 @@ variable "tags" {
 }
 
 variable "number" {
+  type = number
   description = "number of resources to make"
   default     = 2
 }
@@ -182,8 +184,9 @@ variable "root_volume_type" {
 }
 
 variable "root_volume_size" {
+  type = number
   description = "root volume disk size"
-  default     = "20"
+  default     = 20
 }
 
 variable "ebs_device_name" {
@@ -199,8 +202,9 @@ variable "ebs_volume_type" {
 }
 
 variable "ebs_volume_size" {
+  type = number
   description = "ebs volume disk size"
-  default     = "30"
+  default     = 30
 }
 
 variable "ebs_volume_encrypted" {

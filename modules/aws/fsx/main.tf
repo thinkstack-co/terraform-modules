@@ -60,7 +60,7 @@ resource "aws_kms_key" "fsx" {
 }
 
 resource "aws_kms_alias" "fsx_alias" {
-  name          = var.name
+  name          = var.fsx_key_name
   target_key_id = aws_kms_key.cloudwatch.key_id
 }
 

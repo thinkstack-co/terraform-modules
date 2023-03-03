@@ -167,6 +167,7 @@ variable "flow_vpc_id" {
 ###############################################################
 
 variable "tags" {
+  type        = map
   description = "(Optional) A mapping of tags to assign to the object."
   default = {
     terraform   = "true"
