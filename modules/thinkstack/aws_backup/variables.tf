@@ -140,7 +140,7 @@ variable "backup_plan_completion_window" {
 ###############################################################
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the object."
   default = {
     terraform   = "true"
