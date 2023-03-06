@@ -32,25 +32,4 @@ jobs:
       - name: Git Auto Commit
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Continuous Integration - terraform fmt
-          # commit_options: '--no-verify'
-          # commit_user_name: github-actions[bot]
-          # commit_user_email: github-actions[bot]@users.noreply.github.com
-          # commit_author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          # file_pattern: '**/*.tf'
-
-
-  # terraform_docs:
-  #   name: Build - Terraform Docs
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         ref: ${{ github.event.pull_request.head.ref }}
-
-  #     - name: Render terraform docs and push changes back to PR
-  #       uses: terraform-docs/gh-actions@main
-  #       with:
-  #        config-file: ./modules/.terraform-docs.yml
-  #        find-dir: ./modules
+          commit_message: Continuous Integration - terraform fmt and terraform-docs
