@@ -113,7 +113,7 @@ No modules.
 | <a name="input_is_enabled"></a> [is\_enabled](#input\_is\_enabled) | (Optional) Specifies whether the key is enabled. Defaults to true. | `string` | `true` | no |
 | <a name="input_key_usage"></a> [key\_usage](#input\_key\_usage) | (Optional) Specifies the intended use of the key. Defaults to ENCRYPT\_DECRYPT, and only symmetric encryption and decryption are supported. | `string` | `"ENCRYPT_DECRYPT"` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Optional) The display name of the alias. The name must start with the word 'alias' followed by a forward slash | `string` | n/a | yes |
-| <a name="input_policy"></a> [policy](#input\_policy) | (Optional) A valid policy JSON document. | `string` | `""` | no |
+| <a name="input_policy"></a> [policy](#input\_policy) | (Optional) A valid policy JSON document. | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the object. | `map` | <pre>{<br>  "created_by": "terraform",<br>  "terraform": "true"<br>}</pre> | no |
 
 ## Outputs
