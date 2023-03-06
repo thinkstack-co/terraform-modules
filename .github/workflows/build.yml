@@ -19,7 +19,7 @@ jobs:
 
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -diff -recursive
+        run: terraform fmt -recursive
       
       - name: Commit terraform fmt changes
         run: |
