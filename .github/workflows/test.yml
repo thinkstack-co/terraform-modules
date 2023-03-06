@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run tfsec and write pull request comments
-        uses: tfsec/tfsec-pr-commenter-action@main
+        uses: aquasecurity/tfsec-pr-commenter-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tfsec_args: --force-all-dirs
