@@ -28,7 +28,7 @@ variable "iops" {
   description = "(Optional) The amount of IOPS to provision for the disk. Only valid for type of io1, io2 or gp3."
   default     = null
   validation {
-    condition = var.iops > 0
+    condition     = var.iops > 0
     error_message = "iops must be greater than 0"
   }
 }
@@ -96,7 +96,7 @@ variable "throughput" {
   description = "(Optional) The throughput that the volume supports, in MiB/s. Only valid for type of gp3."
   default     = null
   validation {
-    condition = var.throughput > 0
+    condition     = var.throughput > 0
     error_message = "throughput must be greater than 0"
   }
 }
