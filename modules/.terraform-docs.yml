@@ -2,7 +2,7 @@
 formatter: markdown table
 
 recursive:
-  enabled: true
+  enabled: false
 
 output:
   file: README.md
