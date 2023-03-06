@@ -1,0 +1,47 @@
+---
+name: Build
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform_fmt:
+    name: Build - Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: HashiCorp - Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -diff -recursive
+      
+      - name: Commit terraform fmt changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Continuous Integration - terraform fmt"
+          git push
+
+
+  # terraform_docs:
+  #   name: Build - Terraform Docs
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.ref }}
+
+  #     - name: Render terraform docs and push changes back to PR
+  #       uses: terraform-docs/gh-actions@main
+  #       with:
+  #         working-dir: .
+  #         output-file: README.md
+  #         output-method: inject
+  #         git-push: "true"
