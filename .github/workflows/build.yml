@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  terraform_fmt:
+  build_terraform:
     name: Build - Terraform
     runs-on: ubuntu-latest
 
@@ -23,13 +23,11 @@ jobs:
         id: fmt
         run: terraform fmt -recursive
 
-      - name: Render terraform docs and push changes back to PR
+      - name: Build terraform docs
         uses: terraform-docs/gh-actions@main
         with:
-          working-dir: .
-          output-file: README.md
-          output-method: inject
-          git-push: "true"
+          config-file: ./modules/.terraform-docs.yml
+          find-dir: ./modules
 
       - name: Git Auto Commit
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -54,7 +52,5 @@ jobs:
   #     - name: Render terraform docs and push changes back to PR
   #       uses: terraform-docs/gh-actions@main
   #       with:
-  #         working-dir: .
-  #         output-file: README.md
-  #         output-method: inject
-  #         git-push: "true"
+  #        config-file: ./modules/.terraform-docs.yml
+  #        find-dir: ./modules
