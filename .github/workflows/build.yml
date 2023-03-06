@@ -19,7 +19,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Terraform fmt
+      - name: Terraform fmt on all files
         id: fmt
         run: terraform fmt -recursive
 
@@ -29,7 +29,7 @@ jobs:
           config-file: ./modules/.terraform-docs.yml
           find-dir: ./modules
 
-      - name: Git Auto Commit
+      - name: Git stage all, commit, and push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Continuous Integration - terraform fmt and terraform-docs
