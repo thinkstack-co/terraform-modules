@@ -1,6 +1,14 @@
+######################################
+# EC2 Instance Variables
+######################################
+
 variable "ami" {
   type        = string
-  description = "(Required) AMI ID to use when launching the instance"
+  description = "(Optional) AMI to use for the instance. Required unless launch_template is specified and the Launch Template specifes an AMI. If an AMI is specified in the Launch Template, setting ami will override the AMI specified in the Launch Template."
+  validation {
+    condition     = can(regex("^ami-[0-9a-f]{17}$", var.ami))
+    error_message = "The value must be a valid AMI ID."
+  }
 }
 
 variable "associate_public_ip_address" {
@@ -10,6 +18,16 @@ variable "associate_public_ip_address" {
   validation {
     condition     = can(regex("^(true|false)$", var.associate_public_ip_address))
     error_message = "The value must be either true or false."
+  }
+}
+
+variable "auto_recovery" {
+  type        = string
+  description = "(Optional) Whether the instance is protected from auto recovery by Auto Recovery from User Space (ARU) feature. Can be 'default' or 'disabled'. Defaults to default. See Auto Recovery from User Space for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-auto-recovery.html"
+  default     = "default"
+  validation {
+    condition     = can(regex("default|disabled", var.auto_recovery))
+    error_message = "The value must be either default or disabled."
   }
 }
 
@@ -57,8 +75,8 @@ variable "encrypted" {
 
 variable "iam_instance_profile" {
   type        = string
-  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
-  default     = ""
+  description = "(Optional) IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile. Ensure your credentials have the correct permission to assign the instance profile according to the EC2 documentation, notably iam:PassRole."
+  default     = null
 }
 
 variable "instance_initiated_shutdown_behavior" {
@@ -109,11 +127,6 @@ variable "private_ip" {
   type        = string
   description = "Private IP address to associate with the instance in a VPC"
   default     = null
-}
-
-variable "region" {
-  type        = string
-  description = "(Required) VPC Region the resources exist in"
 }
 
 variable "http_endpoint" {
