@@ -158,7 +158,6 @@ variable "root_iops" {
   type        = number
   description = "(Optional) Amount of provisioned IOPS. Only valid for volume_type of io1, io2 or gp3."
   default     = null
-
 }
 
 variable "root_volume_size" {
@@ -175,12 +174,6 @@ variable "root_volume_type" {
   type        = string
   description = "(Optional) The type of volume. Can be standard, gp2, gp3 or io1. (Default: standard)"
   default     = "gp3"
-}
-
-variable "root_iops" {
-  type        = number
-  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = null
 }
 
 variable "source_dest_check" {
