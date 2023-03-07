@@ -39,7 +39,7 @@ variable "kms_key_id" {
   description = "(Optional) The ARN for the KMS encryption key. When specifying kms_key_id, encrypted needs to be set to true. Note: Terraform must be running with credentials which have the GenerateDataKeyWithoutPlaintext permission on the specified KMS key as required by the EBS KMS CMK volume provisioning process to prevent a volume from being created and almost immediately deleted."
   default     = null
   validation {
-    condition     = can(regex("arn:aws:kms:.*", var.kms_key_id)) || var.kms_key_id == null 
+    condition     = can(regex("arn:aws:kms:.*", var.kms_key_id)) || var.kms_key_id == null
     error_message = "kms_key_id must be a valid ARN or null"
   }
 }
