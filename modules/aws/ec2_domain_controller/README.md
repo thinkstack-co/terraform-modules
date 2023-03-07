@@ -62,8 +62,31 @@
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-
 ### Simple Example
+```
+module "domain_controllers" {
+    source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_domain_controller"
+
+    vpc_id                 = module.vpc.vpc_id
+    ami                    = lookup(var.aws_amis, var.aws_prod_region)
+    name                   = "aws_prod_dc"
+    subnet_id              = module.vpc.private_subnet_ids
+    number                  = 2
+    domain_name            = "example.local"
+    vpc_security_group_ids = [module.domain_controller_sg.id]
+
+    tags = {
+        terraform         = "true"
+        created_by        = "YOUR NAME"
+        environment       = "prod"
+        project           = "core_infrastructure"
+        role              = "domain_controller"
+        backup            = "true"
+        ssm_update        = "true"
+    }
+}
+```
+### Complex Example
 ```
 module "domain_controllers" {
     source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_domain_controller"
@@ -72,6 +95,7 @@ module "domain_controllers" {
     ami                    = lookup(var.aws_amis, var.aws_prod_region)
     encrypted              = true
     key_name               = module.keypair.key_name
+    kms_key_id             = module.ec2_key.arn
     name                   = "aws_prod_dc"
     instance_type          = "t3a.large"
     subnet_id              = module.vpc.private_subnet_ids
@@ -80,7 +104,6 @@ module "domain_controllers" {
     domain_name            = "example.local"
     private_ip             = ["10.11.1.100", "10.11.2.100"]
     vpc_security_group_ids = [module.domain_controller_sg.id]
-    region                 = var.aws_prod_region
 
     tags = {
         terraform         = "true"
@@ -102,7 +125,7 @@ module "aws_ec2_domain_controllers" {
   vpc_id                 = module.vpc.vpc_id
   key_name               = module.keypair.key_name
   name                   = "aws-dc"
-  instance_type          = "t2.small"
+  instance_type          = "t3a.medium"
   subnet_id              = module.vpc.private_subnet_ids
   ami                    = "ami-ffffffff"
   count                  = 2
