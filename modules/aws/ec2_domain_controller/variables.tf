@@ -211,7 +211,7 @@ variable "tenancy" {
 variable "tags" {
   type        = map(string)
   description = "(Optional) Map of tags to assign to the resource. Note that these tags apply to the instance and not block storage devices. If configured with a provider default_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level."
-  default     = {
+  default = {
     terraform = "true"
   }
 }
