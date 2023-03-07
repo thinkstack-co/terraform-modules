@@ -40,7 +40,7 @@ variable "kms_key_id" {
   default     = null
   validation {
     condition     =  var.kms_key_id == null || can(regex("arn:aws:kms:.*", var.kms_key_id))
-    error_message = "kms_key_id must be a valid ARN"
+    error_message = "kms_key_id must be a valid ARN or null"
   }
 }
 
@@ -69,8 +69,8 @@ variable "snapshot_id" {
   description = "(Optional) A snapshot to base the EBS volume off of."
   default     = null
   validation {
-    condition     = can(regex("snap-[0-9a-f]{8}", var.snapshot_id))
-    error_message = "snapshot_id must be a valid snapshot ID"
+    condition     = var.snapshot_id == null || can(regex("snap-[0-9a-f]{8}", var.snapshot_id))
+    error_message = "snapshot_id must be a valid snapshot ID or null"
   }
 }
 
