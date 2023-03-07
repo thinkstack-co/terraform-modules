@@ -103,7 +103,6 @@ variable "monitoring" {
   }
 }
 
-
 variable "placement_group" {
   type        = string
   description = "(Optional) Placement Group to start the instance in."
@@ -217,10 +216,10 @@ variable "user_data" {
 variable "vpc_security_group_ids" {
   type        = list(any)
   description = "(Required, VPC only) List of security group IDs to associate with."
-  validation {
+/*   validation {
     condition     = can(regex("^sg-[a-z0-9]+$", var.vpc_security_group_ids))
     error_message = "The value must be a valid security group ID."
-  }
+  } */
 }
 
 ######################################
