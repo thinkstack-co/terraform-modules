@@ -64,10 +64,10 @@
 ## Usage
 
 ```
-module test {
-    source = 
+module "thinkstack_azure_ad" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/azure_ad_sso"
 
-    variable = 
+  saml_metadata_document = file("global/iam/providers/FederationMetadata.xml")
 }
 ```
 
