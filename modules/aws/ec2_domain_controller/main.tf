@@ -8,10 +8,18 @@ terraform {
   }
 }
 
+###########################
+# Data Sources
+###########################
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+###########################
+# EC2 Instance
+###########################
+
 resource "aws_instance" "ec2_instance" {
-  ami = var.ami
-  # This is redundant with the subnet_id option set. The subnet_id already defines an availability zone
-  # availability_zone                    = element(var.availability_zone, count.index)
+  ami                                  = var.ami
   count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
@@ -23,6 +31,10 @@ resource "aws_instance" "ec2_instance" {
   placement_group                      = var.placement_group
   private_ip                           = element(var.private_ip, count.index)
 
+  maintenance_options {
+    auto_recovery = var.auto_recovery
+  }
+
   metadata_options {
     http_endpoint = var.http_endpoint
     http_tokens   = var.http_tokens
@@ -31,16 +43,22 @@ resource "aws_instance" "ec2_instance" {
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
-    # iops                = var.root_iops
-    volume_size = var.root_volume_size
-    volume_type = var.root_volume_type
+    iops                  = var.root_iops
+    kms_key_id            = var.kms_key_id
+    volume_size           = var.root_volume_size
+    volume_type           = var.root_volume_type
   }
+
   source_dest_check      = var.source_dest_check
   subnet_id              = element(var.subnet_id, count.index)
   tenancy                = var.tenancy
   tags                   = merge(var.tags, ({ "Name" = format("%s%01d", var.name, count.index + 1) }))
   user_data              = var.user_data
-  volume_tags            = merge(var.tags, ({ "Name" = format("%s%01d", var.name, count.index + 1) }))
+  volume_tags            = merge(
+    var.tags, 
+    ({ "Name" = format("%s%01d", var.name, count.index + 1) }),
+    ({ "os_drive" = "c" })
+    )
   vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
@@ -48,10 +66,15 @@ resource "aws_instance" "ec2_instance" {
   }
 }
 
+###########################
+# VPC DHCP Options
+###########################
+
 resource "aws_vpc_dhcp_options" "dc_dns" {
   count               = var.enable_dhcp_options ? 1 : 0
-  domain_name_servers = aws_instance.ec2_instance[*].private_ip
   domain_name         = var.domain_name
+  domain_name_servers = aws_instance.ec2_instance[*].private_ip
+  ntp_servers         = aws_instance.ec2_instance[*].private_ip
   tags                = merge(var.tags, ({ "Name" = format("%s-dhcp-options", var.name) }))
 }
 
@@ -99,7 +122,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${var.region}:ec2:recover"]
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
