@@ -44,12 +44,12 @@ variable "kms_key_id" {
   }
 }
 
-variable "multi_attach_enable" {
+variable "multi_attach_enabled" {
   type        = bool
   description = "(Optional) Specifies whether to enable Amazon EBS Multi-Attach. Multi-Attach is supported on io1 and io2 volumes."
   default     = false
   validation {
-    condition     = can(regex("true|false", var.multi_attach_enable))
+    condition     = can(regex("true|false", var.multi_attach_enabled))
     error_message = "multi_attach_enable must be either true or false"
   }
 }
