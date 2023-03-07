@@ -117,11 +117,7 @@ variable "placement_group" {
 variable "private_ip" {
   type        = list(string)
   description = "(Optional) Private IP address to associate with the instance in a VPC."
-  default     = null
-  validation {
-    condition     = can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}$", var.private_ip)) || var.private_ip == null
-    error_message = "The value must be a valid private IP address or null."
-  }
+  default     = []
 }
 
 variable "http_endpoint" {
