@@ -65,7 +65,7 @@
 
 ```
 module "webapp_prod_db_cluster" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds_cluster"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds/cluster"
 
   availability_zones              = ["us-east-1a", "us-east-1b", "us-east-1c"]
   cluster_identifier              = "webapp-prod-cluster"

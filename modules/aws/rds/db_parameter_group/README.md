@@ -65,7 +65,7 @@
 
 ```
 module "db_parameter_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/db_parameter_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds/db_parameter_group"
 
   description = "aurora 5.6 parameter group"
   family      = "aurora5.6"

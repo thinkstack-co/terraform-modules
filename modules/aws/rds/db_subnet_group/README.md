@@ -65,7 +65,7 @@
 
 ```
 module "db_subnet_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/db_subnet_group?ref=v0.13.2"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds/db_subnet_group"
 
   description = "client_prod_website db subnet group"
   name        = "website_subnet_group"

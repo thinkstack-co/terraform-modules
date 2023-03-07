@@ -65,7 +65,7 @@
 
 ```
 module "webapp_aurora_cluster_parameter_group_5_7" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds_cluster_parameter_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds/cluster_parameter_group"
 
   description = "aurora mysql 5.7 provisioned parameter group"
   family      = "aurora-mysql5.7"

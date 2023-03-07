@@ -65,7 +65,7 @@
 
 ```
 module "webapp_prod_db_instances" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds_cluster_instance"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/rds/cluster_instance"
 
   cluster_identifier           = module.webapp_prod_db_cluster.id[0]
   db_subnet_group_name         = module.webapp_db_subnet_group.id
