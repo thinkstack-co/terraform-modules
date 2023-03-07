@@ -116,8 +116,7 @@ variable "placement_group" {
 
 variable "private_ip" {
   type        = list(string)
-  description = "(Optional) Private IP address to associate with the instance in a VPC."
-  default     = []
+  description = "(Required) Private IP address(es) to associate with the instance(s) in a VPC."
 }
 
 variable "http_endpoint" {
