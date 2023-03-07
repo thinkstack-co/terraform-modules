@@ -202,7 +202,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | Name of the instance. Used in tags for resources. | `string` | n/a | yes |
 | <a name="input_number"></a> [number](#input\_number) | (Optional) The number of instances and supporting resources to create. This allows high availability configurations. Default is 2. | `number` | `2` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | (Optional) Placement Group to start the instance in. | `string` | `null` | no |
-| <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | (Optional) Private IP address to associate with the instance in a VPC. | `list(string)` | `null` | no |
+| <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | (Optional) Private IP address to associate with the instance in a VPC. | `list(string)` | `[]` | no |
 | <a name="input_root_delete_on_termination"></a> [root\_delete\_on\_termination](#input\_root\_delete\_on\_termination) | (Optional) Whether the volume should be destroyed on instance termination. Defaults to true. | `string` | `true` | no |
 | <a name="input_root_iops"></a> [root\_iops](#input\_root\_iops) | (Optional) Amount of provisioned IOPS. Only valid for volume\_type of io1, io2 or gp3. | `number` | `null` | no |
 | <a name="input_root_volume_size"></a> [root\_volume\_size](#input\_root\_volume\_size) | (Optional) The size of the volume in gigabytes. | `number` | `100` | no |
