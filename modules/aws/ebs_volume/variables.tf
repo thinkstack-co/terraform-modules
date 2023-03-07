@@ -96,10 +96,10 @@ variable "throughput" {
   type        = number
   description = "(Optional) The throughput that the volume supports, in MiB/s. Only valid for type of gp3."
   default     = null
-  validation {
+  /* validation {
     condition     = var.throughput > 0 || var.throughput == null
     error_message = "throughput must be greater than 0"
-  }
+  } */
 }
 
 variable "device_name" {
