@@ -204,7 +204,7 @@ No modules.
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | (Optional) Placement Group to start the instance in. | `string` | `null` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | (Optional) Private IP address to associate with the instance in a VPC. | `list(string)` | `null` | no |
 | <a name="input_root_delete_on_termination"></a> [root\_delete\_on\_termination](#input\_root\_delete\_on\_termination) | (Optional) Whether the volume should be destroyed on instance termination. Defaults to true. | `string` | `true` | no |
-| <a name="input_root_iops"></a> [root\_iops](#input\_root\_iops) | (Optional) The amount of provisioned IOPS. This is only valid for volume\_type of io1, and must be specified if using that type | `number` | `null` | no |
+| <a name="input_root_iops"></a> [root\_iops](#input\_root\_iops) | (Optional) Amount of provisioned IOPS. Only valid for volume\_type of io1, io2 or gp3. | `number` | `null` | no |
 | <a name="input_root_volume_size"></a> [root\_volume\_size](#input\_root\_volume\_size) | (Optional) The size of the volume in gigabytes. | `number` | `100` | no |
 | <a name="input_root_volume_type"></a> [root\_volume\_type](#input\_root\_volume\_type) | (Optional) The type of volume. Can be standard, gp2, gp3 or io1. (Default: standard) | `string` | `"gp3"` | no |
 | <a name="input_source_dest_check"></a> [source\_dest\_check](#input\_source\_dest\_check) | (Optional) Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs. Defaults true. | `bool` | `true` | no |
