@@ -223,8 +223,17 @@ variable "tag_specifications" {
     default     = [{
         resource_type = "instance"
         tags          = {
-            terraform   = "true"
-            environment = "prod"
+            terraform       = "true"
+            environment     = "prod"
+            launch_template = "true"
+        }
+    },
+    {
+        resource_type = "volume"
+        tags          = {
+            terraform       = "true"
+            environment     = "prod"
+            launch_template = "true"
         }
     }]
 }

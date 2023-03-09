@@ -69,7 +69,7 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "license_specification" {
-    for_each = var.license_specification != null ? [var.license_specification] : {}
+    for_each = var.license_specification != null ? var.license_specification : {}
     content {
       license_configuration_arn = license_specification.value.license_configuration_arn
     }
@@ -97,7 +97,7 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "network_interfaces" {
-    for_each = var.network_interfaces != null ? var.network_interfaces : {}
+    for_each = var.network_interfaces != null ? var.network_interfaces : []
     content {
       associate_carrier_ip_address = network_interfaces.value.associate_carrier_ip_address
       associate_public_ip_address  = network_interfaces.value.associate_public_ip_address
@@ -127,10 +127,10 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "tag_specifications" {
-    for_each = var.tag_specifications != null ? var.tag_specifications : {}
+    for_each = var.tag_specifications != null ? var.tag_specifications : []
     content {
       resource_type = tag_specifications.value.resource_type
-      tags = tag_specifications.value.tags
+      tags          = tag_specifications.value.tags
     }
   }
 }
