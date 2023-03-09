@@ -194,7 +194,7 @@ variable "http_tokens" {
 variable "instance_metadata_tags" {
   type        = string
   description = "(Optional) Enables or disables access to instance tags from the instance metadata service. (Default: disabled)."
-  default     = "disabled"
+  default     = "enabled"
   validation {
     condition     = can(regex("^(enabled|disabled)$", var.instance_metadata_tags))
     error_message = "instance_metadata_tags must be either enabled or disabled"
