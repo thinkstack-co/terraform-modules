@@ -77,6 +77,12 @@ variable "update_default_version" {
     }
 }
 
+variable "vpc_security_group_ids" {
+    type        = list(string)
+    description = "(Optional) A list of security group IDs to associate with. Conflicts with network_interfaces.security_groups"
+    default     = []
+}
+
 variable "block_device_mappings" {
     type        = list(object({
         device_name = string

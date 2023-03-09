@@ -19,6 +19,7 @@ resource "aws_launch_template" "this" {
   tags                                 = var.tags
   user_data                            = var.user_data
   update_default_version               = var.update_default_version
+  vpc_security_group_ids               = var.vpc_security_group_ids
 
   dynamic "block_device_mappings" {
     for_each = var.block_device_mappings
