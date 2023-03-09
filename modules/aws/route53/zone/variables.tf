@@ -16,7 +16,7 @@ variable "name" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A map of tags to assign to the zone."
   default = {
     terraform = true

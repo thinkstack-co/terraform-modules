@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    tfe = {
+      source  = "hashicorp/tfe"
+      version = ">=0.42.0"
+    }
+  }
+}
+
 resource "tfe_oauth_client" "this" {
   name             = var.name
   organization     = var.organization

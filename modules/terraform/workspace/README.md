@@ -97,13 +97,15 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_tfe"></a> [tfe](#requirement\_tfe) | >=0.42.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_tfe"></a> [tfe](#provider\_tfe) | n/a |
+| <a name="provider_tfe"></a> [tfe](#provider\_tfe) | >=0.42.0 |
 
 ## Modules
 
@@ -134,7 +136,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name of the workspace. | `string` | n/a | yes |
 | <a name="input_oauth_token_id"></a> [oauth\_token\_id](#input\_oauth\_token\_id) | (Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe\_oauth\_client resource. | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | (Required) Name of the organization. | `string` | n/a | yes |
-| <a name="input_permission_map"></a> [permission\_map](#input\_permission\_map) | (Required) The permissions map which maps the team\_id to the permission access level. Exampe: 'terraform\_all\_admin = {id = team-fdsa5122q6rwYXP, access = admin}' | `map` | n/a | yes |
+| <a name="input_permission_map"></a> [permission\_map](#input\_permission\_map) | (Required) The permissions map which maps the team\_id to the permission access level. Exampe: 'terraform\_all\_admin = {id = team-fdsa5122q6rwYXP, access = admin}' | `map(any)` | n/a | yes |
 | <a name="input_queue_all_runs"></a> [queue\_all\_runs](#input\_queue\_all\_runs) | (Optional) Whether the workspace should start automatically performing runs immediately after its creation. Defaults to true. When set to false, runs triggered by a webhook (such as a commit in VCS) will not be queued until at least one run has been manually queued. Note: This default differs from the Terraform Cloud API default, which is false. The provider uses true as any workspace provisioned with false would need to then have a run manually queued out-of-band before accepting webhooks. | `bool` | `true` | no |
 | <a name="input_remote_state_consumer_ids"></a> [remote\_state\_consumer\_ids](#input\_remote\_state\_consumer\_ids) | (Optional) The set of workspace IDs set as explicit remote state consumers for the given workspace. | `list(string)` | `null` | no |
 | <a name="input_speculative_enabled"></a> [speculative\_enabled](#input\_speculative\_enabled) | (Optional) Whether this workspace allows speculative plans. Defaults to true. Setting this to false prevents Terraform Cloud or the Terraform Enterprise instance from running plans on pull requests, which can improve security if the VCS repository is public or includes untrusted contributors. | `bool` | `true` | no |

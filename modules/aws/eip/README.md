@@ -94,13 +94,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -119,7 +120,7 @@ No modules.
 | <a name="input_associate_with_private_ip"></a> [associate\_with\_private\_ip](#input\_associate\_with\_private\_ip) | (Optional) A user specified primary or secondary private IP address to associate with the Elastic IP address. If no private IP address is specified, the Elastic IP address is associated with the primary private IP address. | `string` | `""` | no |
 | <a name="input_instance"></a> [instance](#input\_instance) | (Optional) EC2 instance ID. | `string` | `""` | no |
 | <a name="input_network_interface"></a> [network\_interface](#input\_network\_interface) | (Optional) Network interface ID to associate with. | `string` | `""` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map` | `{}` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | `{}` | no |
 | <a name="input_vpc"></a> [vpc](#input\_vpc) | (Optional) Boolean if the EIP is in a VPC or not. | `string` | `true` | no |
 
 ## Outputs

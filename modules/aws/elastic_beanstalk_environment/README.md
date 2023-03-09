@@ -82,13 +82,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -112,7 +113,7 @@ No modules.
 | <a name="input_poll_interval"></a> [poll\_interval](#input\_poll\_interval) | The time between polling the AWS API to check if changes have been applied. Use this to adjust the rate of API calls for any create or update action. Minimum 10s, maximum 180s. Omit this to use the default behavior, which is an exponential backoff | `string` | `""` | no |
 | <a name="input_setting"></a> [setting](#input\_setting) | (Optional) Option settings to configure the new Environment. These override specific values that are set as defaults. The format is detailed below in Option Settings | `string` | `""` | no |
 | <a name="input_solution_stack_name"></a> [solution\_stack\_name](#input\_solution\_stack\_name) | (Optional) A solution stack to base your environment off of. Example stacks can be found in the Amazon API documentation | `string` | `""` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A set of tags to apply to the Environment. | `map` | `{}` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A set of tags to apply to the Environment. | `map(any)` | `{}` | no |
 | <a name="input_template_name"></a> [template\_name](#input\_template\_name) | (Optional) The name of the Elastic Beanstalk Configuration template to use in deployment | `string` | `""` | no |
 | <a name="input_tier"></a> [tier](#input\_tier) | (Optional) Elastic Beanstalk Environment tier. Valid values are Worker or WebServer. If tier is left blank WebServer will be used. | `string` | `""` | no |
 | <a name="input_version_label"></a> [version\_label](#input\_version\_label) | (Optional) The name of the Elastic Beanstalk Application Version to use in deployment. | `string` | `""` | no |

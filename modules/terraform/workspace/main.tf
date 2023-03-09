@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    tfe = {
+      source  = "hashicorp/tfe"
+      version = ">=0.42.0"
+    }
+  }
+}
+
 ##############################
 # Terraform Workspace
 ##############################
@@ -23,10 +32,10 @@ resource "tfe_workspace" "this" {
   tag_names                     = var.tag_names
   working_directory             = var.working_directory
   vcs_repo {
-    identifier                  = var.identifier
-    branch                      = var.branch
-    ingress_submodules          = var.ingress_submodules
-    oauth_token_id              = var.oauth_token_id
+    identifier         = var.identifier
+    branch             = var.branch
+    ingress_submodules = var.ingress_submodules
+    oauth_token_id     = var.oauth_token_id
   }
 }
 
@@ -37,7 +46,7 @@ resource "tfe_workspace" "this" {
 resource "tfe_team_access" "this" {
 
   for_each = var.permission_map
-  
+
   team_id      = each.value.id
   workspace_id = tfe_workspace.this.id
   access       = each.value.access

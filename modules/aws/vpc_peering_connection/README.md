@@ -94,13 +94,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -121,7 +122,7 @@ No modules.
 | <a name="input_peer_owner_id"></a> [peer\_owner\_id](#input\_peer\_owner\_id) | (Optional) The AWS account ID of the owner of the peer VPC. Defaults to the account ID the AWS provider is currently connected to. | `string` | `""` | no |
 | <a name="input_peer_region"></a> [peer\_region](#input\_peer\_region) | (Optional) The region of the accepter VPC of the [VPC Peering Connection]. auto\_accept must be false, and use the aws\_vpc\_peering\_connection\_accepter to manage the accepter side. | `string` | `""` | no |
 | <a name="input_peer_vpc_id"></a> [peer\_vpc\_id](#input\_peer\_vpc\_id) | (Required) The ID of the VPC with which you are creating the VPC Peering Connection. | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Required) The ID of the requester VPC. | `string` | n/a | yes |
 
 ## Outputs

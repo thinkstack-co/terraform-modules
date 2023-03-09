@@ -38,6 +38,6 @@ variable "close_on_deletion" {
 
 variable "tags" {
   description = "(Optional) Key-value map of resource tags. If configured with a provider default_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level."
-  type        = map
+  type        = map(any)
   default     = {}
 }

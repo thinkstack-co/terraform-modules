@@ -7,6 +7,17 @@
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-configure-preferences-cli.html
 
 # https://www.terraform.io/docs/providers/aws/r/ssm_document.html
+
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
+}
+
 resource "aws_ssm_document" "default" {
   name            = var.ssm_document_name
   document_type   = "Session"

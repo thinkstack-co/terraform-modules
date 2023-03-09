@@ -1,3 +1,13 @@
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
+}
+
 ###########################
 # Data Sources
 ###########################
@@ -17,40 +27,40 @@ resource "aws_kms_key" "fsx" {
   key_usage               = var.key_usage
   is_enabled              = var.is_enabled
   tags                    = var.tags
-  policy                  = jsonencode({
+  policy = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
-        {
-            "Sid" = "Enable IAM User Permissions",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            },
-            "Action" = "kms:*",
-            "Resource" = "*"
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        {
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "fsx.${data.aws_region.current.name}.amazonaws.com"
-            },
-            "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:CreateGrant",
-                "kms:ListGrants",
-                "kms:DescribeKey"
-            ],
-            "Resource" = "*",
-        }
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "fsx.${data.aws_region.current.name}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:CreateGrant",
+          "kms:ListGrants",
+          "kms:DescribeKey"
+        ],
+        "Resource" = "*",
+      }
     ]
-})
+  })
 }
 
 resource "aws_kms_alias" "fsx_alias" {
-  name          = var.name
+  name          = var.fsx_key_name
   target_key_id = aws_kms_key.cloudwatch.key_id
 }
 
@@ -64,61 +74,61 @@ resource "aws_kms_key" "cloudwatch" {
   key_usage               = var.key_usage
   is_enabled              = var.is_enabled
   tags                    = var.tags
-  policy                  = jsonencode({
+  policy = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
-        {
-            "Sid" = "Enable IAM User Permissions",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            },
-            "Action" = "kms:*",
-            "Resource" = "*"
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        {
-            "Sid" = "Grant access to CMK manager",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AmazonFSxManager"
-            },
-            "Action" = [
-                "kms:Create*",
-                "kms:Describe*",
-                "kms:Enable*",
-                "kms:List*",
-                "kms:Put*",
-                "kms:Update*",
-                "kms:Revoke*",
-                "kms:Disable*",
-                "kms:Get*",
-                "kms:Delete*",
-                "kms:ScheduleKeyDeletion",
-                "kms:CancelKeyDeletion"
-            ],
-            "Resource" = "*"
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Sid"    = "Grant access to CMK manager",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AmazonFSxManager"
         },
-        {
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
-            },
-            "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:Describe*"
-            ],
-            "Resource" = "*",
-            "Condition" = {
-                "ArnEquals" = {
-                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
-                }
-            }
+        "Action" = [
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        "Resource" = "*"
+      },
+      {
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "ArnEquals" = {
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+          }
         }
+      }
     ]
-})
+  })
 }
 
 resource "aws_kms_alias" "cloudwatch_alias" {

@@ -1,6 +1,14 @@
+######################################
+# EC2 Instance Variables
+######################################
+
 variable "ami" {
   type        = string
-  description = "(Required) AMI ID to use when launching the instance"
+  description = "(Optional) AMI to use for the instance. Required unless launch_template is specified and the Launch Template specifes an AMI. If an AMI is specified in the Launch Template, setting ami will override the AMI specified in the Launch Template."
+  validation {
+    condition     = can(regex("^ami-[0-9a-f]{17}$", var.ami))
+    error_message = "The value must be a valid AMI ID."
+  }
 }
 
 variable "associate_public_ip_address" {
@@ -13,10 +21,20 @@ variable "associate_public_ip_address" {
   }
 }
 
+variable "auto_recovery" {
+  type        = string
+  description = "(Optional) Whether the instance is protected from auto recovery by Auto Recovery from User Space (ARU) feature. Can be 'default' or 'disabled'. Defaults to default. See Auto Recovery from User Space for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-auto-recovery.html"
+  default     = "default"
+  validation {
+    condition     = can(regex("default|disabled", var.auto_recovery))
+    error_message = "The value must be either default or disabled."
+  }
+}
+
 variable "availability_zone" {
   type        = string
   description = "The AZ to start the instance in"
-  default     =  ""
+  default     = ""
 }
 
 variable "number" {
@@ -57,8 +75,8 @@ variable "encrypted" {
 
 variable "iam_instance_profile" {
   type        = string
-  description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
-  default     = ""
+  description = "(Optional) IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile. Ensure your credentials have the correct permission to assign the instance profile according to the EC2 documentation, notably iam:PassRole."
+  default     = null
 }
 
 variable "instance_initiated_shutdown_behavior" {
@@ -111,11 +129,6 @@ variable "private_ip" {
   default     = null
 }
 
-variable "region" {
-  type        = string
-  description = "(Required) VPC Region the resources exist in"
-}
-
 variable "http_endpoint" {
   type        = string
   description = "(Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled."
@@ -137,9 +150,13 @@ variable "http_tokens" {
 }
 
 variable "root_delete_on_termination" {
-  type        = string
+  type        = bool
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.root_delete_on_termination))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "root_volume_size" {
@@ -150,18 +167,22 @@ variable "root_volume_size" {
 
 variable "root_volume_type" {
   type        = string
-  description = "(Optional) The type of volume. Can be standard, gp2, gp3 or io1. (Default: standard)"
+  description = "(Optional) Type of volume. Valid values include standard, gp2, gp3, io1, io2, sc1, or st1. Defaults to gp3."
   default     = "gp3"
+  validation {
+    condition     = can(regex("^(standard|gp2|gp3|io1|io2|sc1|st1)$", var.root_volume_type))
+    error_message = "The value must be either standard, gp2, gp3, io1, io2, sc1, or st1."
+  }
 }
 
-variable "root_iops" {
+/* variable "root_iops" {
   type        = number
   description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
   default     = null
-}
+} */
 
 variable "source_dest_check" {
-  type       = bool
+  type        = bool
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
   validation {
@@ -171,13 +192,13 @@ variable "source_dest_check" {
 }
 
 variable "subnet_id" {
-  type       = string
+  type        = string
   description = "The VPC Subnet ID to launch in"
   default     = ""
 }
 
 variable "tags" {
-  type       = map(string)
+  type        = map(string)
   description = "A mapping of tags to assign to the resource"
   default     = {}
 }
@@ -193,11 +214,12 @@ variable "tenancy" {
 }
 
 variable "user_data" {
+  type        = string
   description = "The user data to provide when launching the instance"
   default     = ""
 }
 
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
-  type        = list
+  type        = list(any)
 }
