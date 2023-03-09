@@ -47,14 +47,14 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "enclave_options" {
-    for_each = var.enclave_options
+    for_each = var.enclave_options != null ? var.enclave_options : {}
     content {
       enabled = enclave_options.value.enabled
     }
   }
 
   dynamic "hibernation_options" {
-    for_each = var.hibernation_options
+    for_each = var.hibernation_options != null ? var.hibernation_options : {}
     content {
       configured = hibernation_options.value.configured
     }
@@ -82,7 +82,7 @@ resource "aws_launch_template" "this" {
   dynamic "metadata_options" {
     for_each = var.metadata_options
     content {
-      http_endpoint               = metadata_options.value.http_endpoint
+      http_endpoint               = metadata_options.value["http_endpoint"]
       http_put_response_hop_limit = metadata_options.value.http_put_response_hop_limit
       http_tokens                 = metadata_options.value.http_tokens
       instance_metadata_tags      = metadata_options.value.instance_metadata_tags
