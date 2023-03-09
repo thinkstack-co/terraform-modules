@@ -87,9 +87,9 @@ resource "aws_launch_template" "this" {
     instance_metadata_tags      = var.instance_metadata_tags
   }
 
-monitoring {
-  enabled = var.monitoring_enabled
-}
+  monitoring {
+    enabled = var.monitoring_enabled
+  }
 
   dynamic "network_interfaces" {
     for_each = var.network_interfaces != null ? var.network_interfaces : []
