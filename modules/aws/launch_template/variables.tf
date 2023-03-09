@@ -109,12 +109,7 @@ variable "capacity_reservation_specification" {
         })
     })
     description = "(Optional) Customize the Capacity Reservation targeting option. See Capacity Reservation Specification below for more details."
-    default     = {
-        capacity_reservation_preference = "none"
-        capacity_reservation_target = {
-            capacity_reservation_id = null
-        }
-    }
+    default     = null
 }
 
 variable "credit_specification" {
@@ -164,7 +159,7 @@ variable "license_specification" {
         license_configuration_arn = string
     }))
     description = "(Optional) Customize the License Specification of the instance. See License Specification below for more details."
-    default     = []
+    default     = null
 }
 
 variable "auto_recovery" {
@@ -213,34 +208,27 @@ variable "network_interfaces" {
         subnet_id                    = string
     }))
     description = "(Optional) Customize the Network Interfaces of the instance. See Network Interfaces below for more details."
-    default     = []
+    default     = null
 }
 
 variable "placement" {
     type        = object({
-        affinity = string
+        affinity          = string
         availability_zone = string
-        group_name = string
-        host_id = string
-        spread_domain = string
-        tenancy = string
+        group_name        = string
+        host_id           = string
+        spread_domain     = string
+        tenancy           = string
     })
     description = "(Optional) Customize the Placement of the instance. See Placement below for more details."
-    default     = {
-        affinity = null
-        availability_zone = null
-        group_name = null
-        host_id = null
-        spread_domain = null
-        tenancy = null
-    }
+    default     = null
 }
 
 variable "tag_specifications" {
     type        = list(object({
         resource_type = string
-        tags = map(string)
+        tags          = map(string)
     }))
     description = "(Optional) Customize the Tag Specifications of the instance. See Tag Specifications below for more details."
-    default     = []
+    default     = null
 }
