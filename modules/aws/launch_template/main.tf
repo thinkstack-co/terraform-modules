@@ -40,7 +40,7 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "capacity_reservation_specification" {
-    for_each = var.capacity_reservation_specification != null ? var.capacity_reservation_specification : []
+    for_each = var.capacity_reservation_specification != null ? var.capacity_reservation_specification : {}
     content {
       capacity_reservation_preference = capacity_reservation_specification.value.capacity_reservation_preference
       capacity_reservation_target {
@@ -124,7 +124,7 @@ resource "aws_launch_template" "this" {
   }
 
   dynamic "placement" {
-    for_each = var.placement != null ? var.placement : []
+    for_each = var.placement != null ? var.placement : {}
     content {
       affinity          = placement.value.affinity
       availability_zone = placement.value.availability_zone
