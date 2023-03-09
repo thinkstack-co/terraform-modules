@@ -39,16 +39,6 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  dynamic "capacity_reservation_specification" {
-    for_each = var.capacity_reservation_specification != null ? var.capacity_reservation_specification : {}
-    content {
-      capacity_reservation_preference = capacity_reservation_specification.value.capacity_reservation_preference
-      capacity_reservation_target {
-        capacity_reservation_id = capacity_reservation_specification.value.capacity_reservation_target.capacity_reservation_id
-      }
-    }
-  }
-
   dynamic "credit_specification" {
     for_each = var.credit_specification
     content {
