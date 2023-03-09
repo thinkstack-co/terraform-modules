@@ -38,32 +38,10 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  dynamic "cpu_options" {
-    for_each = var.cpu_options
-    content {
-      core_count = cpu_options.value.core_count
-      threads_per_core = cpu_options.value.threads_per_core
-    }
-  }
-
   dynamic "credit_specification" {
     for_each = var.credit_specification
     content {
       cpu_credits = credit_specification.value.cpu_credits
-    }
-  }
-
-  dynamic "elastic_gpu_specifications" {
-    for_each = var.elastic_gpu_specifications
-    content {
-      type = elastic_gpu_specifications.value.type
-    }
-  }
-
-  dynamic "elastic_inference_accelerator" {
-    for_each = var.elastic_inference_accelerator
-    content {
-      type = elastic_inference_accelerator.value.type
     }
   }
 
@@ -84,22 +62,8 @@ resource "aws_launch_template" "this" {
   dynamic "iam_instance_profile" {
     for_each = var.iam_instance_profile
     content {
-      arn = iam_instance_profile.value.arn
+      arn  = iam_instance_profile.value.arn
       name = iam_instance_profile.value.name
-    }
-  }
-
-  dynamic "instance_market_options" {
-    for_each = var.instance_market_options
-    content {
-      market_type = instance_market_options.value.market_type
-      spot_options {
-        block_duration_minutes         = instance_market_options.value.spot_options.block_duration_minutes
-        instance_interruption_behavior = instance_market_options.value.spot_options.instance_interruption_behavior
-        max_price                      = instance_market_options.value.spot_options.max_price
-        spot_instance_type             = instance_market_options.value.spot_options.spot_instance_type
-        valid_until                    = instance_market_options.value.spot_options.valid_until
-      }
     }
   }
 
