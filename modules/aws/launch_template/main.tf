@@ -85,12 +85,8 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  dynamic "maintenance_options" {
-    for_each = var.maintenance_options
-    content {
-      maintenance_window                  = maintenance_options.value.maintenance_window
-      terminate_instances_with_expiration = maintenance_options.value.terminate_instances_with_expiration
-    }
+  maintenance_options {
+    auto_recovery = var.auto_recovery
   }
 
   dynamic "metadata_options" {

@@ -167,16 +167,10 @@ variable "license_specification" {
     default     = []
 }
 
-variable "maintenance_options" {
-    type        = object({
-        enabled = bool
-        maintenance_window = string
-    })
-    description = "(Optional) Customize the Maintenance Options of the instance. See Maintenance Options below for more details."
-    default     = {
-        enabled = false
-        maintenance_window = null
-    }
+variable "auto_recovery" {
+    type        = string
+    description = "(Optional) Disables the automatic recovery behavior of your instance or sets it to default. Can be 'default' or 'disabled'. See Recover your instance for more details."
+    default     = "default"
 }
 
 variable "metadata_options" {
