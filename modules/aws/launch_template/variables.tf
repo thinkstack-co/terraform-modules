@@ -128,12 +128,9 @@ variable "hibernation_options" {
   default     = null
 }
 
-variable "iam_instance_profile" {
-  type = object({
-    arn  = string
-    # name = string
-  })
-  description = "(Optional) Customize the IAM Instance Profile of the instance. See IAM Instance Profile below for more details."
+variable "iam_instance_profile_name" {
+  type        = string
+  description = "The name of the instance profile."
   default     = null
 }
 

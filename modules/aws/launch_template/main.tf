@@ -60,12 +60,8 @@ resource "aws_launch_template" "this" {
     }
   }
 
-  dynamic "iam_instance_profile" {
-    for_each = var.iam_instance_profile != null ? var.iam_instance_profile : {}
-    content {
-      arn  = iam_instance_profile.value.arn
-      # name = iam_instance_profile.value.name
-    }
+  iam_instance_profile {
+    name = var.iam_instance_profile_name
   }
 
   dynamic "license_specification" {
