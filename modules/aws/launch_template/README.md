@@ -63,11 +63,38 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 ### Simple Example
+This example creates a launch template with a user_data script which executes on launch, a specific AMI, and sets the root volume to a 30GB gp3 EBS volume.
 ```
-module test {
-    source = 
+module "application_prod_launch_template" {
+  source                    = "github.com/thinkstack-co/terraform-modules//modules/aws/launch_template"
+  ebs_optimized             = true
+  key_name                  = module.keypair.key_name
+  name_prefix               = "application-prod-"
+  iam_instance_profile_name = "AmazonSSMRoleForInstancesQuickSetup"
+  image_id                  = "ami-006dcf34c09e50022"
+  instance_type             = "c5a.large"
+  user_data                 = filebase64("user_data.sh")
+  vpc_security_group_ids    = [module.application_sg.id]
+  block_device_mappings     = [{
+      device_name = "/dev/xvda"
 
-    variable = 
+      ebs = {
+        delete_on_termination = true
+        encrypted             = true
+        iops                  = 3000
+        kms_key_id            = ""
+        snapshot_id           = ""
+        throughput            = 125
+        volume_size           = 30
+        volume_type           = "gp3"
+      }
+    }]
+
+  tags = {
+    created_by  = "YOUR NAME"
+    environment = "prod"
+    terraform   = "true"
+  }
 }
 ```
 
