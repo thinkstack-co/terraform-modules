@@ -64,7 +64,7 @@ resource "aws_launch_template" "this" {
     for_each = var.iam_instance_profile != null ? var.iam_instance_profile : {}
     content {
       arn  = iam_instance_profile.value.arn
-      name = iam_instance_profile.value.name
+      # name = iam_instance_profile.value.name
     }
   }
 
