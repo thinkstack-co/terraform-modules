@@ -173,13 +173,13 @@ variable "metadata_options" {
     }
 }
 
-variable "monitoring" {
-    type        = object({
-        enabled = bool
-    })
-    description = "(Optional) Customize the Monitoring of the instance. See Monitoring below for more details."
-    default     = {
-        enabled = true
+variable "monitoring_enabled" {
+    type        = bool
+    description = "(Optional) If true, the launched EC2 instance will have detailed monitoring enabled. Default is true."
+    default     = true
+    validation {
+        condition = can(regex("^(true|false)$", var.monitoring_enabled))
+        error_message = "monitoring_enabled must be either true or false"
     }
 }
 
