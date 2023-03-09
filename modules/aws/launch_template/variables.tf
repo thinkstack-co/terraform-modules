@@ -101,16 +101,6 @@ variable "block_device_mappings" {
     default     = []
 }
 
-variable "capacity_reservation_specification" {
-    type        = object({
-        capacity_reservation_preference = string
-        capacity_reservation_target = object({
-            capacity_reservation_id = string
-        })
-    })
-    description = "(Optional) Customize the Capacity Reservation targeting option. See Capacity Reservation Specification below for more details."
-    default     = null
-}
 
 variable "credit_specification" {
     type        = object({
@@ -230,5 +220,11 @@ variable "tag_specifications" {
         tags          = map(string)
     }))
     description = "(Optional) Customize the Tag Specifications of the instance. See Tag Specifications below for more details."
-    default     = null
+    default     = {
+        resource_type = "instance"
+        tags          = {
+            terraform = "true"
+            environment = "prod"
+        }
+    }
 }
