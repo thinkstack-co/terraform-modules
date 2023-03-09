@@ -151,18 +151,53 @@ variable "auto_recovery" {
     default     = "default"
 }
 
-variable "metadata_options" {
-    type        = object({
-        http_endpoint               = string
-        http_put_response_hop_limit = number
-        http_tokens                 = string
-    })
-    description = "(Optional) Customize the Metadata Options of the instance. See Metadata Options below for more details."
-    default     = {
-        http_endpoint               = "enabled"
-        http_put_response_hop_limit = 1
-        http_tokens                 = "required"
-        instance_metadata_tags      = "enabled"
+variable "http_endpoint" {
+    type        = string
+    description = "(Optional) Whether the metadata service is available. Can be 'enabled' or 'disabled'. Default is 'enabled'."
+    default     = "enabled"
+    validation {
+        condition = can(regex("^(enabled|disabled)$", var.http_endpoint))
+        error_message = "http_endpoint must be either enabled or disabled"
+    }
+}
+
+variable "http_put_response_hop_limit" {
+  type        = number
+  description = "(Optional) The desired HTTP PUT response hop limit for instance metadata requests. The larger the number, the further instance metadata requests can travel. Can be an integer from 1 to 64. (Default: 1)."
+  default     = 1
+  validation {
+    condition = can(regex("^[1-9]$|^[1-5][0-9]$|^6[0-4]$", var.http_put_response_hop_limit))
+    error_message = "http_put_response_hop_limit must be an integer from 1 to 64"
+  }
+}
+
+variable "http_protocol_ipv6" {
+    type        = string
+    description = "(Optional) Enables or disables the IPv6 endpoint for the instance metadata service. Default is disable."
+    default     = "disabled"
+    validation {
+        condition = can(regex("^(enabled|disabled)$", var.http_protocol_ipv6))
+        error_message = "http_protocol_ipv6 must be either enabled or disabled"
+    }
+}
+
+variable "http_tokens" {
+    type        = string
+    description = "(Optional) Whether instance metadata requests should use token authentication. Can be 'optional' or 'required'. Default is 'required'."
+    default     = "required"
+    validation {
+        condition = can(regex("^(optional|required)$", var.http_tokens))
+        error_message = "http_tokens must be either optional or required"
+    }
+}
+
+variable "instance_metadata_tags" {
+    type        = string
+    description = "(Optional) Enables or disables access to instance tags from the instance metadata service. (Default: disabled)."
+    default     = "disabled"
+    validation {
+        condition = can(regex("^(enabled|disabled)$", var.instance_metadata_tags))
+        error_message = "instance_metadata_tags must be either enabled or disabled"
     }
 }
 

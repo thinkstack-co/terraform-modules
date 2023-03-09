@@ -79,14 +79,12 @@ resource "aws_launch_template" "this" {
     auto_recovery = var.auto_recovery
   }
 
-  dynamic "metadata_options" {
-    for_each = var.metadata_options
-    content {
-      http_endpoint               = metadata_options.value["http_endpoint"]
-      http_put_response_hop_limit = metadata_options.value.http_put_response_hop_limit
-      http_tokens                 = metadata_options.value.http_tokens
-      instance_metadata_tags      = metadata_options.value.instance_metadata_tags
-    }
+  metadata_options {
+    http_endpoint               = var.http_endpoint
+    http_put_response_hop_limit = var.http_put_response_hop_limit
+    http_protocol_ipv6          = var.http_protocol_ipv6
+    http_tokens                 = var.http_tokens
+    instance_metadata_tags      = var.instance_metadata_tags
   }
 
 monitoring {
