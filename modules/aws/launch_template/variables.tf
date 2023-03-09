@@ -220,11 +220,11 @@ variable "tag_specifications" {
         tags          = map(string)
     }))
     description = "(Optional) Customize the Tag Specifications of the instance. See Tag Specifications below for more details."
-    default     = {
+    default     = [{
         resource_type = "instance"
         tags          = {
-            terraform = "true"
+            terraform   = "true"
             environment = "prod"
         }
-    }
+    }]
 }
