@@ -117,9 +117,7 @@ variable "enclave_options" {
         enabled = bool
     })
     description = "(Optional) Customize the Enclave Options of the instance. See Enclave Options below for more details."
-    default     = {
-        enabled = false
-    }
+    default     = null
 }
 
 variable "hibernation_options" {
@@ -127,21 +125,16 @@ variable "hibernation_options" {
         configured = bool
     })
     description = "(Optional) Customize the Hibernation Options of the instance. See Hibernation Options below for more details."
-    default     = {
-        configured = false
-    }
+    default     = null
 }
 
 variable "iam_instance_profile" {
     type        = object({
-        arn = string
+        arn  = string
         name = string
     })
     description = "(Optional) Customize the IAM Instance Profile of the instance. See IAM Instance Profile below for more details."
-    default     = {
-        arn = null
-        name = null
-    }
+    default     = null
 }
 
 variable "license_specification" {
