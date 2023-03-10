@@ -84,13 +84,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -114,7 +115,7 @@ No modules.
 | <a name="input_local_gateway_id"></a> [local\_gateway\_id](#input\_local\_gateway\_id) | (Optional) Identifier of a Outpost local gateway. | `string` | `null` | no |
 | <a name="input_nat_gateway_id"></a> [nat\_gateway\_id](#input\_nat\_gateway\_id) | (Optional) An ID of a VPC NAT gateway. | `string` | `null` | no |
 | <a name="input_network_interface_id"></a> [network\_interface\_id](#input\_network\_interface\_id) | (Optional) An ID of a network interface. | `string` | `null` | no |
-| <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | (Required) The ID of the routing table. | `list` | n/a | yes |
+| <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | (Required) The ID of the routing table. | `list(any)` | n/a | yes |
 | <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | (Optional) Identifier of an EC2 Transit Gateway. | `string` | `null` | no |
 | <a name="input_vpc_endpoint_id"></a> [vpc\_endpoint\_id](#input\_vpc\_endpoint\_id) | (Optional) Identifier of a VPC Endpoint. | `string` | `null` | no |
 | <a name="input_vpc_peering_connection_id"></a> [vpc\_peering\_connection\_id](#input\_vpc\_peering\_connection\_id) | (Optional) An ID of a VPC peering connection. | `string` | `null` | no |

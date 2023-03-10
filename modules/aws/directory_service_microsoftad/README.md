@@ -97,13 +97,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -127,8 +128,8 @@ No modules.
 | <a name="input_password"></a> [password](#input\_password) | (Required) The password for the directory administrator or connector user. | `string` | n/a | yes |
 | <a name="input_short_name"></a> [short\_name](#input\_short\_name) | (Optional) The short name of the directory, such as CORP. | `string` | n/a | yes |
 | <a name="input_size"></a> [size](#input\_size) | (Required for SimpleAD and ADConnector) The size of the directory (Small or Large are accepted values). | `string` | `"Small"` | no |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | (Required) The identifiers of the subnets for the directory servers (2 subnets in 2 different AZs). | `list` | `[]` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map` | `{}` | no |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | (Required) The identifiers of the subnets for the directory servers (2 subnets in 2 different AZs). | `list(string)` | `[]` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | `{}` | no |
 | <a name="input_type"></a> [type](#input\_type) | (Optional) - The directory type (SimpleAD, ADConnector or MicrosoftAD are accepted values). Defaults to SimpleAD. | `string` | `"MicrosoftAD"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Required) The identifier of the VPC that the directory is in. | `string` | n/a | yes |
 

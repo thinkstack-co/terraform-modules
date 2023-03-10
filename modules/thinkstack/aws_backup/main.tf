@@ -1,10 +1,10 @@
 terraform {
-  required_version = ">= 0.15.0"
+  required_version = ">= 1.0.0"
   required_providers {
     aws = {
-      source = "hashicorp/aws"
-      version = ">= 3.0.0"
-      configuration_aliases = [ aws.aws_prod_region, aws.aws_dr_region ]
+      source                = "hashicorp/aws"
+      version               = ">= 4.0.0"
+      configuration_aliases = [aws.aws_prod_region, aws.aws_dr_region]
     }
   }
 }
@@ -282,7 +282,7 @@ resource "aws_backup_plan" "plan" {
     start_window             = var.backup_plan_start_window
     completion_window        = var.backup_plan_completion_window
     lifecycle {
-      delete_after       = var.hourly_backup_retention
+      delete_after = var.hourly_backup_retention
     }
   }
 
@@ -296,11 +296,11 @@ resource "aws_backup_plan" "plan" {
     copy_action {
       destination_vault_arn = aws_backup_vault.vault_disaster_recovery.arn
       lifecycle {
-          delete_after       = var.dr_backup_retention
-        }
+        delete_after = var.dr_backup_retention
+      }
     }
     lifecycle {
-      delete_after       = var.daily_backup_retention
+      delete_after = var.daily_backup_retention
     }
   }
 
@@ -313,7 +313,7 @@ resource "aws_backup_plan" "plan" {
     completion_window        = var.backup_plan_completion_window
     lifecycle {
       # cold_storage_after = "90"
-      delete_after       = var.monthly_backup_retention
+      delete_after = var.monthly_backup_retention
     }
   }
 
@@ -330,11 +330,11 @@ resource "aws_backup_plan" "plan" {
 #######################################
 
 resource "aws_backup_selection" "all_resources" {
-  provider      = aws.aws_prod_region
-  iam_role_arn  = aws_iam_role.backup.arn
-  name          = "all_except_ec2_and_s3"
-  plan_id       = aws_backup_plan.plan.id
-  resources     = [
+  provider     = aws.aws_prod_region
+  iam_role_arn = aws_iam_role.backup.arn
+  name         = "all_except_ec2_and_s3"
+  plan_id      = aws_backup_plan.plan.id
+  resources = [
     "*"
   ]
   not_resources = [
@@ -362,11 +362,11 @@ resource "aws_backup_plan" "ec2_plan" {
     copy_action {
       destination_vault_arn = aws_backup_vault.vault_disaster_recovery.arn
       lifecycle {
-          delete_after       = var.dr_backup_retention
-        }
+        delete_after = var.dr_backup_retention
+      }
     }
     lifecycle {
-      delete_after       = var.daily_backup_retention
+      delete_after = var.daily_backup_retention
     }
   }
 
@@ -387,7 +387,7 @@ resource "aws_backup_selection" "all_ec2" {
   iam_role_arn = aws_iam_role.backup.arn
   name         = "all_ec2"
   plan_id      = aws_backup_plan.ec2_plan.id
-  resources    = [
+  resources = [
     "arn:aws:ec2:*:*:instance/*"
   ]
 }

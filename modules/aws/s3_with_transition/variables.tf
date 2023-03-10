@@ -25,7 +25,7 @@ variable "sse_algorithm" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the bucket."
   default = {
     created_by  = "Zachary Hill"

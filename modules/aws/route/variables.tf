@@ -52,7 +52,7 @@ variable "transit_gateway_id" {
 }
 
 variable "route_table_id" {
-  type        = list
+  type        = list(any)
   description = "(Required) The ID of the routing table."
 }
 

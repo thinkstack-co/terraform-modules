@@ -1,5 +1,11 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
 }
 
 #############################
@@ -27,8 +33,8 @@ resource "aws_instance" "ec2" {
     http_endpoint = var.http_endpoint
     http_tokens   = var.http_tokens
   }
-  
-launch_template {
+
+  launch_template {
     id      = var.launch_template_id
     version = var.launch_template_version
   }

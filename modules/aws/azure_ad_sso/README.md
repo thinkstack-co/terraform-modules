@@ -64,10 +64,10 @@
 ## Usage
 
 ```
-module test {
-    source = 
+module "thinkstack_azure_ad" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/azure_ad_sso"
 
-    variable = 
+  saml_metadata_document = file("global/iam/providers/FederationMetadata.xml")
 }
 ```
 
@@ -82,13 +82,14 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -124,24 +125,24 @@ No modules.
 | <a name="input_role_admins_force_detach_policies"></a> [role\_admins\_force\_detach\_policies](#input\_role\_admins\_force\_detach\_policies) | (Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false. | `string` | `false` | no |
 | <a name="input_role_admins_max_session_duration"></a> [role\_admins\_max\_session\_duration](#input\_role\_admins\_max\_session\_duration) | (Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours. | `string` | `7200` | no |
 | <a name="input_role_admins_name"></a> [role\_admins\_name](#input\_role\_admins\_name) | (Required) The friendly IAM role name to match. | `string` | `"thinkstack_admins"` | no |
-| <a name="input_role_admins_permissions_boundary"></a> [role\_admins\_permissions\_boundary](#input\_role\_admins\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `""` | no |
+| <a name="input_role_admins_permissions_boundary"></a> [role\_admins\_permissions\_boundary](#input\_role\_admins\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `null` | no |
 | <a name="input_role_read_only_description"></a> [role\_read\_only\_description](#input\_role\_read\_only\_description) | (Optional) The description of the role. | `string` | `"ThinkStack Azure AD SSO - Read only role"` | no |
 | <a name="input_role_read_only_force_detach_policies"></a> [role\_read\_only\_force\_detach\_policies](#input\_role\_read\_only\_force\_detach\_policies) | (Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false. | `string` | `false` | no |
 | <a name="input_role_read_only_max_session_duration"></a> [role\_read\_only\_max\_session\_duration](#input\_role\_read\_only\_max\_session\_duration) | (Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours. | `string` | `7200` | no |
 | <a name="input_role_read_only_name"></a> [role\_read\_only\_name](#input\_role\_read\_only\_name) | (Required) The friendly IAM role name to match. | `string` | `"thinkstack_read_only"` | no |
-| <a name="input_role_read_only_permissions_boundary"></a> [role\_read\_only\_permissions\_boundary](#input\_role\_read\_only\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `""` | no |
+| <a name="input_role_read_only_permissions_boundary"></a> [role\_read\_only\_permissions\_boundary](#input\_role\_read\_only\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `null` | no |
 | <a name="input_role_sysadmins_description"></a> [role\_sysadmins\_description](#input\_role\_sysadmins\_description) | (Optional) The description of the role. | `string` | `"ThinkStack Azure AD SSO - Sysadmins role"` | no |
 | <a name="input_role_sysadmins_force_detach_policies"></a> [role\_sysadmins\_force\_detach\_policies](#input\_role\_sysadmins\_force\_detach\_policies) | (Optional) Specifies to force detaching any policies the role has before destroying it. Defaults to false. | `string` | `false` | no |
 | <a name="input_role_sysadmins_max_session_duration"></a> [role\_sysadmins\_max\_session\_duration](#input\_role\_sysadmins\_max\_session\_duration) | (Optional) The maximum session duration (in seconds) that you want to set for the specified role. If you do not specify a value for this setting, the default maximum of one hour is applied. This setting can have a value from 1 hour to 12 hours. | `string` | `7200` | no |
 | <a name="input_role_sysadmins_name"></a> [role\_sysadmins\_name](#input\_role\_sysadmins\_name) | (Required) The friendly IAM role name to match. | `string` | `"thinkstack_sysadmins"` | no |
-| <a name="input_role_sysadmins_permissions_boundary"></a> [role\_sysadmins\_permissions\_boundary](#input\_role\_sysadmins\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `""` | no |
+| <a name="input_role_sysadmins_permissions_boundary"></a> [role\_sysadmins\_permissions\_boundary](#input\_role\_sysadmins\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the role. | `string` | `null` | no |
 | <a name="input_saml_metadata_document"></a> [saml\_metadata\_document](#input\_saml\_metadata\_document) | (Required) An XML document generated by an identity provider that supports SAML 2.0. | `string` | n/a | yes |
 | <a name="input_saml_name"></a> [saml\_name](#input\_saml\_name) | (Required) The name of the provider to create. | `string` | `"thinkstack_azure_ad"` | no |
 | <a name="input_sysadmins_policy_arn"></a> [sysadmins\_policy\_arn](#input\_sysadmins\_policy\_arn) | (Required) - The ARN of the policy you want to apply | `string` | `"arn:aws:iam::aws:policy/job-function/SystemAdministrator"` | no |
 | <a name="input_user_force_destroy"></a> [user\_force\_destroy](#input\_user\_force\_destroy) | (Optional, default false) When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices. Without force\_destroy a user with non-Terraform-managed access keys and login profile will fail to be destroyed. | `string` | `false` | no |
 | <a name="input_user_name"></a> [user\_name](#input\_user\_name) | (Required) The user's name. The name must consist of upper and lowercase alphanumeric characters with no spaces. You can also include any of the following characters: =,.@-\_.. User names are not distinguished by case. For example, you cannot create users named both 'TESTUSER' and 'testuser'. | `string` | `"azure_ad_role_manager"` | no |
 | <a name="input_user_path"></a> [user\_path](#input\_user\_path) | (Optional, default '/') Path in which to create the user. | `string` | `"/"` | no |
-| <a name="input_user_permissions_boundary"></a> [user\_permissions\_boundary](#input\_user\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the user. | `string` | `""` | no |
+| <a name="input_user_permissions_boundary"></a> [user\_permissions\_boundary](#input\_user\_permissions\_boundary) | (Optional) The ARN of the policy that is used to set the permissions boundary for the user. | `string` | `null` | no |
 
 ## Outputs
 

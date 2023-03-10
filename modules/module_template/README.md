@@ -78,7 +78,29 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+## Requirements
 
+No requirements.
+
+## Providers
+
+No providers.
+
+## Modules
+
+No modules.
+
+## Resources
+
+No resources.
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+No outputs.
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->

@@ -1,5 +1,11 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
 }
 
 #####################
@@ -31,14 +37,14 @@ resource "aws_instance" "ec2" {
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
   }
-  
-  source_dest_check       = var.source_dest_check
-  subnet_id               = var.subnet_id
-  tags                    = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  tenancy                 = var.tenancy
-  user_data               = var.user_data
-  volume_tags             = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  vpc_security_group_ids  = var.vpc_security_group_ids
+
+  source_dest_check      = var.source_dest_check
+  subnet_id              = var.subnet_id
+  tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
+  tenancy                = var.tenancy
+  user_data              = var.user_data
+  volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
+  vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
     ignore_changes = [ami, user_data, volume_tags]
@@ -57,12 +63,12 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled     = true
   alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2.*.id, count.index))
+  alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
   count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = element(aws_instance.ec2.*.id, count.index)
+    InstanceId = element(aws_instance.ec2[*].id, count.index)
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -84,12 +90,12 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
   alarm_actions       = ["arn:aws:automate:${var.region}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", element(aws_instance.ec2.*.id, count.index))
+  alarm_name          = format("%s-system-alarm", element(aws_instance.ec2[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
   count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = element(aws_instance.ec2.*.id, count.index)
+    InstanceId = element(aws_instance.ec2[*].id, count.index)
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []

@@ -1,5 +1,11 @@
 terraform {
   required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
 }
 
 ###########################
@@ -48,7 +54,7 @@ resource "aws_kms_key" "cloudtrail" {
         "Resource" = "*",
         "Condition" = {
           "StringLike" = {
-            "kms:EncryptionContext:aws:cloudtrail:arn": [
+            "kms:EncryptionContext:aws:cloudtrail:arn" : [
               "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
             ]
           },
@@ -109,7 +115,7 @@ resource "aws_iam_policy" "cloudtrail" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Sid = "AllowCloudTrailToWriteLogs"
+      Sid    = "AllowCloudTrailToWriteLogs"
       Effect = "Allow",
       Action = [
         "logs:CreateLogStream",
