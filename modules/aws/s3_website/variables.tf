@@ -2,7 +2,7 @@ variable "bucket" {
   description = "(Required, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules may be found here."
   type        = string
   validation {
-    condition     = can(regex("^[a-z0-9][a-z0-9\.\\-]{1,61}[a-z0-9]$", var.bucket))
+    condition     = can(regex("^[a-z0-9][a-z0-9.\\-]{1,61}[a-z0-9]$", var.bucket))
     error_message = "The bucket name must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules may be found in the AWS documentation."
   }
 }
