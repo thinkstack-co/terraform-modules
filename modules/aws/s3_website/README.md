@@ -64,16 +64,15 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+### Simple Example
 ```
 module "s3_prod_website_pub_bucket" {
     source        = "github.com/thinkstack-co/terraform-modules//modules/aws/s3_website"
 
-    policy        = file("global/s3/bucket_policies/this-is-a-policy.json")
-    bucket_prefix = "this-is-a-bucket-prefix"
-    region        = "us-west-1"
-    acl           = "public-read"
+    policy        = file("global/s3/bucket_policies/prod_website_policy.json")
+    bucket        = "this-is-a-bucket-name"
     tags          = {
-        terraform   = "yes"
+        terraform   = "true"
         created_by  = "terraform"
         environment = "prod"
         role        = "website_bucket"
@@ -109,22 +108,19 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_s3_bucket.s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_policy.public_website_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_website_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_website_configuration) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_acl"></a> [acl](#input\_acl) | (Optional) The canned ACL to apply. Defaults to private. | `string` | `"private"` | no |
-| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. | `any` | n/a | yes |
+| <a name="input_bucket"></a> [bucket](#input\_bucket) | (Required, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules may be found here. | `string` | n/a | yes |
 | <a name="input_error_document"></a> [error\_document](#input\_error\_document) | (Optional) An absolute path to the document to return in case of a 4XX error. | `string` | `"error.html"` | no |
 | <a name="input_index_document"></a> [index\_document](#input\_index\_document) | (Required, unless using redirect\_all\_requests\_to) Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders. | `string` | `"index.html"` | no |
-| <a name="input_mfa_delete"></a> [mfa\_delete](#input\_mfa\_delete) | (Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false. | `bool` | `false` | no |
-| <a name="input_policy"></a> [policy](#input\_policy) | (Optional) A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy. | `string` | `""` | no |
+| <a name="input_policy"></a> [policy](#input\_policy) | (Optional) The text of the policy. Although this is a bucket policy rather than an IAM policy, the aws\_iam\_policy\_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size. | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the bucket. | `map(any)` | <pre>{<br>  "created_by": "Jake Jones",<br>  "environment": "prod",<br>  "terraform": "true"<br>}</pre> | no |
-| <a name="input_target_bucket"></a> [target\_bucket](#input\_target\_bucket) | (Required) The name of the bucket that will receive the log objects. | `string` | `""` | no |
-| <a name="input_target_prefix"></a> [target\_prefix](#input\_target\_prefix) | (Optional) To specify a key prefix for log objects. | `string` | `"log/"` | no |
-| <a name="input_versioning"></a> [versioning](#input\_versioning) | (Optional) A state of versioning (documented below) | `bool` | `true` | no |
 
 ## Outputs
 
@@ -135,6 +131,8 @@ No modules.
 | <a name="output_s3_bucket_id"></a> [s3\_bucket\_id](#output\_s3\_bucket\_id) | n/a |
 | <a name="output_s3_bucket_region"></a> [s3\_bucket\_region](#output\_s3\_bucket\_region) | n/a |
 | <a name="output_s3_hosted_zone_id"></a> [s3\_hosted\_zone\_id](#output\_s3\_hosted\_zone\_id) | n/a |
+| <a name="output_website_domain"></a> [website\_domain](#output\_website\_domain) | n/a |
+| <a name="output_website_endpoint"></a> [website\_endpoint](#output\_website\_endpoint) | n/a |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
