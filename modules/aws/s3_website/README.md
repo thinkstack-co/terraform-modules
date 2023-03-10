@@ -64,16 +64,15 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+### Simple Example
 ```
 module "s3_prod_website_pub_bucket" {
     source        = "github.com/thinkstack-co/terraform-modules//modules/aws/s3_website"
 
-    policy        = file("global/s3/bucket_policies/this-is-a-policy.json")
-    bucket_prefix = "this-is-a-bucket-prefix"
-    region        = "us-west-1"
-    acl           = "public-read"
+    policy        = file("global/s3/bucket_policies/prod_website_policy.json")
+    bucket        = "this-is-a-bucket-name"
     tags          = {
-        terraform   = "yes"
+        terraform   = "true"
         created_by  = "terraform"
         environment = "prod"
         role        = "website_bucket"
