@@ -125,9 +125,9 @@ variable "lifecycle_expiration_days" {
 ######################
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the bucket."
-  default     = {
+  default = {
     created_by  = "<YOUR NAME>"
     environment = "prod"
     terraform   = "true"
