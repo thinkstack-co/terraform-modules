@@ -11,7 +11,7 @@ variable "policy" {
 variable "tags" {
   type        = map(any)
   description = "(Optional) A mapping of tags to assign to the bucket."
-  default     = {
+  default = {
     created_by  = "Jake Jones"
     environment = "prod"
     terraform   = "true"
