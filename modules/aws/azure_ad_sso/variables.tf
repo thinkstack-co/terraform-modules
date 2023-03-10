@@ -37,7 +37,7 @@ variable "user_path" {
 variable "user_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the user."
-  default     = ""
+  default     = null
 }
 
 variable "pgp_key" {
@@ -92,7 +92,7 @@ variable "role_admins_name" {
 variable "role_admins_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
-  default     = ""
+  default     = null
 }
 
 variable "admin_policy_arn" {
@@ -132,7 +132,7 @@ variable "role_sysadmins_name" {
 variable "role_sysadmins_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
-  default     = ""
+  default     = null
 }
 
 variable "sysadmins_policy_arn" {
@@ -172,7 +172,7 @@ variable "role_read_only_name" {
 variable "role_read_only_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
-  default     = ""
+  default     = null
 }
 
 variable "read_only_policy_arn" {

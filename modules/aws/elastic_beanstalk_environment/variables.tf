@@ -45,7 +45,7 @@ variable "solution_stack_name" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A set of tags to apply to the Environment."
   default     = {}
 }

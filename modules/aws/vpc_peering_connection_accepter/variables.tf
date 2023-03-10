@@ -11,7 +11,7 @@ variable "tags" {
     environment = "prod"
     role        = "vpc_peering_connection_accepter"
   }
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the resource."
 }
 

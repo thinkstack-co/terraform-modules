@@ -93,7 +93,7 @@ variable "structured_run_output_enabled" {
 variable "terraform_version" {
   description = "(Optional) The version of Terraform to use for this workspace. This can be either an exact version or a version constraint (like ~> 1.0.0); if you specify a constraint, the workspace will always use the newest release that meets that constraint. Defaults to the latest available version."
   type        = string
-  default     = "~>1.2.0"
+  default     = "~>1.3.0"
 }
 
 variable "trigger_prefixes" {
@@ -142,5 +142,5 @@ variable "oauth_token_id" {
 
 variable "permission_map" {
   description = "(Required) The permissions map which maps the team_id to the permission access level. Exampe: 'terraform_all_admin = {id = team-fdsa5122q6rwYXP, access = admin}'"
-  type        = map
+  type        = map(any)
 }

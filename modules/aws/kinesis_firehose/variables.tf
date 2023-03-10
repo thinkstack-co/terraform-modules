@@ -83,6 +83,7 @@ variable "s3_bucket_prefix" {
 }
 
 variable "s3_policy" {
+  type        = string
   description = "(Optional) A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy."
   default     = ""
 }
@@ -116,21 +117,21 @@ variable "s3_lifecycle_expiration_days" {
 ###########################
 
 variable "iam_policy_description" {
-    description = "(Optional, Forces new resource) Description of the IAM policy."
-    type        = string
-    default     = "Used with kinesis firehose send data to a dedicated S3 bucket"
+  description = "(Optional, Forces new resource) Description of the IAM policy."
+  type        = string
+  default     = "Used with kinesis firehose send data to a dedicated S3 bucket"
 }
 
 variable "iam_policy_name_prefix" {
-    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
-    type        = string
-    default     = "kinesis_firehose_policy_"
+  description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+  type        = string
+  default     = "kinesis_firehose_policy_"
 }
 
 variable "iam_policy_path" {
-    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
-    type        = string
-    default     = "/"
+  description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
+  type        = string
+  default     = "/"
 }
 
 ###########################
@@ -140,7 +141,7 @@ variable "iam_policy_path" {
 variable "iam_role_assume_role_policy" {
   type        = string
   description = "(Required) The policy that grants an entity permission to assume the role."
-  default = <<POLICY
+  default     = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -193,8 +194,8 @@ variable "iam_role_permissions_boundary" {
 
 variable "tags" {
   description = "(Optional) A mapping of tags to assign to the object."
-  type        = map
-  default     = {
+  type        = map(any)
+  default = {
     terraform   = "true"
     created_by  = "ThinkStack"
     environment = "prod"

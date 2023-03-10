@@ -1,11 +1,71 @@
-Directory Services MicrosoftAD Module
-=====================================
+<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a name="readme-top"></a>
 
-This module sets up the MicrosoftAD within AWS Directory Services. This can later be used to domain join instances or run your entire domain off of. This includes a Microsoft Active Directory which requires AD management software in order to manage.
 
-# Usage
-    module "ad_connector" {
-    source              = "github.com/thinkstack-co/terraform-modules//modules/aws/directory_service_microsoftad?ref=v0.17.0"
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/thinkstack-co/terraform-modules">
+    <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
+  </a>
+
+<h3 align="center">Directory Services MicrosoftAD Module</h3>
+  <p align="center">
+    This module sets up the MicrosoftAD within AWS Directory Services. This can later be used to domain join instances or run your entire domain off of. This includes a Microsoft Active Directory which requires AD management software in order to manage.
+    <br />
+    <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://www.thinkstack.co/">Think|Stack</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Request Feature</a>
+  </p>
+</div>
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#providers">Providers</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <li><a href="#outputs">Outputs</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+```
+module "ad_connector" {
+    source              = "github.com/thinkstack-co/terraform-modules//modules/aws/directory_service_microsoftad"
 
     alias               = "ad.corp.com"
     description         = "ad.corp.com adconnector"
@@ -16,24 +76,113 @@ This module sets up the MicrosoftAD within AWS Directory Services. This can late
     short_name          = "CORP"
     size                = "Small"
     subnet_ids          = [module.vpc.private_subnet.ids]
+    type                = "MicrosoftAD"
+    vpc_id              = module.vpc.id
     tags                = {
         created_by  = "Zachary Hill"
         environment = "prod"
         terraform   = "true"
     }
-    type                = "MicrosoftAD"
-    vpc_id              = module.vpc.id
 }
+```
+
+_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- terraform-docs output will be input automatically below-->
+<!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_directory_service_directory.microsoftad](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/directory_service_directory) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_alias"></a> [alias](#input\_alias) | (Optional) The alias for the directory (must be unique amongst all aliases in AWS). Required for enable\_sso. | `string` | `"default_value"` | no |
+| <a name="input_description"></a> [description](#input\_description) | (Optional) A textual description for the directory. | `string` | `"default_value"` | no |
+| <a name="input_edition"></a> [edition](#input\_edition) | (Optional) The MicrosoftAD edition (Standard or Enterprise). Defaults to Enterprise (applies to MicrosoftAD type only). | `string` | `"Standard"` | no |
+| <a name="input_enable_sso"></a> [enable\_sso](#input\_enable\_sso) | (Optional) Whether to enable single-sign on for the directory. Requires alias. Defaults to false. | `string` | `false` | no |
+| <a name="input_name"></a> [name](#input\_name) | (Required) The fully qualified name for the directory, such as corp.example.com | `string` | n/a | yes |
+| <a name="input_password"></a> [password](#input\_password) | (Required) The password for the directory administrator or connector user. | `string` | n/a | yes |
+| <a name="input_short_name"></a> [short\_name](#input\_short\_name) | (Optional) The short name of the directory, such as CORP. | `string` | n/a | yes |
+| <a name="input_size"></a> [size](#input\_size) | (Required for SimpleAD and ADConnector) The size of the directory (Small or Large are accepted values). | `string` | `"Small"` | no |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | (Required) The identifiers of the subnets for the directory servers (2 subnets in 2 different AZs). | `list(string)` | `[]` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | `{}` | no |
+| <a name="input_type"></a> [type](#input\_type) | (Optional) - The directory type (SimpleAD, ADConnector or MicrosoftAD are accepted values). Defaults to SimpleAD. | `string` | `"MicrosoftAD"` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | (Required) The identifier of the VPC that the directory is in. | `string` | n/a | yes |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_id"></a> [id](#output\_id) | n/a |
+<!-- END_TF_DOCS -->
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-# Variables
-## Required
-    name
-    password
-    short_name
-    size
-    subnet_ids
-    vpc_id
 
-# Outputs
-    id
+<!-- CONTACT -->
+## Contact
+
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+
+Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Zachary Hill](https://zacharyhill.co)
+* [Jake Jones](https://github.com/jakeasarus)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[forks-url]: https://github.com/thinkstack-co/terraform-modules/network/members
+[stars-shield]: https://img.shields.io/github/stars/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[stars-url]: https://github.com/thinkstack-co/terraform-modules/stargazers
+[issues-shield]: https://img.shields.io/github/issues/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[issues-url]: https://github.com/thinkstack-co/terraform-modules/issues
+[license-shield]: https://img.shields.io/github/license/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/company/thinkstack/
+[product-screenshot]: /images/screenshot.webp
+[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
+[Terraform-url]: https://terraform.io

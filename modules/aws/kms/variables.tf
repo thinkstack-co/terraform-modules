@@ -33,7 +33,7 @@ variable "name" {
 variable "policy" {
   type        = string
   description = "(Optional) A valid policy JSON document."
-  default     = ""
+  default     = null
 }
 
 variable "tags" {

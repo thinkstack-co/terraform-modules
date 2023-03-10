@@ -9,7 +9,7 @@ variable "description" {
 
 variable "private_ips" {
   description = "(Optional) List of private IPs to assign to the ENI."
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -21,12 +21,12 @@ variable "private_ips_count" {
 
 variable "private_ip_list_enabled" {
   description = "(Optional) Whether private_ip_list is allowed and controls the IPs to assign to the ENI and private_ips and private_ips_count become read-only. Default false."
-  default = "false"
+  default     = "false"
 }
 
 variable "security_groups" {
   description = "(Required) List of security group IDs to assign to the ENI."
-  type        = list
+  type        = list(any)
 }
 
 variable "source_dest_check" {
@@ -42,7 +42,7 @@ variable "subnet_id" {
 
 variable "tags" {
   description = "(Optional) A map of tags to assign to the resource. If configured with a provider default_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level."
-  type        = map
+  type        = map(any)
 }
 
 variable "device_index" {

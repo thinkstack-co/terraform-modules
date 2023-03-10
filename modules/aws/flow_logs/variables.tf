@@ -3,21 +3,21 @@
 ###########################
 
 variable "key_customer_master_key_spec" {
-    description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
-    default     = "SYMMETRIC_DEFAULT"
-    type        = string
+  description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+  default     = "SYMMETRIC_DEFAULT"
+  type        = string
 }
 
 variable "key_description" {
-    description = "(Optional) The description of the key as viewed in AWS console."
-    default     = "CloudWatch kms key used to encrypt flow logs"
-    type        = string
+  description = "(Optional) The description of the key as viewed in AWS console."
+  default     = "CloudWatch kms key used to encrypt flow logs"
+  type        = string
 }
 
 variable "key_deletion_window_in_days" {
-    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
-    default     = 30
-    type        = number
+  description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+  default     = 30
+  type        = number
 }
 
 variable "key_enable_key_rotation" {
@@ -65,21 +65,21 @@ variable "cloudwatch_retention_in_days" {
 ###########################
 
 variable "iam_policy_description" {
-    description = "(Optional, Forces new resource) Description of the IAM policy."
-    default     = "Used with flow logs to send packet capture logs to a CloudWatch log group"
-    type        = string
+  description = "(Optional, Forces new resource) Description of the IAM policy."
+  default     = "Used with flow logs to send packet capture logs to a CloudWatch log group"
+  type        = string
 }
 
 variable "iam_policy_name_prefix" {
-    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
-    default     = "flow_log_policy_"
-    type        = string
+  description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+  default     = "flow_log_policy_"
+  type        = string
 }
 
 variable "iam_policy_path" {
-    type = string
-    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
-    default = "/"
+  type        = string
+  description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
+  default     = "/"
 }
 
 ###########################
@@ -89,7 +89,7 @@ variable "iam_policy_path" {
 variable "iam_role_assume_role_policy" {
   type        = string
   description = "(Required) The policy that grants an entity permission to assume the role."
-  default = <<POLICY
+  default     = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -167,8 +167,9 @@ variable "flow_vpc_id" {
 ###############################################################
 
 variable "tags" {
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the object."
-  default     = {
+  default = {
     terraform   = "true"
     created_by  = "ThinkStack"
     environment = "prod"

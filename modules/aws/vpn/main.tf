@@ -1,5 +1,11 @@
 terraform {
   required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
 }
 
 ##############################
@@ -34,7 +40,7 @@ resource "aws_customer_gateway" "customer_gateway" {
 # Used if enable_transit_gateway_attachment == true
 resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   count               = var.enable_transit_gateway_attachment ? length(var.ip_address) : 0
-  customer_gateway_id = element(aws_customer_gateway.customer_gateway.*.id, count.index)
+  customer_gateway_id = element(aws_customer_gateway.customer_gateway[*].id, count.index)
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
   type                = var.vpn_type
@@ -58,14 +64,14 @@ resource "aws_vpn_connection" "vpn_connection_transit_gateway_attachment" {
   tunnel1_phase2_integrity_algorithms  = var.tunnel_phase2_integrity_algorithms
   tunnel2_phase2_integrity_algorithms  = var.tunnel_phase2_integrity_algorithms
   ## Tunnel Startup
-  tunnel1_startup_action               = var.tunnel_startup_action
-  tunnel2_startup_action               = var.tunnel_startup_action
+  tunnel1_startup_action = var.tunnel_startup_action
+  tunnel2_startup_action = var.tunnel_startup_action
 }
 
 # Used if enable_transit_gateway_attachment == false
 resource "aws_vpn_connection" "vpn_connection_vpn_gateway_attachment" {
   count               = var.enable_transit_gateway_attachment ? 0 : length(var.ip_address)
-  customer_gateway_id = element(aws_customer_gateway.customer_gateway.*.id, count.index)
+  customer_gateway_id = element(aws_customer_gateway.customer_gateway[*].id, count.index)
   static_routes_only  = var.static_routes_only
   tags                = merge(var.tags, ({ "Name" = format("%s_vpn_connection", var.name) }))
   type                = var.vpn_type
