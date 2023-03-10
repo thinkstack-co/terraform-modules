@@ -8,6 +8,7 @@ variable "bucket" {
 }
 
 variable "policy" {
+  type        = string
   description = "(Optional) The text of the policy. Although this is a bucket policy rather than an IAM policy, the aws_iam_policy_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size."
   default     = null
 }
