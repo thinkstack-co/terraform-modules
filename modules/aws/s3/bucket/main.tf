@@ -47,18 +47,63 @@ resource "aws_s3_bucket_logging" "this" {
   target_prefix = var.target_prefix
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "rule" {
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
 
   bucket = aws_s3_bucket.this.id
 
-  rule {
-    id     = var.lifecycle_rule_id
-    status = var.lifecycle_rule_enabled
-    prefix = var.lifecycle_rule_prefix
+  dynamic "rule" {
+    for_each = var.lifecycle_rules
+    content {
+      id     = rule.value.id
+      status = rule.value.status
+      prefix = rule.value.prefix
 
-    filter {}
-    expiration {
-      days = var.lifecycle_expiration_days
+      dynamic "filter" {
+        for_each = rule.value.filter
+        content {
+          prefix = filter.value.prefix
+          tags   = filter.value.tags
+        }
+      }
+
+      dynamic "transition" {
+        for_each = rule.value.transition
+        content {
+          days          = transition.value.days
+          storage_class = transition.value.storage_class
+        }
+      }
+
+      dynamic "noncurrent_version_transition" {
+        for_each = rule.value.noncurrent_version_transition
+        content {
+          days          = noncurrent_version_transition.value.days
+          storage_class = noncurrent_version_transition.value.storage_class
+        }
+      }
+
+      dynamic "noncurrent_version_expiration" {
+        for_each = rule.value.noncurrent_version_expiration
+        content {
+          days = noncurrent_version_expiration.value.days
+        }
+      }
+
+      dynamic "abort_incomplete_multipart_upload" {
+        for_each = rule.value.abort_incomplete_multipart_upload
+        content {
+          days_after_initiation = abort_incomplete_multipart_upload.value.days_after_initiation
+        }
+      }
+
+      dynamic "expiration" {
+        for_each = rule.value.expiration
+        content {
+          date                         = expiration.value.date
+          days                         = expiration.value.days
+          expired_object_delete_marker = expiration.value.expired_object_delete_marker
+        }
+      }
     }
   }
 }
