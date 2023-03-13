@@ -1,5 +1,11 @@
 terraform {
   required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
 }
 
 ###########################
@@ -58,9 +64,9 @@ resource "aws_internet_gateway" "igw" {
 resource "aws_nat_gateway" "natgw" {
   depends_on = [aws_internet_gateway.igw]
 
-  allocation_id = element(aws_eip.nateip.*.id, (var.single_nat_gateway ? 0 : count.index))
+  allocation_id = element(aws_eip.nateip[*].id, (var.single_nat_gateway ? 0 : count.index))
   count         = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
-  subnet_id     = element(aws_subnet.public_subnets.*.id, (var.single_nat_gateway ? 0 : count.index))
+  subnet_id     = element(aws_subnet.public_subnets[*].id, (var.single_nat_gateway ? 0 : count.index))
 }
 
 ###########################
@@ -131,7 +137,7 @@ resource "aws_route" "vpc_peer_route" {
 ###########################
 
 resource "aws_vpn_gateway" "vpn_gateway" {
-  count      = var.enable_vpn_peering ? 1 : 0
+  count  = var.enable_vpn_peering ? 1 : 0
   vpc_id = aws_vpc.vpc.id
   tags   = merge(var.tags, ({ "Name" = format("%s_vpn_gw", var.name) }))
 }
@@ -164,10 +170,10 @@ resource "aws_vpn_connection_route" "vpn_route" {
 ###########################
 
 resource "aws_route" "transit_route" {
-  count                     = var.enable_transit_gateway_peering ? length(var.transit_subnet_route_cidr_blocks) : 0
-  destination_cidr_block    = var.transit_subnet_route_cidr_blocks[count.index]
-  route_table_id            = aws_route_table.private_route_table[0].id
-  transit_gateway_id        = var.transit_gateway_id
+  count                  = var.enable_transit_gateway_peering ? length(var.transit_subnet_route_cidr_blocks) : 0
+  destination_cidr_block = var.transit_subnet_route_cidr_blocks[count.index]
+  route_table_id         = aws_route_table.private_route_table[0].id
+  transit_gateway_id     = var.transit_gateway_id
 }
 
 ###########################
@@ -197,6 +203,11 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
+
+  metadata_options {
+    http_endpoint = var.http_endpoint
+    http_tokens   = var.http_tokens
+  }
 
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
@@ -319,7 +330,7 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-/* 
+  /* 
 ########################################
 # Syslog Port Mappings
 ########################################
@@ -363,9 +374,11 @@ Port - Description
   }
 
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
+    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -444,39 +457,39 @@ resource "aws_kms_key" "key" {
   key_usage                = var.flow_key_usage
   is_enabled               = var.flow_key_is_enabled
   tags                     = var.tags
-  policy                   = jsonencode({
+  policy = jsonencode({
     "Version" = "2012-10-17",
     "Statement" = [
-        {
-            "Sid" = "Enable IAM User Permissions",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-            },
-            "Action" = "kms:*",
-            "Resource" = "*"
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        {
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
-            },
-            "Action" = [
-                "kms:Encrypt*",
-                "kms:Decrypt*",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*",
-                "kms:Describe*"
-            ],
-            "Resource" = "*",
-            "Condition" = {
-                "ArnEquals" = {
-                    "kms:EncryptionContext:aws:logs:arn": "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
-                }
-            }
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "ArnEquals" = {
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+          }
         }
+      }
     ]
-})
+  })
 }
 
 resource "aws_kms_alias" "alias" {
@@ -506,22 +519,23 @@ resource "aws_iam_policy" "policy" {
   name_prefix = var.flow_iam_policy_name_prefix
   path        = var.flow_iam_policy_path
   tags        = var.tags
-  policy      = jsonencode({
+  #tfsec:ignore:aws-iam-no-policy-wildcards
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-        Effect = "Allow",
-        Action = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogGroups",
-            "logs:DescribeLogStreams"
-        ],
-        Resource = [
-            "${aws_cloudwatch_log_group.log_group[0].arn}:*"
-        ]
-        }]
-    })
+      Effect = "Allow",
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ],
+      Resource = [
+        "${aws_cloudwatch_log_group.log_group[0].arn}:*"
+      ]
+    }]
+  })
 }
 
 ###########################
@@ -576,99 +590,99 @@ resource "aws_kms_key" "cloudtrail_key" {
   key_usage                = var.cloudtrail_key_usage
   is_enabled               = var.cloudtrail_key_is_enabled
   tags                     = var.tags
-  policy                   = jsonencode({
+  policy = jsonencode({
     "Version" = "2012-10-17",
-    "Id" = "Key policy created by CloudTrail",
+    "Id"      = "Key policy created by CloudTrail",
     "Statement" = [
-        {
-            "Sid" = "Enable IAM User Permissions",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS" = [
-                    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-                ]
-            },
-            "Action" = "kms:*",
-            "Resource" = "*"
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = [
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          ]
         },
-        {
-            "Sid" = "Allow CloudTrail to encrypt logs",
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service" = "cloudtrail.amazonaws.com"
-            },
-            "Action" = "kms:GenerateDataKey*",
-            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition" = {
-                "StringLike" = {
-                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
-                }
-            }
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Sid"    = "Allow CloudTrail to encrypt logs",
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "cloudtrail.amazonaws.com"
         },
-        {
-            "Sid" = "Allow CloudTrail to describe key",
-            "Effect" = "Allow",
-            "Principal" = {
-                "Service": "cloudtrail.amazonaws.com"
-            },
-            "Action" = "kms:DescribeKey",
-            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
-        },
-        {
-            "Sid" = "Allow principals in the account to decrypt log files",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS": "*"
-            },
-            "Action" = [
-                "kms:Decrypt",
-                "kms:ReEncryptFrom"
-            ],
-            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition" = {
-                "StringEquals" = {
-                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
-                },
-                "StringLike" = {
-                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
-                }
-            }
-        },
-        {
-            "Sid" = "Allow alias creation during setup",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS": "*"
-            },
-            "Action" = "kms:CreateAlias",
-            "Resource" = "*",
-            "Condition" = {
-                "StringEquals" = {
-                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}",
-                    "kms:ViaService": "ec2.${data.aws_region.current.name}.amazonaws.com"
-                }
-            }
-        },
-        {
-            "Sid" = "Enable cross account log decryption",
-            "Effect" = "Allow",
-            "Principal" = {
-                "AWS": "*"
-            },
-            "Action" = [
-                "kms:Decrypt",
-                "kms:ReEncryptFrom"
-            ],
-            "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
-            "Condition" = {
-                "StringEquals" = {
-                    "kms:CallerAccount": "${data.aws_caller_identity.current.account_id}"
-                },
-                "StringLike" = {
-                    "kms:EncryptionContext:aws:cloudtrail:arn": "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
-                }
-            }
+        "Action"   = "kms:GenerateDataKey*",
+        "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+        "Condition" = {
+          "StringLike" = {
+            "kms:EncryptionContext:aws:cloudtrail:arn" : "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+          }
         }
+      },
+      {
+        "Sid"    = "Allow CloudTrail to describe key",
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" : "cloudtrail.amazonaws.com"
+        },
+        "Action"   = "kms:DescribeKey",
+        "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
+      },
+      {
+        "Sid"    = "Allow principals in the account to decrypt log files",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" : "*"
+        },
+        "Action" = [
+          "kms:Decrypt",
+          "kms:ReEncryptFrom"
+        ],
+        "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+        "Condition" = {
+          "StringEquals" = {
+            "kms:CallerAccount" : "${data.aws_caller_identity.current.account_id}"
+          },
+          "StringLike" = {
+            "kms:EncryptionContext:aws:cloudtrail:arn" : "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+          }
+        }
+      },
+      {
+        "Sid"    = "Allow alias creation during setup",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" : "*"
+        },
+        "Action"   = "kms:CreateAlias",
+        "Resource" = "*",
+        "Condition" = {
+          "StringEquals" = {
+            "kms:CallerAccount" : "${data.aws_caller_identity.current.account_id}",
+            "kms:ViaService" : "ec2.${data.aws_region.current.name}.amazonaws.com"
+          }
+        }
+      },
+      {
+        "Sid"    = "Enable cross account log decryption",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" : "*"
+        },
+        "Action" = [
+          "kms:Decrypt",
+          "kms:ReEncryptFrom"
+        ],
+        "Resource" = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+        "Condition" = {
+          "StringEquals" = {
+            "kms:CallerAccount" : "${data.aws_caller_identity.current.account_id}"
+          },
+          "StringLike" = {
+            "kms:EncryptionContext:aws:cloudtrail:arn" : "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
+          }
+        }
+      }
     ]
   })
 }
@@ -689,7 +703,7 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
   delay_seconds             = 0
   max_message_size          = 262144
   message_retention_seconds = 345600
-  policy = <<POLICY
+  policy                    = <<POLICY
 {
   "Version": "2012-10-17",
   "Id": "access-policy-id-1",
@@ -717,7 +731,7 @@ POLICY
 
 
   receive_wait_time_seconds = 0
-  tags = var.tags
+  tags                      = var.tags
 }
 
 ###########################
@@ -802,7 +816,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
     filter {}
     expiration {
       days = 30
-    }    
+    }
   }
 }
 
@@ -811,8 +825,8 @@ resource "aws_s3_bucket_notification" "cloudtrail_bucket_notification" {
   bucket = aws_s3_bucket.cloudtrail_s3_bucket[0].id
 
   queue {
-    queue_arn     = aws_sqs_queue.cloudtrail_queue[0].arn
-    events        = ["s3:ObjectCreated:Put"]
+    queue_arn = aws_sqs_queue.cloudtrail_queue[0].arn
+    events    = ["s3:ObjectCreated:Put"]
   }
 }
 
@@ -821,7 +835,7 @@ resource "aws_s3_bucket_notification" "cloudtrail_bucket_notification" {
 ###########################
 
 resource "aws_cloudtrail" "cloudtrail" {
-  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  count                         = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
   enable_log_file_validation    = true
   include_global_service_events = true
   is_multi_region_trail         = true
@@ -843,7 +857,7 @@ resource "aws_iam_policy" "siem_cloudtrail_policy" {
   name_prefix = "siem_policy_"
   path        = "/"
   tags        = var.tags
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
@@ -870,8 +884,8 @@ resource "aws_iam_policy" "siem_cloudtrail_policy" {
         ],
         Resource = "*"
       }
-        ]
-    })
+    ]
+  })
 }
 
 ###########################
@@ -902,8 +916,8 @@ resource "aws_iam_user" "siem_cloudtrail_user" {
 }
 
 resource "aws_iam_user_group_membership" "siem_user" {
-  count  = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
-  user   = aws_iam_user.siem_cloudtrail_user[0].name
+  count = (var.enable_siem_cloudtrail_logs == true ? 1 : 0)
+  user  = aws_iam_user.siem_cloudtrail_user[0].name
   groups = [
     aws_iam_group.siem_cloudtrail_group[0].name,
   ]

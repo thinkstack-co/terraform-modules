@@ -8,3 +8,6 @@
 
 # Variable values for development
 terraform.tfvars
+
+# macOS
+.DS_Store

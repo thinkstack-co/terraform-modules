@@ -23,17 +23,17 @@ variable "name" {
 
 variable "subnet_ids" {
   description = "(Required) Identifiers of EC2 Subnets."
-  type        = list
+  type        = list(any)
 }
 
 variable "tags" {
-  description   = "(Optional) Map of tags for the EC2 Transit Gateway."
-  default       = {
+  description = "(Optional) Map of tags for the EC2 Transit Gateway."
+  default = {
     terraform   = "true"
     environment = "prod"
     project     = "core_infrastructure"
   }
-  type          = map
+  type = map(any)
 }
 
 variable "transit_gateway_id" {

@@ -1,106 +1,187 @@
 variable "ami" {
+  type        = string
   description = "ID of AMI to use for the instance"
 }
 
 variable "associate_public_ip_address" {
+  type        = bool
   description = "If true, the EC2 instance will have associated public IP address"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.associate_public_ip_address))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "azs" {
+  type        = list(string)
   description = "A list of availability zones in the region which will be utilized by this VPC"
   default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "bgp_asn" {
+  type        = number
   description = "BGP ASN used for dynamic routing between the customer gateway and AWS gateway"
   default     = 65077
+  validation {
+    condition     = can(regex("^[0-9]+$", var.bgp_asn))
+    error_message = "The value must be a number."
+  }
 }
 
 variable "customer_gw_name" {
-  type        = list
+  type        = list(any)
   description = "(Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order"
   default     = null
 }
 
-variable "created_by" {
-  type        = string
-  description = "(Required) the full name of the person who is created the resource in terraform"
-}
-
 variable "disable_api_termination" {
+  type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.disable_api_termination))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "ebs_optimized" {
+  type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.ebs_optimized))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_dns_hostnames" {
+  type        = bool
   description = "should be true if you want to use private DNS within the VPC"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_dns_hostnames))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_dns_support" {
+  type        = bool
   description = "should be true if you want to use private DNS within the VPC"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_dns_support))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_firewall" {
+  type        = bool
   description = "should be true if you are using a firewall to NAT traffic for the private subnets"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_firewall))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_nat_gateway" {
+  type        = bool
   description = "should be true if you want to provision NAT Gateways for each of your private networks"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_nat_gateway))
+    error_message = "The value must be either true or false."
+  }
+
 }
 
 variable "enable_vpc_peering" {
+  type        = bool
   description = "(Required)Boolean which should be set to true if you want to enable and set up vpc peering"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_vpc_peering))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "enable_vpn_peering" {
+  type        = bool
   description = "(Required)Boolean which should be set to true if you want to enable and set up a vpn tunnel"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.enable_vpn_peering))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "encrypted" {
-  type        = string
+  type        = bool
   description = "(Optional) Enable volume encryption. (Default: false). Must be configured to perform drift detection."
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.encrypted))
+    error_message = "The value must be either true or false."
+  }
+}
+
+variable "http_endpoint" {
+  type        = string
+  description = "(Optional) Whether the metadata service is available. Valid values include enabled or disabled. Defaults to enabled."
+  default     = "enabled"
+  validation {
+    condition     = can(regex("^(enabled|disabled)$", var.http_endpoint))
+    error_message = "The value must be either enabled or disabled."
+  }
+}
+
+variable "http_tokens" {
+  type        = string
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional."
+  default     = "required"
+  validation {
+    condition     = can(regex("^(optional|required)$", var.http_tokens))
+    error_message = "The value must be either optional or required."
+  }
 }
 
 variable "iam_instance_profile" {
+  type        = string
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = "siem-ssm-service-role"
 }
 
 variable "instance_count" {
+  type        = number
   description = "Number of instances to launch"
   default     = 1
 }
 
 variable "instance_initiated_shutdown_behavior" {
-  # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior
-  description = "Shutdown behavior for the instance"
-  default     = ""
+  type        = string
+  description = "(Optional) Shutdown behavior for the instance. Amazon defaults this to stop for EBS-backed instances and terminate for instance-store instances. Cannot be set on instance-store instances. See Shutdown Behavior for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior"
+  default     = "stop"
+  validation {
+    condition     = can(regex("stop|terminate", var.instance_initiated_shutdown_behavior))
+    error_message = "The value must be either stop or terminate."
+  }
 }
 
 variable "instance_type" {
+  type        = string
   description = "The type of instance to start"
   default     = "t3a.medium"
 }
 
 variable "instance_tenancy" {
+  type        = string
   description = "A tenancy option for instances launched into the VPC"
   default     = "default"
 }
 
 variable "key_name_prefix" {
+  type        = string
   description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
   default     = "siem_keypair"
 }
@@ -124,50 +205,48 @@ variable "log_volume_type" {
 }
 
 variable "map_public_ip_on_launch" {
+  type        = bool
   description = "should be false if you do not want to auto-assign public IP on launch"
   default     = false
 }
 
 variable "monitoring" {
+  type        = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = false
 }
 
 variable "name" {
+  type        = string
   description = "Name to be used on all the resources as identifier"
   default     = "siem"
 }
 
 variable "placement_group" {
+  type        = string
   description = "The Placement Group to start the instance in"
   default     = ""
 }
 
 variable "private_ip" {
+  type        = string
   description = "Private IP address to associate with the instance in a VPC"
   default     = "10.77.1.70"
 }
 
-variable "private_propagating_vgws" {
-  description = "A list of VGWs the private route table should propagate."
-  default     = []
-}
-
 variable "private_subnets_list" {
+  type        = list(string)
   description = "A list of private subnets inside the VPC."
   default     = ["10.77.1.64/26", "10.77.1.192/26"]
 }
 
 variable "public_key" {
+  type        = string
   description = "(Required) Public rsa key"
 }
 
-variable "public_propagating_vgws" {
-  description = "A list of VGWs the public route table should propagate."
-  default     = []
-}
-
 variable "public_subnets_list" {
+  type        = list(string)
   description = "A list of public subnets inside the VPC."
   default     = ["10.77.1.0/26", "10.77.1.128/26"]
 }
@@ -191,53 +270,77 @@ variable "root_volume_type" {
 }
 
 variable "security_group_description" {
+  type        = string
   description = "Description of the security group"
   default     = "SIEM Collector Security Group"
 }
 
 variable "security_group_name" {
+  type        = string
   description = "Name of the security group used for SIEM"
   default     = "siem_collector_sg"
 }
 
 variable "single_nat_gateway" {
+  type        = bool
   description = "should be true if you want to provision a single shared NAT Gateway across all of your private networks"
   default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.single_nat_gateway))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "source_dest_check" {
+  type        = bool
   description = "Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs."
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.source_dest_check))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "static_routes_only" {
+  type        = bool
   description = "Flag to determine whether or not dynamic or static routing is enabled"
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.static_routes_only))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "tenancy" {
+  type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
+  validation {
+    condition     = can(regex("^(default|dedicated|host)$", var.tenancy))
+    error_message = "The value must be either default, dedicated or host."
+  }
 }
 
 variable "vpc_cidr" {
+  type        = string
   description = "The CIDR block for the VPC"
   default     = "10.77.1.0/24"
 }
 
 variable "vpn_peer_ip_address" {
-  type        = list
+  type        = list(any)
   description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
   default     = null
 }
 
 variable "vpn_route_cidr_blocks" {
-  type        = list
+  type        = list(any)
   description = "(Required) CIDR block of the VPN subnets"
   default     = null
 }
 
 variable "vpn_type" {
+  type        = string
   description = "Type of VPN tunnel. Currently only supports ipsec.1"
   default     = "ipsec.1"
 }
@@ -261,7 +364,7 @@ variable "peer_region" {
 }
 
 variable "peer_vpc_ids" {
-  type        = list
+  type        = list(any)
   description = "(Required) The ID of the VPC with which you are creating the VPC Peering Connection."
   default     = []
 }
@@ -274,7 +377,7 @@ variable "peer_vpc_subnet" {
 
 variable "sg_cidr_blocks" {
   description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
-  type        = list
+  type        = list(any)
 }
 
 variable "iam_role_name" {
@@ -294,7 +397,7 @@ variable "transit_gateway_id" {
 }
 
 variable "transit_subnet_route_cidr_blocks" {
-  type        = list
+  type        = list(any)
   description = "(Optional) The destination CIDR blocks to send to the transit gateway."
   default     = null
 }
@@ -304,21 +407,21 @@ variable "transit_subnet_route_cidr_blocks" {
 ###########################
 
 variable "flow_key_customer_master_key_spec" {
-    description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
-    default     = "SYMMETRIC_DEFAULT"
-    type        = string
+  description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+  default     = "SYMMETRIC_DEFAULT"
+  type        = string
 }
 
 variable "flow_key_description" {
-    description = "(Optional) The description of the key as viewed in AWS console."
-    default     = "CloudWatch kms key used to encrypt flow logs"
-    type        = string
+  description = "(Optional) The description of the key as viewed in AWS console."
+  default     = "CloudWatch kms key used to encrypt flow logs"
+  type        = string
 }
 
 variable "flow_key_deletion_window_in_days" {
-    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
-    default     = 30
-    type        = number
+  description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+  default     = 30
+  type        = number
 }
 
 variable "flow_key_enable_key_rotation" {
@@ -366,21 +469,21 @@ variable "flow_cloudwatch_retention_in_days" {
 ###########################
 
 variable "flow_iam_policy_description" {
-    description = "(Optional, Forces new resource) Description of the IAM policy."
-    default     = "Used with flow logs to send packet capture logs to a CloudWatch log group"
-    type        = string
+  description = "(Optional, Forces new resource) Description of the IAM policy."
+  default     = "Used with flow logs to send packet capture logs to a CloudWatch log group"
+  type        = string
 }
 
 variable "flow_iam_policy_name_prefix" {
-    description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
-    default     = "flow_log_policy_"
-    type        = string
+  description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with name."
+  default     = "flow_log_policy_"
+  type        = string
 }
 
 variable "flow_iam_policy_path" {
-    type = string
-    description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
-    default = "/"
+  type        = string
+  description = "(Optional, default '/') Path in which to create the policy. See IAM Identifiers for more information."
+  default     = "/"
 }
 
 ###########################
@@ -390,7 +493,7 @@ variable "flow_iam_policy_path" {
 variable "flow_iam_role_assume_role_policy" {
   type        = string
   description = "(Required) The policy that grants an entity permission to assume the role."
-  default = <<POLICY
+  default     = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -433,7 +536,7 @@ variable "flow_iam_role_name_prefix" {
 variable "flow_iam_role_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
-  default     = ""
+  default     = null
 }
 
 ###########################
@@ -471,21 +574,21 @@ variable "flow_traffic_type" {
 ###########################
 
 variable "cloudtrail_key_customer_master_key_spec" {
-    description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
-    default     = "SYMMETRIC_DEFAULT"
-    type        = string
+  description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+  default     = "SYMMETRIC_DEFAULT"
+  type        = string
 }
 
 variable "cloudtrail_key_description" {
-    description = "(Optional) The description of the key as viewed in AWS console."
-    default     = "Cloudtrail kms key used to encrypt logs"
-    type        = string
+  description = "(Optional) The description of the key as viewed in AWS console."
+  default     = "Cloudtrail kms key used to encrypt logs"
+  type        = string
 }
 
 variable "cloudtrail_key_deletion_window_in_days" {
-    description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
-    default     = 30
-    type        = number
+  description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+  default     = 30
+  type        = number
 }
 
 variable "cloudtrail_key_enable_key_rotation" {
@@ -541,6 +644,7 @@ variable "enable_siem_cloudtrail_logs" {
 }
 
 variable "tags" {
+  type        = map(string)
   description = "A map of tags to add to all resources"
   default = {
     backup      = "true"

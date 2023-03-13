@@ -1,30 +1,32 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
 }
 
-resource "aws_s3_bucket" "s3_bucket" {
-  acl           = var.acl
-  bucket_prefix = var.bucket_prefix
-  policy        = var.policy
+resource "aws_s3_bucket" "this" {
+  bucket = var.bucket
+  tags   = var.tags
 
-  /*logging {
-        target_bucket = var.target_bucket
-        target_prefix = var.target_prefix
-    }*/
+}
 
-  versioning {
-    enabled    = var.versioning
-    mfa_delete = var.mfa_delete
+resource "aws_s3_bucket_policy" "public_website_access" {
+  bucket = aws_s3_bucket.this.id
+  policy = var.policy
+}
+
+resource "aws_s3_bucket_website_configuration" "this" {
+  bucket = aws_s3_bucket.this.bucket
+
+  index_document {
+    suffix = var.index_document
   }
 
-  lifecycle {
-    prevent_destroy = true
+  error_document {
+    key = var.error_document
   }
-
-  website {
-    index_document = var.index_document
-    error_document = var.error_document
-  }
-
-  tags = var.tags
 }

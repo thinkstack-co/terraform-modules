@@ -44,7 +44,7 @@ variable "size" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the resource."
   default     = {}
 }
@@ -56,6 +56,7 @@ variable "type" {
 }
 
 variable "subnet_ids" {
+  type        = list(string)
   description = "(Required) The identifiers of the subnets for the directory servers (2 subnets in 2 different AZs)."
   default     = []
 }

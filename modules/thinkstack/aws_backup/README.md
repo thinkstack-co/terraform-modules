@@ -1,30 +1,98 @@
-# AWS Backups Module
+<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
+<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+<a name="readme-top"></a>
 
-This module sets AWS backup jobs and associated services. 
 
-# Usage
+<!-- PROJECT SHIELDS -->
+<!--
+*** I'm using markdown "reference style" links for readability.
+*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
+*** See the bottom of this document for the declaration of the reference variables
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** https://www.markdownguide.org/basic-syntax/#reference-style-links
+-->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-    module "aws_prod_backups" {
-        source           = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup"
-        providers        = {
-            aws.aws_prod_region = aws.aws_prod_region
-            aws.aws_dr_region   = aws.aws_dr_region
-        }
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/thinkstack-co/terraform-modules">
+    <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
+  </a>
+
+<h3 align="center">ThinkStack - AWS Backups Module</h3>
+  <p align="center">
+    This module sets AWS backup jobs and associated services.
+    <br />
+    <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://www.thinkstack.co/">Think|Stack</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/thinkstack-co/terraform-modules/issues">Request Feature</a>
+  </p>
+</div>
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#providers">Providers</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <li><a href="#outputs">Outputs</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+### Simple Example
+```
+module "aws_prod_backups" {
+    source           = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup"
+    providers        = {
+        aws.aws_prod_region = aws.aws_prod_region
+        aws.aws_dr_region   = aws.aws_dr_region
     }
+}
+```
 
+_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- terraform-docs output will be input automatically below-->
+<!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.15.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.aws_dr_region"></a> [aws.aws\_dr\_region](#provider\_aws.aws\_dr\_region) | >= 3.0.0 |
-| <a name="provider_aws.aws_prod_region"></a> [aws.aws\_prod\_region](#provider\_aws.aws\_prod\_region) | >= 3.0.0 |
+| <a name="provider_aws.aws_dr_region"></a> [aws.aws\_dr\_region](#provider\_aws.aws\_dr\_region) | >= 4.0.0 |
+| <a name="provider_aws.aws_prod_region"></a> [aws.aws\_prod\_region](#provider\_aws.aws\_prod\_region) | >= 4.0.0 |
 
 ## Modules
 
@@ -79,9 +147,8 @@ No modules.
 | <a name="input_key_policy"></a> [key\_policy](#input\_key\_policy) | (Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws\_iam\_policy\_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide. | `string` | `null` | no |
 | <a name="input_key_usage"></a> [key\_usage](#input\_key\_usage) | (Optional) Specifies the intended use of the key. Defaults to ENCRYPT\_DECRYPT, and only symmetric encryption and decryption are supported. | `string` | `"ENCRYPT_DECRYPT"` | no |
 | <a name="input_monthly_backup_retention"></a> [monthly\_backup\_retention](#input\_monthly\_backup\_retention) | (Required) The daily backup plan retention in days. By default this is 365 days. | `number` | `365` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the object. | `map` | <pre>{<br>  "aws_backup": "true",<br>  "created_by": "ThinkStack",<br>  "environment": "prod",<br>  "priority": "critical",<br>  "terraform": "true"<br>}</pre> | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the object. | `map(any)` | <pre>{<br>  "aws_backup": "true",<br>  "created_by": "ThinkStack",<br>  "environment": "prod",<br>  "priority": "critical",<br>  "terraform": "true"<br>}</pre> | no |
 | <a name="input_vault_disaster_recovery_name"></a> [vault\_disaster\_recovery\_name](#input\_vault\_disaster\_recovery\_name) | value | `string` | `"vault_disaster_recovery"` | no |
-| <a name="input_vault_dr_hourly_name"></a> [vault\_dr\_hourly\_name](#input\_vault\_dr\_hourly\_name) | value | `string` | `"vault_dr_hourly"` | no |
 | <a name="input_vault_prod_daily_name"></a> [vault\_prod\_daily\_name](#input\_vault\_prod\_daily\_name) | value | `string` | `"vault_prod_daily"` | no |
 | <a name="input_vault_prod_hourly_name"></a> [vault\_prod\_hourly\_name](#input\_vault\_prod\_hourly\_name) | value | `string` | `"vault_prod_hourly"` | no |
 | <a name="input_vault_prod_monthly_name"></a> [vault\_prod\_monthly\_name](#input\_vault\_prod\_monthly\_name) | value | `string` | `"vault_prod_monthly"` | no |
@@ -94,3 +161,51 @@ No modules.
 | <a name="output_vault_disaster_recovery_arn"></a> [vault\_disaster\_recovery\_arn](#output\_vault\_disaster\_recovery\_arn) | n/a |
 | <a name="output_vault_hourly_arn"></a> [vault\_hourly\_arn](#output\_vault\_hourly\_arn) | n/a |
 | <a name="output_vault_monthly_arn"></a> [vault\_monthly\_arn](#output\_vault\_monthly\_arn) | n/a |
+<!-- END_TF_DOCS -->
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+
+Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Zachary Hill](https://zacharyhill.co)
+* [Jake Jones](https://github.com/jakeasarus)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[forks-url]: https://github.com/thinkstack-co/terraform-modules/network/members
+[stars-shield]: https://img.shields.io/github/stars/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[stars-url]: https://github.com/thinkstack-co/terraform-modules/stargazers
+[issues-shield]: https://img.shields.io/github/issues/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[issues-url]: https://github.com/thinkstack-co/terraform-modules/issues
+[license-shield]: https://img.shields.io/github/license/thinkstack-co/terraform-modules.svg?style=for-the-badge
+[license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/company/thinkstack/
+[product-screenshot]: /images/screenshot.webp
+[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
+[Terraform-url]: https://terraform.io

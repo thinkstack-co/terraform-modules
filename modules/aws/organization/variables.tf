@@ -5,7 +5,7 @@
 variable "aws_service_access_principals" {
   description = "(Optional) List of AWS service principal names for which you want to enable integration with your organization. This is typically in the form of a URL, such as service-abbreviation.amazonaws.com. Organization must have feature_set set to ALL. For additional information, see the AWS Organizations User Guide."
   type        = list(string)
-  default     = [
+  default = [
     "aws-artifact-account-sync.amazonaws.com",
     "backup.amazonaws.com",
     "cloudtrail.amazonaws.com",
