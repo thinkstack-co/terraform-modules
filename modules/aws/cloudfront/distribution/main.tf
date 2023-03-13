@@ -4,11 +4,16 @@ locals {
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-  aliases = var.aliases
-  comment = var.comment
+  aliases             = var.aliases
+  comment             = var.comment
   default_root_object = var.default_root_object
   enabled             = var.enabled
   is_ipv6_enabled     = var.is_ipv6_enabled
+  http_version        = var.http_version
+  price_class         = var.price_class
+  tags                = var.tags
+  retain_on_delete    = var.retain_on_delete
+  wait_for_deployment = var.wait_for_deployment
 
   dynamic "custom_error_response" {
     for_each = var.custom_error_response
@@ -21,33 +26,30 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   default_cache_behavior {
-    allowed_methods  = var.allowed_methods
-    cached_methods   = var.cached_methods
-    target_origin_id = var.target_origin_id
-    viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    # not done
+    allowed_methods        = var.allowed_methods
+    cached_methods         = var.cached_methods
+    target_origin_id       = var.target_origin_id
+    viewer_protocol_policy = var.viewer_protocol_policy
+    min_ttl                = var.min_ttl
+    default_ttl            = var.default_ttl
+    max_ttl                = var.max_ttl
+  }
+
+  logging_config {
+    # done
+    bucket          = var.logging_bucket
+    include_cookies = var.logging_include_cookies
+    prefix          = var.logging_prefix
   }
   
   origin {
+    # not done
     domain_name              = var.domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.default.id
     origin_id                = local.s3_origin_id
   }
 
-  
-  
-
-  logging_config {
-    include_cookies = false
-    bucket          = "mylogs.s3.amazonaws.com"
-    prefix          = "myprefix"
-  }
-
-  
-
-  
 
   # Cache behavior with precedence 0
   ordered_cache_behavior {
@@ -94,7 +96,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     viewer_protocol_policy = "redirect-to-https"
   }
 
-  price_class = "PriceClass_200"
+  
 
   restrictions {
     geo_restriction {
@@ -103,11 +105,20 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  tags = {
-    Environment = "production"
+  viewer_certificate {
+    acm_certificate_arn      = var.acm_certificate_arn
+    certificate              = var.certificate
+    certificate_source       = var.certificate_source
+    cloudfront_default_certificate = var.cloudfront_default_certificate
+    iam_certificate_id       = var.iam_certificate_id
+    minimum_protocol_version = var.minimum_protocol_version
+    ssl_support_method       = var.ssl_support_method
   }
 
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
+    dynamic "web_acl_id" {
+        for_each = var.web_acl_id
+        content {
+        web_acl_id = web_acl_id.value
+        }
+    }
 }
