@@ -1,3 +1,13 @@
+terraform {
+  required_version = ">= 0.15.0"
+  required_providers {
+    azuread = {
+      source = "hashicorp/azuread"
+      version = ">= 2.36.0"
+    }
+  }
+}
+
 resource "azuread_conditional_access_policy" "example" {
   display_name = var.display_name
   state        = var.state
