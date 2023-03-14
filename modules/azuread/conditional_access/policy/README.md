@@ -72,6 +72,7 @@ module geo_ip_login_filter {
   client_app_types      = ["all"]
   included_applications = ["all"]
   included_users        = ["all"]
+  excluded_users        = ["traveling_employees"]
   included_locations    = ["Blocked Countries"]
   excluded_locations    = ["HQ", "AWS-us-east-1", "United States"]
   built_in_controls     = ["block"]
