@@ -203,13 +203,18 @@ variable "application_enforced_restrictions_enabled" {
   type        = bool
   description = "(Optional) Whether or not application enforced restrictions are enabled. Defaults to false."
   default     = false
+  validation {
+    condition     = var.application_enforced_restrictions_enabled == true || var.application_enforced_restrictions_enabled == false
+    error_message = "The application_enforced_restrictions_enabled value must be a boolean true or false."
+  }
 }
 
 variable "cloud_app_security_policy" {
   type        = string
   description = "(Optional) Enables cloud app security and specifies the cloud app security policy to use. Possible values are: blockDownloads, mcasConfigured, monitorOnly or unknownFutureValue."
+  default     = null
   validation {
-    condition     = contains(["blockDownloads", "mcasConfigured", "monitorOnly", "unknownFutureValue"])
+    condition     = contains(["blockDownloads", "mcasConfigured", "monitorOnly", "unknownFutureValue"]) || var.cloud_app_security_policy == null
     error_message = "The cloud_app_security_policy value must be a string from one of the following possible values: 'blockDownloads', 'mcasConfigured', 'monitorOnly', 'unknownFutureValue'"
   }
 }
@@ -219,7 +224,7 @@ variable "persistent_browser_mode" {
   description = "(Optional) Session control to define whether to persist cookies or not. Possible values are: always or never."
   default     = null
   validation {
-    condition     = contains(["always", "never"])
+    condition     = contains(["always", "never"]) || var.persistent_browser_mode == null
     error_message = "The persistent_browser_mode value must be a string from one of the following possible values: 'always' or 'never'"
   }
 }
@@ -228,6 +233,10 @@ variable "sign_in_frequency" {
   type        = number
   description = "(Optional) Number of days or hours to enforce sign-in frequency. Required when sign_in_frequency_period is specified. Due to an API issue, removing this property forces a new resource to be created."
   default     = null
+  validation {
+    condition     = var.sign_in_frequency > 0 || var.sign_in_frequency == null
+    error_message = "The sign_in_frequency value must be a number greater than 0 or null."
+  }
 }
 
 variable "sign_in_frequency_period" {
@@ -235,7 +244,7 @@ variable "sign_in_frequency_period" {
   description = "(Optional) The time period to enforce sign-in frequency. Possible values are: hours or days. Required when sign_in_frequency_period is specified. Due to an API issue, removing this property forces a new resource to be created."
   default     = null
   validation {
-    condition     = contains(["hours", "days"])
+    condition     = contains(["hours", "days"]) || var.sign_in_frequency_period == null
     error_message = "The sign_in_frequency_period value must be a string from one of the following possible values: 'hours' or 'days'"
   }
 }
