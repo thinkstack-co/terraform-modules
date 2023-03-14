@@ -63,11 +63,19 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 ### Simple Example
+This example create a geographic IP address block filter that blocks access from 
 ```
-module test {
-    source = 
-
-    variable = 
+module geo_ip_login_filter {
+  source                = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access"
+  display_name          = "Geo-IP Login Filter"
+  state                 = "enabled"
+  client_app_types      = ["all"]
+  included_applications = ["all"]
+  included_users        = ["all"]
+  included_locations    = ["Blocked Countries"]
+  excluded_locations    = ["HQ", "AWS-us-east-1", "United States"]
+  built_in_controls     = ["block"]
+  operator              = ["AND"]
 }
 ```
 
