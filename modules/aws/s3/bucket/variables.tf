@@ -1,7 +1,15 @@
+
+######################
+# S3 Variables
+######################
 variable "bucket_prefix" {
   type        = string
   description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
 }
+
+######################
+# S3 Public Block Variables
+######################
 
 variable "block_public_acls" {
   type        = bool
@@ -42,6 +50,10 @@ variable "restrict_public_buckets" {
     error_message = "The value must be true or false."
   }
 }
+
+######################
+# S3 Encryption Variables
+######################
 
 variable "kms_master_key_id" {
   type        = string
