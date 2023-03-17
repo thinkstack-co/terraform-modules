@@ -1,3 +1,56 @@
+###########################
+# KMS Variables
+###########################
+
+variable "key_customer_master_key_spec" {
+  description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
+  default     = "SYMMETRIC_DEFAULT"
+  type        = string
+  validation {
+    condition     = can(regex("^(SYMMETRIC_DEFAULT|RSA_2048|RSA_3072|RSA_4096|ECC_NIST_P256|ECC_NIST_P384|ECC_NIST_P521|ECC_SECG_P256K1)$", var.key_customer_master_key_spec))
+    error_message = "The value must be one of SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1."
+  }
+}
+
+variable "key_description" {
+  description = "(Optional) The description of the key as viewed in AWS console."
+  default     = "S3 kms key used to encrypt bucket objects logs"
+  type        = string
+}
+
+variable "key_deletion_window_in_days" {
+  description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
+  default     = 30
+  type        = number
+  validation {
+    condition     = can(regex("^[7-9]|[1-2][0-9]|30$", var.key_deletion_window_in_days))
+    error_message = "The value must be between 7 and 30 days."
+  }
+}
+
+variable "key_enable_key_rotation" {
+  description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
+  default     = true
+  type        = bool
+}
+
+variable "key_usage" {
+  description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
+  default     = "ENCRYPT_DECRYPT"
+  type        = string
+}
+
+variable "key_is_enabled" {
+  description = "(Optional) Specifies whether the key is enabled. Defaults to true."
+  default     = true
+  type        = string
+}
+
+variable "key_name_prefix" {
+  description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
+  default     = "alias/s3_key_"
+  type        = string
+}
 
 ######################
 # S3 Variables
@@ -6,6 +59,31 @@ variable "bucket_prefix" {
   type        = string
   description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
 }
+
+variable "bucket_force_destroy" {
+  type        = bool
+  description = "(Optional, Default:false) Boolean that indicates all objects (including any locked objects) should be deleted from the bucket when the bucket is destroyed so that the bucket can be destroyed without error. These objects are not recoverable. This only deletes objects when the bucket is destroyed, not when setting this parameter to true. Once this parameter is set to true, there must be a successful terraform apply run before a destroy is required to update this value in the resource state. Without a successful terraform apply after this parameter is set, this flag will have no effect. If setting this field in the same operation that would require replacing the bucket or destroying the bucket, this flag will not work. Additionally when importing a bucket, a successful terraform apply is required to set this value in state before it will take effect on a destroy operation."
+  default     = false
+  validation {
+    condition     = can(regex("true|false", var.bucket_force_destroy))
+    error_message = "The value must be true or false."
+  }
+}
+
+variable "bucket_object_lock_enabled" {
+  type        = bool
+  description = "(Optional, Forces new resource) Indicates whether this bucket has an Object Lock configuration enabled. Valid values are true or false. This argument is not supported in all regions or partitions."
+  default     = false
+  validation {
+    condition     = can(regex("true|false", var.bucket_object_lock_enabled))
+    error_message = "The value must be true or false."
+  }
+}
+
+######################
+# S3 Lifecycle Variables
+######################
+
 
 ######################
 # S3 Public Block Variables
