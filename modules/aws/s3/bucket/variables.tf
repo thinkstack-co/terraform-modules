@@ -53,7 +53,7 @@ variable "key_name_prefix" {
 }
 
 ######################
-# S3 Variables
+# S3 Bucket Variables
 ######################
 variable "bucket_prefix" {
   type        = string
@@ -84,6 +84,58 @@ variable "bucket_object_lock_enabled" {
 # S3 Lifecycle Variables
 ######################
 
+variable "lifecycle_rules" {
+  type = list(object({
+    id      = string
+    prefix  = string
+    enabled = bool
+    abort_incomplete_multipart_upload_days = number
+    expiration_days                        = number
+    expiration_date                        = string
+    expiration_expired_object_delete_marker = bool
+    noncurrent_version_expiration_days     = number
+    noncurrent_version_transition_days     = number
+    noncurrent_version_transition_storage_class = string
+    transition_days                        = number
+    transition_date                        = string
+    transition_storage_class               = string
+  }))
+  description = "(Optional) Configuration of object lifecycle management (LCM). Can have several rules."
+  default = null
+}
+
+######################
+# S3 Logging Variables
+######################
+
+variable "logging_target_bucket" {
+  type        = string
+  description = "(Optional) The name of the bucket that will receive the logs. Required if logging of the S3 bucket is set to true."
+  default     = null
+  validation {
+    condition     = can(regex("^[a-z0-9][a-z0-9\\-\\.]{1,61}[a-z0-9]$", var.logging_target_bucket)) || var.logging_target_bucket == null
+    error_message = "The value must be a valid bucket name or null."
+  }
+}
+
+variable "logging_target_prefix" {
+  type        = string
+  description = "(Optional) The prefix that is prepended to all log object keys. If not set, the logs are stored in the root of the bucket."
+  default     = "log/"
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9\\-\\_\\./]{1,1024}$", var.logging_target_prefix)) || var.logging_target_prefix == null
+    error_message = "The value must be a valid prefix or null."
+  }
+}
+
+######################
+# S3 Policy Variables
+######################
+
+variable "bucket_policy" {
+  type        = string
+  description = "(Required) Text of the policy. Although this is a bucket policy rather than an IAM policy, the aws_iam_policy_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size."
+}
 
 ######################
 # S3 Public Block Variables
@@ -133,17 +185,14 @@ variable "restrict_public_buckets" {
 # S3 Encryption Variables
 ######################
 
-variable "kms_master_key_id" {
-  type        = string
-  description = "(Optional) The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
-  default     = null
-}
-
-
-
-variable "policy" {
-  description = "(Optional) A valid bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy."
-  default     = null
+variable "bucket_key_enabled" {
+  type        = bool
+  description = "(Optional) Specifies whether Amazon S3 should use an S3 bucket key for object encryption with server-side encryption using AWS KMS (SSE-KMS). Setting this element to true causes the following behavior: When an object is uploaded, the S3 bucket key is used to encrypt the object. When an object is overwritten, the S3 bucket key is re-used to encrypt the object. When an object is copied, the S3 bucket key is re-used to encrypt the object. When an object is restored from Amazon Glacier, the S3 bucket key is re-used to encrypt the object. Defaults to false."
+  default     = false
+  validation {
+    condition     = can(regex("true|false", var.bucket_key_enabled))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "sse_algorithm" {
@@ -156,63 +205,49 @@ variable "sse_algorithm" {
   }
 }
 
-variable "target_bucket" {
+######################
+# S3 Versioning Variables
+######################
+
+variable "versioning_status" {
   type        = string
-  description = "(Required) The name of the bucket that will receive the log objects."
-  default     = ""
-}
-
-variable "target_prefix" {
-  type        = string
-  description = "(Optional) To specify a key prefix for log objects."
-  default     = "log/"
-}
-
-variable "versioning" {
-  description = "(Optional) A state of versioning (documented below)"
-  default     = true
-}
-
-variable "mfa_delete" {
-  description = "(Optional) Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. Default is false."
-  default     = false
-}
-
-variable "lifecycle_rule_id" {
-  type        = string
-  description = "(Required) Unique identifier for the rule. The value cannot be longer than 255 characters."
-  default     = "lifecycle_rule"
-}
-
-variable "lifecycle_rule_enabled" {
-  type        = string
-  description = "(Required) Whether the rule is currently being applied. Valid values: Enabled or Disabled."
+  description = "(Optional) Versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets."
   default     = "Disabled"
   validation {
-    condition     = can(regex("Enabled|Disabled", var.lifecycle_rule_enabled))
-    error_message = "The value must be Enabled or Disabled."
+    condition     = can(regex("Enabled|Suspended|Disabled", var.versioning_status))
+    error_message = "The value must be Enabled, Disabled, or Suspended."
   }
 }
 
-variable "lifecycle_rule_prefix" {
+variable "mfa_delete" {
   type        = string
-  description = "(Optional) Prefix identifying one or more objects to which the rule applies. Defaults to an empty string if not specified."
-  default     = null
-}
-
-variable "lifecycle_expiration_days" {
-  type        = number
-  description = "(Optional, Conflicts with date) The number of days after creation when objects are transitioned to the specified storage class. The value must be a positive integer. If both days and date are not specified, defaults to 0. Valid values depend on storage_class, see Transition objects using Amazon S3 Lifecycle for more details."
-  default     = null
+  description = "(Optional) Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
+  default     = "Disabled"
   validation {
-    condition     = can(regex("^[0-9]+$", var.lifecycle_expiration_days))
-    error_message = "The value must be a positive integer."
+    condition     = can(regex("Enabled|Disabled", var.mfa_delete))
+    error_message = "The value must be Enabled or Disabled."
   }
 }
 
 ######################
 # Global Variables
 ######################
+
+variable "enable_s3_bucket_logging" {
+  type        = bool
+  description = "(Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target_bucket' is required. Defaults to true."
+  default     = true
+  validation {
+    condition     = can(regex("true|false", var.enable_s3_bucket_logging))
+    error_message = "The value must be true or false."
+  }
+}
+
+variable "expected_bucket_owner" {
+  type        = string
+  description = "(Optional) Account ID of the expected bucket owner. If the bucket is owned by a different account, the request will fail with an HTTP 403 (Access Denied) error."
+  default     = null
+}
 
 variable "tags" {
   type        = map(any)
