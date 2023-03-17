@@ -120,6 +120,7 @@ resource "aws_s3_bucket_logging" "this" {
 }
 
 resource "aws_s3_bucket_policy" "this" {
+  count  = var.bucket_policy == null ? 0 : 1
   bucket = aws_s3_bucket.this.id
   policy = var.bucket_policy
 }
