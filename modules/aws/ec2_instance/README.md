@@ -64,7 +64,7 @@
 ## Usage
 ### Simple EC2 Instance Example
 ```
-module "aws_sql" {
+module "aws_prod_app" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
 
   ami                    = "ami-ffffffff"
@@ -72,27 +72,15 @@ module "aws_sql" {
   count                  = 1
   instance_type          = "m5.xlarge"
   key_name               = module.keypair.key_name
-  monitoring             = true
-  name                   = "sql"
-  region                 = "us-east-1"
+  name                   = "aws_prod_app"
   subnet_id              = module.vpc.private_subnet_ids[0]
   vpc_security_group_ids = ["sg-ffffffff"]
-  volume_tags = {
-    os_drive    = "c"
-    device_name = "/dev/sda1"
-    terraform   = "true"
-    created_by  = "YOUR NAME"
-    environment = "prod"
-    role        = "sql"
-    backup      = "true"
-  }
   tags = {
     terraform        = "true"
     created_by       = "YOUR NAME"
     environment      = "prod"
-    role             = "sql"
+    role             = "app"
     backup           = "true"
-    hourly_retention = "7"
   }
 }
 ```
@@ -110,26 +98,13 @@ module "app_server" {
     instance_type          = "t2.large"
     key_name               = module.keypair.key_name
     vpc_security_group_ids = module.app_server_sg.id
-    
     root_volume_size       = "100"
-
-    volume_tags            = {
-        os_drive    = "c"
-        device_name = "/dev/sda1"
-        terraform   = "true"
-        created_by  = "terraform"
-        environment = "prod"
-        role        = "app_server"
-        backup      = "true"
-    }
-
     tags                   = {
         terraform   = "true"
         created_by  = "terraform"
         environment = "prod"
         role        = "app_server"
         backup      = "true"
-        hourly_retention    = "7"
     }
 }
 
