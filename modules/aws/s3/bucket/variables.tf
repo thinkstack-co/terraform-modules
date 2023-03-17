@@ -130,10 +130,6 @@ variable "logging_target_prefix" {
   type        = string
   description = "(Optional) The prefix that is prepended to all log object keys. If not set, the logs are stored in the root of the bucket."
   default     = "log/"
-  validation {
-    condition     = can(regex("^[a-zA-Z0-9\\-\\_\\./]{1,1024}$", var.logging_target_prefix)) || var.logging_target_prefix == null
-    error_message = "The value must be a valid prefix or null."
-  }
 }
 
 ######################
