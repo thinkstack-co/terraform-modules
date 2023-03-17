@@ -3,9 +3,9 @@
 ###########################
 
 variable "key_customer_master_key_spec" {
+  type        = string
   description = "(Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1. Defaults to SYMMETRIC_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide."
   default     = "SYMMETRIC_DEFAULT"
-  type        = string
   validation {
     condition     = can(regex("^(SYMMETRIC_DEFAULT|RSA_2048|RSA_3072|RSA_4096|ECC_NIST_P256|ECC_NIST_P384|ECC_NIST_P521|ECC_SECG_P256K1)$", var.key_customer_master_key_spec))
     error_message = "The value must be one of SYMMETRIC_DEFAULT, RSA_2048, RSA_3072, RSA_4096, ECC_NIST_P256, ECC_NIST_P384, ECC_NIST_P521, or ECC_SECG_P256K1."
@@ -29,27 +29,35 @@ variable "key_deletion_window_in_days" {
 }
 
 variable "key_enable_key_rotation" {
+  type        = bool
   description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
   default     = true
-  type        = bool
 }
 
 variable "key_usage" {
+  type        = string
   description = "(Optional) Specifies the intended use of the key. Defaults to ENCRYPT_DECRYPT, and only symmetric encryption and decryption are supported."
   default     = "ENCRYPT_DECRYPT"
-  type        = string
 }
 
 variable "key_is_enabled" {
+  type        = string
   description = "(Optional) Specifies whether the key is enabled. Defaults to true."
   default     = true
+  
+}
+
+variable "key_policy" {
   type        = string
+  description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
+  default     = ""
+  
 }
 
 variable "key_name_prefix" {
+  type        = string
   description = "(Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/)."
   default     = "alias/s3_key_"
-  type        = string
 }
 
 ######################
