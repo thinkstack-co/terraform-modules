@@ -65,9 +65,9 @@
 
 ```
 module test {
-  source = ""
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
 
-  variable = 
+  bucket_prefix = "a-bucket-"
 }
 ```
 
