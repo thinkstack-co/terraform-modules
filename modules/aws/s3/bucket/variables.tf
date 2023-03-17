@@ -44,14 +44,14 @@ variable "key_is_enabled" {
   type        = string
   description = "(Optional) Specifies whether the key is enabled. Defaults to true."
   default     = true
-  
+
 }
 
 variable "key_policy" {
   type        = string
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
   default     = ""
-  
+
 }
 
 variable "key_name_prefix" {
