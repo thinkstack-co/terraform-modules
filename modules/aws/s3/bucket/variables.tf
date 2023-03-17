@@ -86,22 +86,22 @@ variable "bucket_object_lock_enabled" {
 
 variable "lifecycle_rules" {
   type = list(object({
-    id      = string
-    prefix  = string
-    enabled = bool
-    abort_incomplete_multipart_upload_days = number
-    expiration_days                        = number
-    expiration_date                        = string
-    expiration_expired_object_delete_marker = bool
-    noncurrent_version_expiration_days     = number
-    noncurrent_version_transition_days     = number
+    id                                          = string
+    prefix                                      = string
+    enabled                                     = bool
+    abort_incomplete_multipart_upload_days      = number
+    expiration_days                             = number
+    expiration_date                             = string
+    expiration_expired_object_delete_marker     = bool
+    noncurrent_version_expiration_days          = number
+    noncurrent_version_transition_days          = number
     noncurrent_version_transition_storage_class = string
-    transition_days                        = number
-    transition_date                        = string
-    transition_storage_class               = string
+    transition_days                             = number
+    transition_date                             = string
+    transition_storage_class                    = string
   }))
   description = "(Optional) Configuration of object lifecycle management (LCM). Can have several rules."
-  default = null
+  default     = null
 }
 
 ######################
