@@ -52,7 +52,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       status = rule.value.status
 
       dynamic "abort_incomplete_multipart_upload" {
-        for_each = rule.value.abort_incomplete_multipart_upload
+        for_each = rule.value.abort_incomplete_multipart_upload == null ? [] : [rule.value.abort_incomplete_multipart_upload]
         content {
           days_after_initiation = abort_incomplete_multipart_upload.value.days_after_initiation
         }
