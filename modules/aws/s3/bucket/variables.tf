@@ -65,7 +65,7 @@ variable "key_name_prefix" {
 ######################
 variable "bucket_prefix" {
   type        = string
-  description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
+  description = "(Required, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
 }
 
 variable "bucket_force_destroy" {
@@ -142,7 +142,8 @@ variable "logging_target_prefix" {
 
 variable "bucket_policy" {
   type        = string
-  description = "(Required) Text of the policy. Although this is a bucket policy rather than an IAM policy, the aws_iam_policy_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size."
+  description = "(Optional) Text of the policy. Although this is a bucket policy rather than an IAM policy, the aws_iam_policy_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size."
+  default     = null
 }
 
 ######################
@@ -205,7 +206,7 @@ variable "bucket_key_enabled" {
 
 variable "sse_algorithm" {
   type        = string
-  description = "(required) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
+  description = "(Optional) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
   default     = "aws:kms"
   validation {
     condition     = can(regex("AES256|aws:kms", var.sse_algorithm))
