@@ -54,14 +54,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       status = rule.value.status
 
       dynamic "abort_incomplete_multipart_upload" {
-        for_each = try(rule.value.abort_incomplete_multipart_upload, [])
+        for_each = try(flatten([rule.value.abort_incomplete_multipart_upload]), [])
         content {
           days_after_initiation = try(abort_incomplete_multipart_upload.value.days_after_initiation, null)
         }
       }
 
       dynamic "expiration" {
-        for_each = flatten(rule.value.expiration)
+        for_each = try(flatten([rule.value.expiration]), [])
         content {
           date                         = try(expiration.value.date, null)
           days                         = try(expiration.value.days, null)
@@ -70,7 +70,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
 
       dynamic "filter" {
-        for_each = try(rule.value.filter, [])
+        for_each = try(flatten([rule.value.filter]), [])
         content {
           object_size_greater_than = try(filter.value.object_size_greater_than, null)
           object_size_less_than    = try(filter.value.object_size_less_than, null)
@@ -86,7 +86,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
 
       dynamic "noncurrent_version_expiration" {
-        for_each = try(rule.value.noncurrent_version_expiration, [])
+        for_each = try(flatten([rule.value.noncurrent_version_expiration]), [])
         content {
           newer_noncurrent_versions = try(noncurrent_version_expiration.value.newer_noncurrent_versions, null)
           noncurrent_days           = try(noncurrent_version_expiration.value.noncurrent_days, null)
@@ -94,7 +94,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
 
       dynamic "noncurrent_version_transition" {
-        for_each = try(rule.value.noncurrent_version_transition, [])
+        for_each = try(flatten([rule.value.noncurrent_version_transition]), [])
         content {
           newer_noncurrent_versions = try(noncurrent_version_transition.value.newer_noncurrent_versions, null)
           noncurrent_days           = try(noncurrent_version_transition.value.noncurrent_days, null)
@@ -103,7 +103,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
 
       dynamic "transition" {
-        for_each = try(rule.value.transition, [])
+        for_each = try(flatten([rule.value.transition]), [])
         content {
           date          = try(transition.value.date, null)
           days          = try(transition.value.days, null)
