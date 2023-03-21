@@ -14,7 +14,7 @@ terraform {
 ###########################
 
 resource "aws_kms_key" "s3" {
-  count                    = var.sse_algorithm == "aws:kms" ? 1 : 0
+  count                    = var.enable_kms_key ? 1 : 0
   customer_master_key_spec = var.key_customer_master_key_spec
   description              = var.key_description
   deletion_window_in_days  = var.key_deletion_window_in_days
@@ -26,7 +26,7 @@ resource "aws_kms_key" "s3" {
 }
 
 resource "aws_kms_alias" "s3" {
-  count         = var.sse_algorithm == "aws:kms" ? 1 : 0
+  count         = var.enable_kms_key ? 1 : 0
   name_prefix   = var.key_name_prefix
   target_key_id = aws_kms_key.s3.key_id
 }
@@ -142,7 +142,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   rule {
     bucket_key_enabled = var.bucket_key_enabled
     apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.s3.arn
+      kms_master_key_id = aws_kms_key.s3.arn ? aws_kms_key.s3.arn : null
       sse_algorithm     = var.sse_algorithm
     }
   }

@@ -230,6 +230,16 @@ variable "mfa_delete" {
 # Global Variables
 ######################
 
+variable "enable_kms_key" {
+  type        = bool
+  description = "(Optional) Enable KMS key for S3 bucket. If true, this will create a kms key and alias for use with the bucket encryption. Defaults to false."
+  default     = false
+  validation {
+    condition     = can(regex("true|false", var.enable_kms_key))
+    error_message = "The value must be true or false."
+  }
+}
+
 variable "enable_s3_bucket_logging" {
   type        = bool
   description = "(Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target_bucket' is required. Defaults to false."
