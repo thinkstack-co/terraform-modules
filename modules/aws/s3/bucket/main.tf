@@ -76,7 +76,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
           object_size_less_than    = try(filter.value.object_size_less_than, null)
           prefix                   = try(filter.value.prefix, null)
           dynamic "tag" {
-            for_each = rule.value.filter.tag
+            for_each = try(rule.value.filter.tag, [])
             content {
               key   = tag.value.key
               value = tag.value.value
