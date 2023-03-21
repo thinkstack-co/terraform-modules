@@ -84,21 +84,6 @@ module "logging_bucket" {
   bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
-      id         = "Remove all objects after 90 days"
-      status     = "Enabled"
-      
-      expiration = {
-        days                         = 90
-        expired_object_delete_marker = true
-      }
-      noncurrent_version_expiration = {
-        noncurrent_days = 90
-      }
-      filter      = {
-        prefix = "*"
-      }
-    },
-    {
       id         = "Transition all objects to Standard-IA after 7 days"
       status     = "Enabled"
       transition = {
@@ -112,6 +97,21 @@ module "logging_bucket" {
       transition = {
         days          = 30
         storage_class = "GLACIER"
+      }
+    },
+    {
+      id         = "Remove all objects after 90 days"
+      status     = "Enabled"
+      
+      expiration = {
+        days                         = 90
+        expired_object_delete_marker = true
+      }
+      noncurrent_version_expiration = {
+        noncurrent_days = 90
+      }
+      filter      = {
+        prefix = "*"
       }
     }
   ]
