@@ -28,7 +28,7 @@ resource "aws_kms_key" "s3" {
 resource "aws_kms_alias" "s3" {
   count         = var.enable_kms_key ? 1 : 0
   name_prefix   = var.key_name_prefix
-  target_key_id = aws_kms_key.s3.key_id
+  target_key_id = aws_kms_key.s3[0].key_id
 }
 
 ###########################
@@ -142,7 +142,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   rule {
     bucket_key_enabled = var.bucket_key_enabled
     apply_server_side_encryption_by_default {
-      kms_master_key_id = var.enable_kms_key ? aws_kms_key[0].s3.arn : null
+      kms_master_key_id = var.enable_kms_key ? aws_kms_key.s3[0].arn : null
       sse_algorithm     = var.sse_algorithm
     }
   }
