@@ -14,6 +14,7 @@ terraform {
 ###########################
 
 resource "aws_kms_key" "s3" {
+  count                    = var.sse_algorithm == "aws:kms" ? 1 : 0
   customer_master_key_spec = var.key_customer_master_key_spec
   description              = var.key_description
   deletion_window_in_days  = var.key_deletion_window_in_days
@@ -25,6 +26,7 @@ resource "aws_kms_key" "s3" {
 }
 
 resource "aws_kms_alias" "s3" {
+  count         = var.sse_algorithm == "aws:kms" ? 1 : 0
   name_prefix   = var.key_name_prefix
   target_key_id = aws_kms_key.s3.key_id
 }
