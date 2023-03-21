@@ -32,6 +32,10 @@ variable "key_enable_key_rotation" {
   type        = bool
   description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
   default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.key_enable_key_rotation))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "key_usage" {
@@ -44,14 +48,16 @@ variable "key_is_enabled" {
   type        = string
   description = "(Optional) Specifies whether the key is enabled. Defaults to true."
   default     = true
-
+  validation {
+    condition     = can(regex("^(true|false)$", var.key_is_enabled))
+    error_message = "The value must be true or false."
+  }
 }
 
 variable "key_policy" {
   type        = string
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
   default     = ""
-
 }
 
 variable "key_name_prefix" {
