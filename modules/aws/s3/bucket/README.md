@@ -62,12 +62,42 @@
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-
+### Simple Example
+This example creates a bucket with encryption enabled by default, using the 'aws/s3' KMS key managed by AWS. It also has the default of blocking all public access to the bucket and objects. There is no bucket policy attached to this bucket.
 ```
-module test {
+module "bucket" {
+  source        = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix = "octo-prod-"
+  tags          = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
+
+### Lifecycle Rules Example
+This example creates a bucket with a lifecycle rule configured to expire objects after 90 days.
+```
+module "bucket" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
 
-  bucket_prefix = "a-bucket-"
+  bucket_prefix = "octo-prod-"
+  lifecycle_rules = [
+    {
+      id         = "Remove all objects after 90 days"
+      status     = "Enabled"
+      prefix     = "log/"
+      expiration = {
+        days = 90
+      }
+    }
+  ]
+  tags = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
 }
 ```
 
