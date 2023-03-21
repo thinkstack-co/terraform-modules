@@ -61,7 +61,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
 
       dynamic "expiration" {
-        for_each = try(rule.value.expiration, [])
+        for_each = rule.value.expiration
         content {
           date                         = try(expiration.value.date, null)
           days                         = try(expiration.value["days"], null)
