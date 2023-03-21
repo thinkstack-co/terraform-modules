@@ -77,19 +77,41 @@ module "bucket" {
 ```
 
 ### Lifecycle Rules Example
-This example creates a bucket with a lifecycle rule configured to expire objects after 90 days.
+This example creates a bucket with multiple lifecycle rules configured to transition objects to Standard-IA after 7 days, Glacier after 30 days, and expire objects after 90 days.
 ```
-module "bucket" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
-
-  bucket_prefix = "octo-prod-"
+module "logging_bucket" {
+  source          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket?ref=dev_s3_lifecycle"
+  bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
       id         = "Remove all objects after 90 days"
       status     = "Enabled"
-      prefix     = "log/"
+      
       expiration = {
-        days = 90
+        days                         = 90
+        expired_object_delete_marker = true
+      }
+      noncurrent_version_expiration = {
+        noncurrent_days = 90
+      }
+      filter      = {
+        prefix = "*"
+      }
+    },
+    {
+      id         = "Transition all objects to Standard-IA after 7 days"
+      status     = "Enabled"
+      transition = {
+        days          = 7
+        storage_class = "STANDARD_IA"
+      }
+    },
+    {
+      id         = "Transition all objects to Glacier after 30 days"
+      status     = "Enabled"
+      transition = {
+        days          = 30
+        storage_class = "GLACIER"
       }
     }
   ]
