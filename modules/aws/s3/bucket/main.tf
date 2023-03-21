@@ -54,25 +54,25 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       dynamic "abort_incomplete_multipart_upload" {
         for_each = try(rule.value.abort_incomplete_multipart_upload, [])
         content {
-          days_after_initiation = abort_incomplete_multipart_upload.value.days_after_initiation
+          days_after_initiation = try(abort_incomplete_multipart_upload.value.days_after_initiation, null)
         }
       }
 
       dynamic "expiration" {
         for_each = try(rule.value.expiration, [])
         content {
-          date                         = expiration.value.date
-          days                         = expiration.value.days
-          expired_object_delete_marker = expiration.value.expired_object_delete_marker
+          date                         = try(expiration.value.date, null)
+          days                         = try(expiration.value.days, null)
+          expired_object_delete_marker = try(expiration.value.expired_object_delete_marker, null)
         }
       }
 
       dynamic "filter" {
         for_each = try(rule.value.filter, [])
         content {
-          object_size_greater_than = filter.value.object_size_greater_than
-          object_size_less_than    = filter.value.object_size_less_than
-          prefix                   = filter.value.prefix
+          object_size_greater_than = try(filter.value.object_size_greater_than, null)
+          object_size_less_than    = try(filter.value.object_size_less_than, null)
+          prefix                   = try(filter.value.prefix, null)
           dynamic "tag" {
             for_each = rule.value.filter.tag
             content {
@@ -86,26 +86,26 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       dynamic "noncurrent_version_expiration" {
         for_each = try(rule.value.noncurrent_version_expiration, [])
         content {
-          newer_noncurrent_versions = noncurrent_version_expiration.value.newer_noncurrent_versions
-          noncurrent_days           = noncurrent_version_expiration.value.noncurrent_days
+          newer_noncurrent_versions = try(noncurrent_version_expiration.value.newer_noncurrent_versions, null)
+          noncurrent_days           = try(noncurrent_version_expiration.value.noncurrent_days, null)
         }
       }
 
       dynamic "noncurrent_version_transition" {
         for_each = try(rule.value.noncurrent_version_transition, [])
         content {
-          newer_noncurrent_versions = noncurrent_version_transition.value.newer_noncurrent_versions
-          noncurrent_days           = noncurrent_version_transition.value.noncurrent_days
-          storage_class             = noncurrent_version_transition.value.storage_class
+          newer_noncurrent_versions = try(noncurrent_version_transition.value.newer_noncurrent_versions, null)
+          noncurrent_days           = try(noncurrent_version_transition.value.noncurrent_days, null)
+          storage_class             = try(noncurrent_version_transition.value.storage_class, null)
         }
       }
 
       dynamic "transition" {
         for_each = try(rule.value.transition, [])
         content {
-          date          = transition.value.date
-          days          = transition.value.days
-          storage_class = transition.value.storage_class
+          date          = try(transition.value.date, null)
+          days          = try(transition.value.days, null)
+          storage_class = try(transition.value.storage_class, null)
         }
       }
     }
