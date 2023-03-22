@@ -56,12 +56,9 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
     }
   }
 
-  dynamic "tiering" {
-    for_each = try(configuration.value.tiering, [])
-    content {
-      days        = try(tiering.value.days, null)
-      access_tier = try(tiering.value.access_tier, null)
-    }
+  tiering {
+    access_tier = var.intelligent_tiering_access_tier
+    days        = var.intelligent_tiering_days
   }
 }
 
