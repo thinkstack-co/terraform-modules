@@ -174,14 +174,17 @@ module "logging_bucket" {
         days_after_initiation = 7
       }
       noncurrent_version_expiration = {
-        noncurrent_days = 90
+        newer_noncurrent_versions = 1
+        noncurrent_days           = 90
       }
       noncurrent_version_transition = [
         {
+          newer_noncurrent_versions    = 1
           noncurrent_days              = 30
           storage_class                = "STANDARD_IA"
         },
         {
+          newer_noncurrent_versions    = 1
           noncurrent_days              = 60
           storage_class                = "GLACIER"
         },
