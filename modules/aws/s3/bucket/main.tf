@@ -42,6 +42,29 @@ resource "aws_s3_bucket" "this" {
   tags                = var.tags
 }
 
+resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
+  count  = var.intelligent_tiering_configurations == null ? 0 : 1
+  bucket = aws_s3_bucket.this.id
+  name   = var.intelligent_tiering_name
+  status = var.intelligent_tiering_status
+
+  dynamic "filter" {
+    for_each = try(flatten([var.intelligent_tiering_filter]), [])
+    content {
+      prefix = try(filter.value.prefix, null)
+      tags   = try(filter.value.tags, null)
+    }
+  }
+
+  dynamic "tiering" {
+    for_each = try(configuration.value.tiering, [])
+    content {
+      days        = try(tiering.value.days, null)
+      access_tier = try(tiering.value.access_tier, null)
+    }
+  }
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "this" {
   count                 = var.lifecycle_rules == null ? 0 : 1
   bucket                = aws_s3_bucket.this.id
