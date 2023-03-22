@@ -103,7 +103,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       }
 
       dynamic "transition" {
-        for_each = try(flatten([rule.value.transition]), [])
+        for_each = try([rule.value.transition], [])
         content {
           date          = try(transition.value.date, null)
           days          = try(transition.value.days, null)
