@@ -77,41 +77,31 @@ module "bucket" {
 ```
 
 ### Lifecycle Rules Example
-This example creates a bucket with multiple lifecycle rules configured to transition objects to Standard-IA after 7 days, Glacier after 30 days, and expire objects after 90 days.
+This example creates a bucket with multiple lifecycle rules configured to transition objects to Standard-IA after 30 days, Glacier after 60 days, and expire objects after 90 days.
 ```
 module "logging_bucket" {
-  source          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket?ref=dev_s3_lifecycle"
+  source          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
   bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
-      id         = "Transition all objects to Standard-IA after 7 days"
+      id         = "Transition all objects to STANDARD_IA/Glacier after 30/60 days"
       status     = "Enabled"
-      transition = {
-        days          = 7
-        storage_class = "STANDARD_IA"
-      }
+      transition = [
+        {
+          days                         = 30
+          storage_class                = "STANDARD_IA"
+        },
+        {
+          days                         = 60
+          storage_class                = "GLACIER"
+        },
+      ]
     },
     {
-      id         = "Transition all objects to Glacier after 30 days"
-      status     = "Enabled"
-      transition = {
-        days          = 30
-        storage_class = "GLACIER"
-      }
-    },
-    {
-      id         = "Remove all objects after 90 days"
-      status     = "Enabled"
-      
+      id = "Delete all objects after 90 days"
+      status = "Enabled"
       expiration = {
-        days                         = 90
-        expired_object_delete_marker = true
-      }
-      noncurrent_version_expiration = {
-        noncurrent_days = 90
-      }
-      filter      = {
-        prefix = "*"
+        days = 90
       }
     }
   ]
@@ -122,6 +112,108 @@ module "logging_bucket" {
   }
 }
 ```
+
+### Alternative Lifecycle Rules Example
+This example uses multiple rules, each with a single transition or expire configuration for more granular control.
+```
+module "logging_bucket" {
+  source          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix   = "octo-prod-bucket-"
+  lifecycle_rules = [
+    {
+      id         = "Transition log prefix objects to Standard-IA after 30 days"
+      status     = "Enabled"
+      filter = {
+        prefix = "log/"
+      }
+      transition = {
+        days          = 30
+        storage_class = "STANDARD_IA"
+      }
+    },
+    {
+      id         = "Transition all objects to ONEZONE_IA after 60 days"
+      status     = "Enabled"
+      transition = {
+        days          = 60
+        storage_class = "ONEZONE_IA"
+      }
+    },
+    {
+      id         = "Transition all objects to Glacier after 120 days"
+      status     = "Enabled"
+      transition = {
+        days                         = 120
+        storage_class                = "GLACIER"
+      }
+    },
+  ]
+  tags = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
+
+### Lifecycle Rules With All Available Options
+This example shows all of the available options. All transition configurations are lists and can have multiple transitions configured.
+```
+module "logging_bucket" {
+  source          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix   = "octo-prod-bucket-"
+  lifecycle_rules = [
+    {
+      id         = "Transition all objects to STANDARD_IA then Glacier after 30/60 days"
+      status     = "Enabled"
+      filter = {
+        prefix = "log/"
+      }
+
+      abort_incomplete_multipart_upload = {
+        days_after_initiation = 7
+      }
+      noncurrent_version_expiration = {
+        noncurrent_days = 90
+      }
+      noncurrent_version_transition = [
+        {
+          noncurrent_days              = 30
+          storage_class                = "STANDARD_IA"
+        },
+        {
+          noncurrent_days              = 60
+          storage_class                = "GLACIER"
+        },
+      ]
+      transition = [
+        {
+          days                         = 30
+          storage_class                = "STANDARD_IA"
+        },
+        {
+          days                         = 60
+          storage_class                = "GLACIER"
+        },
+      ]
+    },
+    {
+      id = "Delete all objects after 90 days"
+      status = "Enabled"
+      expiration = {
+        days = 90
+      }
+    }
+  ]
+  tags = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+
+```
+
 
 _For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
