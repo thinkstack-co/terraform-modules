@@ -294,7 +294,7 @@ variable "enable_intelligent_tiering" {
   description = "(Optional) Enable intelligent tiering for S3 bucket. If true, this will create an intelligent tiering configuration for the bucket. Defaults to false."
   default     = false
   validation {
-    condition = can(regex("true|false", var.enable_intelligent_tiering))
+    condition     = can(regex("true|false", var.enable_intelligent_tiering))
     error_message = "The value must be true or false."
   }
 }
