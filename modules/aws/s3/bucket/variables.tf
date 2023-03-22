@@ -99,7 +99,7 @@ variable "bucket_object_lock_enabled" {
 ######################
 
 variable "lifecycle_rules" {
-  type        = list(any)
+  type        = list(map(any))
   description = "(Optional) Configuration of object lifecycle management (LCM). Can have several rules."
   default     = null
 }
