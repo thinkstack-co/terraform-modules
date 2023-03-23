@@ -6,7 +6,7 @@ variable "ami" {
   type        = string
   description = "(Optional) AMI to use for the instance. Required unless launch_template is specified and the Launch Template specifes an AMI. If an AMI is specified in the Launch Template, setting ami will override the AMI specified in the Launch Template."
   validation {
-    condition     = can(regex("^ami-[0-9a-f]{17}$", var.ami))
+    condition     = can(regex("^ami-[0-9a-f]{8-17}$", var.ami))
     error_message = "The value must be a valid AMI ID."
   }
 }
