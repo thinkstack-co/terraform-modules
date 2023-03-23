@@ -29,7 +29,7 @@ variable "iops" {
   default     = null
   validation {
     # iops must be greater than 0 or null
-    condition     = try(var.iops == null || var.iops > 0)
+    condition     = var.iops == null || try(var.iops > 0)
     error_message = "iops must be greater than 0 or null"
   }
 }
