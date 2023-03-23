@@ -49,7 +49,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
   status = var.intelligent_tiering_status
 
   dynamic "filter" {
-    for_each = try(flatten([var.intelligent_tiering_filter]), [])
+    for_each = var.intelligent_tiering_filter == null ? [] : [var.intelligent_tiering_filter]
     content {
       prefix = try(filter.value.prefix, null)
       tags   = try(filter.value.tags, null)
