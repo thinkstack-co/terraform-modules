@@ -92,17 +92,29 @@ variable "monitoring" {
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = true
   type        = bool
+  validation {
+    condition     = can(regex("^(true|false)$", var.monitoring))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "source_dest_check" {
   description = "Boolean for source and destination checking on the nics"
   default     = false
   type        = bool
+  validation {
+    condition     = can(regex("^(true|false)$", var.source_dest_check))
+    error_message = "The value must be either true or false."
+  }
 }
 
 variable "ami_id" {
   description = "The AMI to use"
   type        = string
+  validation {
+    condition     = can(regex("^ami-", var.ami))
+    error_message = "The value must be a valid AMI ID."
+  }
 }
 
 variable "instance_type" {
@@ -187,6 +199,10 @@ variable "root_volume_size" {
   type        = number
   description = "root volume disk size"
   default     = 20
+  validation {
+    condition     = can(regex("^[0-9]+$", var.root_volume_size))
+    error_message = "The value must be a number."
+  }
 }
 
 variable "ebs_device_name" {
@@ -205,10 +221,18 @@ variable "ebs_volume_size" {
   type        = number
   description = "ebs volume disk size"
   default     = 30
+  validation {
+    condition     = can(regex("^[0-9]+$", var.ebs_volume_size))
+    error_message = "The value must be a number."
+  }
 }
 
 variable "ebs_volume_encrypted" {
   description = "Boolean whether or not the ebs volume is encrypted"
   default     = true
   type        = bool
+  validation {
+    condition     = can(regex("^(true|false)$", var.ebs_volume_encrypted))
+    error_message = "The value must be either true or false."
+  }
 }
