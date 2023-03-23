@@ -164,8 +164,8 @@ module "logging_bucket" {
   bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
-      id         = "Transition all objects to STANDARD_IA then Glacier after 30/60 days"
-      status     = "Enabled"
+      id     = "Transition all objects to STANDARD_IA then Glacier after 30/60 days"
+      status = "Enabled"
       filter = {
         prefix = "log/"
       }
@@ -179,30 +179,30 @@ module "logging_bucket" {
       }
       noncurrent_version_transition = [
         {
-          newer_noncurrent_versions    = 1
-          noncurrent_days              = 30
-          storage_class                = "STANDARD_IA"
+          newer_noncurrent_versions = 1
+          noncurrent_days           = 30
+          storage_class             = "STANDARD_IA"
         },
         {
-          newer_noncurrent_versions    = 1
-          noncurrent_days              = 60
-          storage_class                = "GLACIER"
+          newer_noncurrent_versions = 1
+          noncurrent_days           = 60
+          storage_class             = "GLACIER"
         },
       ]
       transition = [
         {
-          days                         = 30
-          storage_class                = "STANDARD_IA"
+          days          = 30
+          storage_class = "STANDARD_IA"
         },
         {
-          days                         = 60
-          storage_class                = "GLACIER"
+          days          = 60
+          storage_class = "GLACIER"
         },
       ]
     },
     {
-      id = "Delete all objects after 90 days"
-      status = "Enabled"
+      id         = "Delete all objects after 90 days"
+      status     = "Enabled"
       expiration = {
         days = 90
       }
