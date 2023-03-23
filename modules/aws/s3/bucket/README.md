@@ -88,18 +88,18 @@ module "logging_bucket" {
       status     = "Enabled"
       transition = [
         {
-          days                         = 30
-          storage_class                = "STANDARD_IA"
+          days          = 30
+          storage_class = "STANDARD_IA"
         },
         {
-          days                         = 60
-          storage_class                = "GLACIER"
+          days          = 60
+          storage_class = "GLACIER"
         },
       ]
     },
     {
-      id = "Delete all objects after 90 days"
-      status = "Enabled"
+      id         = "Delete all objects after 90 days"
+      status     = "Enabled"
       expiration = {
         days = 90
       }
@@ -214,7 +214,46 @@ module "logging_bucket" {
     terraform   = "true"
   }
 }
+```
 
+### Intelligent Tiering Example
+This example makes use of a simple S3 bucket with intelligent tiering enabled. The intelligent tiering configuration will eventually end up with objects in the ARCHIVE_ACCESS glacier tier after 365 days. All objects in the bucket will utilize this intelligent tiering configuration.
+```
+module "app_bucket" {
+  source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix                   = "octo-prod-app-"
+  enable_intelligent_tiering      = true
+  intelligent_tiering_access_tier = "ARCHIVE_ACCESS"
+  intelligent_tiering_days        = 365
+  tags = {
+    created_by  = "Zachary Hill"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
+
+### Intelligent Tiering Filter Example
+This example makes use of a simple S3 bucket with intelligent tiering enabled. The intelligent tiering configuration will eventually end up with objects in the DEEP_ARCHIVE_ACCESS glacier tier after 120 days. Objects with the prefix 'test/' and tagged with 'project' = 'app' will utilize this intelligent tiering configuration.
+```
+module "app_bucket" {
+  source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix                   = "octo-prod-app-"
+  enable_intelligent_tiering      = true
+  intelligent_tiering_access_tier = "DEEP_ARCHIVE_ACCESS"
+  intelligent_tiering_days        = 120
+  intelligent_tiering_filter      = {
+    prefix = "test/"
+    tags   = {
+      "project" = "app"
+    }
+  }
+  tags = {
+    created_by  = "Zachary Hill"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
 ```
 
 
