@@ -121,8 +121,8 @@ module "logging_bucket" {
   bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
-      id         = "Transition log prefix objects to Standard-IA after 30 days"
-      status     = "Enabled"
+      id     = "Transition log prefix objects to Standard-IA after 30 days"
+      status = "Enabled"
       filter = {
         prefix = "log/"
       }
@@ -143,8 +143,8 @@ module "logging_bucket" {
       id         = "Transition all objects to Glacier after 120 days"
       status     = "Enabled"
       transition = {
-        days                         = 120
-        storage_class                = "GLACIER"
+        days          = 120
+        storage_class = "GLACIER"
       }
     },
   ]
