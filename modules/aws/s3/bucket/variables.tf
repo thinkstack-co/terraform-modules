@@ -139,7 +139,7 @@ variable "intelligent_tiering_days" {
   description = "(Optional) Number of consecutive days of no access after which an object will be eligible to be transitioned to the corresponding tier. For ARCHIVE_ACCESS the date range must be between 90 to 730 days. For DEEP_ARCHIVE_ACCESS the date range must be between 180 to 730 days. Default is 90 days."
   default     = 90
   validation {
-    condition = can(regex("^(9[0-9]|[1-6][0-9]{2}|7[0-2][0-9]|730)$", var.intelligent_tiering_days))
+    condition     = can(regex("^(9[0-9]|[1-6][0-9]{2}|7[0-2][0-9]|730)$", var.intelligent_tiering_days))
     error_message = "The value must be between 90 and 730 days."
   }
 }
