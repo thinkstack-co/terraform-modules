@@ -140,6 +140,7 @@ variable "intelligent_tiering_days" {
   default     = 90
   validation {
     condition = can(regex("^(9[0-9]|[1-6][0-9]{2}|7[0-2][0-9]|730)$", var.intelligent_tiering_days))
+    error_message = "The value must be between 90 and 730 days."
   }
 }
 
