@@ -241,7 +241,7 @@ module "app_bucket" {
   bucket_prefix                   = "octo-prod-app-"
   enable_intelligent_tiering      = true
   intelligent_tiering_access_tier = "DEEP_ARCHIVE_ACCESS"
-  intelligent_tiering_days        = 120
+  intelligent_tiering_days        = 180
   intelligent_tiering_filter      = {
     prefix = "test/"
     tags   = {
