@@ -226,7 +226,7 @@ module "app_bucket" {
   intelligent_tiering_access_tier = "ARCHIVE_ACCESS"
   intelligent_tiering_days        = 365
   tags = {
-    created_by  = "Zachary Hill"
+    created_by  = "<YOUR_NAME>"
     environment = "prod"
     terraform   = "true"
   }
@@ -249,7 +249,22 @@ module "app_bucket" {
     }
   }
   tags = {
-    created_by  = "Zachary Hill"
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
+
+### Using ACLs
+This example makes use of the canned ACLs for the S3 bucket logging service. ACLs should typically not be used, instead bucket policies allow for better control. The S3 log delivery ACL is one such time where you can use ACLs. Another time is when the owner of the bucket and the objects differ.
+```
+module "logging_bucket" {
+  source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  acl                             = ""log-delivery-write""
+  bucket_prefix                   = "octo-prod-s3-logging-bucket-"
+  tags = {
+    created_by  = "<YOUR_NAME>"
     environment = "prod"
     terraform   = "true"
   }
