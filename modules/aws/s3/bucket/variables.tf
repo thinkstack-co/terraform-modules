@@ -69,9 +69,24 @@ variable "key_name_prefix" {
 ######################
 # S3 Bucket Variables
 ######################
+variable "bucket" {
+  type        = string
+  description = "(Optional, bucket or bucket_prefix must exist) Name of the bucket. If omitted, Terraform will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. Conflicts with bucket_prefix."
+  default     = null
+  validation {
+    condition     = var.bucket == null ? true : can(regex("^[a-z0-9][a-z0-9.\\-]{1,61}[a-z0-9]$", var.bucket))
+    error_message = "The value must be lowercase and less than or equal to 63 characters in length or null."
+  }
+}
+
 variable "bucket_prefix" {
   type        = string
-  description = "(Required, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
+  description = "(Optional, bucket_name or bucket_prefix must exist) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. Must be lowercase and less than or equal to 37 characters in length."
+  default     = null
+  validation {
+    condition     = var.bucket_prefix == null ? true : can(regex("^[a-z0-9][a-z0-9\\-]{1,35}[a-z0-9]$", var.bucket_prefix))
+    error_message = "The value must be lowercase and less than or equal to 37 characters in length or null."
+  }
 }
 
 variable "bucket_force_destroy" {
