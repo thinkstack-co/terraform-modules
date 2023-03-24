@@ -84,7 +84,7 @@ variable "bucket_prefix" {
   description = "(Optional, bucket_name or bucket_prefix must exist) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. Must be lowercase and less than or equal to 37 characters in length."
   default     = null
   validation {
-    condition     = var.bucket_prefix == null ? true : can(regex("^[a-z0-9][a-z0-9\\-]{1,35}[a-z0-9]$", var.bucket_prefix))
+    condition     = var.bucket_prefix == null ? true : can(regex("^[a-z0-9][a-z0-9.\\-]{1,36}$", var.bucket_prefix))
     error_message = "The value must be lowercase and less than or equal to 37 characters in length or null."
   }
 }
