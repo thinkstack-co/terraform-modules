@@ -42,6 +42,12 @@ resource "aws_s3_bucket" "this" {
   tags                = var.tags
 }
 
+resource "aws_s3_bucket_acl" "this" {
+  count  = var.acl != null ? 1 : 0
+  bucket = aws_s3_bucket.this.id
+  acl    = var.acl
+}
+
 resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
   count  = var.enable_intelligent_tiering ? 1 : 0
   bucket = aws_s3_bucket.this.id

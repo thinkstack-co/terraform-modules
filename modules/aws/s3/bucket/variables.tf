@@ -95,6 +95,20 @@ variable "bucket_object_lock_enabled" {
 }
 
 ######################
+# S3 ACL Variables
+######################
+
+variable "acl" {
+  type        = string
+  description = "(Optional) The canned ACL to apply. Defaults to private. Valid values are private, public-read, public-read-write, aws-exec-read, authenticated-read, log-delivery-write, bucket-owner-read, bucket-owner-full-control, and authenticated-read."
+  default     = null
+  validation {
+    condition     = var.acl == null ? true : can(regex("^(private|public-read|public-read-write|aws-exec-read|authenticated-read|log-delivery-write|bucket-owner-read|bucket-owner-full-control|authenticated-read)$", var.acl))
+    error_message = "The value must be one of private, public-read, public-read-write, aws-exec-read, authenticated-read, log-delivery-write, bucket-owner-read, bucket-owner-full-control, or authenticated-read."
+  }
+}
+
+######################
 # S3 Intelligent Tiering Variables
 ######################
 
