@@ -291,22 +291,6 @@ variable "mfa_delete" {
 }
 
 ######################
-# S3 Website Variables
-######################
-
-variable "index_document" {
-  description = "(Optional) Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders."
-  type        = string
-  default     = "index.html"
-}
-
-variable "error_document" {
-  description = "(Optional) An absolute path to the document to return in case of a 4XX error."
-  type        = string
-  default     = "error.html"
-}
-
-######################
 # Global Variables
 ######################
 
@@ -336,16 +320,6 @@ variable "enable_s3_bucket_logging" {
   default     = false
   validation {
     condition     = can(regex("true|false", var.enable_s3_bucket_logging))
-    error_message = "The value must be true or false."
-  }
-}
-
-variable "enable_website" {
-  type        = bool
-  description = "(Optional) Enable website hosting on the S3 bucket. If true, the 'index_document' and 'error_document' are required. Defaults to false."
-  default     = false
-  validation {
-    condition     = can(regex("true|false", var.enable_website))
     error_message = "The value must be true or false."
   }
 }

@@ -271,7 +271,6 @@ module "logging_bucket" {
 }
 ```
 
-
 _For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
