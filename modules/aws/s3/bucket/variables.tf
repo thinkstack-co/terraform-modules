@@ -329,6 +329,16 @@ variable "enable_intelligent_tiering" {
   }
 }
 
+variable "enable_public_access_block" {
+  type        = bool
+  description = "(Optional) Enable public access block for S3 bucket. If true, this will create a public access block for the bucket. Defaults to true."
+  default     = true
+  validation {
+    condition     = can(regex("true|false", var.enable_public_access_block))
+    error_message = "The value must be true or false."
+  }
+}
+
 variable "enable_s3_bucket_logging" {
   type        = bool
   description = "(Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target_bucket' is required. Defaults to false."
