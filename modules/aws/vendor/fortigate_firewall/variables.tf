@@ -112,7 +112,7 @@ variable "ami_id" {
   description = "The AMI to use"
   type        = string
   validation {
-    condition     = can(regex("^ami-", var.ami))
+    condition     = can(regex("^ami-", var.ami_id))
     error_message = "The value must be a valid AMI ID."
   }
 }
