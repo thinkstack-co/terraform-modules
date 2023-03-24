@@ -88,18 +88,18 @@ module "logging_bucket" {
       status     = "Enabled"
       transition = [
         {
-          days                         = 30
-          storage_class                = "STANDARD_IA"
+          days          = 30
+          storage_class = "STANDARD_IA"
         },
         {
-          days                         = 60
-          storage_class                = "GLACIER"
+          days          = 60
+          storage_class = "GLACIER"
         },
       ]
     },
     {
-      id = "Delete all objects after 90 days"
-      status = "Enabled"
+      id         = "Delete all objects after 90 days"
+      status     = "Enabled"
       expiration = {
         days = 90
       }
@@ -121,8 +121,8 @@ module "logging_bucket" {
   bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
-      id         = "Transition log prefix objects to Standard-IA after 30 days"
-      status     = "Enabled"
+      id     = "Transition log prefix objects to Standard-IA after 30 days"
+      status = "Enabled"
       filter = {
         prefix = "log/"
       }
@@ -143,8 +143,8 @@ module "logging_bucket" {
       id         = "Transition all objects to Glacier after 120 days"
       status     = "Enabled"
       transition = {
-        days                         = 120
-        storage_class                = "GLACIER"
+        days          = 120
+        storage_class = "GLACIER"
       }
     },
   ]
@@ -164,8 +164,8 @@ module "logging_bucket" {
   bucket_prefix   = "octo-prod-bucket-"
   lifecycle_rules = [
     {
-      id         = "Transition all objects to STANDARD_IA then Glacier after 30/60 days"
-      status     = "Enabled"
+      id     = "Transition all objects to STANDARD_IA then Glacier after 30/60 days"
+      status = "Enabled"
       filter = {
         prefix = "log/"
       }
@@ -179,30 +179,30 @@ module "logging_bucket" {
       }
       noncurrent_version_transition = [
         {
-          newer_noncurrent_versions    = 1
-          noncurrent_days              = 30
-          storage_class                = "STANDARD_IA"
+          newer_noncurrent_versions = 1
+          noncurrent_days           = 30
+          storage_class             = "STANDARD_IA"
         },
         {
-          newer_noncurrent_versions    = 1
-          noncurrent_days              = 60
-          storage_class                = "GLACIER"
+          newer_noncurrent_versions = 1
+          noncurrent_days           = 60
+          storage_class             = "GLACIER"
         },
       ]
       transition = [
         {
-          days                         = 30
-          storage_class                = "STANDARD_IA"
+          days          = 30
+          storage_class = "STANDARD_IA"
         },
         {
-          days                         = 60
-          storage_class                = "GLACIER"
+          days          = 60
+          storage_class = "GLACIER"
         },
       ]
     },
     {
-      id = "Delete all objects after 90 days"
-      status = "Enabled"
+      id         = "Delete all objects after 90 days"
+      status     = "Enabled"
       expiration = {
         days = 90
       }
@@ -214,9 +214,62 @@ module "logging_bucket" {
     terraform   = "true"
   }
 }
-
 ```
 
+### Intelligent Tiering Example
+This example makes use of a simple S3 bucket with intelligent tiering enabled. The intelligent tiering configuration will eventually end up with objects in the ARCHIVE_ACCESS glacier tier after 365 days. All objects in the bucket will utilize this intelligent tiering configuration.
+```
+module "app_bucket" {
+  source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix                   = "octo-prod-app-"
+  enable_intelligent_tiering      = true
+  intelligent_tiering_access_tier = "ARCHIVE_ACCESS"
+  intelligent_tiering_days        = 365
+  tags = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
+
+### Intelligent Tiering Filter Example
+This example makes use of a simple S3 bucket with intelligent tiering enabled. The intelligent tiering configuration will eventually end up with objects in the DEEP_ARCHIVE_ACCESS glacier tier after 120 days. Objects with the prefix 'test/' and tagged with 'project' = 'app' will utilize this intelligent tiering configuration.
+```
+module "app_bucket" {
+  source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  bucket_prefix                   = "octo-prod-app-"
+  enable_intelligent_tiering      = true
+  intelligent_tiering_access_tier = "DEEP_ARCHIVE_ACCESS"
+  intelligent_tiering_days        = 180
+  intelligent_tiering_filter      = {
+    prefix = "test/"
+    tags   = {
+      "project" = "app"
+    }
+  }
+  tags = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
+
+### Using ACLs
+This example makes use of the canned ACLs for the S3 bucket logging service. ACLs should typically not be used, instead bucket policies allow for better control. The S3 log delivery ACL is one such time where you can use ACLs. Another time is when the owner of the bucket and the objects differ.
+```
+module "logging_bucket" {
+  source        = "github.com/thinkstack-co/terraform-modules//modules/aws/s3/bucket"
+  acl           = ""log-delivery-write""
+  bucket_prefix = "octo-prod-s3-logging-bucket-"
+  tags          = {
+    created_by  = "<YOUR_NAME>"
+    environment = "prod"
+    terraform   = "true"
+  }
+}
+```
 
 _For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
@@ -249,6 +302,8 @@ No modules.
 | [aws_kms_alias.s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
+| [aws_s3_bucket_intelligent_tiering_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_intelligent_tiering_configuration) | resource |
 | [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
 | [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
@@ -260,6 +315,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_acl"></a> [acl](#input\_acl) | (Optional) The canned ACL to apply. Defaults to private. Valid values are private, public-read, public-read-write, aws-exec-read, authenticated-read, log-delivery-write, bucket-owner-read, bucket-owner-full-control, and authenticated-read. | `string` | `null` | no |
 | <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | (Optional) Whether Amazon S3 should block public ACLs for this bucket. Defaults to false. Enabling this setting does not affect existing policies or ACLs. | `bool` | `true` | no |
 | <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | (Optional) Whether Amazon S3 should block public bucket policies for this bucket. Defaults to false. Enabling this setting does not affect the existing bucket policy. | `bool` | `true` | no |
 | <a name="input_bucket_force_destroy"></a> [bucket\_force\_destroy](#input\_bucket\_force\_destroy) | (Optional, Default:false) Boolean that indicates all objects (including any locked objects) should be deleted from the bucket when the bucket is destroyed so that the bucket can be destroyed without error. These objects are not recoverable. This only deletes objects when the bucket is destroyed, not when setting this parameter to true. Once this parameter is set to true, there must be a successful terraform apply run before a destroy is required to update this value in the resource state. Without a successful terraform apply after this parameter is set, this flag will have no effect. If setting this field in the same operation that would require replacing the bucket or destroying the bucket, this flag will not work. Additionally when importing a bucket, a successful terraform apply is required to set this value in state before it will take effect on a destroy operation. | `bool` | `false` | no |
@@ -267,10 +323,16 @@ No modules.
 | <a name="input_bucket_object_lock_enabled"></a> [bucket\_object\_lock\_enabled](#input\_bucket\_object\_lock\_enabled) | (Optional, Forces new resource) Indicates whether this bucket has an Object Lock configuration enabled. Valid values are true or false. This argument is not supported in all regions or partitions. | `bool` | `false` | no |
 | <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | (Optional) Text of the policy. Although this is a bucket policy rather than an IAM policy, the aws\_iam\_policy\_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size. | `string` | `null` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | (Required, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket. | `string` | n/a | yes |
+| <a name="input_enable_intelligent_tiering"></a> [enable\_intelligent\_tiering](#input\_enable\_intelligent\_tiering) | (Optional) Enable intelligent tiering for S3 bucket. If true, this will create an intelligent tiering configuration for the bucket. Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_kms_key"></a> [enable\_kms\_key](#input\_enable\_kms\_key) | (Optional) Enable KMS key for S3 bucket. If true, this will create a kms key and alias for use with the bucket encryption. Defaults to false. | `bool` | `false` | no |
 | <a name="input_enable_s3_bucket_logging"></a> [enable\_s3\_bucket\_logging](#input\_enable\_s3\_bucket\_logging) | (Optional) Enable logging on the cloudtrail S3 bucket. If true, the 'target\_bucket' is required. Defaults to false. | `bool` | `false` | no |
 | <a name="input_expected_bucket_owner"></a> [expected\_bucket\_owner](#input\_expected\_bucket\_owner) | (Optional) Account ID of the expected bucket owner. If the bucket is owned by a different account, the request will fail with an HTTP 403 (Access Denied) error. | `string` | `null` | no |
 | <a name="input_ignore_public_acls"></a> [ignore\_public\_acls](#input\_ignore\_public\_acls) | (Optional) Whether Amazon S3 should ignore public ACLs for this bucket. Defaults to false. Enabling this setting does not affect the persistence of any existing ACLs and doesn't prevent new public ACLs from being set. | `bool` | `true` | no |
+| <a name="input_intelligent_tiering_access_tier"></a> [intelligent\_tiering\_access\_tier](#input\_intelligent\_tiering\_access\_tier) | (Optional) Specifies the access tier to use for objects that meet the filter criteria. Valid values: ARCHIVE\_ACCESS, DEEP\_ARCHIVE\_ACCESS. Default is ARCHIVE\_ACCESS. | `string` | `"ARCHIVE_ACCESS"` | no |
+| <a name="input_intelligent_tiering_days"></a> [intelligent\_tiering\_days](#input\_intelligent\_tiering\_days) | (Optional) Number of consecutive days of no access after which an object will be eligible to be transitioned to the corresponding tier. For ARCHIVE\_ACCESS the date range must be between 90 to 730 days. For DEEP\_ARCHIVE\_ACCESS the date range must be between 180 to 730 days. Default is 90 days. | `number` | `90` | no |
+| <a name="input_intelligent_tiering_filter"></a> [intelligent\_tiering\_filter](#input\_intelligent\_tiering\_filter) | (Optional) Specifies the S3 Intelligent-Tiering filter that identifies the subset of objects to which the configuration applies. Can have several filters as a list of maps where each map is the filter configuration. Type should be list(map(string)). | `any` | `null` | no |
+| <a name="input_intelligent_tiering_name"></a> [intelligent\_tiering\_name](#input\_intelligent\_tiering\_name) | (Optional) Unique name used to identify the S3 Intelligent-Tiering configuration for the bucket. The name can be up to 64 characters and contain only letters, numbers, underscores, periods, or dashes. | `string` | `"bucket_tiering"` | no |
+| <a name="input_intelligent_tiering_status"></a> [intelligent\_tiering\_status](#input\_intelligent\_tiering\_status) | (Optional) Specifies the status of the configuration. Valid values: Enabled, Disabled. Defaults to Enabled. | `string` | `"Enabled"` | no |
 | <a name="input_key_customer_master_key_spec"></a> [key\_customer\_master\_key\_spec](#input\_key\_customer\_master\_key\_spec) | (Optional) Specifies whether the key contains a symmetric key or an asymmetric key pair and the encryption algorithms or signing algorithms that the key supports. Valid values: SYMMETRIC\_DEFAULT, RSA\_2048, RSA\_3072, RSA\_4096, ECC\_NIST\_P256, ECC\_NIST\_P384, ECC\_NIST\_P521, or ECC\_SECG\_P256K1. Defaults to SYMMETRIC\_DEFAULT. For help with choosing a key spec, see the AWS KMS Developer Guide. | `string` | `"SYMMETRIC_DEFAULT"` | no |
 | <a name="input_key_deletion_window_in_days"></a> [key\_deletion\_window\_in\_days](#input\_key\_deletion\_window\_in\_days) | (Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days. | `number` | `30` | no |
 | <a name="input_key_description"></a> [key\_description](#input\_key\_description) | (Optional) The description of the key as viewed in AWS console. | `string` | `"S3 kms key used to encrypt bucket objects logs"` | no |

@@ -95,6 +95,70 @@ variable "bucket_object_lock_enabled" {
 }
 
 ######################
+# S3 ACL Variables
+######################
+
+variable "acl" {
+  type        = string
+  description = "(Optional) The canned ACL to apply. Defaults to private. Valid values are private, public-read, public-read-write, aws-exec-read, authenticated-read, log-delivery-write, bucket-owner-read, bucket-owner-full-control, and authenticated-read."
+  default     = null
+  validation {
+    condition     = var.acl == null ? true : can(regex("^(private|public-read|public-read-write|aws-exec-read|authenticated-read|log-delivery-write|bucket-owner-read|bucket-owner-full-control|authenticated-read)$", var.acl))
+    error_message = "The value must be one of private, public-read, public-read-write, aws-exec-read, authenticated-read, log-delivery-write, bucket-owner-read, bucket-owner-full-control, or authenticated-read."
+  }
+}
+
+######################
+# S3 Intelligent Tiering Variables
+######################
+
+variable "intelligent_tiering_name" {
+  type        = string
+  description = "(Optional) Unique name used to identify the S3 Intelligent-Tiering configuration for the bucket. The name can be up to 64 characters and contain only letters, numbers, underscores, periods, or dashes."
+  default     = "bucket_tiering"
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_-]{1,64}$", var.intelligent_tiering_name))
+    error_message = "The value must be a valid name."
+  }
+}
+
+variable "intelligent_tiering_status" {
+  type        = string
+  description = "(Optional) Specifies the status of the configuration. Valid values: Enabled, Disabled. Defaults to Enabled."
+  default     = "Enabled"
+  validation {
+    condition     = can(regex("^(Enabled|Disabled)$", var.intelligent_tiering_status))
+    error_message = "The value must be one of Enabled or Disabled."
+  }
+}
+
+variable "intelligent_tiering_filter" {
+  type        = any
+  description = "(Optional) Specifies the S3 Intelligent-Tiering filter that identifies the subset of objects to which the configuration applies. Can have several filters as a list of maps where each map is the filter configuration. Type should be list(map(string))."
+  default     = null
+}
+
+variable "intelligent_tiering_access_tier" {
+  type        = string
+  description = "(Optional) Specifies the access tier to use for objects that meet the filter criteria. Valid values: ARCHIVE_ACCESS, DEEP_ARCHIVE_ACCESS. Default is ARCHIVE_ACCESS."
+  default     = "ARCHIVE_ACCESS"
+  validation {
+    condition     = can(regex("^(ARCHIVE_ACCESS|DEEP_ARCHIVE_ACCESS)$", var.intelligent_tiering_access_tier))
+    error_message = "The value must be one of ARCHIVE_ACCESS or DEEP_ARCHIVE_ACCESS."
+  }
+}
+
+variable "intelligent_tiering_days" {
+  type        = number
+  description = "(Optional) Number of consecutive days of no access after which an object will be eligible to be transitioned to the corresponding tier. For ARCHIVE_ACCESS the date range must be between 90 to 730 days. For DEEP_ARCHIVE_ACCESS the date range must be between 180 to 730 days. Default is 90 days."
+  default     = 90
+  validation {
+    condition     = can(regex("^(9[0-9]|[1-6][0-9]{2}|7[0-2][0-9]|730)$", var.intelligent_tiering_days))
+    error_message = "The value must be between 90 and 730 days."
+  }
+}
+
+######################
 # S3 Lifecycle Variables
 ######################
 
@@ -236,6 +300,16 @@ variable "enable_kms_key" {
   default     = false
   validation {
     condition     = can(regex("true|false", var.enable_kms_key))
+    error_message = "The value must be true or false."
+  }
+}
+
+variable "enable_intelligent_tiering" {
+  type        = bool
+  description = "(Optional) Enable intelligent tiering for S3 bucket. If true, this will create an intelligent tiering configuration for the bucket. Defaults to false."
+  default     = false
+  validation {
+    condition     = can(regex("true|false", var.enable_intelligent_tiering))
     error_message = "The value must be true or false."
   }
 }
