@@ -84,7 +84,9 @@ No requirements.
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_azuread"></a> [azuread](#provider\_azuread) | n/a |
 
 ## Modules
 
@@ -92,15 +94,23 @@ No modules.
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [azuread_named_location.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/named_location) | resource |
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_display_name"></a> [display\_name](#input\_display\_name) | (Required) The friendly name for this named location. | `string` | n/a | yes |
+| <a name="input_var.country"></a> [var.country](#input\_var.country) | (Optional) A list of countries and regions to include in the named location. | <pre>list(object({<br>    countries_and_regions                 = list(string)<br>    include_unknown_countries_and_regions = bool<br>  }))</pre> | n/a | yes |
+| <a name="input_var.ip"></a> [var.ip](#input\_var.ip) | (Optional) A list of IP ranges to include in the named location. | <pre>list(object({<br>    ip_ranges = list(string)<br>    trusted   = bool<br>  }))</pre> | n/a | yes |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_id"></a> [id](#output\_id) | The ID of the named location. |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->

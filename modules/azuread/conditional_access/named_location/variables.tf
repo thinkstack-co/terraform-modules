@@ -1,5 +1,5 @@
 variable "display_name" {
-  type = string
+  type        = string
   description = "(Required) The friendly name for this named location."
 }
 
