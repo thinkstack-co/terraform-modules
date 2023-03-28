@@ -62,12 +62,39 @@
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-### Simple Example
+### Country Example
+This example creates a named location called "Blocked Countries" which includes multiple countries. This object can be used in conditional access rules.
 ```
-module test {
-    source = 
+module "us" {
+  source        = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access/named_location"
+  display_name = "Blocked Countries"
+  country = [
+    {
+      countries_and_regions = [
+        "RU",
+        "CN",
+      ]
+      include_unknown_countries_and_regions = false
+    }
+  ]
+}
+```
 
-    variable = 
+### IP Example
+This example creates a named location called "HQ" which includes multiple IP addresses. This object can be used in condtional access rules.
+```
+module "hq" {
+  source        = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access/named_location"
+  display_name = "HQ"
+  ip = [
+    {
+      ip_ranges = [
+        "1.1.1.1/32",
+        "2.2.2.2/32",
+      ]
+      trusted = true
+    }
+  ]
 }
 ```
 
