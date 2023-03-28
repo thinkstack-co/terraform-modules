@@ -45,9 +45,7 @@ resource "tfe_workspace" "this" {
 ##############################
 
 resource "tfe_team_access" "this" {
-
-  for_each = var.permission_map
-
+  for_each     = var.permission_map
   team_id      = each.value.id
   workspace_id = tfe_workspace.this.id
   access       = each.value.access
