@@ -83,4 +83,6 @@ No modules.
 | <a name="output_s3_bucket_id"></a> [s3\_bucket\_id](#output\_s3\_bucket\_id) | n/a |
 | <a name="output_s3_bucket_region"></a> [s3\_bucket\_region](#output\_s3\_bucket\_region) | n/a |
 | <a name="output_s3_hosted_zone_id"></a> [s3\_hosted\_zone\_id](#output\_s3\_hosted\_zone\_id) | n/a |
+| <a name="output_website_domain"></a> [website\_domain](#output\_website\_domain) | n/a |
+| <a name="output_website_endpoint"></a> [website\_endpoint](#output\_website\_endpoint) | n/a |
 <!-- END_TF_DOCS -->

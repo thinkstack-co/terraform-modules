@@ -6,7 +6,7 @@ variable "ami" {
   type        = string
   description = "(Optional) AMI to use for the instance. Required unless launch_template is specified and the Launch Template specifes an AMI. If an AMI is specified in the Launch Template, setting ami will override the AMI specified in the Launch Template."
   validation {
-    condition     = can(regex("^ami-[0-9a-f]{17}$", var.ami))
+    condition     = can(regex("^ami-", var.ami))
     error_message = "The value must be a valid AMI ID."
   }
 }
@@ -78,7 +78,7 @@ variable "key_name" {
   description = "(Optional) Key name of the Key Pair to use for the instance; which can be managed using the aws_key_pair resource."
   default     = null
   validation {
-    condition     = can(regex("^([a-zA-Z0-9-_]+)$", var.key_name)) || var.key_name == null
+    condition     = var.key_name == null ? true : can(regex("^([a-zA-Z0-9-_]+)$", var.key_name))
     error_message = "The value must be a valid key name or null."
   }
 }
@@ -88,7 +88,7 @@ variable "kms_key_id" {
   description = "(Optional) Amazon Resource Name (ARN) of the KMS Key to use when encrypting the volume. Must be configured to perform drift detection."
   default     = null
   validation {
-    condition     = can(regex("^arn:aws:kms:[a-z]{2}-[a-z]{4,9}-[1-3]{1}:[0-9]{12}:key/[a-z0-9-]{36}$", var.kms_key_id)) || var.kms_key_id == null
+    condition     = var.kms_key_id == null ? true : can(regex("^arn:aws:kms:[a-z]{2}-[a-z]{4,9}-[1-3]{1}:[0-9]{12}:key/[a-z0-9-]{36}$", var.kms_key_id))
     error_message = "The value must be a valid KMS Key ID or null."
   }
 }
@@ -108,7 +108,7 @@ variable "placement_group" {
   description = "(Optional) Placement Group to start the instance in."
   default     = null
   validation {
-    condition     = can(regex("^([a-zA-Z0-9-_]+)$", var.placement_group)) || var.placement_group == null
+    condition     = var.placement_group == null ? true : can(regex("^([a-zA-Z0-9-_]+)$", var.placement_group))
     error_message = "The value must be a valid placement group or null."
   }
 }
@@ -152,6 +152,10 @@ variable "root_iops" {
   type        = number
   description = "(Optional) Amount of provisioned IOPS. Only valid for volume_type of io1, io2 or gp3."
   default     = null
+  validation {
+    condition     = var.root_iops == null ? true : can(regex("^[0-9]+$", var.root_iops))
+    error_message = "The value must be a valid number or null."
+  }
 }
 
 variable "root_volume_size" {
@@ -208,7 +212,7 @@ variable "user_data" {
   description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."
   default     = null
   validation {
-    condition     = can(regex("^([a-zA-Z0-9-_]+)$", var.user_data)) || var.user_data == null
+    condition     = var.user_data == null ? true : can(regex("^([a-zA-Z0-9-_]+)$", var.user_data))
     error_message = "The value must be a valid user data or null."
   }
 }
