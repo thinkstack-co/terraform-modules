@@ -63,7 +63,7 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 ### Country Example
-This example creates a named location called "Blocked Countries" which includes multiple countries. This object can be used in conditional access rules.
+This example creates a named location resource called "Blocked Countries" which includes multiple countries. This object can be used in conditional access rules.
 ```
 module "us" {
   source        = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access/named_location"
