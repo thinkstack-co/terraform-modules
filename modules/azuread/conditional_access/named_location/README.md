@@ -26,9 +26,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">module_name</h3>
+<h3 align="center">Azure AD Named Location</h3>
   <p align="center">
-    module_description
+    This module creates an Azure AD named location with the parameters specified in the configuration.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -62,12 +62,39 @@
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-### Simple Example
+### Country Example
+This example creates a named location resource called "Blocked Countries" which includes multiple countries. This object can be used in conditional access rules.
 ```
-module test {
-  source = 
+module "us" {
+  source        = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access/named_location"
+  display_name = "Blocked Countries"
+  country = [
+    {
+      countries_and_regions = [
+        "RU",
+        "CN",
+      ]
+      include_unknown_countries_and_regions = false
+    }
+  ]
+}
+```
 
-  variable = 
+### IP Example
+This example creates a named location called "HQ" which includes multiple IP addresses. This object can be used in condtional access rules.
+```
+module "hq" {
+  source        = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access/named_location"
+  display_name = "HQ"
+  ip = [
+    {
+      ip_ranges = [
+        "1.1.1.1/32",
+        "2.2.2.2/32",
+      ]
+      trusted = true
+    }
+  ]
 }
 ```
 
@@ -80,11 +107,16 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_azuread"></a> [azuread](#requirement\_azuread) | >= 2.36.0 |
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_azuread"></a> [azuread](#provider\_azuread) | >= 2.36.0 |
 
 ## Modules
 
@@ -92,15 +124,23 @@ No modules.
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [azuread_named_location.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/named_location) | resource |
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_country"></a> [country](#input\_country) | (Optional) A list of countries and regions to include in the named location. | <pre>list(object({<br>    countries_and_regions                 = list(string)<br>    include_unknown_countries_and_regions = bool<br>  }))</pre> | `null` | no |
+| <a name="input_display_name"></a> [display\_name](#input\_display\_name) | (Required) The friendly name for this named location. | `string` | n/a | yes |
+| <a name="input_ip"></a> [ip](#input\_ip) | (Optional) A list of IP ranges to include in the named location. | <pre>list(object({<br>    ip_ranges = list(string)<br>    trusted   = bool<br>  }))</pre> | `null` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_id"></a> [id](#output\_id) | The ID of the named location. |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
