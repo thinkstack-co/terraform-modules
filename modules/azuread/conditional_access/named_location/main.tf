@@ -1,3 +1,13 @@
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = ">= 2.36.0"
+    }
+  }
+}
+
 resource "azuread_named_location" "this" {
   display_name = var.display_name
 
