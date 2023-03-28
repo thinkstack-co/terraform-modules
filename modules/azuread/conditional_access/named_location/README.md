@@ -132,9 +132,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_country"></a> [country](#input\_country) | (Optional) A list of countries and regions to include in the named location. | <pre>list(object({<br>    countries_and_regions                 = list(string)<br>    include_unknown_countries_and_regions = bool<br>  }))</pre> | `null` | no |
 | <a name="input_display_name"></a> [display\_name](#input\_display\_name) | (Required) The friendly name for this named location. | `string` | n/a | yes |
-| <a name="input_var.country"></a> [var.country](#input\_var.country) | (Optional) A list of countries and regions to include in the named location. | <pre>list(object({<br>    countries_and_regions                 = list(string)<br>    include_unknown_countries_and_regions = bool<br>  }))</pre> | `null` | no |
-| <a name="input_var.ip"></a> [var.ip](#input\_var.ip) | (Optional) A list of IP ranges to include in the named location. | <pre>list(object({<br>    ip_ranges = list(string)<br>    trusted   = bool<br>  }))</pre> | `null` | no |
+| <a name="input_ip"></a> [ip](#input\_ip) | (Optional) A list of IP ranges to include in the named location. | <pre>list(object({<br>    ip_ranges = list(string)<br>    trusted   = bool<br>  }))</pre> | `null` | no |
 
 ## Outputs
 
