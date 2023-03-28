@@ -3,7 +3,7 @@ variable "display_name" {
   description = "(Required) The friendly name for this named location."
 }
 
-variable "var.country" {
+variable "country" {
   type = list(object({
     countries_and_regions                 = list(string)
     include_unknown_countries_and_regions = bool
@@ -12,7 +12,7 @@ variable "var.country" {
   default     = null
 }
 
-variable "var.ip" {
+variable "ip" {
   type = list(object({
     ip_ranges = list(string)
     trusted   = bool
