@@ -4,7 +4,7 @@ variable "display_name" {
 }
 
 variable "var.country" {
-  type        = list(object({
+  type = list(object({
     countries_and_regions                 = list(string)
     include_unknown_countries_and_regions = bool
   }))
@@ -13,7 +13,7 @@ variable "var.country" {
 }
 
 variable "var.ip" {
-  type        = list(object({
+  type = list(object({
     ip_ranges = list(string)
     trusted   = bool
   }))
