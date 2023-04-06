@@ -9,7 +9,7 @@ data "aws_iam_policy_document" "private-route-table-modifications" {
           "ec2:CreateRoute",
           "ec2:DeleteRoute"
       ]
-      resources = [var.route_table_arn]
+      resources = var.route_table_arn
   }
 }
 
