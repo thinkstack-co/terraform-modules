@@ -4,6 +4,6 @@ variable "environment_name" {
 }
 
 variable "route_table_arn" {
-    type = string
+    type = list(string)
     description = "AWS route table ARN that the AWS nodes need to be able to modify"
 }
