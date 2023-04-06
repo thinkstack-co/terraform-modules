@@ -82,7 +82,10 @@ data "aws_iam_policy_document" "log_stream_policy" {
 resource "aws_iam_role_policy" "node-log-policy" {
     name_prefix = "${var.name}-trustgrid-log-policy"
     policy = data.aws_iam_policy_document.log_stream_policy.json
-    role = data.aws_iam_instance_profile.instance_profile.role_name
+    role = var.policy_role
+    lifecycle {
+      ignore_changes = [policy]
+    }
 }
 
 data "aws_subnet" "mgmt_subnet" {
