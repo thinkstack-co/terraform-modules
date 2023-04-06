@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "log_stream_policy" {
 resource "aws_iam_role_policy" "node-log-policy" {
     name_prefix = "${var.name}-trustgrid-log-policy"
     policy = data.aws_iam_policy_document.log_stream_policy.json
-    role = var.instance_profile_name
+    role = data.aws_iam_instance_profile.instance_profile.role_name
     lifecycle {
       ignore_changes = [policy]
     }
