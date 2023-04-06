@@ -93,3 +93,8 @@ variable is_appgateway {
   description = "Determines if security group should allow port 443 inbound for Application Gateway"
   default = false
 }
+
+variable vpc_id {
+  type = string
+  description = "VPC ID for the Trustgrid node"
+}

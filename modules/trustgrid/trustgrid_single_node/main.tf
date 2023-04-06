@@ -92,7 +92,7 @@ data "aws_subnet" "mgmt_subnet" {
 resource "aws_security_group" "node_mgmt_sg" {
   name_prefix = "${var.name}-mgmt-sg"
   description = "Additional rules for Trustgrid nodes mgmt/wan interface"
-  vpc_id      = data.aws_subnet.mgmt_subnet.vpc_id
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group_rule" "tcp_8443" {
