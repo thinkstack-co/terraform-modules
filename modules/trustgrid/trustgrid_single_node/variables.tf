@@ -98,8 +98,3 @@ variable vpc_id {
   type = string
   description = "VPC ID for the Trustgrid node"
 }
-
-variable policy_role {
-  type = string
-  description = "policy role for the Trustgrid node"
-}
