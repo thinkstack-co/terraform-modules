@@ -25,9 +25,9 @@ variable "instance_tenancy" {
   default     = "default"
 }
 
-variable "manual_vpc_region" {
+variable "aws_vpc_region" {
   description = "Manual region placement for VPC"
-  default     = ""
+  default     = "us-east-1"
   type        = string
 }
 
