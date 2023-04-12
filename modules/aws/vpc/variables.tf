@@ -25,6 +25,12 @@ variable "instance_tenancy" {
   default     = "default"
 }
 
+variable "manual_vpc_region" {
+  description = "Manual region placement for VPC"
+  default     = ""
+  type        = string
+}
+
 ###########################
 # VPC Endpoints
 ###########################
