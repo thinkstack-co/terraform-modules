@@ -16,10 +16,6 @@ data "aws_ami" "trustgrid-node-ami" {
   }
 }
 
-data "aws_iam_instance_profile" "instance_profile" {
-  name = var.instance_profile_name
-}
-
 data "aws_region" "current" {}
 
 data "template_cloudinit_config" "cloud_init" {
@@ -178,7 +174,7 @@ resource "aws_instance" "node" {
   key_name = var.key_pair_name
 
   user_data              = data.template_cloudinit_config.cloud_init.rendered
-  iam_instance_profile   = data.aws_iam_instance_profile.instance_profile.name
+  iam_instance_profile   = var.instance_profile_name
 
   network_interface {
     network_interface_id = aws_network_interface.management_eni.id
