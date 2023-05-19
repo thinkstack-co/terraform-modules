@@ -74,7 +74,7 @@ resource "aws_vpc_dhcp_options" "dc_dns" {
   count               = var.enable_dhcp_options ? 1 : 0
   domain_name         = var.domain_name
   domain_name_servers = aws_instance.ec2_instance[*].private_ip
-  ntp_servers         = ["169.254.169.123"]
+  ntp_servers         = var.ntp_servers != null ? var.ntp_servers : aws_default_dhcp_options.default.ntp_servers
   tags                = merge(var.tags, ({ "Name" = format("%s-dhcp-options", var.name) }))
 }
 
