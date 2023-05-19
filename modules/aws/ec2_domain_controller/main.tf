@@ -85,8 +85,8 @@ resource "aws_vpc_dhcp_options_association" "dc_dns" {
 }
 
 resource "aws_default_vpc_dhcp_options" "default" {
-  ntp_servers          = aws_instance.ec2_instance[*].private_ip
- }
+  ntp_servers = aws_instance.ec2_instance[*].private_ip
+}
 
 
 ###################################################
