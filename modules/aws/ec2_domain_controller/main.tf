@@ -84,6 +84,10 @@ resource "aws_vpc_dhcp_options_association" "dc_dns" {
   vpc_id          = var.vpc_id
 }
 
+resource "aws_default_dhcp_options" "default" {
+  ntp_servers          = aws_instance.ec2_instance[*].private_ip
+ }
+
 
 ###################################################
 # CloudWatch Alarms
