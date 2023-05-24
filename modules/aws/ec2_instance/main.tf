@@ -63,16 +63,16 @@ resource "aws_instance" "ec2" {
 ###################################################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  for_each = toset(var.instance_type)
-  
+  for_each = { for instance in aws_instance.ec2 : instance.id => instance }
+
   actions_enabled     = true
-  alarm_actions       = contains(local.recover_action_unsupported_instances, each.key) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_actions       = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
+  alarm_name          = format("%s-instance-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = aws_instance.ec2[count.index].id
+    InstanceId = each.value.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -86,16 +86,16 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "system" {
-  for_each = toset(var.instance_type)
+  for_each = { for instance in aws_instance.ec2 : instance.id => instance }
 
   actions_enabled     = true
-  alarm_actions       = contains(local.recover_action_unsupported_instances, each.key) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_actions       = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
+  alarm_name          = format("%s-system-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = aws_instance.ec2[count.index].id
+    InstanceId = each.value.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -107,3 +107,4 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   threshold                 = "1"
   treat_missing_data        = "missing"
 }
+
