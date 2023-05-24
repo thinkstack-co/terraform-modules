@@ -38,7 +38,6 @@ resource "aws_instance" "ec2" {
     http_tokens   = var.http_tokens
   }
 
-
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
@@ -59,22 +58,18 @@ resource "aws_instance" "ec2" {
   }
 }
 
-
 ###################################################
 # CloudWatch Alarms
 ###################################################
 
-#####################
-# Status Check Failed Instance Metric
-#####################
-
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  for_each = toset(var.instance_type)
+  
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = contains(local.recover_action_unsupported_instances, each.key) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
@@ -88,20 +83,16 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
 
-#####################
-# Status Check Failed System Metric
-#####################
-
 resource "aws_cloudwatch_metric_alarm" "system" {
+  for_each = toset(var.instance_type)
+
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_actions       = contains(local.recover_action_unsupported_instances, each.key) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
@@ -115,5 +106,4 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
