@@ -64,7 +64,7 @@ resource "aws_instance" "ec2" {
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
   for_each = toset(var.instance_type)
-  
+
   actions_enabled     = true
   alarm_actions       = contains(local.recover_action_unsupported_instances, each.key) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
