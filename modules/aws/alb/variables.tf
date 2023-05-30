@@ -110,9 +110,14 @@ variable "number" {
   }
 }
 
-variable "security_groups" {
-  type        = list(string)
+variable "vpc_security_group_ids" {
+  type        = list(any)
   description = "(Required) A list of security group IDs to assign to the LB. Only valid for Load Balancers of type application."
+  validation {
+  condition     = can(regex("^application$", var.load_balancer_type))
+  error_message = "Security groups are only valid for Load Balancers of type Application."
+}
+
 }
 
 variable "subnets" {

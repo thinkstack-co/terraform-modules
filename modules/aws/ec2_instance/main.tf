@@ -20,7 +20,7 @@ data "aws_region" "current" {}
 # EC2 instance Module
 #############################
 # Creating an EC2 instance with various parameters specified in the module variables.
-# Reference variables.tf for questions about arugments
+# Reference variables.tf for questions about arguments
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
@@ -29,7 +29,7 @@ resource "aws_instance" "ec2" {
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
-  instance_initiated_sautdown_behavior = var.instance_initiated_shutdown_behavior
+  instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
   ipv6_addresses                       = var.ipv6_addresses
   key_name                             = var.key_name
