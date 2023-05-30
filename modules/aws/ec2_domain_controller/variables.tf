@@ -244,6 +244,13 @@ variable "vpc_id" {
   }
 }
 
+variable "ntp_servers" {
+  type        = list(string)
+  description = "(Optional) List of NTP servers to configure for the DHCP options. Provide the IP addresses as strings."
+  default     = null
+}
+
+
 ######################################
 # General Variables
 ######################################
