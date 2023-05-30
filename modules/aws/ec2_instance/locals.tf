@@ -1,5 +1,6 @@
 locals {
   recover_action_unsupported_instances = [
+    # Instance types that don't support CloudWatch recover actions
     "x2gd.xlarge", "x2gd.2xlarge", "x2gd.4xlarge", "x2gd.8xlarge", "x2gd.12xlarge", "x2gd.16xlarge", "x2gd.metal", "z1d.large", "z1d.xlarge", "z1d.2xlarge",
     "z1d.3xlarge", "z1d.6xlarge", "z1d.12xlarge", "z1d.metal", "r5d.2xlarge", "r5d.4xlarge", "r5d.8xlarge", "r5d.12xlarge", "r5d.16xlarge", "r5d.24xlarge",
     "r5d.metal", "r5dn.large", "r5dn.xlarge", "r5dn.2xlarge", "r5dn.4xlarge", "r5dn.8xlarge", "r5dn.12xlarge", "r5dn.16xlarge", "r5dn.24xlarge", "r5dn.metal",
