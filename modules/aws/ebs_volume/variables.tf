@@ -9,8 +9,8 @@ variable "encrypted" {
   default     = true
   #turn off force encrypt of new volumes and imported volumes
   #validation {
-    #condition     = var.encrypted == true
-    #error_message = "Encryption is required for EBS volumes."
+  #condition     = var.encrypted == true
+  #error_message = "Encryption is required for EBS volumes."
   #}
 }
 
