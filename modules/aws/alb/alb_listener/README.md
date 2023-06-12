@@ -39,5 +39,8 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_listener_arn"></a> [listener\_arn](#output\_listener\_arn) | The ARN of the Listener |
+| <a name="output_listener_load_balancer_arn"></a> [listener\_load\_balancer\_arn](#output\_listener\_load\_balancer\_arn) | The ARN of the Load Balancer to which this listener is attached |
 <!-- END_TF_DOCS -->

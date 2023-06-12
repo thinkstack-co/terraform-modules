@@ -131,7 +131,10 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_lb_arn"></a> [lb\_arn](#output\_lb\_arn) | The ARN of the Load Balancer |
+| <a name="output_lb_dns_name"></a> [lb\_dns\_name](#output\_lb\_dns\_name) | The DNS name of the Load Balancer |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->

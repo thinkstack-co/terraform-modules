@@ -46,5 +46,8 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_target_group_arn"></a> [target\_group\_arn](#output\_target\_group\_arn) | The ARN of the Target Group |
+| <a name="output_target_group_attachment_arn"></a> [target\_group\_attachment\_arn](#output\_target\_group\_attachment\_arn) | The ARN of the Target Group to which the attachment is associated |
 <!-- END_TF_DOCS -->

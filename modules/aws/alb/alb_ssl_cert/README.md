@@ -37,5 +37,8 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_acm_certificate_arn"></a> [acm\_certificate\_arn](#output\_acm\_certificate\_arn) | The ARN of the ACM certificate |
+| <a name="output_lb_listener_certificate_arn"></a> [lb\_listener\_certificate\_arn](#output\_lb\_listener\_certificate\_arn) | The ARN of the LB Listener Certificate |
 <!-- END_TF_DOCS -->
