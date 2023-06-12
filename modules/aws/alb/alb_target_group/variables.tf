@@ -36,7 +36,7 @@ variable "aws_instances" {
 variable "target_type" {
   type        = string
   description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
-  default = "alb"
+  default     = "alb"
 }
 
 variable "health_check_protocol" {
