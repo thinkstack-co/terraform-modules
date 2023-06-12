@@ -26,6 +26,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_alb_arn"></a> [alb\_arn](#input\_alb\_arn) | (Optional) The ARN of the Load Balancer | `string` | n/a | yes |
 | <a name="input_load_balancer_arn"></a> [load\_balancer\_arn](#input\_load\_balancer\_arn) | (Required) The ARN of the Target Group to which to route traffic. | `string` | n/a | yes |
 | <a name="input_port"></a> [port](#input\_port) | (Optional) Port on which the load balancer is listening. Not valid for Gateway Load Balancers. | `number` | `80` | no |
 | <a name="input_protocol"></a> [protocol](#input\_protocol) | (Optional) The protocol for connections from clients to the load balancer. Valid values are `TCP`, `HTTP`, and `HTTPS`. Defaults to `HTTP`. | `string` | `"HTTP"` | no |
