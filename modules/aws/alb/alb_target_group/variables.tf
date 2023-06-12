@@ -1,4 +1,4 @@
-variable "target_group_name" {
+variable "name" {
   type        = string
   description = "Name of the target group. If omitted, Terraform will assign a random, unique name. Forces new resource."
 }
