@@ -27,6 +27,6 @@ resource "aws_lb" "this" {
     prefix  = var.access_logs_prefix
   }
 
-  tags = merge(var.tags, ({ "Name" = format("%s%d", var.alb_name, count.index + 1) }))
+  tags = var.tags
 }
 
