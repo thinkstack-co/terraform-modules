@@ -33,6 +33,7 @@ No modules.
 | <a name="input_ssl_policy"></a> [ssl\_policy](#input\_ssl\_policy) | (Optional) The name of the SSL Policy for the listener. Required if `protocol` is `HTTPS`. | `string` | n/a | yes |
 | <a name="input_stickiness_duration"></a> [stickiness\_duration](#input\_stickiness\_duration) | (Required) Time period, in seconds, during which requests from a client should be routed to the same target group. The range is 1-604800 seconds (7 days). | `number` | `6000` | no |
 | <a name="input_stickiness_enabled"></a> [stickiness\_enabled](#input\_stickiness\_enabled) | (Optional) Whether target group stickiness is enabled. Default is false. | `bool` | `false` | no |
+| <a name="input_stickiness_type"></a> [stickiness\_type](#input\_stickiness\_type) | (Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc. | `string` | `"forward"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_target_groups"></a> [target\_groups](#input\_target\_groups) | List of target groups | <pre>list(object({<br>    arn    = string<br>    weight = number<br>  }))</pre> | n/a | yes |
 | <a name="input_type"></a> [type](#input\_type) | (Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc. | `string` | `"forward"` | no |
