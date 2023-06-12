@@ -23,3 +23,9 @@ variable "condition_values" {
   type        = list(string)
   description = "The path patterns to match. A maximum of 1 can be defined."
 }
+
+variable "tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
+}

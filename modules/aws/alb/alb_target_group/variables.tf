@@ -18,6 +18,12 @@ variable "protocol" {
   description = "Protocol to use for routing traffic to the targets. Should be one of `GENEVE`, `HTTP`, `HTTPS`, `TCP`, `TCP_UDP`, `TLS`, or `UDP`. Required when `target_type` is instance, `ip` or `alb`. Does not apply when `target_type` is `lambda`"
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
+}
+
 variable "vpc_id" {
   type        = string
   description = "The identifier of the virtual private cloud (VPC) that the target group belongs to."

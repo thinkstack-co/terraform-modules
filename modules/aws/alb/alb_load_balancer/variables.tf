@@ -100,14 +100,10 @@ variable "alb_name" {
   description = "(Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb."
 }
 
-variable "number" {
-  type        = number
-  description = "(Optional) the number of resources to create"
-  default     = 1
-  validation {
-    condition     = can(regex("^([1-9][0-9]*)$", var.number))
-    error_message = "The value of number must be a positive integer."
-  }
+variable "tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
 }
 
 variable "security_groups" {
