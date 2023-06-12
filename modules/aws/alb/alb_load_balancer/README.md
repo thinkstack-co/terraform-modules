@@ -127,8 +127,8 @@ No modules.
 | <a name="input_load_balancer_type"></a> [load\_balancer\_type](#input\_load\_balancer\_type) | (Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application. | `string` | `"application"` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb. | `string` | n/a | yes |
 | <a name="input_number"></a> [number](#input\_number) | (Optional) the number of resources to create | `number` | `1` | no |
-| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | (Required) A list of security group IDs to assign to the LB. Only valid for Load Balancers of type application. | `list(string)` | n/a | yes |
 | <a name="input_subnets"></a> [subnets](#input\_subnets) | (Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource. | `list(string)` | n/a | yes |
+| <a name="input_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#input\_vpc\_security\_group\_ids) | (Required) A list of security group IDs to assign to the LB. Only valid for Load Balancers of type application. | `list(any)` | n/a | yes |
 
 ## Outputs
 

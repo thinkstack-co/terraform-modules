@@ -90,12 +90,12 @@ variable "load_balancer_type" {
   description = "(Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application."
   default     = "application"
   validation {
-    condition     = can(regex("^application|gateway|network$", var.load_balancer_type))
-    error_message = "The value of load_balancer_type must be application, gateway, or network."
+    condition     = can(regex("^application$", var.load_balancer_type))
+    error_message = "The value of load_balancer_type must be application.  If a network or gateway load balancer is needed, use the modules associated with those services."
   }
 }
 
-variable "name" {
+variable "alb_name" {
   type        = string
   description = "(Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb."
 }
@@ -111,11 +111,17 @@ variable "number" {
 }
 
 variable "security_groups" {
-  type        = list(string)
+  type        = list(any)
   description = "(Required) A list of security group IDs to assign to the LB. Only valid for Load Balancers of type application."
+  validation {
+    condition     = can(regex("^application$", var.load_balancer_type))
+    error_message = "Security groups are only valid for Load Balancers of type Application."
+  }
+
 }
 
 variable "subnets" {
   type        = list(string)
   description = "(Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource."
 }
+
