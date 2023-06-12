@@ -39,9 +39,4 @@ variable "certificate_arn" {
   default     = null
 }
 
-variable "tags" {
-  type        = map(string)
-  description = "A mapping of tags to assign to the resource"
-  default     = {}
-}
 
