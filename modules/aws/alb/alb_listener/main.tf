@@ -28,7 +28,6 @@ resource "aws_alb_listener" "listener" {
       }
 
       stickiness {
-        type     = "lb_cookie"
         enabled  = var.stickiness_enabled
         duration = var.stickiness_duration
       }

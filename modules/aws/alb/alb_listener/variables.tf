@@ -26,6 +26,12 @@ variable "type" {
   default     = "forward"
 }
 
+variable "stickiness_type" {
+  type        = string
+  description = "(Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc."
+  default     = "forward"
+}
+
 variable "target_groups" {
   description = "List of target groups"
   type = list(object({
