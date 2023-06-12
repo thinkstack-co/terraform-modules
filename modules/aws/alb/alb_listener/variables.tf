@@ -28,7 +28,7 @@ variable "type" {
 
 variable "target_groups" {
   description = "List of target groups"
-  type        = list(object({
+  type = list(object({
     arn    = string
     weight = number
   }))
@@ -42,12 +42,12 @@ variable "ssl_policy" {
 variable "stickiness_enabled" {
   type        = bool
   description = "(Optional) Whether target group stickiness is enabled. Default is false."
-  default = false
+  default     = false
 }
 
 variable "stickiness_duration" {
   type        = number
   description = "(Required) Time period, in seconds, during which requests from a client should be routed to the same target group. The range is 1-604800 seconds (7 days)."
-  default = 6000
+  default     = 6000
 }
 
