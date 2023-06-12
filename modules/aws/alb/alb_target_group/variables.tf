@@ -6,6 +6,7 @@ variable "target_group_name" {
 variable "target_type" {
   type        = string
   description = "Type of target that you must specify when registering targets with this target group. The possible values are `instance` (targets are specified by instance ID) or `ip` (targets are specified by IP address) or `lambda` (targets are specified by lambda arn). Note that you can't specify targets for a target group using both instance IDs and IP addresses. If the target type is `ip`, specify IP addresses from the subnets of the virtual private cloud (VPC) for the target group. You can't specify publicly routable IP addresses."
+  default     = "instance"
 }
 
 variable "port" {
@@ -34,8 +35,8 @@ variable "target_group_arn" {
   description = "The ARN of the target group with which to register targets."
 }
 
-variable "aws_instances" {
-  type        = list(string)
+variable "target_id" {
+  type        = string
   description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
 }
 
