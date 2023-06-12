@@ -57,3 +57,8 @@ variable "tags" {
   default     = {}
 }
 
+variable "alb_arn" {
+  type        = string
+  description = "(Optional) The ARN of the Load Balancer"
+}
+
