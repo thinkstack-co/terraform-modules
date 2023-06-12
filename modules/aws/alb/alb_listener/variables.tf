@@ -49,10 +49,5 @@ variable "stickiness_duration" {
   type        = number
   description = "(Required) Time period, in seconds, during which requests from a client should be routed to the same target group. The range is 1-604800 seconds (7 days)."
   default = 6000
-
-    validation {
-    condition     = var.stickiness_enabled == true
-    error_message = "Stickiness duration is only required if stickiness_enabled is set to \"true\"."
-  }
 }
 
