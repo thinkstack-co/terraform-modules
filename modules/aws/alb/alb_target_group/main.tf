@@ -10,7 +10,7 @@ terraform {
 
 resource "aws_lb_target_group" "this" {
   name        = var.target_group_name
-  target_type = "alb"
+  target_type = var.target_type
   port        = var.port
   protocol    = var.protocol
   vpc_id      = var.vpc_id

@@ -33,6 +33,12 @@ variable "aws_instances" {
   description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
 }
 
+variable "target_type" {
+  type        = string
+  description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
+  default = "alb"
+}
+
 variable "health_check_protocol" {
   type        = string
   description = "The protocol the load balancer uses when performing health checks on targets. The possible protocols are HTTP and HTTPS. The default is the HTTP protocol."
@@ -80,3 +86,4 @@ variable "matcher" {
   description = "The codes to use when checking for a successful response from a target. If the protocol version is HTTP/1.1 or HTTP/2, the possible values are from 200 to 499. You can specify multiple values or a range of values. The default value is 200. If the protocol version is gRPC, the possible values are from 0 to 99. You can specify multiple values or a range of values. The default value is 12."
   default     = "200"
 }
+
