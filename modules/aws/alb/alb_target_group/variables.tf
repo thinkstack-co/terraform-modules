@@ -33,12 +33,6 @@ variable "aws_instances" {
   description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
 }
 
-variable "target_type" {
-  type        = string
-  description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
-  default = "alb"
-}
-
 variable "health_check_protocol" {
   type        = string
   description = "The protocol the load balancer uses when performing health checks on targets. The possible protocols are HTTP and HTTPS. The default is the HTTP protocol."
