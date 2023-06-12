@@ -35,6 +35,6 @@ resource "aws_alb_listener" "listener" {
     }
   }
 
-  tags = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
+  tags = var.tags
 }
 
