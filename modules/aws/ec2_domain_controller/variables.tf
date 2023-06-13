@@ -211,10 +211,10 @@ variable "user_data" {
   type        = string
   description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."
   default     = null
-  validation {
-    condition     = var.user_data == null ? true : can(regex("^([a-zA-Z0-9-_]+)$", var.user_data))
-    error_message = "The value must be a valid user data or null."
-  }
+  # validation {
+  #   condition     = var.user_data == null ? true : can(regex("^([a-zA-Z0-9-_]+)$", var.user_data))
+  #   error_message = "The value must be a valid user data or null."
+  # }
 }
 
 variable "vpc_security_group_ids" {
