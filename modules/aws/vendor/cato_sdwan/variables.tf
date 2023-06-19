@@ -130,6 +130,12 @@ variable "instance_name_prefix" {
   type        = string
 }
 
+variable "network_interface_id" {
+  description = "(Optional) ID of the network interface to associate with. Use it only if you want to attach an existing network interface to an instance."
+  default     = null
+  type        = string
+}
+
 variable "root_volume_type" {
   description = "(Optional) Type of volume. Valid values include standard, gp2, gp3, io1, io2, sc1, or st1. Defaults to gp3"
   default     = "gp3"
