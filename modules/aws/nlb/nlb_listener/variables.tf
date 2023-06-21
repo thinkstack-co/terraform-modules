@@ -29,7 +29,7 @@ variable "tags" {
   default     = {}
 }
 
-variable "type" {
+variable "action_type" {
   type        = string
   description = "(Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc."
   default     = "forward"

@@ -14,7 +14,7 @@ resource "aws_lb_listener" "listener" {
   protocol          = var.protocol
 
   default_action {
-    type = var.type
+    type = var.action_type
 
     forward {
       dynamic "target_group" {
