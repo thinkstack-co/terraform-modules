@@ -35,8 +35,8 @@ Here's an example usage of the variables:  Keep in mind, the references to other
 resources in this ALB Resource Group.  You will need to have modules set for an Application Load Balancer and  
 Listener for this module to be relevant.
 
-module "aws_prod_amplify_alb_target_group_1" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_target_group?ref=dev_alb"  
+module "aws_prod_target_group_1" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/nlb/nlb_target_group?ref=dev_alb"  
 
   name                            = "aws-prod-target-group1"
   target_type                     = "instance"
