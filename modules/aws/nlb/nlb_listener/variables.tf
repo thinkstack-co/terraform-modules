@@ -21,6 +21,7 @@ variable "target_groups" {
     arn    = string
     weight = number
   }))
+  default = []
 }
 
 variable "tags" {
