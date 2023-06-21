@@ -21,8 +21,8 @@ variable "target_groups" {
     arn    = string
     weight = number
   }))
-    
-    validation {
+
+  validation {
     condition     = var.target_group_arn == null || length(var.target_groups) > 0
     error_message = "You must specify either target_group_arn or target_groups, not both."
   }
@@ -44,8 +44,8 @@ variable "target_group_arn" {
   type        = string
   description = "(Optional) The ARN of the Target Group to which to route traffic. Specify only if type is forward and you want to route to a single target group. To route to one or more target groups, use a forward block instead."
   default     = null
-    
-    validation {
+
+  validation {
     condition     = var.target_group_arn != null && length(var.target_groups) == 0
     error_message = "You must specify either target_group_arn or target_groups, not both."
   }

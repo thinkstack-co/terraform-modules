@@ -11,8 +11,8 @@ terraform {
 # AWS Load Balancer Listener
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = var.load_balancer_arn
-  port = var.port
-  protocol = var.protocol
+  port              = var.port
+  protocol          = var.protocol
 
   # The dynamic block here is used to conditionally create a default_action block for a single target group
   # If target_group_arn is provided (not null), the for_each loop runs once to create one default_action block
