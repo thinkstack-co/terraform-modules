@@ -15,8 +15,8 @@ resource "aws_lb_listener" "listener" {
 
 
   default_action {
-    type              = var.action_type
-    target_group_arn  = var.target_group_arn
+    type             = var.action_type
+    target_group_arn = var.target_group_arn
 
     forward {
       dynamic "target_group" {
