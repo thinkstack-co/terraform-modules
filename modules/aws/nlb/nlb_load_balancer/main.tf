@@ -17,7 +17,6 @@ resource "aws_lb" "this" {
   ip_address_type                  = var.ip_address_type
   load_balancer_type               = var.load_balancer_type
   name                             = var.nlb_name
-  security_groups                  = var.security_groups
   subnets                          = var.subnets
 
   access_logs {
