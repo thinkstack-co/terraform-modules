@@ -25,7 +25,7 @@ Below are the variables utilized in the aws_lb resource block:
 
 9. `load_balancer_type`: The type of load balancer to create - either 'application' or 'network'.
 
-10. `alb_name`: The name to assign to the Application Load Balancer.
+10. `nlb_name`: The name to assign to the Network Load Balancer.
 
 11. `security_groups`: The list of security group IDs to assign to the load balancer.
 
@@ -39,36 +39,33 @@ Below are the variables utilized in the aws_lb resource block:
 
 ################################ MODULE EXAMPLE ###################################################################
 Here's an example usage of the variables:  Keep in mind, the references to other modules are based on the other 
-resources in this ALB Resource Group.  You will need to have modules set for a listener and a target group for 
+resources in this NLB Resource Group.  You will need to have modules set for a listener and a target group for 
 this module to be relevant.
 
-module "aws_prod_alb" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_load_balancer?ref=dev_alb"
+module "aws_prod_nlb" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/nlb/nlb_load_balancer?ref=dev_alb"
 
   drop_invalid_header_fields       = false
   enable_cross_zone_load_balancing = true
   enable_deletion_protection       = false
-  enable_http2                     = true
   idle_timeout                     = 60
   internal                         = false
   ip_address_type                  = "ipv4"
-  load_balancer_type               = "application"
-  alb_name                         = "aws-prod-alb"
-  security_groups                  = ["sg-01234567890"]
+  load_balancer_type               = "network"
+  nlb_name                         = "aws-prod-nlb"
+  security_groups                  = ["sg-01234578901"]
   subnets                          = module.vpc.private_subnets
 
 
   access_logs_bucket  = "my-s3-bucket"
-  access_logs_enabled = true
+  access_logs_enabled = false
   access_logs_prefix  = "access-logs"
 
   tags = {
     terraform   = "yes"
     created_by  = "Wesley Bey"
     environment = "prod"
-    role        = "prod_lb"
-    backup      = "true"
-    ssm_update  = "true"
+    role        = "prod"
   }
 }
 ####################################################################################################################

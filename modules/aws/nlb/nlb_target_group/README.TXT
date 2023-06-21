@@ -38,36 +38,36 @@ Listener for this module to be relevant.
 module "aws_prod_amplify_alb_target_group_1" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_target_group?ref=dev_alb"  
 
-  name                            = "aws-prod-amplify-tg1"
+  name                            = "aws-prod-target-group1"
   target_type                     = "instance"
-  port                            = 443
-  protocol                        = "HTTPS"
+  port                            = 80
+  protocol                        = "TCP"
+  proxy_protocol_v2               = false
   vpc_id                          = module.vpc.vpc_id
   health_check_protocol           = "HTTPS"
   health_check_port               = "traffic-port"
-  health_check_path               = "/healthchecklb"
+  health_check_path               = "/"
   health_check_timeout_seconds    = 5
   health_check_interval_seconds   = 30
   healthy_threshold_count         = 5
   unhealthy_threshold_count       = 2
   matcher                         = "200-399"
-  target_id                       = "i-0a98692818ae9a611"
-  target_group_arn                = module.aws_prod_amplify_alb_target_group_1.target_group_arn 
-      tags = {
+  target_id                       = "i-01234567890"
+  target_group_arn                = module.aws-prod-target-group1.target_group_arn 
+      
+  tags = {
     terraform   = "yes"
     created_by  = "Wesley Bey"
     environment = "prod"
-    role        = "amplify"
-    backup      = "true"
-    ssm_update  = "true"
+    role        = "prod"
   }
 }
 
 
 ############################ Ports and Protocols #####################################
 
-Protocol: The listener and the target group should use compatible protocols. For example, if you are using an HTTPS listener, 
-the target group should be able to accept HTTPS traffic.
+Protocol: The listener and the target group should use compatible protocols. For example, if you are using a TCP listener, 
+the target group should be able to accept TCP traffic.
 
 Ports: The listener port is the port that the Application Load Balancer (ALB) listens on for incoming client connections. 
 The port that you specify for the target group is the port on which the registered targets (your instances or services) 

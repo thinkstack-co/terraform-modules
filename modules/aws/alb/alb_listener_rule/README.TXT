@@ -24,9 +24,9 @@ this module to be relevant.
 module "listener_rule_example" {
   source = "example/modules/aws/alb/alb_listener_rule"
 
-  listener_arn     = module.listener_1.arn  <---- Use the alb_listener resource to set this module
+  listener_arn     = module.listener_1.listener_arn  <---- Use the alb_listener resource to set this module
   priority         = 10
-  target_group_arn = module.target_group_1.arn  <------ Use the alb_target_group resource to set this module
+  target_group_arn = module.target_group_1.target_group_arn <------ Use the alb_target_group resource to set this module
   condition_field  = "path-pattern"
   condition_values = ["/images/*"]
 }

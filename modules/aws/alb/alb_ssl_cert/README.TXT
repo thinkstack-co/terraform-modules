@@ -23,16 +23,17 @@ Below are the variables used in the `aws_acm_certificate` resource block:
 Here's an example usage of the variables:  Keep in mind, the references to other modules are based on the other 
 resources in this ALB Resource Group.  You will need to have modules set for a listener for this module to be relevant.
 
-module "alb_ssl_certificate_example" {
-  source = "example/modules/aws/alb/alb_ssl_cert"
+module "aws_prod_amplify_alb_ssl_certificate" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_ssl_cert?ref=dev_alb"
 
-  domain_name = "example.com"
-  validation_method = "DNS"
-  subject_alternative_names = ["www.example.com", "app.example.com"]
-  key_algorithm = "RSA_2048"
+  domain_name                = "www.domain.org"
+  validation_method          = "DNS"
+  subject_alternative_names  = ["app.domain.org"]
+  key_algorithm              = "RSA_2048"
   tags = {
-    Environment = "dev"
-    Project = "example-project"
+    Environment = "prod"
+    Project = "prod"
   }
-  listener_arn = module.aws_prod_alb_listener.arn <---- Use the alb_listener resource to set this module
+  listener_arn               = module.aws_prod_alb_listener.listener_arn
+  certificate_arn            = module.aws_prod_alb_ssl_certificate.acm_certificate_arn
 }

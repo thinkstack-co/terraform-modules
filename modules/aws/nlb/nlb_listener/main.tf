@@ -8,12 +8,10 @@ terraform {
   }
 }
 
-resource "aws_alb_listener" "listener" {
+resource "aws_lb_listener" "listener" {
   load_balancer_arn = var.load_balancer_arn
   port              = var.port
   protocol          = var.protocol
-  ssl_policy        = var.ssl_policy
-  certificate_arn   = var.ssl_certificate
 
   default_action {
     type = var.type
@@ -25,11 +23,6 @@ resource "aws_alb_listener" "listener" {
           arn    = target_group.value["arn"]
           weight = target_group.value["weight"]
         }
-      }
-
-      stickiness {
-        enabled  = var.stickiness_enabled
-        duration = var.stickiness_duration
       }
     }
   }

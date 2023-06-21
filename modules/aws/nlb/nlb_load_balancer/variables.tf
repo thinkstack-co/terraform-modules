@@ -49,16 +49,6 @@ variable "enable_deletion_protection" {
   }
 }
 
-variable "enable_http2" {
-  type        = bool
-  description = "(Optional) Indicates whether HTTP/2 is enabled in application load balancers. Defaults to true."
-  default     = true
-  validation {
-    condition     = can(regex("^true|false$", var.enable_http2))
-    error_message = "The value of enable_http2 must be true or false."
-  }
-}
-
 variable "idle_timeout" {
   type        = number
   description = "(Optional) The time in seconds that the connection is allowed to be idle. Only valid for Load Balancers of type application. Default: 60."
@@ -88,22 +78,16 @@ variable "ip_address_type" {
 variable "load_balancer_type" {
   type        = string
   description = "(Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application."
-  default     = "application"
+  default     = "network"
   validation {
-    condition     = can(regex("^application$", var.load_balancer_type))
-    error_message = "The value of load_balancer_type must be application.  If a network or gateway load balancer is needed, use the modules associated with those services."
+    condition     = can(regex("^network$", var.load_balancer_type))
+    error_message = "The value of this load_balancer_type must be network.  If an application load balancer is needed, use the modules associated with those services."
   }
 }
 
-variable "alb_name" {
+variable "nlb_name" {
   type        = string
   description = "(Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb."
-}
-
-variable "tags" {
-  type        = map(string)
-  description = "A mapping of tags to assign to the resource"
-  default     = {}
 }
 
 variable "security_groups" {
@@ -116,3 +100,8 @@ variable "subnets" {
   description = "(Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource."
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
+}
