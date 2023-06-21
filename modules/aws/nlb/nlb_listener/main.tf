@@ -13,8 +13,10 @@ resource "aws_lb_listener" "listener" {
   port              = var.port
   protocol          = var.protocol
 
+
   default_action {
-    type = var.action_type
+    type              = var.action_type
+    target_group_arn  = var.target_group_arn
 
     forward {
       dynamic "target_group" {
