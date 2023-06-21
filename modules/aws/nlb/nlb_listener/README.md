@@ -32,7 +32,7 @@ No modules.
 | <a name="input_protocol"></a> [protocol](#input\_protocol) | For Network Load Balancers, valid values are TCP, TLS, UDP, and TCP\_UDP. Not valid to use UDP or TCP\_UDP if dual-stack mode is enabled. | `string` | `"TCP"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
 | <a name="input_target_group_arn"></a> [target\_group\_arn](#input\_target\_group\_arn) | (Optional) The ARN of the Target Group to which to route traffic. Specify only if type is forward and you want to route to a single target group. To route to one or more target groups, use a forward block instead. | `string` | `null` | no |
-| <a name="input_target_groups"></a> [target\_groups](#input\_target\_groups) | List of target groups | <pre>list(object({<br>    arn    = string<br>    weight = number<br>  }))</pre> | n/a | yes |
+| <a name="input_target_groups"></a> [target\_groups](#input\_target\_groups) | List of target groups | <pre>list(object({<br>    arn    = string<br>    weight = number<br>  }))</pre> | `[]` | no |
 
 ## Outputs
 
