@@ -12,7 +12,7 @@ resource "aws_alb_listener" "listener" {
   load_balancer_arn = var.load_balancer_arn
   port              = var.port
   protocol          = var.protocol
-  
+
 
   # This dynamic block will be executed only when target_group_arn is provided
   dynamic "default_action" {
@@ -39,7 +39,7 @@ resource "aws_alb_listener" "listener" {
           }
         }
         stickiness {
-          enabled = var.stickiness_enabled
+          enabled  = var.stickiness_enabled
           duration = var.stickiness_duration
         }
       }
