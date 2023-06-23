@@ -63,3 +63,15 @@ variable "tags" {
   default     = {}
 }
 
+variable "action_type" {
+  type        = string
+  description = "(Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc."
+  default     = "forward"
+}
+
+variable "target_group_arn" {
+  type        = string
+  description = "(Optional) The ARN of the Target Group to which to route traffic. Specify only if type is forward and you want to route to a single target group. To route to one or more target groups, use a forward block instead."
+  default     = null
+}
+
