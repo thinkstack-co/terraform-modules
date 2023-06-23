@@ -8,12 +8,11 @@ terraform {
   }
 }
 
-resource "aws_alb_listener" "listener" {
+resource "aws_lb_listener" "listener" {
   load_balancer_arn = var.load_balancer_arn
   port              = var.port
   protocol          = var.protocol
-  ssl_policy        = var.ssl_policy
-  certificate_arn   = var.ssl_certificate
+  
 
   # This dynamic block will be executed only when target_group_arn is provided
   dynamic "default_action" {
@@ -39,13 +38,12 @@ resource "aws_alb_listener" "listener" {
             weight = target_group.value["weight"]
           }
         }
+        stickiness {
+          enabled = var.stickiness_enabled
+          duration = var.stickiness_duration
+        }
       }
     }
-  }
-
-  stickiness {
-    enabled  = var.stickiness_enabled
-    duration = var.stickiness_duration
   }
 
   tags = var.tags
