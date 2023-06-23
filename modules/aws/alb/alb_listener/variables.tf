@@ -38,6 +38,7 @@ variable "target_groups" {
     arn    = string
     weight = number
   }))
+  default = []
 }
 
 variable "ssl_policy" {
