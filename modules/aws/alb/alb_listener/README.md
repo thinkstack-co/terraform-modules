@@ -20,7 +20,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_lb_listener.listener](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
+| [aws_alb_listener.listener](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/alb_listener) | resource |
 
 ## Inputs
 
