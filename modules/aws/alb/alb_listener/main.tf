@@ -46,7 +46,7 @@ resource "aws_alb_listener" "listener" {
   stickiness {
     enabled  = var.stickiness_enabled
     duration = var.stickiness_duration
-   }
+  }
 
   tags = var.tags
 }
