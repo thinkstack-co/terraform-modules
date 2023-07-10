@@ -29,6 +29,30 @@ Here's an example usage of the variables:  Keep in mind, the references to other
 resources in this ALB Resource Group.  You will need to have modules set for an Application Load Balancer and  
 target group(s) for this module to be relevant.  The SSL cert can also be found under the ALB Resource Group.
 
+#####################
+SINGLE TARGET GROUP 
+#####################
+module "aws_prod_alb_listener" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener?ref=dev_alb"
+
+  load_balancer_arn = module.aws_prod_alb.lb_arn           
+  port = 443
+  protocol = "HTTPS"
+  ssl_policy = "ELBSecurityPolicy-2016-08"
+  ssl_certificate = module.aws_prod_ssl_certificate.acm_certificate_arn
+  target_group_arn = module.aws-prod-target-group1.target_group_arn
+  stickiness_enabled = false
+    
+  tags = {
+    terraform   = "yes"
+    created_by  = "Wesley Bey"
+    environment = "prod"
+    role        = "prod"
+  }
+}
+#########################
+MULTIPLE TARGET GROUPS 
+#########################
 module "aws_prod_alb_listener" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener?ref=dev_alb"
 
@@ -42,6 +66,10 @@ module "aws_prod_alb_listener" {
       arn = module.aws_prod_alb_target_group_1.target_group_arn  
       weight = 100
     }
+    {
+      arn = module.aws_prod_alb_target_group_2.target_group_arn  
+      weight = 50
+    }
   ]
   stickiness_enabled = false
     
@@ -52,6 +80,7 @@ module "aws_prod_alb_listener" {
     role        = "prod"
   }
 }
+
 
 ############################ Target Groups and Load Balancer Listener Rules #####################################
 

@@ -1,6 +1,6 @@
 variable "load_balancer_arn" {
   type        = string
-  description = "(Required) The ARN of the Target Group to which to route traffic."
+  description = "(Required, Forces New Resource) ARN of the load balancer."
 }
 
 variable "port" {

@@ -20,6 +20,28 @@ Here's an example usage of the variables:  Keep in mind, the references to other
 resources in this NLB Resource Group.  You will need to have modules set for a Network Load Balancer and  
 target group(s) for this module to be relevant.  
 
+################################
+SINGLE TARGET GROUP
+###############################
+module "aws_nlb_listener" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/nlb/nlb_listener?ref=dev_alb"
+
+  load_balancer_arn = module.aws_nlb_load_balancer.lb_arn           
+  port = 80
+  protocol = "TCP"
+  target_group_arn = module.target_group_1.target_group_arn
+    
+  tags = {
+    terraform   = "yes"
+    created_by  = "Wesley Bey"
+    environment = "prod"
+    role        = "prod"
+  }
+}
+
+####################################
+MULTIPLE TARGET GROUPS
+####################################
 module "aws_nlb_listener" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/nlb/nlb_listener?ref=dev_alb"
 
@@ -30,6 +52,10 @@ module "aws_nlb_listener" {
     {
       arn = module.aws_prod_nlb_target_group_1.target_group_arn  
       weight = 100
+    }
+    {
+      arn = module.aws_prod_nlb_target_group_2.target_group_arn  
+      weight = 50
     }
   ]
     
