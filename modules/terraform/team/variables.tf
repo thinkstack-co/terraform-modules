@@ -82,3 +82,9 @@ variable "read_workspaces" {
   type        = bool
   default     = true
 }
+
+variable "read_projects" {
+  description = "(Optional) Allow members to view all workspaces in this organization."
+  type        = bool
+  default     = true
+}

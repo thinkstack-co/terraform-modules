@@ -26,5 +26,6 @@ resource "tfe_team" "this" {
     manage_projects         = var.manage_projects
     manage_membership       = var.manage_membership
     read_workspaces         = var.read_workspaces
+    read_projects           = var.read_projects
   }
 }
