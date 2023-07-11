@@ -116,6 +116,7 @@ No modules.
 | <a name="input_manage_workspaces"></a> [manage\_workspaces](#input\_manage\_workspaces) | (Optional) Allows members to create and administrate all workspaces within the organization. | `bool` | `false` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name of the team. | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | (Required) Name of the organization. | `string` | n/a | yes |
+| <a name="input_read_projects"></a> [read\_projects](#input\_read\_projects) | (Optional) Allow members to view all workspaces in this organization. | `bool` | `true` | no |
 | <a name="input_read_workspaces"></a> [read\_workspaces](#input\_read\_workspaces) | (Optional) Allow members to view all workspaces in this organization. | `bool` | `true` | no |
 | <a name="input_sso_team_id"></a> [sso\_team\_id](#input\_sso\_team\_id) | (Optional) Unique Identifier to control team membership via SAML. Defaults to null | `string` | `null` | no |
 | <a name="input_visibility"></a> [visibility](#input\_visibility) | (Optional) The visibility of the team ('secret' or 'organization'). Defaults to 'secret'. | `string` | `"secret"` | no |
