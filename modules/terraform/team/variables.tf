@@ -64,3 +64,21 @@ variable "manage_run_tasks" {
   type        = bool
   default     = false
 }
+
+variable "manage_projects" {
+  description = "(Optional) Allow members to create and administrate all projects within the organization. Requires manage_workspaces to be set to true."
+  type        = bool
+  default     = true
+}
+
+variable "manage_membership" {
+  description = "(Optional) Allow members to add/remove users from the organization, and to add/remove users from visible teams."
+  type        = bool
+  default     = true
+}
+
+variable "read_workspaces" {
+  description = "(Optional) Allow members to view all workspaces in this organization."
+  type        = bool
+  default     = true
+}
