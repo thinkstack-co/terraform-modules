@@ -28,8 +28,8 @@ resource "aws_lb_target_group" "this" {
 }
 
 resource "aws_lb_target_group_attachment" "this" {
-  for_each         = toset(var.target_id)
-  target_group_arn = var.target_group_arn
-  target_id        = each.key
-  port             = var.port
+    for_each = { for idx, id in var.target_id : idx => id }
+    target_group_arn = var.target_group_arn
+    target_id        = each.value
+    port             = var.port
 }
