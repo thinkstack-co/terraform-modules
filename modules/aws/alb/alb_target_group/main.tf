@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "this" {
 }
 
 resource "aws_lb_target_group_attachment" "this" {
-  for_each         = toset(var.target_ids)
+  for_each         = toset(var.target_id)
   target_group_arn = var.target_group_arn
   target_id        = each.key
   port             = var.port
