@@ -36,7 +36,7 @@ variable "target_group_arn" {
 }
 
 variable "target_id" {
-  type        = string
+  type        = list(string)
   description = "The ID of the target. This is the Instance ID for an instance, or the container ID for an ECS container. If the target type is ip, specify an IP address"
 }
 
