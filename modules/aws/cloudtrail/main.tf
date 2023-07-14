@@ -256,8 +256,9 @@ POLICY
 }
 
 resource "aws_s3_bucket_logging" "cloudtrail_s3_bucket" {
-  count         = var.enable_s3_bucket_logging ? 1 : 0
-  bucket        = aws_s3_bucket.cloudtrail_s3_bucket.id
-  target_bucket = var.target_bucket
-  target_prefix = var.target_prefix
+  count                 = var.enable_s3_bucket_logging ? 1 : 0
+  bucket                = aws_s3_bucket.cloudtrail_s3_bucket.id
+  target_bucket         = var.target_bucket
+  target_prefix         = var.target_prefix
+  expected_bucket_owner = var.expected_bucket_owner
 }
