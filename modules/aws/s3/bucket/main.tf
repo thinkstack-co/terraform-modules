@@ -44,9 +44,17 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_acl" "this" {
-  count  = var.acl != null ? 1 : 0
+  count      = var.acl != null ? 1 : 0
+  bucket     = aws_s3_bucket.this.id
+  acl        = var.acl
+  depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
+}
+
+resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
   bucket = aws_s3_bucket.this.id
-  acl    = var.acl
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
 resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
