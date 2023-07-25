@@ -69,6 +69,15 @@ variable "key_name_prefix" {
 ######################
 # S3 Bucket Variables
 ######################
+
+variable "aws_provider" {
+  type = object({
+    alias  = string
+    region = string
+  })
+}
+
+
 variable "bucket" {
   type        = string
   description = "(Optional, bucket or bucket_prefix must exist) Name of the bucket. If omitted, Terraform will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. Conflicts with bucket_prefix."

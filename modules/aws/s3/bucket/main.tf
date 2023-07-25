@@ -9,6 +9,11 @@ terraform {
   }
 }
 
+provider "aws" {
+  alias  = var.aws_provider.alias
+  region = var.aws_provider.region
+}
+
 ###########################
 # KMS Encryption Key
 ###########################
