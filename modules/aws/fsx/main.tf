@@ -75,24 +75,24 @@ resource "aws_kms_key" "cloudwatch" {
   is_enabled              = var.is_enabled
   tags                    = var.tags
   policy = jsonencode({
-    "Version" = "2012-10-17",
-    "Statement" = [
+ "Version":  "2012-10-17",
+    "Statement": [
       {
-        "Sid"    = "Enable IAM User Permissions",
-        "Effect" = "Allow",
-        "Principal" = {
-          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        "Sid": "Enable IAM User Permissions",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
-        "Action"   = "kms:*",
-        "Resource" = "*"
+        "Action": "kms:*",
+        "Resource": "*"
       },
       {
-        "Sid"    = "Grant access to CMK manager",
-        "Effect" = "Allow",
-        "Principal" = {
-          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AmazonFSxManager"
+        "Sid": "Grant access to CMK manager",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/AmazonFSxManager"
         },
-        "Action" = [
+        "Action": [
           "kms:Create*",
           "kms:Describe*",
           "kms:Enable*",
@@ -106,23 +106,23 @@ resource "aws_kms_key" "cloudwatch" {
           "kms:ScheduleKeyDeletion",
           "kms:CancelKeyDeletion"
         ],
-        "Resource" = "*"
+        "Resource": "*"
       },
       {
-        "Effect" = "Allow",
-        "Principal" = {
-          "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "logs.${data.aws_region.current.name}.amazonaws.com"
         },
-        "Action" = [
+        "Action": [
           "kms:Encrypt*",
           "kms:Decrypt*",
           "kms:ReEncrypt*",
           "kms:GenerateDataKey*",
           "kms:Describe*"
         ],
-        "Resource" = "*",
-        "Condition" = {
-          "ArnEquals" = {
+        "Resource": "*",
+        "Condition": {
+          "ArnEquals": {
             "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
           }
         }
