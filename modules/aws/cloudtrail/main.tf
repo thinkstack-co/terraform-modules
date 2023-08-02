@@ -72,8 +72,9 @@ resource "aws_cloudtrail" "cloudtrail" {
   enable_log_file_validation    = var.cloudtrail_enable_log_file_validation
   cloud_watch_logs_group_arn    = aws_cloudwatch_log_group.cloudtrail.arn
   cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail.arn
-  kms_key_id                    = aws_kms_key.cloudtrail.arn
+  kms_key_id                    = var.encrypt_logs ? aws_kms_key.cloudtrail.arn : null
 }
+
 
 # S3 bucket to store CloudTrail logs
 resource "aws_s3_bucket" "cloudtrail" {
