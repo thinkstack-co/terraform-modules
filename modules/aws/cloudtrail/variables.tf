@@ -170,6 +170,13 @@ variable "cloudtrail_enable_log_file_validation" {
   default     = true
 }
 
+variable "encrypt_logs" {
+  description = "Enable encryption for CloudTrail logs"
+  type        = bool
+  default     = true
+}
+
+
 #####################
 # S3 bucket variables
 #####################
