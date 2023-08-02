@@ -165,13 +165,15 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_cloudtrail"></a> [cloudtrail](#output\_cloudtrail) | The Amazon Resource Name (ARN) of the CloudTrail |
+| <a name="output_cloudtrail_assume_policy_json"></a> [cloudtrail\_assume\_policy\_json](#output\_cloudtrail\_assume\_policy\_json) | The JSON content of the IAM policy document for CloudTrail Assume. |
 | <a name="output_cloudtrail_iam_policy"></a> [cloudtrail\_iam\_policy](#output\_cloudtrail\_iam\_policy) | The Amazon Resource Name (ARN) of the IAM policy |
-| <a name="output_cloudtrail_iam_policy_json"></a> [cloudtrail\_iam\_policy\_json](#output\_cloudtrail\_iam\_policy\_json) | The JSON policy document that allows CloudTrail to write logs. |
 | <a name="output_cloudtrail_iam_role"></a> [cloudtrail\_iam\_role](#output\_cloudtrail\_iam\_role) | The Amazon Resource Name (ARN) of the IAM role |
 | <a name="output_cloudtrail_kms_key"></a> [cloudtrail\_kms\_key](#output\_cloudtrail\_kms\_key) | The Amazon Resource Name (ARN) of the KMS key |
 | <a name="output_cloudtrail_log_group"></a> [cloudtrail\_log\_group](#output\_cloudtrail\_log\_group) | The Amazon Resource Name (ARN) of the CloudWatch Log Group |
+| <a name="output_cloudtrail_policy_json"></a> [cloudtrail\_policy\_json](#output\_cloudtrail\_policy\_json) | The JSON content of the IAM policy document for CloudTrail. |
 | <a name="output_cloudtrail_s3_bucket"></a> [cloudtrail\_s3\_bucket](#output\_cloudtrail\_s3\_bucket) | The ID of the S3 bucket |
 | <a name="output_cloudtrail_s3_bucket_public_block"></a> [cloudtrail\_s3\_bucket\_public\_block](#output\_cloudtrail\_s3\_bucket\_public\_block) | The ID of the S3 bucket public access block |
+| <a name="output_key_policy_json"></a> [key\_policy\_json](#output\_key\_policy\_json) | The JSON content of the IAM policy document for Key Policy. |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
