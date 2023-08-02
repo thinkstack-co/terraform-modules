@@ -129,10 +129,8 @@ No modules.
 | <a name="input_encrypt_logs"></a> [encrypt\_logs](#input\_encrypt\_logs) | Enable encryption for CloudTrail logs | `bool` | `true` | no |
 | <a name="input_expiration_days"></a> [expiration\_days](#input\_expiration\_days) | Number of days after which to expire the data | `number` | `365` | no |
 | <a name="input_iam_policy_description"></a> [iam\_policy\_description](#input\_iam\_policy\_description) | Description of the IAM policy. | `string` | `"Policy for cloudtrail"` | no |
-| <a name="input_iam_policy_json"></a> [iam\_policy\_json](#input\_iam\_policy\_json) | The policy document in JSON format. | `string` | `null` | no |
 | <a name="input_iam_policy_name"></a> [iam\_policy\_name](#input\_iam\_policy\_name) | Name of the IAM policy. | `string` | `"cloudtrail_policy"` | no |
 | <a name="input_iam_policy_path"></a> [iam\_policy\_path](#input\_iam\_policy\_path) | Path in which to create the policy. | `string` | `"/"` | no |
-| <a name="input_iam_role_assume_role_policy"></a> [iam\_role\_assume\_role\_policy](#input\_iam\_role\_assume\_role\_policy) | The policy that grants an entity permission to assume the role. | `string` | `null` | no |
 | <a name="input_iam_role_description"></a> [iam\_role\_description](#input\_iam\_role\_description) | The description of the role. | `string` | `"Role for cloudtrail"` | no |
 | <a name="input_iam_role_force_detach_policies"></a> [iam\_role\_force\_detach\_policies](#input\_iam\_role\_force\_detach\_policies) | Specifies to force detaching any policies the role has before destroying it. | `bool` | `false` | no |
 | <a name="input_iam_role_max_session_duration"></a> [iam\_role\_max\_session\_duration](#input\_iam\_role\_max\_session\_duration) | The maximum session duration (in seconds) that you want to set for the specified role. | `number` | `3600` | no |
@@ -144,7 +142,6 @@ No modules.
 | <a name="input_key_description"></a> [key\_description](#input\_key\_description) | The description of the key as viewed in AWS console. | `string` | `"KMS key for cloudtrail"` | no |
 | <a name="input_key_enable_key_rotation"></a> [key\_enable\_key\_rotation](#input\_key\_enable\_key\_rotation) | Specifies whether key rotation is enabled. | `bool` | `true` | no |
 | <a name="input_key_is_enabled"></a> [key\_is\_enabled](#input\_key\_is\_enabled) | Specifies whether the key is enabled. | `bool` | `true` | no |
-| <a name="input_key_policy"></a> [key\_policy](#input\_key\_policy) | The key policy of the KMS key. | `string` | `null` | no |
 | <a name="input_key_tags"></a> [key\_tags](#input\_key\_tags) | The tags attached to the KMS key. | `map(string)` | `{}` | no |
 | <a name="input_key_usage"></a> [key\_usage](#input\_key\_usage) | Specifies the intended use of the key. | `string` | `"ENCRYPT_DECRYPT"` | no |
 | <a name="input_lifecycle_rule_enabled"></a> [lifecycle\_rule\_enabled](#input\_lifecycle\_rule\_enabled) | Enable or disable bucket transitions. If enabled, objects in the bucket will be transitioned to different storage classes (like STANDARD\_IA or GLACIER) after the specified number of days. | `bool` | `false` | no |
