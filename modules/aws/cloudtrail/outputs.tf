@@ -40,7 +40,18 @@ output "cloudtrail_s3_bucket_public_block" {
   value       = aws_s3_bucket_public_access_block.cloudtrail.id
 }
 
-output "cloudtrail_iam_policy_json" {
-  description = "The JSON policy document that allows CloudTrail to write logs."
+output "cloudtrail_policy_json" {
+  description = "The JSON content of the IAM policy document for CloudTrail."
   value       = data.aws_iam_policy_document.cloudtrail.json
 }
+
+output "cloudtrail_assume_policy_json" {
+  description = "The JSON content of the IAM policy document for CloudTrail Assume."
+  value       = data.aws_iam_policy_document.cloudtrail_assume.json
+}
+
+output "key_policy_json" {
+  description = "The JSON content of the IAM policy document for Key Policy."
+  value       = data.aws_iam_policy_document.key_policy.json
+}
+

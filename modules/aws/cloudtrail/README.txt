@@ -8,7 +8,7 @@ module "cloudtrail_config" {
   key_enable_key_rotation         = true
   key_customer_master_key_spec    = "SYMMETRIC_DEFAULT"
   key_deletion_window_in_days     = 7
-  key_policy                      = null
+  key_policy                      = data.aws_iam_policy.key_policy.json
   key_usage                       = "ENCRYPT_DECRYPT"
   key_is_enabled                  = true
   key_tags                        = data.aws_iam_policy_document.key_policy.json
@@ -46,6 +46,7 @@ module "cloudtrail_config" {
   cloudtrail_include_global_service_events = true
   cloudtrail_is_multi_region_trail         = true
   cloudtrail_enable_log_file_validation    = true
+  encrypt_logs                             = true
   
   #####
   # S3
