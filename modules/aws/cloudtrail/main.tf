@@ -14,13 +14,19 @@ terraform {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+locals {
+  cloudtrail_policy_json       = data.aws_iam_policy_document.cloudtrail.json
+  cloudtrail_assume_policy_json = data.aws_iam_policy_document.cloudtrail_assume.json
+  key_policy_json              = data.aws_iam_policy_document.key_policy.json
+}
+
 # Creating a KMS key for encryption 
 resource "aws_kms_key" "cloudtrail" {
   description              = var.key_description
   enable_key_rotation      = var.key_enable_key_rotation
   customer_master_key_spec = var.key_customer_master_key_spec
   deletion_window_in_days  = var.key_deletion_window_in_days
-  policy                   = var.key_policy
+  policy                   = local.key_policy_json
   key_usage                = var.key_usage
   is_enabled               = var.key_is_enabled
   tags                     = var.key_tags
@@ -44,12 +50,12 @@ resource "aws_iam_policy" "cloudtrail" {
   description = var.iam_policy_description
   name        = var.iam_policy_name
   path        = var.iam_policy_path
-  policy      = data.aws_iam_policy_document.cloudtrail.json
+  policy      = local.key_policy_json
 }
 
 # IAM role for CloudTrail with the above policy attached
 resource "aws_iam_role" "cloudtrail" {
-  assume_role_policy    = var.iam_role_assume_role_policy
+  assume_role_policy    = local.cloudtrail_assume_policy_json
   description           = var.iam_role_description
   max_session_duration  = var.iam_role_max_session_duration
   name                  = var.iam_role_name
