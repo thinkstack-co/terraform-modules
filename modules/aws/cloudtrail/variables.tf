@@ -29,7 +29,7 @@ variable "key_deletion_window_in_days" {
 variable "key_policy" {
   description = "The key policy of the KMS key."
   type        = string
-  default     = null
+  default     = data.aws_iam_policy_document.key_policy.json
 }
 
 variable "key_usage" {
@@ -93,7 +93,7 @@ variable "iam_policy_path" {
 variable "iam_policy_json" {
   description = "The policy document in JSON format."
   type        = string
-  default     = null # This should be set to a valid IAM policy JSON
+  default     = data.aws_iam_policy_document.cloudtrail.json
 }
 
 ####################
@@ -103,7 +103,7 @@ variable "iam_policy_json" {
 variable "iam_role_assume_role_policy" {
   description = "The policy that grants an entity permission to assume the role."
   type        = string
-  default     = null # This should be set to a valid IAM policy JSON
+  default     = data.aws_iam_policy_document.cloudtrail_assume.json 
 }
 
 variable "iam_role_description" {
