@@ -16,14 +16,14 @@ data "aws_region" "current" {}
 
 # Creating a KMS key for encryption 
 resource "aws_kms_key" "cloudtrail" {
-  description             = var.key_description
-  enable_key_rotation     = var.key_enable_key_rotation
+  description              = var.key_description
+  enable_key_rotation      = var.key_enable_key_rotation
   customer_master_key_spec = var.key_customer_master_key_spec
-  deletion_window_in_days = var.key_deletion_window_in_days
-  policy                  = var.key_policy
-  key_usage               = var.key_usage
-  is_enabled              = var.key_is_enabled
-  tags                    = var.key_tags
+  deletion_window_in_days  = var.key_deletion_window_in_days
+  policy                   = var.key_policy
+  key_usage                = var.key_usage
+  is_enabled               = var.key_is_enabled
+  tags                     = var.key_tags
 }
 
 # Creating an alias for the KMS key
@@ -35,7 +35,7 @@ resource "aws_kms_alias" "cloudtrail" {
 # Create CloudWatch Log Group to store CloudTrail logs
 resource "aws_cloudwatch_log_group" "cloudtrail" {
   name              = var.log_group_name
-  kms_key_id        = aws_kms_key.cloudtrail.arn # KMS key ARN for encrypting log data
+  kms_key_id        = aws_kms_key.cloudtrail.arn      # KMS key ARN for encrypting log data
   retention_in_days = var.log_group_retention_in_days # Log retention period
 }
 
@@ -82,7 +82,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 
   versioning {
     enabled    = var.versioning_enabled
-    mfa_delete = var.mfa_delete_enabled  # Enables MFA Delete
+    mfa_delete = var.mfa_delete_enabled # Enables MFA Delete
   }
 
   lifecycle_rule {
