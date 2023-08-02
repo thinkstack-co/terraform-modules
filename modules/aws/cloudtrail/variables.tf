@@ -93,7 +93,7 @@ variable "iam_policy_path" {
 variable "iam_policy_json" {
   description = "The policy document in JSON format."
   type        = string
-  default     = null  # This should be set to a valid IAM policy JSON
+  default     = null # This should be set to a valid IAM policy JSON
 }
 
 ####################
@@ -103,7 +103,7 @@ variable "iam_policy_json" {
 variable "iam_role_assume_role_policy" {
   description = "The policy that grants an entity permission to assume the role."
   type        = string
-  default     = null  # This should be set to a valid IAM policy JSON
+  default     = null # This should be set to a valid IAM policy JSON
 }
 
 variable "iam_role_description" {
