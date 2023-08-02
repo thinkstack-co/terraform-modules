@@ -27,10 +27,6 @@ data "aws_iam_policy_document" "cloudtrail_assume" {
   }
 }
 
-# The aws_caller_identity data source retrieves details about the currently authenticated user
-# in your AWS account. This is used to automatically fetch your AWS account ID.
-data "aws_caller_identity" "current" {}
-
 # The aws_iam_policy_document for Key Policy constructs an IAM policy document that grants 
 # permissions for the root user of your AWS account to perform any action on KMS resources. 
 # This is required to allow encryption and decryption operations for CloudTrail with KMS.
