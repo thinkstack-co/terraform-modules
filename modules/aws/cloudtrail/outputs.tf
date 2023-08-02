@@ -1,31 +1,46 @@
-output "s3_bucket_id" {
-  value = aws_s3_bucket.cloudtrail_s3_bucket.id
+# Output for KMS key
+output "cloudtrail_kms_key" {
+  description = "The Amazon Resource Name (ARN) of the KMS key"
+  value       = aws_kms_key.cloudtrail.arn
 }
 
-output "s3_bucket_arn" {
-  value = aws_s3_bucket.cloudtrail_s3_bucket.arn
+# Output for CloudWatch Log Group
+output "cloudtrail_log_group" {
+  description = "The Amazon Resource Name (ARN) of the CloudWatch Log Group"
+  value       = aws_cloudwatch_log_group.cloudtrail.arn
 }
 
-output "s3_bucket_domain_name" {
-  value = aws_s3_bucket.cloudtrail_s3_bucket.bucket_domain_name
+# Output for IAM policy
+output "cloudtrail_iam_policy" {
+  description = "The Amazon Resource Name (ARN) of the IAM policy"
+  value       = aws_iam_policy.cloudtrail.arn
 }
 
-output "hosted_zone_id" {
-  value = aws_s3_bucket.cloudtrail_s3_bucket.hosted_zone_id
+# Output for IAM role
+output "cloudtrail_iam_role" {
+  description = "The Amazon Resource Name (ARN) of the IAM role"
+  value       = aws_iam_role.cloudtrail.arn
 }
 
-output "s3_bucket_region" {
-  value = aws_s3_bucket.cloudtrail_s3_bucket.region
+# Output for CloudTrail
+output "cloudtrail" {
+  description = "The Amazon Resource Name (ARN) of the CloudTrail"
+  value       = aws_cloudtrail.cloudtrail.arn
 }
 
-output "cloudtrail_id" {
-  value = aws_cloudtrail.cloudtrail.id
+# Output for S3 bucket
+output "cloudtrail_s3_bucket" {
+  description = "The ID of the S3 bucket"
+  value       = aws_s3_bucket.cloudtrail.id
 }
 
-output "cloudtrail_home_region" {
-  value = aws_cloudtrail.cloudtrail.home_region
+# Output for S3 bucket public block
+output "cloudtrail_s3_bucket_public_block" {
+  description = "The ID of the S3 bucket public access block"
+  value       = aws_s3_bucket_public_access_block.cloudtrail.id
 }
 
-output "cloudtrail_arn" {
-  value = aws_cloudtrail.cloudtrail.arn
+output "cloudtrail_iam_policy_json" {
+  description = "The JSON policy document that allows CloudTrail to write logs."
+  value       = data.aws_iam_policy_document.cloudtrail.json
 }
