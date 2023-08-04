@@ -6,7 +6,6 @@ data "aws_iam_policy_document" "cloudtrail" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]
-
     resources = [
       "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
     ]
@@ -15,47 +14,35 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     sid    = "CloudTrailS3Access"
     effect = "Allow"
-
-  principals {
-    type        = "Service"
-    identifiers = ["cloudtrail.amazonaws.com"]
-  }
-  actions = [
-    "s3:GetBucketAcl",
-    "s3:PutObject"
-  ]
-  resources = [
-    aws_s3_bucket.cloudtrail.arn,
-    "${aws_s3_bucket.cloudtrail.arn}/*"
-  ]
-
-  condition {
-    test     = "StringEquals"
-    variable = "s3:x-amz-acl"
-    values   = ["bucket-owner-full-control"]
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:PutObject"
+    ]
+    resources = [
+      aws_s3_bucket.cloudtrail.arn,
+      "${aws_s3_bucket.cloudtrail.arn}/*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
     }
   }
 
   statement {
-  sid    = "CloudTrailKMSAccess"
-  effect = "Allow"
-
-  principals {
-    type        = "Service"
-    identifiers = ["cloudtrail.amazonaws.com"]
-  }
-
-  actions = [
-    "kms:Encrypt",
-    "kms:Decrypt",
-    "kms:ReEncrypt*",
-    "kms:GenerateDataKey*",
-    "kms:DescribeKey"
-  ]
-
-  resources = [aws_kms_key.cloudtrail.arn]
+    sid    = "CloudTrailKMSAccess"
+    effect = "Allow"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+    resources = [aws_kms_key.cloudtrail.arn]
   }
 }
+
 
 # The aws_iam_policy_document for CloudTrail Assume constructs an IAM policy document that 
 # allows CloudTrail service to assume an IAM role. This is necessary to give CloudTrail the 
@@ -106,7 +93,6 @@ data "aws_iam_policy_document" "key_policy" {
 
     resources = ["*"]
   }
-
 
   statement {
     effect = "Allow"
