@@ -98,19 +98,19 @@ data "aws_iam_policy_document" "key_policy" {
     effect = "Allow"
 
     principals {
-    type        = "Service"
-    identifiers = ["cloudtrail.amazonaws.com"]
-  }
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
 
-  actions = [
-    "kms:Encrypt",
-    "kms:Decrypt",
-    "kms:ReEncrypt*",
-    "kms:GenerateDataKey*",
-    "kms:DescribeKey"
-  ]
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
 
-  resources = ["*"]
+    resources = ["*"]
   }
 }
 
