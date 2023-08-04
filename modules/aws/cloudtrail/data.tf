@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "cloudtrail_assume" {
 # This is required to allow encryption and decryption operations for CloudTrail with KMS.
 data "aws_iam_policy_document" "key_policy" {
   statement {
-    sid = "Enable_IAM_User_Permissions"
+    sid    = "Enable_IAM_User_Permissions"
     effect = "Allow"
 
     principals {
