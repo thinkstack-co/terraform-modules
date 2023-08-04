@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     }
 
     # Denies all actions on the S3 bucket and its contents
-    actions   = ["s3:*"]
+    actions = ["s3:*"]
     resources = [
       "${aws_s3_bucket.cloudtrail.arn}",
       "${aws_s3_bucket.cloudtrail.arn}/*"
