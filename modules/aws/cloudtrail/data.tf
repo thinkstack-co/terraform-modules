@@ -16,44 +16,44 @@ data "aws_iam_policy_document" "cloudtrail" {
     sid    = "CloudTrailS3Access"
     effect = "Allow"
 
-  principals {
-    type        = "Service"
-    identifiers = ["cloudtrail.amazonaws.com"]
-  }
-  actions = [
-    "s3:GetBucketAcl",
-    "s3:PutObject"
-  ]
-  resources = [
-    aws_s3_bucket.cloudtrail.arn,
-    "${aws_s3_bucket.cloudtrail.arn}/*"
-  ]
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:PutObject"
+    ]
+    resources = [
+      aws_s3_bucket.cloudtrail.arn,
+      "${aws_s3_bucket.cloudtrail.arn}/*"
+    ]
 
-  condition {
-    test     = "StringEquals"
-    variable = "s3:x-amz-acl"
-    values   = ["bucket-owner-full-control"]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
     }
   }
 
   statement {
-  sid    = "CloudTrailKMSAccess"
-  effect = "Allow"
+    sid    = "CloudTrailKMSAccess"
+    effect = "Allow"
 
-  principals {
-    type        = "Service"
-    identifiers = ["cloudtrail.amazonaws.com"]
-  }
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
 
-  actions = [
-    "kms:Encrypt",
-    "kms:Decrypt",
-    "kms:ReEncrypt*",
-    "kms:GenerateDataKey*",
-    "kms:DescribeKey"
-  ]
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
 
-  resources = [aws_kms_key.cloudtrail.arn]
+    resources = [aws_kms_key.cloudtrail.arn]
   }
 }
 
@@ -112,19 +112,19 @@ data "aws_iam_policy_document" "key_policy" {
     effect = "Allow"
 
     principals {
-    type        = "Service"
-    identifiers = ["cloudtrail.amazonaws.com"]
-  }
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
 
-  actions = [
-    "kms:Encrypt",
-    "kms:Decrypt",
-    "kms:ReEncrypt*",
-    "kms:GenerateDataKey*",
-    "kms:DescribeKey"
-  ]
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
 
-  resources = ["*"]
+    resources = ["*"]
   }
 }
 
