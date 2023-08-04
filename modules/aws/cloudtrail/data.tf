@@ -14,11 +14,11 @@ data "aws_iam_policy_document" "cloudtrail" {
 
   statement {
     actions = [
-      "s3:PutObject",
+      "s3:PutObject", "s3:GetBucketAcl"
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}/*"
+      aws_s3_bucket.cloudtrail.arn
     ]
 
     condition {
