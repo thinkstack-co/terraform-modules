@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "key_policy" {
       identifiers = ["logs.amazonaws.com"]
     }
 
-    actions   = [
+    actions = [
       "kms:Encrypt",
       "kms:Decrypt",
       "kms:ReEncrypt*",
