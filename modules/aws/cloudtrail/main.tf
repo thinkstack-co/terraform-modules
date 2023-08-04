@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "cloudtrail" {
 resource "aws_cloudtrail" "cloudtrail" {
   name                          = var.cloudtrail_name
   s3_bucket_name                = aws_s3_bucket.cloudtrail.id
-  s3_key_prefix                 = var.cloudtrail_s3_key_prefix
+  s3_key_prefix                 = "AWSLogs"
   include_global_service_events = var.cloudtrail_include_global_service_events
   is_multi_region_trail         = var.cloudtrail_is_multi_region_trail
   enable_log_file_validation    = var.cloudtrail_enable_log_file_validation

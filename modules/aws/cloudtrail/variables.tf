@@ -128,12 +128,6 @@ variable "cloudtrail_name" {
   default     = "cloudtrail"
 }
 
-variable "cloudtrail_s3_key_prefix" {
-  description = "Specifies the S3 key prefix that comes after the name of the bucket you have designated for log file delivery."
-  type        = string
-  default     = "AWSLogs"
-}
-
 variable "cloudtrail_include_global_service_events" {
   description = "Specifies whether the trail is publishing events from global services."
   type        = bool
