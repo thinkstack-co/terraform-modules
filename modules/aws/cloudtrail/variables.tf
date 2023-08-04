@@ -47,7 +47,7 @@ variable "key_tags" {
 variable "key_alias_name_prefix" {
   description = "The display name of the alias. The name must start with the word 'alias'."
   type        = string
-  default     = "alias/cloudtrail/"
+  default     = "alias/cloudtrail"
 }
 
 # CloudWatch Log Group variables

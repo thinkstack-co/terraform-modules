@@ -8,11 +8,13 @@ module "cloudtrail_config" {
   key_enable_key_rotation         = true
   key_customer_master_key_spec    = "SYMMETRIC_DEFAULT"
   key_deletion_window_in_days     = 7
-  key_policy                      = data.aws_iam_policy.key_policy.json
   key_usage                       = "ENCRYPT_DECRYPT"
   key_is_enabled                  = true
-  key_tags                        = data.aws_iam_policy_document.key_policy.json
   key_alias_name_prefix           = "alias/"
+  key_tags                        = {
+  "Environment" = "Production"
+  "Application" = "CloudTrail"
+}
   
   ##################
   # CLOUDTRAIL LOGS
@@ -26,12 +28,10 @@ module "cloudtrail_config" {
   iam_policy_description          = "CloudTrail IAM Policy"
   iam_policy_name                 = "CloudTrail-Policy"
   iam_policy_path                 = "/"
-  iam_policy_json                 = data.aws_iam_policy_document.cloudtrail.json
   
   ###########
   # IAM ROLE
   ###########
-  iam_role_assume_role_policy     = data.aws_iam_policy_document.cloudtrail_assume.json
   iam_role_description            = "IAM Role for CloudTrail"
   iam_role_max_session_duration   = 3600
   iam_role_name                   = "CloudTrail-Role"

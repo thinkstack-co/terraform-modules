@@ -14,6 +14,7 @@ terraform {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+# Creates local for reference to data blocks in data.tf to apply JSON documents to resource arguments where needed
 locals {
   cloudtrail_policy_json        = data.aws_iam_policy_document.cloudtrail.json
   cloudtrail_assume_policy_json = data.aws_iam_policy_document.cloudtrail_assume.json
