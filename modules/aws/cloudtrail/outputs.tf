@@ -55,3 +55,8 @@ output "key_policy_json" {
   value       = data.aws_iam_policy_document.key_policy.json
 }
 
+output "cloudtrail_s3_bucket_policy" {
+  description = "The JSON policy for the CloudTrail S3 bucket."
+  value       = aws_s3_bucket_policy.cloudtrail.policy
+}
+
