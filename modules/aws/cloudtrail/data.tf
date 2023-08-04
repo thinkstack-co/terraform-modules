@@ -96,7 +96,8 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
 
     # Specifies the allowed action to put objects (logs) into the S3 bucket
     actions   = ["s3:PutObject"]
-    resources = [aws_s3_bucket.cloudtrail.arn]
+    resources = ["${aws_s3_bucket.cloudtrail.arn}/*"]
+
 
     # Condition to ensure that the bucket owner has full control over the objects
     condition {
