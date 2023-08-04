@@ -169,6 +169,7 @@ No modules.
 | <a name="output_cloudtrail_log_group"></a> [cloudtrail\_log\_group](#output\_cloudtrail\_log\_group) | The Amazon Resource Name (ARN) of the CloudWatch Log Group |
 | <a name="output_cloudtrail_policy_json"></a> [cloudtrail\_policy\_json](#output\_cloudtrail\_policy\_json) | The JSON content of the IAM policy document for CloudTrail. |
 | <a name="output_cloudtrail_s3_bucket"></a> [cloudtrail\_s3\_bucket](#output\_cloudtrail\_s3\_bucket) | The ID of the S3 bucket |
+| <a name="output_cloudtrail_s3_bucket_policy"></a> [cloudtrail\_s3\_bucket\_policy](#output\_cloudtrail\_s3\_bucket\_policy) | The JSON policy for the CloudTrail S3 bucket. |
 | <a name="output_cloudtrail_s3_bucket_public_block"></a> [cloudtrail\_s3\_bucket\_public\_block](#output\_cloudtrail\_s3\_bucket\_public\_block) | The ID of the S3 bucket public access block |
 | <a name="output_key_policy_json"></a> [key\_policy\_json](#output\_key\_policy\_json) | The JSON content of the IAM policy document for Key Policy. |
 <!-- END_TF_DOCS -->
