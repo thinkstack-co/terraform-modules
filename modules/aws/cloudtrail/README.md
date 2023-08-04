@@ -126,7 +126,6 @@ No modules.
 | <a name="input_cloudtrail_include_global_service_events"></a> [cloudtrail\_include\_global\_service\_events](#input\_cloudtrail\_include\_global\_service\_events) | Specifies whether the trail is publishing events from global services. | `bool` | `true` | no |
 | <a name="input_cloudtrail_is_multi_region_trail"></a> [cloudtrail\_is\_multi\_region\_trail](#input\_cloudtrail\_is\_multi\_region\_trail) | Specifies whether the trail is created in all regions. | `bool` | `true` | no |
 | <a name="input_cloudtrail_name"></a> [cloudtrail\_name](#input\_cloudtrail\_name) | The name of the trail. | `string` | `"cloudtrail"` | no |
-| <a name="input_cloudtrail_s3_key_prefix"></a> [cloudtrail\_s3\_key\_prefix](#input\_cloudtrail\_s3\_key\_prefix) | Specifies the S3 key prefix that comes after the name of the bucket you have designated for log file delivery. | `string` | `"AWSLogs"` | no |
 | <a name="input_encrypt_logs"></a> [encrypt\_logs](#input\_encrypt\_logs) | Enable encryption for CloudTrail logs | `bool` | `true` | no |
 | <a name="input_expiration_days"></a> [expiration\_days](#input\_expiration\_days) | Number of days after which to expire the data | `number` | `365` | no |
 | <a name="input_iam_policy_description"></a> [iam\_policy\_description](#input\_iam\_policy\_description) | Description of the IAM policy. | `string` | `"Policy for cloudtrail"` | no |
