@@ -77,10 +77,11 @@ resource "aws_cloudtrail" "cloudtrail" {
   include_global_service_events = var.cloudtrail_include_global_service_events
   is_multi_region_trail         = var.cloudtrail_is_multi_region_trail
   enable_log_file_validation    = var.cloudtrail_enable_log_file_validation
-  cloud_watch_logs_group_arn    = aws_cloudwatch_log_group.cloudtrail.arn
+  cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
   cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail.arn
   kms_key_id                    = var.encrypt_logs ? aws_kms_key.cloudtrail.arn : null
 }
+
 
 
 # S3 bucket to store CloudTrail logs
