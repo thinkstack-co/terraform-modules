@@ -66,48 +66,63 @@ data "aws_iam_policy_document" "key_policy" {
 }
 
 data "aws_iam_policy_document" "s3_bucket_policy" {
+
+  # Statement to allow CloudTrail to check the Access Control List (ACL) of the S3 bucket
   statement {
-    sid    = "AWSCloudTrailAclCheck20150319"
+    sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
 
+    # Specifies that the CloudTrail service is the principal allowed to perform the action
     principals {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
 
+    # Specifies the allowed action to get the bucket ACL
     actions   = ["s3:GetBucketAcl"]
-    resources = ["arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.cloudtrail.name}"]
-    }
+    resources = [aws_s3_bucket.cloudtrail.arn]
   }
 
+  # Statement to allow CloudTrail to write logs to the S3 bucket
   statement {
-    sid    = "AWSCloudTrailWrite20150319"
+    sid    = "AWSCloudTrailWrite"
     effect = "Allow"
 
+    # Specifies that the CloudTrail service is the principal allowed to perform the action
     principals {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
 
+    # Specifies the allowed action to put objects (logs) into the S3 bucket
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.cloudtrail.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
+    # Condition to ensure that the bucket owner has full control over the objects
     condition {
       test     = "StringEquals"
       variable = "s3:x-amz-acl"
       values   = ["bucket-owner-full-control"]
     }
+  }
 
+  # Additional statement to deny all public access
+  statement {
+    sid     = "DenyAllPublicAccess"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}",
+      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}/*"
+    ]
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
     condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.cloudtrail.name}"]
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
     }
   }
 }
-
