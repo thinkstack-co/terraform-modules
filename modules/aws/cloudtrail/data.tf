@@ -64,4 +64,54 @@ data "aws_iam_policy_document" "key_policy" {
   }
 }
 
+# This data block defines the S3 bucket policy for CloudTrail
+data "aws_iam_policy_document" "s3_bucket_policy" {
+  # Statement to allow CloudTrail to write logs to the S3 bucket
+  statement {
+    sid    = "CloudTrailWriteLogs"
+    effect = "Allow"
+
+    # Specifies that the CloudTrail service is the principal allowed to perform the action
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    # Specifies the allowed actions on the S3 bucket
+    actions   = ["s3:PutObject"]
+    resources = ["arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+
+    # Ensures that the bucket owner has full control over the objects
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+
+  # Statement to deny all public access to the S3 bucket
+  statement {
+    sid    = "DenyAllPublicAccess"
+    effect = "Deny"
+    principal {
+      type = "*"
+    }
+
+    # Denies all actions on the S3 bucket and its contents
+    actions   = ["s3:*"]
+    resources = [
+      "${aws_s3_bucket.cloudtrail.arn}",
+      "${aws_s3_bucket.cloudtrail.arn}/*"
+    ]
+
+    # Ensures that access to the S3 bucket must be over HTTPS (secure transport)
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+
 

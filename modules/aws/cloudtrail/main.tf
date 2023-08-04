@@ -14,11 +14,12 @@ terraform {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-# Creates local for reference to data blocks in data.tf to apply JSON documents to resource arguments where needed
+# Create local references to policy documents
 locals {
   cloudtrail_policy_json        = data.aws_iam_policy_document.cloudtrail.json
   cloudtrail_assume_policy_json = data.aws_iam_policy_document.cloudtrail_assume.json
   key_policy_json               = data.aws_iam_policy_document.key_policy.json
+  s3_bucket_policy_json         = data.aws_iam_policy_document.s3_bucket_policy.json
 }
 
 # Creating a KMS key for encryption 
@@ -131,27 +132,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 # Enforcing secure transport on the bucket policy
 resource "aws_s3_bucket_policy" "cloudtrail" {
   bucket = aws_s3_bucket.cloudtrail.id
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "DenyAllPublicAccess",
-      "Effect": "Deny",
-      "Principal": "*",
-      "Action": "s3:*",
-      "Resource": [
-        "${aws_s3_bucket.cloudtrail.arn}",
-        "${aws_s3_bucket.cloudtrail.arn}/*"
-      ],
-      "Condition": {
-         "Bool": { "aws:SecureTransport": "false" }
-      }
-    }
-  ]
-}
-POLICY
+  policy = local.s3_bucket_policy_json
 }
 
 # Blocking public access to the S3 bucket
