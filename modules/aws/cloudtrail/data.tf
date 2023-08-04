@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
   statement {
     sid    = "DenyAllPublicAccess"
     effect = "Deny"
-    principal {
+    principals {
       type = "*"
     }
 
