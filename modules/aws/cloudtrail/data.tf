@@ -105,24 +105,4 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
       values   = ["bucket-owner-full-control"]
     }
   }
-
-  # Additional statement to deny all public access
-  statement {
-    sid     = "DenyAllPublicAccess"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}",
-      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}/*"
-    ]
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-  }
 }
