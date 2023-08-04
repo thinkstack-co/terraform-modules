@@ -89,22 +89,18 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     }
   }
 
-  # Statement to deny all public access to the S3 bucket
-  statement {
-    sid    = "DenyAllPublicAccess"
-    effect = "Deny"
-    principals {
-      type = "*"
-    }
-
-    # Denies all actions on the S3 bucket and its contents
-    actions = ["s3:*"]
+    statement {
+    sid       = "DenyAllPublicAccess"
+    effect    = "Deny"
+    actions   = ["s3:*"]
     resources = [
-      "${aws_s3_bucket.cloudtrail.arn}",
-      "${aws_s3_bucket.cloudtrail.arn}/*"
+      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}",
+      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}/*"
     ]
-
-    # Ensures that access to the S3 bucket must be over HTTPS (secure transport)
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
     condition {
       test     = "Bool"
       variable = "aws:SecureTransport"
@@ -112,6 +108,8 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
     }
   }
 }
+
+
 
 
 

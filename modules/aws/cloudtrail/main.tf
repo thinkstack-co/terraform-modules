@@ -92,7 +92,7 @@ resource "aws_s3_bucket" "cloudtrail" {
 
   versioning {
     enabled    = var.versioning_enabled
-    mfa_delete = var.mfa_delete_enabled # Enables MFA Delete
+    mfa_delete = var.mfa_delete_enabled
   }
 
   lifecycle_rule {
