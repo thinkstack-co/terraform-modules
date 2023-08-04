@@ -51,7 +51,7 @@ resource "aws_iam_policy" "cloudtrail" {
   description = var.iam_policy_description
   name        = var.iam_policy_name
   path        = var.iam_policy_path
-  policy      = local.key_policy_json
+  policy      = local.cloudtrail_policy_json
 }
 
 # IAM role for CloudTrail with the above policy attached
