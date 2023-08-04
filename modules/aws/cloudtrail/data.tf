@@ -11,7 +11,24 @@ data "aws_iam_policy_document" "cloudtrail" {
       "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
     ]
   }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.cloudtrail.id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
 }
+
 
 # The aws_iam_policy_document for CloudTrail Assume constructs an IAM policy document that 
 # allows CloudTrail service to assume an IAM role. This is necessary to give CloudTrail the 
