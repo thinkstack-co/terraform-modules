@@ -12,19 +12,50 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
   }
 
+  # Statement to allow CloudTrail to check the Access Control List (ACL) of the S3 bucket
   statement {
-    actions = [
-      "s3:PutObject", "s3:GetBucketAcl"
-    ]
+    sid    = "AWSCloudTrailAclCheck"
+    effect = "Allow"
 
-    resources = [
-      aws_s3_bucket.cloudtrail.arn
-    ]
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:GetBucketAcl"]
+    resources = [aws_s3_bucket.cloudtrail.arn]
+
+    # Condition to match the ARN of the specific CloudTrail trail
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.cloudtrail.name}"]
+    }
+  }
+
+  # Statement to allow CloudTrail to write logs to the S3 bucket
+  statement {
+    sid    = "AWSCloudTrailWrite"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.cloudtrail.arn}/*"]
 
     condition {
       test     = "StringEquals"
       variable = "s3:x-amz-acl"
       values   = ["bucket-owner-full-control"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.cloudtrail.name}"]
     }
   }
 }
@@ -82,53 +113,6 @@ data "aws_iam_policy_document" "key_policy" {
 }
 
 data "aws_iam_policy_document" "s3_bucket_policy" {
-
-  # Statement to allow CloudTrail to check the Access Control List (ACL) of the S3 bucket
-  statement {
-    sid    = "AWSCloudTrailAclCheck"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-
-    actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.cloudtrail.arn]
-
-    # Condition to match the ARN of the specific CloudTrail trail
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.cloudtrail.name}"]
-    }
-  }
-
-  # Statement to allow CloudTrail to write logs to the S3 bucket
-  statement {
-    sid    = "AWSCloudTrailWrite"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values   = ["arn:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/${aws_cloudtrail.cloudtrail.name}"]
-    }
-  }
 
   # Additional statement to deny all public access
   statement {
