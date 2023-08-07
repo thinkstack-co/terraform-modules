@@ -13,7 +13,7 @@ terraform {
 # Data Sources
 ###########################
 # Fetching the current caller identity and region data
-data "aws_caller_identity" "current" {}
+# data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 #############################
