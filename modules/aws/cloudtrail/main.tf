@@ -103,9 +103,9 @@ resource "aws_cloudwatch_log_group" "cloudtrail" {
   tags              = var.tags
 }
 
-###########################
+############################
 # IAM Policy
-###########################
+############################
 resource "aws_iam_policy" "cloudtrail" {
   description = var.iam_policy_description
   name_prefix = var.iam_policy_name_prefix
