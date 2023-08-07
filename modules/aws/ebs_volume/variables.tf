@@ -7,10 +7,11 @@ variable "encrypted" {
   type        = bool
   description = "(Optional) If true, the disk will be encrypted."
   default     = true
-  validation {
-    condition     = var.encrypted == true
-    error_message = "Encryption is required for EBS volumes."
-  }
+  #turn off force encrypt of new volumes and imported volumes
+  #validation {
+  #condition     = var.encrypted == true
+  #error_message = "Encryption is required for EBS volumes."
+  #}
 }
 
 variable "final_snapshot" {
