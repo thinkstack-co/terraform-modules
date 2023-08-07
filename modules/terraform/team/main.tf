@@ -23,5 +23,9 @@ resource "tfe_team" "this" {
     manage_providers        = var.manage_providers
     manage_modules          = var.manage_modules
     manage_run_tasks        = var.manage_run_tasks
+    manage_projects         = var.manage_projects
+    manage_membership       = var.manage_membership
+    read_workspaces         = var.read_workspaces
+    read_projects           = var.read_projects
   }
 }

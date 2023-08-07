@@ -1,0 +1,100 @@
+module "prod-prod-lb" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_load_balancer?ref=dev_alb"
+
+  drop_invalid_header_fields       = false
+  enable_cross_zone_load_balancing = true
+  enable_deletion_protection       = false
+  enable_http2                     = true
+  idle_timeout                     = 60
+  internal                         = false
+  ip_address_type                  = "ipv4"
+  load_balancer_type               = "application"
+  alb_name                         = "prod-prod-lb"
+  subnets                          = ["subnet-03c8c757ec227cd3a", "subnet-0a8f6e90c40db879c"]
+  access_logs_enabled              = false
+  access_logs_bucket               = "alb-logs-12452452564354622"
+
+  security_groups                  = [module.prod_prod_alb_sg.id, 
+                                      module.prod_prod_salesforce_sg.id,
+                                      module.prod_prod_vonage_sg.id]
+
+  tags = {
+    terraform   = "yes"
+    created_by  = "Wesley Bey"
+    environment = "prod"
+    role        = "prod"
+    backup      = "true"
+    ssm_update  = "true"
+  }
+}
+
+
+module "prod-prod-lb-listener" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener?ref=dev_alb"
+
+  load_balancer_arn = module.prod-prod-lb.lb_arn           
+  port = 443
+  protocol = "HTTPS"
+  ssl_policy = "ELBSecurityPolicy-2016-08"
+  ssl_certificate = module.prod-alb-ssl-certificate.acm_certificate_arn
+  target_groups = [
+    {
+      arn = module.prod-prod-target-group.target_group_arn   
+      weight = 100
+    }
+  ]
+  stickiness_enabled = false
+    
+  tags = {
+    terraform   = "yes"
+    created_by  = "Wesley Bey"
+    environment = "prod"
+    role        = "prod"
+    backup      = "true"
+    ssm_update  = "true"
+  }
+}
+
+module "prod-prod-target-group" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_target_group?ref=dev_alb"  
+
+  name                            = "prod-prod-target-group"
+  target_type                     = "instance"
+  port                            = 443
+  protocol                        = "HTTPS"
+  vpc_id                          = module.vpc.vpc_id
+  health_check_protocol           = "HTTPS"
+  health_check_port               = "traffic-port"
+  health_check_path               = "/healthchecklb"
+  health_check_timeout_seconds    = 5
+  health_check_interval_seconds   = 30
+  healthy_threshold_count         = 5
+  unhealthy_threshold_count       = 2
+  matcher                         = "200"
+  target_id                       = "i-0a98692818ae9a611"
+  target_group_arn                = module.prod-prod-target-group.target_group_arn 
+
+  tags = {
+    terraform   = "yes"
+    created_by  = "Wesley Bey"
+    environment = "prod"
+    role        = "prod"
+    backup      = "true"
+    ssm_update  = "true"
+  }
+}
+
+module "prod-alb-ssl-certificate" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_ssl_cert?ref=dev_alb"
+
+  domain_name                = "prod.company_domain.org"
+  validation_method          = "DNS"
+  subject_alternative_names  = ["prod.company_domain.org", ]
+  key_algorithm              = "RSA_2048"
+  tags = {
+    Environment = "prod"
+    Project = "prod"
+  }
+  listener_arn               = module.prod-prod-lb-listener.listener_arn
+  certificate_arn            = module.prod-alb-ssl-certificate.acm_certificate_arn
+}

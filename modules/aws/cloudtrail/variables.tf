@@ -276,6 +276,12 @@ variable "enable_log_file_validation" {
   }
 }
 
+variable "expected_bucket_owner" {
+  type        = string
+  description = "(Optional, Forces new resource) Account ID of the expected bucket owner."
+  default     = ""
+}
+
 ######################
 # Global Variables
 ######################
