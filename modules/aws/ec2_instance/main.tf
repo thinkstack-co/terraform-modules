@@ -1,3 +1,4 @@
+# Setting the required version of Terraform and AWS provider
 terraform {
   required_version = ">= 1.0.0"
   required_providers {
@@ -11,12 +12,15 @@ terraform {
 ###########################
 # Data Sources
 ###########################
-data "aws_caller_identity" "current" {}
+# Fetching the current caller identity and region data
+# data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 #############################
 # EC2 instance Module
 #############################
+# Creating an EC2 instance with various parameters specified in the module variables.
+# Reference variables.tf for questions about arguments
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
@@ -38,7 +42,6 @@ resource "aws_instance" "ec2" {
     http_tokens   = var.http_tokens
   }
 
-
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
@@ -59,25 +62,24 @@ resource "aws_instance" "ec2" {
   }
 }
 
-
 ###################################################
 # CloudWatch Alarms
 ###################################################
-
-#####################
-# Status Check Failed Instance Metric
-#####################
-
+# Creating a CloudWatch metric alarm for each instance. This alarm triggers if the status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  for_each = { for instance in aws_instance.ec2 : instance.id => instance }
+
+  #If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered. 
+  #If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
+  alarm_actions = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+
   actions_enabled     = true
-  alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
+  alarm_name          = format("%s-instance-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = aws_instance.ec2[count.index].id
+    InstanceId = each.value.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -88,23 +90,23 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
 
-#####################
-# Status Check Failed System Metric
-#####################
-
+# Creating another CloudWatch metric alarm for each instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
+  for_each = { for instance in aws_instance.ec2 : instance.id => instance }
+
+  #If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered. 
+  #If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
+  alarm_actions = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
+  alarm_name          = format("%s-system-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = aws_instance.ec2[count.index].id
+    InstanceId = each.value.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -115,5 +117,5 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
+
