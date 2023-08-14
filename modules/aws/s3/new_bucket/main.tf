@@ -41,8 +41,8 @@ resource "aws_s3_bucket_versioning" "versioning" {
   bucket = aws_s3_bucket.bucket.id       # The name of the bucket
 
   versioning_configuration {
-    enabled    = var.enable_versioning
-    mfa_delete = var.mfa_delete ? "Enabled" : "Disabled"
+    status    = var.versioning_status
+    mfa_delete = var.mfa_delete
   }
 }
 
@@ -247,7 +247,7 @@ resource "aws_s3_bucket_replication_configuration" "replication_configuration" {
   bucket = aws_s3_bucket.bucket.id
   role   = aws_iam_role.source_replication_role[count.index].arn
 
-  rules {
+  rule {
     id     = var.replication_rule_id
     status = var.replication_rule_status
 
@@ -305,7 +305,7 @@ resource "aws_iam_policy" "source_bucket_policy" {
 
   name        = "SourceBucketReplicationPolicy"
   description = "Policy for source bucket replication permissions"
-  policy      = data.aws_iam_policy_document.source_replication_policy.source_json
+  policy      = data.aws_iam_policy_document.source_replication_policy[count.index].json
 }
 
 resource "aws_iam_policy" "destination_bucket_policy" {
@@ -313,7 +313,7 @@ resource "aws_iam_policy" "destination_bucket_policy" {
 
   name        = "DestinationBucketReplicationPolicy"
   description = "Policy for destination bucket replication permissions"
-  policy      = data.aws_iam_policy_document.destination_replication_policy.source_json
+  policy      = data.aws_iam_policy_document.destination_replication_policy[count.index].json
 }
 
 # POLICY ATTACHMENTS

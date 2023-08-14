@@ -64,6 +64,12 @@ variable "enable_versioning" {
   default     = false
 }
 
+variable "versioning_status" {
+  description = "Enabled or Suspended"
+  type        = string
+  default     = "Suspended"
+}
+
 variable "mfa_delete" {
   description = "Flag to enable or disable MFA delete."
   type        = bool
