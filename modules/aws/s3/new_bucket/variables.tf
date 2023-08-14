@@ -248,12 +248,6 @@ variable "bucket_key_enabled" {
   default     = false
 }
 
-variable "create_kms_key" {
-  description = "Flag to determine if a KMS key should be created for SSE."
-  type        = bool
-  default     = false
-}
-
 ##################
 # REPLICATION
 ##################
