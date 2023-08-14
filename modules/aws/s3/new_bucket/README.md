@@ -47,48 +47,48 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_accelerate_status"></a> [accelerate\_status](#input\_accelerate\_status) | The accelerate status of the bucket, 'Enabled' or 'Suspended'. | `string` | `"Suspended"` | no |
+| <a name="input_accelerate_status"></a> [accelerate\_status](#input\_accelerate\_status) | The accelerate status of the bucket, 'Enabled' or 'Suspended'. | `string` | `null` | no |
 | <a name="input_block_public_acls"></a> [block\_public\_acls](#input\_block\_public\_acls) | Whether Amazon S3 should block public ACLs for the bucket. | `bool` | `true` | no |
 | <a name="input_block_public_policy"></a> [block\_public\_policy](#input\_block\_public\_policy) | Whether Amazon S3 should block public bucket policies for the bucket. | `bool` | `true` | no |
 | <a name="input_bucket_acl"></a> [bucket\_acl](#input\_bucket\_acl) | The canned ACL for the S3 bucket. | `string` | `"private"` | no |
-| <a name="input_bucket_key_enabled"></a> [bucket\_key\_enabled](#input\_bucket\_key\_enabled) | Whether or not to use Amazon S3 Bucket Keys for SSE-KMS. | `bool` | `false` | no |
-| <a name="input_bucket_name_prefix"></a> [bucket\_name\_prefix](#input\_bucket\_name\_prefix) | The bucket name prefix for the S3 bucket. | `string` | n/a | yes |
-| <a name="input_create_destination_bucket"></a> [create\_destination\_bucket](#input\_create\_destination\_bucket) | Flag to create a destination bucket for replication. | `bool` | `false` | no |
+| <a name="input_bucket_key_enabled"></a> [bucket\_key\_enabled](#input\_bucket\_key\_enabled) | Whether or not to use Amazon S3 Bucket Keys for SSE-KMS. | `bool` | `null` | no |
+| <a name="input_bucket_name_prefix"></a> [bucket\_name\_prefix](#input\_bucket\_name\_prefix) | The bucket name prefix for the S3 bucket. | `string` | `"example-bucket"` | no |
+| <a name="input_create_destination_bucket"></a> [create\_destination\_bucket](#input\_create\_destination\_bucket) | Flag to create a destination bucket for replication. | `bool` | `null` | no |
 | <a name="input_create_kms_key"></a> [create\_kms\_key](#input\_create\_kms\_key) | Determines if a new KMS key should be created for server-side encryption. | `bool` | `false` | no |
-| <a name="input_days_to_deep_archive"></a> [days\_to\_deep\_archive](#input\_days\_to\_deep\_archive) | Number of days to transition to DEEP\_ARCHIVE storage class | `number` | `180` | no |
-| <a name="input_days_to_glacier_flexible"></a> [days\_to\_glacier\_flexible](#input\_days\_to\_glacier\_flexible) | Number of days to transition to GLACIER\_FLEXIBLE\_RETRIEVAL storage class | `number` | `90` | no |
-| <a name="input_days_to_glacier_instant"></a> [days\_to\_glacier\_instant](#input\_days\_to\_glacier\_instant) | Number of days to transition to GLACIER\_INSTANT\_RETRIEVAL storage class | `number` | `90` | no |
-| <a name="input_days_to_onezone_ia"></a> [days\_to\_onezone\_ia](#input\_days\_to\_onezone\_ia) | Number of days to transition to ONEZONE\_IA storage class | `number` | `30` | no |
-| <a name="input_days_to_standard_ia"></a> [days\_to\_standard\_ia](#input\_days\_to\_standard\_ia) | Number of days to transition to STANDARD\_IA storage class | `number` | `30` | no |
-| <a name="input_destination_bucket_acl"></a> [destination\_bucket\_acl](#input\_destination\_bucket\_acl) | The ACL for the destination bucket. | `string` | n/a | yes |
-| <a name="input_destination_bucket_mfa_delete"></a> [destination\_bucket\_mfa\_delete](#input\_destination\_bucket\_mfa\_delete) | Flag to enable or disable MFA delete for the destination bucket. | `bool` | `false` | no |
-| <a name="input_destination_bucket_name"></a> [destination\_bucket\_name](#input\_destination\_bucket\_name) | The name for the destination bucket. | `string` | n/a | yes |
+| <a name="input_days_to_deep_archive"></a> [days\_to\_deep\_archive](#input\_days\_to\_deep\_archive) | Number of days to transition to DEEP\_ARCHIVE storage class | `any` | `null` | no |
+| <a name="input_days_to_glacier_flexible"></a> [days\_to\_glacier\_flexible](#input\_days\_to\_glacier\_flexible) | Number of days to transition to GLACIER\_FLEXIBLE\_RETRIEVAL storage class | `any` | `null` | no |
+| <a name="input_days_to_glacier_instant"></a> [days\_to\_glacier\_instant](#input\_days\_to\_glacier\_instant) | Number of days to transition to GLACIER\_INSTANT\_RETRIEVAL storage class | `any` | `null` | no |
+| <a name="input_days_to_onezone_ia"></a> [days\_to\_onezone\_ia](#input\_days\_to\_onezone\_ia) | Number of days to transition to ONEZONE\_IA storage class | `any` | `null` | no |
+| <a name="input_days_to_standard_ia"></a> [days\_to\_standard\_ia](#input\_days\_to\_standard\_ia) | Number of days to transition to STANDARD\_IA storage class | `any` | `null` | no |
+| <a name="input_destination_bucket_acl"></a> [destination\_bucket\_acl](#input\_destination\_bucket\_acl) | The ACL for the destination bucket. | `string` | `null` | no |
+| <a name="input_destination_bucket_mfa_delete"></a> [destination\_bucket\_mfa\_delete](#input\_destination\_bucket\_mfa\_delete) | Flag to enable or disable MFA delete for the destination bucket. | `bool` | `null` | no |
+| <a name="input_destination_bucket_name"></a> [destination\_bucket\_name](#input\_destination\_bucket\_name) | The name for the destination bucket. | `string` | `null` | no |
 | <a name="input_destroy_objects_with_bucket"></a> [destroy\_objects\_with\_bucket](#input\_destroy\_objects\_with\_bucket) | Determines if objects should be destroyed when bucket is destroyed. | `bool` | `false` | no |
 | <a name="input_enable_acceleration"></a> [enable\_acceleration](#input\_enable\_acceleration) | Flag to enable or disable acceleration for the S3 bucket. | `bool` | `false` | no |
-| <a name="input_enable_deep_archive"></a> [enable\_deep\_archive](#input\_enable\_deep\_archive) | Enable transition to DEEP\_ARCHIVE storage class | `bool` | `true` | no |
-| <a name="input_enable_glacier_flexible"></a> [enable\_glacier\_flexible](#input\_enable\_glacier\_flexible) | Enable transition to GLACIER\_FLEXIBLE\_RETRIEVAL storage class | `bool` | `true` | no |
-| <a name="input_enable_glacier_instant"></a> [enable\_glacier\_instant](#input\_enable\_glacier\_instant) | Enable transition to GLACIER\_INSTANT\_RETRIEVAL storage class | `bool` | `false` | no |
+| <a name="input_enable_deep_archive"></a> [enable\_deep\_archive](#input\_enable\_deep\_archive) | Enable transition to DEEP\_ARCHIVE storage class | `bool` | `null` | no |
+| <a name="input_enable_glacier_flexible"></a> [enable\_glacier\_flexible](#input\_enable\_glacier\_flexible) | Enable transition to GLACIER\_FLEXIBLE\_RETRIEVAL storage class | `bool` | `null` | no |
+| <a name="input_enable_glacier_instant"></a> [enable\_glacier\_instant](#input\_enable\_glacier\_instant) | Enable transition to GLACIER\_INSTANT\_RETRIEVAL storage class | `bool` | `null` | no |
 | <a name="input_enable_intelligent_tiering"></a> [enable\_intelligent\_tiering](#input\_enable\_intelligent\_tiering) | Flag to enable or disable intelligent tiering for the S3 bucket. | `bool` | `false` | no |
-| <a name="input_enable_intelligent_tiering_archive_access"></a> [enable\_intelligent\_tiering\_archive\_access](#input\_enable\_intelligent\_tiering\_archive\_access) | Enable the Archive Access tier in Intelligent Tiering | `bool` | `false` | no |
-| <a name="input_enable_intelligent_tiering_deep_archive_access"></a> [enable\_intelligent\_tiering\_deep\_archive\_access](#input\_enable\_intelligent\_tiering\_deep\_archive\_access) | Enable the Deep Archive Access tier in Intelligent Tiering | `bool` | `false` | no |
+| <a name="input_enable_intelligent_tiering_archive_access"></a> [enable\_intelligent\_tiering\_archive\_access](#input\_enable\_intelligent\_tiering\_archive\_access) | Enable the Archive Access tier in Intelligent Tiering | `bool` | `null` | no |
+| <a name="input_enable_intelligent_tiering_deep_archive_access"></a> [enable\_intelligent\_tiering\_deep\_archive\_access](#input\_enable\_intelligent\_tiering\_deep\_archive\_access) | Enable the Deep Archive Access tier in Intelligent Tiering | `bool` | `null` | no |
 | <a name="input_enable_lifecycle_configuration"></a> [enable\_lifecycle\_configuration](#input\_enable\_lifecycle\_configuration) | Flag to enable or disable lifecycle configuration. | `bool` | `false` | no |
-| <a name="input_enable_onezone_ia"></a> [enable\_onezone\_ia](#input\_enable\_onezone\_ia) | Enable transition to ONEZONE\_IA storage class | `bool` | `false` | no |
+| <a name="input_enable_onezone_ia"></a> [enable\_onezone\_ia](#input\_enable\_onezone\_ia) | Enable transition to ONEZONE\_IA storage class | `bool` | `null` | no |
 | <a name="input_enable_public_access_block"></a> [enable\_public\_access\_block](#input\_enable\_public\_access\_block) | Flag to enable or disable public access block. | `bool` | `true` | no |
 | <a name="input_enable_replication"></a> [enable\_replication](#input\_enable\_replication) | Flag to enable or disable replication. | `bool` | `false` | no |
-| <a name="input_enable_standard_ia"></a> [enable\_standard\_ia](#input\_enable\_standard\_ia) | Enable transition to STANDARD\_IA storage class | `bool` | `true` | no |
+| <a name="input_enable_standard_ia"></a> [enable\_standard\_ia](#input\_enable\_standard\_ia) | Enable transition to STANDARD\_IA storage class | `bool` | `null` | no |
 | <a name="input_enable_versioning"></a> [enable\_versioning](#input\_enable\_versioning) | Flag to enable or disable versioning for the S3 bucket. | `bool` | `false` | no |
-| <a name="input_filter_prefix"></a> [filter\_prefix](#input\_filter\_prefix) | Only objects with this prefix will be considered for intelligent tiering. | `string` | n/a | yes |
+| <a name="input_filter_prefix"></a> [filter\_prefix](#input\_filter\_prefix) | Only objects with this prefix will be considered for intelligent tiering. | `string` | `null` | no |
 | <a name="input_ignore_public_acls"></a> [ignore\_public\_acls](#input\_ignore\_public\_acls) | Whether Amazon S3 should ignore public ACLs for the bucket. | `bool` | `true` | no |
-| <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | AWS KMS master key ID used for the SSE-KMS encryption. Only used when 'sse\_algorithm' is set to 'aws:kms'. Defaults to the S3 service master key if not provided. | `string` | `null` | no |
-| <a name="input_lifecycle_rule_id"></a> [lifecycle\_rule\_id](#input\_lifecycle\_rule\_id) | The ID for the lifecycle rule. | `string` | n/a | yes |
+| <a name="input_kms_master_key_id"></a> [kms\_master\_key\_id](#input\_kms\_master\_key\_id) | AWS KMS master key ID used for the SSE-KMS encryption. | `string` | `null` | no |
+| <a name="input_lifecycle_rule_id"></a> [lifecycle\_rule\_id](#input\_lifecycle\_rule\_id) | The ID for the lifecycle rule. | `string` | `null` | no |
 | <a name="input_mfa_delete"></a> [mfa\_delete](#input\_mfa\_delete) | Flag to enable or disable MFA delete. | `bool` | `false` | no |
-| <a name="input_replication_rule_id"></a> [replication\_rule\_id](#input\_replication\_rule\_id) | The ID for the replication rule. | `string` | n/a | yes |
-| <a name="input_replication_rule_status"></a> [replication\_rule\_status](#input\_replication\_rule\_status) | The status for the replication rule. | `string` | n/a | yes |
-| <a name="input_replication_storage_class"></a> [replication\_storage\_class](#input\_replication\_storage\_class) | The storage class for replication. | `string` | n/a | yes |
+| <a name="input_replication_rule_id"></a> [replication\_rule\_id](#input\_replication\_rule\_id) | The ID for the replication rule. | `string` | `null` | no |
+| <a name="input_replication_rule_status"></a> [replication\_rule\_status](#input\_replication\_rule\_status) | The status for the replication rule. | `string` | `null` | no |
+| <a name="input_replication_storage_class"></a> [replication\_storage\_class](#input\_replication\_storage\_class) | The storage class for replication. | `string` | `null` | no |
 | <a name="input_restrict_public_buckets"></a> [restrict\_public\_buckets](#input\_restrict\_public\_buckets) | Whether Amazon S3 should restrict public bucket policies for the bucket. | `bool` | `true` | no |
-| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | Server side encryption algorithm to use on the S3 bucket. Valid values are 'AES256' for SSE-S3 or 'aws:kms' for SSE-KMS. | `string` | `"AES256"` | no |
-| <a name="input_target_bucket_arn"></a> [target\_bucket\_arn](#input\_target\_bucket\_arn) | The ARN for the target bucket for replication. | `string` | n/a | yes |
-| <a name="input_tiering_config_id"></a> [tiering\_config\_id](#input\_tiering\_config\_id) | The unique ID for the intelligent tiering configuration. | `string` | n/a | yes |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | Server side encryption algorithm to use on the S3 bucket. | `string` | `"AES256"` | no |
+| <a name="input_target_bucket_arn"></a> [target\_bucket\_arn](#input\_target\_bucket\_arn) | The ARN for the target bucket for replication. | `string` | `null` | no |
+| <a name="input_tiering_config_id"></a> [tiering\_config\_id](#input\_tiering\_config\_id) | The unique ID for the intelligent tiering configuration. | `string` | `null` | no |
 
 ## Outputs
 
