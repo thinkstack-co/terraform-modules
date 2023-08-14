@@ -64,13 +64,11 @@ output "s3_bucket_replication_configuration" {
 output "iam_source_replication_role_arn" {
   description = "ARN of the IAM role for source bucket replication"
   value       = aws_iam_role.source_replication_role[count.index].arn
-  depends_on  = [aws_iam_role.source_replication_role[count.index]]
 }
 
 output "iam_destination_replication_role_arn" {
   description = "ARN of the IAM role for destination bucket replication"
   value       = aws_iam_role.destination_replication_role[count.index].arn
-  depends_on  = [aws_iam_role.destination_replication_role[count.index]]
 }
 
 ##########################
@@ -102,11 +100,9 @@ output "destination_bucket_versioning" {
 output "source_replication_policy_document" {
   description = "IAM policy document for source bucket replication permissions"
   value       = data.aws_iam_policy_document.source_replication_policy[count.index].json
-  depends_on  = [data.aws_iam_policy_document.source_replication_policy[count.index]]
 }
 
 output "destination_replication_policy_document" {
   description = "IAM policy document for destination bucket replication permissions"
   value       = data.aws_iam_policy_document.destination_replication_policy[count.index].json
-  depends_on  = [data.aws_iam_policy_document.destination_replication_policy[count.index]]
 }
