@@ -89,6 +89,7 @@ No modules.
 | <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | Server side encryption algorithm to use on the S3 bucket. | `string` | `"AES256"` | no |
 | <a name="input_target_bucket_arn"></a> [target\_bucket\_arn](#input\_target\_bucket\_arn) | The ARN for the target bucket for replication. | `string` | `null` | no |
 | <a name="input_tiering_config_id"></a> [tiering\_config\_id](#input\_tiering\_config\_id) | The unique ID for the intelligent tiering configuration. | `string` | `null` | no |
+| <a name="input_versioning_status"></a> [versioning\_status](#input\_versioning\_status) | Enabled or Suspended | `string` | `"Suspended"` | no |
 
 ## Outputs
 

@@ -34,9 +34,9 @@ data "aws_iam_policy_document" "destination_replication_policy" {
       "s3:ListBucket"
     ]
 
-    effect    = "Allow"
+    effect = "Allow"
     resources = [
       "${aws_s3_bucket.destination_bucket[count.index].arn}",
-      "${aws_s3_bucket.destination_bucket[count.index].arn}/*"]
+    "${aws_s3_bucket.destination_bucket[count.index].arn}/*"]
   }
 }
