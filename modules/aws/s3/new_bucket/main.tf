@@ -13,8 +13,8 @@ terraform {
 #################
 
 resource "aws_s3_bucket" "bucket" {
-  bucket_prefix = var.bucket_name_prefix  
-  acl    = var.bucket_acl        
+  bucket_prefix = var.bucket_name_prefix
+  acl           = var.bucket_acl
   force_destroy = var.destroy_objects_with_bucket # This only deletes objects when the bucket is destroyed, not when setting this parameter to true. 
 }
 
@@ -23,13 +23,13 @@ resource "aws_s3_bucket" "bucket" {
 ########################
 
 resource "aws_s3_bucket_public_access_block" "public_access_block" {
-  count   = var.enable_public_access_block ? 1 : 0  # Conditionally create resource
-  bucket = aws_s3_bucket.bucket.id  # The name of the bucket
+  count  = var.enable_public_access_block ? 1 : 0 # Conditionally create resource
+  bucket = aws_s3_bucket.bucket.id                # The name of the bucket
 
-  block_public_acls   = var.block_public_acls  # Whether Amazon S3 should block public ACLs for this bucket
-  block_public_policy = var.block_public_policy  # Whether Amazon S3 should block public bucket policies for this bucket
-  ignore_public_acls  = var.ignore_public_acls  # Whether Amazon S3 should ignore public ACLs for this bucket
-  restrict_public_buckets = var.restrict_public_buckets  # Whether Amazon S3 should restrict public bucket policies for this bucket
+  block_public_acls       = var.block_public_acls       # Whether Amazon S3 should block public ACLs for this bucket
+  block_public_policy     = var.block_public_policy     # Whether Amazon S3 should block public bucket policies for this bucket
+  ignore_public_acls      = var.ignore_public_acls      # Whether Amazon S3 should ignore public ACLs for this bucket
+  restrict_public_buckets = var.restrict_public_buckets # Whether Amazon S3 should restrict public bucket policies for this bucket
 }
 
 #######################
@@ -37,8 +37,8 @@ resource "aws_s3_bucket_public_access_block" "public_access_block" {
 #######################
 
 resource "aws_s3_bucket_versioning" "versioning" {
-  count  = var.enable_versioning ? 1 : 0  # This will create the resource if enable_versioning is true, and skip if it's false
-  bucket = aws_s3_bucket.bucket.id        # The name of the bucket
+  count  = var.enable_versioning ? 1 : 0 # This will create the resource if enable_versioning is true, and skip if it's false
+  bucket = aws_s3_bucket.bucket.id       # The name of the bucket
 
   versioning {
     enabled    = var.enable_versioning
@@ -51,9 +51,9 @@ resource "aws_s3_bucket_versioning" "versioning" {
 #####################
 
 resource "aws_s3_bucket_accelerate_configuration" "acceleration" {
-  count   = var.enable_acceleration ? 1 : 0  # Conditionally create resource
-  bucket  = aws_s3_bucket.bucket.id          # The name of the bucket
-  status  = var.accelerate_status            # The accelerate status of the bucket, "Enabled" or "Suspended"
+  count  = var.enable_acceleration ? 1 : 0 # Conditionally create resource
+  bucket = aws_s3_bucket.bucket.id         # The name of the bucket
+  status = var.accelerate_status           # The accelerate status of the bucket, "Enabled" or "Suspended"
 }
 
 ######################
@@ -63,7 +63,7 @@ resource "aws_s3_bucket_accelerate_configuration" "acceleration" {
 resource "aws_s3_bucket_intelligent_tiering_configuration" "intelligent_tiering" {
   # The bucket to apply the configuration to
   bucket = aws_s3_bucket.bucket.id
-  name = var.tiering_config_id
+  name   = var.tiering_config_id
   status = "Enabled"
 
   # Dynamic block for Archive Access tier
@@ -100,8 +100,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   bucket = aws_s3_bucket.bucket.id
 
   rule {
-    id      = var.lifecycle_rule_id
-    status  = "Enabled"
+    id     = var.lifecycle_rule_id
+    status = "Enabled"
 
     # Transition to S3 Standard-IA based on user-defined days
     dynamic "transition" {
@@ -171,27 +171,27 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "sse" {
 resource "aws_kms_key" "s3_encryption_key" {
   count       = var.create_kms_key ? 1 : 0
   description = "KMS Key for S3 Bucket Encryption"
-  
+
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Id": "s3-kms-policy",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Id" : "s3-kms-policy",
+    "Statement" : [
       {
-        "Effect": "Allow",
-        "Principal": {
-          "Service": "s3.amazonaws.com"
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "s3.amazonaws.com"
         },
-        "Action": [
+        "Action" : [
           "kms:Encrypt",
           "kms:Decrypt",
           "kms:ReEncrypt*",
           "kms:GenerateDataKey*",
           "kms:DescribeKey"
         ],
-        "Resource": "*",
-        "Condition": {
-          "StringEquals": {
-            "s3:arn": "${aws_s3_bucket.bucket.arn}"  # Reference to the S3 bucket's ARN
+        "Resource" : "*",
+        "Condition" : {
+          "StringEquals" : {
+            "s3:arn" : "${aws_s3_bucket.bucket.arn}" # Reference to the S3 bucket's ARN
           }
         }
       }
@@ -221,8 +221,8 @@ resource "aws_iam_role" "s3_kms_role" {
 
 # Policy to allow the role to use the KMS key
 resource "aws_iam_policy" "s3_kms_policy" {
-  count  = var.create_kms_key ? 1 : 0
-  name   = "S3KMSAccessPolicy"
+  count = var.create_kms_key ? 1 : 0
+  name  = "S3KMSAccessPolicy"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -344,12 +344,12 @@ resource "aws_iam_role_policy_attachment" "destination_replication_attachment" {
 resource "aws_s3_bucket" "destination_bucket" {
   count  = var.create_destination_bucket ? 1 : 0
   bucket = var.destination_bucket_name
-  acl    = var.destination_bucket_acl  
+  acl    = var.destination_bucket_acl
 }
 
 resource "aws_s3_bucket_versioning" "destination_bucket_versioning" {
   count  = var.create_destination_bucket ? 1 : 0 # Automatically creates destination bucket versioning as it is required to allow objects to be replicated into it.
-  bucket = aws_s3_bucket.bucket.id        # The name of the bucket
+  bucket = aws_s3_bucket.bucket.id               # The name of the bucket
 
   versioning {
     enabled    = var.create_destination_bucket

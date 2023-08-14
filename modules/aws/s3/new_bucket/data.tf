@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "source_replication_policy" {
           "s3:GetBucketVersioning",
           "s3:GetBucketLocation"
         ],
-        Effect   = "Allow",
+        Effect = "Allow",
         Resource = [
           "${aws_s3_bucket.bucket.arn}",
           "${aws_s3_bucket.bucket.arn}/*"

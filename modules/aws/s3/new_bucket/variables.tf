@@ -109,13 +109,13 @@ variable "filter_prefix" {
 variable "enable_intelligent_tiering_archive_access" {
   description = "Enable the Archive Access tier in Intelligent Tiering"
   type        = bool
-  default     = false  # By default, set to false. Users can change this to true to enable the tier.
+  default     = false # By default, set to false. Users can change this to true to enable the tier.
 }
 
 variable "enable_intelligent_tiering_deep_archive_access" {
   description = "Enable the Deep Archive Access tier in Intelligent Tiering"
   type        = bool
-  default     = false  # By default, set to false. Users can change this to true to enable the tier.
+  default     = false # By default, set to false. Users can change this to true to enable the tier.
 }
 
 ############################
@@ -168,7 +168,7 @@ variable "enable_deep_archive" {
 variable "days_to_standard_ia" {
   description = "Number of days to transition to STANDARD_IA storage class"
   default     = 30
-  
+
   # Validation to ensure days are >= 30
   validation {
     condition     = var.days_to_standard_ia >= 30
@@ -239,7 +239,7 @@ variable "sse_algorithm" {
 variable "kms_master_key_id" {
   description = "AWS KMS master key ID used for the SSE-KMS encryption. Only used when 'sse_algorithm' is set to 'aws:kms'. Defaults to the S3 service master key if not provided."
   type        = string
-  default     = null  # Default AWS S3 KMS master key
+  default     = null # Default AWS S3 KMS master key
 }
 
 variable "bucket_key_enabled" {
