@@ -41,7 +41,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
   bucket = aws_s3_bucket.bucket.id       # The name of the bucket
 
   versioning_configuration {
-    status    = var.versioning_status
+    status     = var.versioning_status
     mfa_delete = var.mfa_delete
   }
 }
