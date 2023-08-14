@@ -36,8 +36,8 @@ output "s3_bucket_accelerate_configuration" {
 
 output "s3_bucket_intelligent_tiering_configuration" {
   description = "Intelligent tiering configuration for the S3 bucket"
-  value       = aws_s3_bucket_intelligent_tiering_configuration.config
-  depends_on  = [aws_s3_bucket_intelligent_tiering_configuration.config]
+  value       = aws_s3_bucket_intelligent_tiering_configuration.intelligent_tiering
+  depends_on  = [aws_s3_bucket_intelligent_tiering_configuration.intelligent_tiering]
 }
 
 output "s3_bucket_lifecycle_configuration" {
@@ -79,13 +79,13 @@ output "iam_destination_replication_role_arn" {
 
 output "destination_bucket_id" {
   description = "The ID of the destination S3 bucket (if created)"
-  value       = aws_s3_bucket.destination_bucket.id
+  value       = aws_s3_bucket.destination_bucket[count.index].id
   depends_on  = [aws_s3_bucket.destination_bucket]
 }
 
 output "destination_bucket_arn" {
   description = "The ARN of the destination S3 bucket (if created)"
-  value       = aws_s3_bucket.destination_bucket.arn
+  value       = aws_s3_bucket.destination_bucket[count.index].arn
   depends_on  = [aws_s3_bucket.destination_bucket]
 }
 

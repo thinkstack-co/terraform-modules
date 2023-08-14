@@ -40,7 +40,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
   count  = var.enable_versioning ? 1 : 0 # This will create the resource if enable_versioning is true, and skip if it's false
   bucket = aws_s3_bucket.bucket.id       # The name of the bucket
 
-  versioning {
+  versioning_configuration {
     enabled    = var.enable_versioning
     mfa_delete = var.mfa_delete ? "Enabled" : "Disabled"
   }
@@ -61,37 +61,24 @@ resource "aws_s3_bucket_accelerate_configuration" "acceleration" {
 ######################
 
 resource "aws_s3_bucket_intelligent_tiering_configuration" "intelligent_tiering" {
-  count = var.enable_intelligent_tiering ? 1 : 0
+  count  = var.enable_intelligent_tiering ? 1 : 0
   bucket = aws_s3_bucket.bucket.id
   name   = var.tiering_config_id
   status = "Enabled"
 
-  # Dynamic block for Archive Access tier
-  dynamic "tiering" {
-    count = var.enable_intelligent_tiering ? 1 : 0
-    for_each = var.enable_intelligent_tiering_archive_access ? [{
-      access_tier = "ARCHIVE_ACCESS",
-      days        = 90
-    }] : []
-    content {
-      access_tier = tiering.value.access_tier
-      days        = tiering.value.days
-    }
+  # Static block for Archive Access tier
+  tiering {
+    access_tier = "ARCHIVE_ACCESS"
+    days        = 90
   }
 
-  # Dynamic block for Deep Archive Access tier
-  dynamic "tiering" {
-    count = var.enable_intelligent_tiering ? 1 : 0
-    for_each = var.enable_intelligent_tiering_deep_archive_access ? [{
-      access_tier = "DEEP_ARCHIVE_ACCESS",
-      days        = 180
-    }] : []
-    content {
-      access_tier = tiering.value.access_tier
-      days        = tiering.value.days
-    }
+  # Static block for Deep Archive Access tier
+  tiering {
+    access_tier = "DEEP_ARCHIVE_ACCESS"
+    days        = 180
   }
 }
+
 
 ############################
 # LIFECYCLE CONFIGURATION
@@ -102,13 +89,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   bucket = aws_s3_bucket.bucket.id
 
   rule {
-    count  = var.enable_lifecycle_configuration ? 1 : 0
     id     = var.lifecycle_rule_id
     status = "Enabled"
 
     # Transition to S3 Standard-IA based on user-defined days
     dynamic "transition" {
-      count  = var.enable_lifecycle_configuration ? 1 : 0
       for_each = var.enable_standard_ia ? [var.days_to_standard_ia] : []
       content {
         days          = transition.value
@@ -118,7 +103,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 
     # Transition to S3 One Zone-IA based on user-defined days
     dynamic "transition" {
-      count  = var.enable_lifecycle_configuration ? 1 : 0
       for_each = var.enable_onezone_ia ? [var.days_to_onezone_ia] : []
       content {
         days          = transition.value
@@ -128,7 +112,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 
     # Transition to S3 Glacier Instant Retrieval based on user-defined days
     dynamic "transition" {
-      count  = var.enable_lifecycle_configuration ? 1 : 0
       for_each = var.enable_glacier_instant ? [var.days_to_glacier_instant] : []
       content {
         days          = transition.value
@@ -138,7 +121,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 
     # Transition to S3 Glacier Flexible Retrieval based on user-defined days
     dynamic "transition" {
-      count  = var.enable_lifecycle_configuration ? 1 : 0
       for_each = var.enable_glacier_flexible ? [var.days_to_glacier_flexible] : []
       content {
         days          = transition.value
@@ -148,7 +130,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 
     # Transition to S3 Glacier Deep Archive based on user-defined days
     dynamic "transition" {
-      count  = var.enable_lifecycle_configuration ? 1 : 0
       for_each = var.enable_deep_archive ? [var.days_to_deep_archive] : []
       content {
         days          = transition.value
@@ -264,15 +245,13 @@ resource "aws_iam_role_policy_attachment" "s3_kms_attachment" {
 resource "aws_s3_bucket_replication_configuration" "replication_configuration" {
   count  = var.enable_replication ? 1 : 0 # This will create the resource if enable_replication is true, and skip if it's false
   bucket = aws_s3_bucket.bucket.id
-  role   = aws_iam_role.replication_role[count.index].arn
+  role   = aws_iam_role.source_replication_role[count.index].arn
 
   rules {
-    count  = var.enable_replication ? 1 : 0
     id     = var.replication_rule_id
     status = var.replication_rule_status
 
     destination {
-      count  = var.enable_replication ? 1 : 0
       # Use the ARN of the created bucket if 'create_destination_bucket' is true, otherwise use the provided ARN.
       bucket        = var.create_destination_bucket ? aws_s3_bucket.destination_bucket[count.index].arn : var.target_bucket_arn
       storage_class = var.replication_storage_class
@@ -361,7 +340,7 @@ resource "aws_s3_bucket_versioning" "destination_bucket_versioning" {
   count  = var.create_destination_bucket ? 1 : 0 # Automatically creates destination bucket versioning as it is required to allow objects to be replicated into it.
   bucket = aws_s3_bucket.bucket.id               # The name of the bucket
 
-  versioning {
+  versioning_configuration {
     enabled    = var.create_destination_bucket
     mfa_delete = var.destination_bucket_mfa_delete ? "Enabled" : "Disabled"
   }
