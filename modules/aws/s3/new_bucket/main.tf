@@ -183,10 +183,10 @@ resource "aws_kms_key" "s3_encryption_key" {
         "kms:GenerateDataKey*",
         "kms:DescribeKey"
       ],
-      "Resource" : "${aws_kms_key.s3_encryption_key.arn}", # This references the ARN of the key being created
+      "Resource" : aws_kms_key.s3_encryption_key[0].arn,
       "Condition" : {
         "StringEquals" : {
-          "s3:arn" : "${aws_s3_bucket.bucket.arn}"
+          "s3:arn" : aws_s3_bucket.bucket.arn
         }
       }
     },
@@ -196,7 +196,7 @@ resource "aws_kms_key" "s3_encryption_key" {
         "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
       },
       "Action" : "kms:PutKeyPolicy",
-      "Resource" : "${aws_kms_key.s3_encryption_key.arn}" # This references the ARN of the key being created
+      "Resource" : aws_kms_key.s3_encryption_key[0].arn
     },
     {
       "Sid": "AllowEntitiesWithAdminPolicy",
@@ -205,16 +205,17 @@ resource "aws_kms_key" "s3_encryption_key" {
         "AWS": "*"
       },
       "Action": "kms:*",
-      "Resource" : "${aws_kms_key.s3_encryption_key.arn}", # This references the ARN of the key being created
+      "Resource" : aws_kms_key.s3_encryption_key[0].arn,
       "Condition": {
         "StringEquals": {
           "aws:RequesterManagedPolicyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
+          }
         }
       }
-    }
-  ]
-})
+    ]
+  })
 }
+
 
 
 # IAM Role for S3 to use KMS Key
