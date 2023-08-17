@@ -53,7 +53,7 @@ No modules.
 | <a name="input_bucket_acl"></a> [bucket\_acl](#input\_bucket\_acl) | The canned ACL for the S3 bucket. | `string` | `"private"` | no |
 | <a name="input_bucket_key_enabled"></a> [bucket\_key\_enabled](#input\_bucket\_key\_enabled) | Whether or not to use Amazon S3 Bucket Keys for SSE-KMS. | `bool` | `null` | no |
 | <a name="input_bucket_name_prefix"></a> [bucket\_name\_prefix](#input\_bucket\_name\_prefix) | The bucket name prefix for the S3 bucket. | `string` | `"example-bucket"` | no |
-| <a name="input_create_destination_bucket"></a> [create\_destination\_bucket](#input\_create\_destination\_bucket) | Flag to create a destination bucket for replication. | `bool` | `null` | no |
+| <a name="input_create_destination_bucket"></a> [create\_destination\_bucket](#input\_create\_destination\_bucket) | Flag to create a destination bucket for replication. | `bool` | `false` | no |
 | <a name="input_create_kms_key"></a> [create\_kms\_key](#input\_create\_kms\_key) | Determines if a new KMS key should be created for server-side encryption. | `bool` | `false` | no |
 | <a name="input_days_to_deep_archive"></a> [days\_to\_deep\_archive](#input\_days\_to\_deep\_archive) | Number of days to transition to DEEP\_ARCHIVE storage class | `any` | `null` | no |
 | <a name="input_days_to_glacier_flexible"></a> [days\_to\_glacier\_flexible](#input\_days\_to\_glacier\_flexible) | Number of days to transition to GLACIER\_FLEXIBLE\_RETRIEVAL storage class | `any` | `null` | no |
