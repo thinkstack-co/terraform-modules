@@ -282,6 +282,12 @@ variable "destination_bucket_acl" {
 
 variable "destination_bucket_mfa_delete" {
   description = "Flag to enable or disable MFA delete for the destination bucket."
-  type        = bool
-  default     = null
+  type        = string
+  default     = "Disabled"
+}
+
+variable "destination_bucket_status" {
+  description = "Flag to enable or disable MFA delete for the destination bucket."
+  type        = string
+  default     = "Disabled"
 }
