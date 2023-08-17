@@ -168,40 +168,54 @@ resource "aws_kms_key" "s3_encryption_key" {
   description = "KMS Key for S3 Bucket Encryption"
 
   policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Id" : "s3-kms-policy",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "s3.amazonaws.com"
-        },
-        "Action" : [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        "Resource" : "*",
-        "Condition" : {
-          "StringEquals" : {
-            "s3:arn" : "${aws_s3_bucket.bucket.arn}" # Reference to the S3 bucket's ARN
-          }
-        }
+  "Version" : "2012-10-17",
+  "Id" : "s3-kms-policy",
+  "Statement" : [
+    {
+      "Effect" : "Allow",
+      "Principal" : {
+        "Service" : "s3.amazonaws.com"
       },
-      {
-        "Effect" : "Allow",
-        "Principal" : {
-          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        },
-        "Action" : "kms:PutKeyPolicy",
-        "Resource" : "*"
+      "Action" : [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:DescribeKey"
+      ],
+      "Resource" : "${aws_kms_key.s3_encryption_key.arn}", # This references the ARN of the key being created
+      "Condition" : {
+        "StringEquals" : {
+          "s3:arn" : "${aws_s3_bucket.bucket.arn}"
+        }
       }
-    ]
-  })
-
+    },
+    {
+      "Effect" : "Allow",
+      "Principal" : {
+        "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+      },
+      "Action" : "kms:PutKeyPolicy",
+      "Resource" : "${aws_kms_key.s3_encryption_key.arn}" # This references the ARN of the key being created
+    },
+    {
+      "Sid": "AllowEntitiesWithAdminPolicy",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": "kms:*",
+      "Resource" : "${aws_kms_key.s3_encryption_key.arn}", # This references the ARN of the key being created
+      "Condition": {
+        "StringEquals": {
+          "aws:RequesterManagedPolicyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
+        }
+      }
+    }
+  ]
+})
 }
+
 
 # IAM Role for S3 to use KMS Key
 resource "aws_iam_role" "s3_kms_role" {
