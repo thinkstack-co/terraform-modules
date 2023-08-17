@@ -11,6 +11,7 @@ terraform {
 ###################
 # AWS ACCOUNT
 ###################
+data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 
@@ -162,75 +163,57 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "sse" {
   }
 }
 
-
 resource "aws_kms_key" "s3_encryption_key" {
   count       = var.create_kms_key ? 1 : 0
   description = "KMS Key for S3 Bucket Encryption"
 
   policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Id" : "s3-kms-policy",
-    "Statement" : [
+    Version : "2012-10-17",
+    Statement : [
       {
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "s3.amazonaws.com"
+        Effect : "Allow",
+        Principal : {
+          Service : "s3.amazonaws.com"
         },
-        "Action" : [
+        Action : [
           "kms:Encrypt",
           "kms:Decrypt",
           "kms:ReEncrypt*",
           "kms:GenerateDataKey*",
           "kms:DescribeKey"
         ],
-        "Resource" : aws_kms_key.s3_encryption_key[0].arn, # This references the ARN of the key being created
-        "Condition" : {
-          "StringEquals" : {
+        Resource : "*",
+        Condition : {
+          StringEquals : {
             "s3:arn" : "${aws_s3_bucket.bucket.arn}"
           }
         }
       },
       {
-        "Action" : [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        "Resource" : aws_kms_key.s3_encryption_key[0].arn,
-        "Condition" : {
-          "StringEquals" : {
-            "s3:arn" : aws_s3_bucket.bucket.arn
-          }
-        }
+        Effect : "Allow",
+        Principal : {
+          AWS : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        Action : "kms:PutKeyPolicy",
+        Resource : "*"
       },
       {
-        "Effect" : "Allow",
-        "Principal" : {
-          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        Sid: "AllowEntitiesWithAdminPolicy",
+        Effect: "Allow",
+        Principal: {
+          "AWS": "*"
         },
-        "Action" : "kms:PutKeyPolicy",
-        "Resource" : aws_kms_key.s3_encryption_key[0].arn
-      },
-      {
-        "Sid" : "AllowEntitiesWithAdminPolicy",
-        "Effect" : "Allow",
-        "Principal" : {
-          "AWS" : "*"
-        },
-        "Action" : "kms:*",
-        "Resource" : aws_kms_key.s3_encryption_key[0].arn,
-        "Condition" : {
-          "StringEquals" : {
-            "aws:RequesterManagedPolicyArn" : "arn:aws:iam::aws:policy/AdministratorAccess"
+        Action: "kms:*",
+        Resource : "*",
+        Condition: {
+          StringEquals: {
+            "aws:RequesterManagedPolicyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
           }
         }
       }
     ]
   })
 }
-
 
 
 # IAM Role for S3 to use KMS Key
@@ -253,34 +236,6 @@ resource "aws_iam_role" "s3_kms_role" {
   })
 }
 
-# Policy to allow the role to use the KMS key
-resource "aws_iam_policy" "s3_kms_policy" {
-  count = var.create_kms_key ? 1 : 0
-  name  = "S3KMSAccessPolicy"
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        Resource = aws_kms_key.s3_encryption_key[0].arn,
-        Effect   = "Allow"
-      }
-    ]
-  })
-}
-
-# Attach the policy to the role
-resource "aws_iam_role_policy_attachment" "s3_kms_attachment" {
-  count      = var.create_kms_key ? 1 : 0
-  role       = aws_iam_role.s3_kms_role[0].name
-  policy_arn = aws_iam_policy.s3_kms_policy[0].arn
-}
 
 ##################
 # REPLICATION
