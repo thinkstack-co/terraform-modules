@@ -198,16 +198,16 @@ resource "aws_kms_key" "s3_encryption_key" {
         Resource : "*"
       },
       {
-        Sid: "AllowEntitiesWithAdminPolicy",
-        Effect: "Allow",
-        Principal: {
-          "AWS": "*"
+        Sid : "AllowEntitiesWithAdminPolicy",
+        Effect : "Allow",
+        Principal : {
+          "AWS" : "*"
         },
-        Action: "kms:*",
+        Action : "kms:*",
         Resource : "*",
-        Condition: {
-          StringEquals: {
-            "aws:RequesterManagedPolicyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
+        Condition : {
+          StringEquals : {
+            "aws:RequesterManagedPolicyArn" : "arn:aws:iam::aws:policy/AdministratorAccess"
           }
         }
       }
