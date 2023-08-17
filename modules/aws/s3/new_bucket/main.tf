@@ -337,8 +337,8 @@ resource "aws_s3_bucket" "destination_bucket" {
 }
 
 resource "aws_s3_bucket_versioning" "destination_bucket_versioning" {
-  count  = var.create_destination_bucket ? 1 : 0 # Automatically creates destination bucket versioning as it is required to allow objects to be replicated into it.
-  bucket = aws_s3_bucket.bucket.id               # The name of the bucket
+  count  = var.create_destination_bucket
+  bucket = aws_s3_bucket.bucket.id              
 
   versioning_configuration {
     status     = var.destination_bucket_status

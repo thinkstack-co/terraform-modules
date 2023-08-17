@@ -253,7 +253,7 @@ variable "replication_rule_status" {
 variable "create_destination_bucket" {
   description = "Flag to create a destination bucket for replication."
   type        = bool
-  default     = null
+  default     = false
 }
 
 variable "target_bucket_arn" {
