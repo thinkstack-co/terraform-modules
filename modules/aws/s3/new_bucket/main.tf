@@ -169,11 +169,22 @@ resource "aws_kms_key" "s3_encryption_key" {
 
   policy = jsonencode({
     Version : "2012-10-17",
+    Id : "s3-kms-default",
     Statement : [
       {
+        Sid : "Enable IAM User Permissions",
         Effect : "Allow",
         Principal : {
-          Service : "s3.amazonaws.com"
+          AWS : "*"
+        },
+        Action : "kms:*",
+        Resource : "*"
+      },
+      {
+        Sid : "AllowS3RoleUsage",
+        Effect : "Allow",
+        Principal : {
+          AWS : aws_iam_role.s3_kms_role[0].arn
         },
         Action : [
           "kms:Encrypt",
@@ -182,39 +193,11 @@ resource "aws_kms_key" "s3_encryption_key" {
           "kms:GenerateDataKey*",
           "kms:DescribeKey"
         ],
-        Resource : "*",
-        Condition : {
-          StringEquals : {
-            "s3:arn" : "${aws_s3_bucket.bucket.arn}"
-          }
-        }
-      },
-      {
-        Effect : "Allow",
-        Principal : {
-          AWS : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        },
-        Action : "kms:PutKeyPolicy",
         Resource : "*"
-      },
-      {
-        Sid : "AllowEntitiesWithAdminPolicy",
-        Effect : "Allow",
-        Principal : {
-          "AWS" : "*"
-        },
-        Action : "kms:*",
-        Resource : "*",
-        Condition : {
-          StringEquals : {
-            "aws:RequesterManagedPolicyArn" : "arn:aws:iam::aws:policy/AdministratorAccess"
-          }
-        }
       }
     ]
   })
 }
-
 
 # IAM Role for S3 to use KMS Key
 resource "aws_iam_role" "s3_kms_role" {
@@ -222,20 +205,19 @@ resource "aws_iam_role" "s3_kms_role" {
   name  = "S3KMSEncryptionRole"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
+    Version : "2012-10-17",
+    Statement : [
       {
-        Action = "sts:AssumeRole",
-        Principal = {
-          Service = "s3.amazonaws.com"
+        Action : "sts:AssumeRole",
+        Principal : {
+          Service : "s3.amazonaws.com"
         },
-        Effect = "Allow",
-        Sid    = ""
+        Effect : "Allow",
+        Sid = ""
       }
     ]
   })
 }
-
 
 ##################
 # REPLICATION
