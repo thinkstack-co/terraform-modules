@@ -337,7 +337,7 @@ resource "aws_s3_bucket" "destination_bucket" {
 }
 
 resource "aws_s3_bucket_versioning" "destination_bucket_versioning" {
-  count  = var.create_destination_bucket
+  count  = var.create_destination_bucket ? 1 : 0
   bucket = aws_s3_bucket.bucket.id              
 
   versioning_configuration {
