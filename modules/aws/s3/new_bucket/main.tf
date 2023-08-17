@@ -8,6 +8,12 @@ terraform {
   }
 }
 
+###################
+# AWS ACCOUNT
+###################
+data "aws_caller_identity" "current" {}
+
+
 #################
 # BUCKET
 #################
@@ -183,9 +189,18 @@ resource "aws_kms_key" "s3_encryption_key" {
             "s3:arn" : "${aws_s3_bucket.bucket.arn}" # Reference to the S3 bucket's ARN
           }
         }
+      },
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        "Action" : "kms:PutKeyPolicy",
+        "Resource" : "*"
       }
     ]
   })
+
 }
 
 # IAM Role for S3 to use KMS Key
