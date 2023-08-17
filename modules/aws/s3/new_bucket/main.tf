@@ -168,14 +168,29 @@ resource "aws_kms_key" "s3_encryption_key" {
   description = "KMS Key for S3 Bucket Encryption"
 
   policy = jsonencode({
-  "Version" : "2012-10-17",
-  "Id" : "s3-kms-policy",
-  "Statement" : [
-    {
-      "Effect" : "Allow",
-      "Principal" : {
-        "Service" : "s3.amazonaws.com"
+    "Version" : "2012-10-17",
+    "Id" : "s3-kms-policy",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "s3.amazonaws.com"
+        },
+        "Action" : [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
+        "Resource" : "${aws_kms_key.s3_encryption_key.arn}", # This references the ARN of the key being created
+        "Condition" : {
+          "StringEquals" : {
+            "s3:arn" : "${aws_s3_bucket.bucket.arn}"
+          }
+        }
       },
+      {
       "Action" : [
         "kms:Encrypt",
         "kms:Decrypt",

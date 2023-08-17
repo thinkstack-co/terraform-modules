@@ -100,7 +100,7 @@ output "destination_bucket_versioning" {
 output "kms_key_arn" {
   description = "The ARN of the created KMS key"
   value       = var.create_kms_key ? aws_kms_key.s3_encryption_key[0].arn : null
-  depends_on = [aws_kms_key.s3_encryption_key]
+  depends_on  = [aws_kms_key.s3_encryption_key]
 }
 
 ##########################

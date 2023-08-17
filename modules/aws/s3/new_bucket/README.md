@@ -103,6 +103,7 @@ No modules.
 | <a name="output_destination_replication_policy_document"></a> [destination\_replication\_policy\_document](#output\_destination\_replication\_policy\_document) | IAM policy document for destination bucket replication permissions |
 | <a name="output_iam_destination_replication_role_arn"></a> [iam\_destination\_replication\_role\_arn](#output\_iam\_destination\_replication\_role\_arn) | ARN of the IAM role for destination bucket replication |
 | <a name="output_iam_source_replication_role_arn"></a> [iam\_source\_replication\_role\_arn](#output\_iam\_source\_replication\_role\_arn) | ARN of the IAM role for source bucket replication |
+| <a name="output_kms_key_arn"></a> [kms\_key\_arn](#output\_kms\_key\_arn) | The ARN of the created KMS key |
 | <a name="output_s3_bucket_accelerate_configuration"></a> [s3\_bucket\_accelerate\_configuration](#output\_s3\_bucket\_accelerate\_configuration) | Acceleration settings for the S3 bucket |
 | <a name="output_s3_bucket_arn"></a> [s3\_bucket\_arn](#output\_s3\_bucket\_arn) | The ARN of the S3 bucket |
 | <a name="output_s3_bucket_id"></a> [s3\_bucket\_id](#output\_s3\_bucket\_id) | The ID of the S3 bucket |
