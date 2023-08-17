@@ -61,8 +61,9 @@ No modules.
 | <a name="input_days_to_onezone_ia"></a> [days\_to\_onezone\_ia](#input\_days\_to\_onezone\_ia) | Number of days to transition to ONEZONE\_IA storage class | `any` | `null` | no |
 | <a name="input_days_to_standard_ia"></a> [days\_to\_standard\_ia](#input\_days\_to\_standard\_ia) | Number of days to transition to STANDARD\_IA storage class | `any` | `null` | no |
 | <a name="input_destination_bucket_acl"></a> [destination\_bucket\_acl](#input\_destination\_bucket\_acl) | The ACL for the destination bucket. | `string` | `null` | no |
-| <a name="input_destination_bucket_mfa_delete"></a> [destination\_bucket\_mfa\_delete](#input\_destination\_bucket\_mfa\_delete) | Flag to enable or disable MFA delete for the destination bucket. | `bool` | `null` | no |
+| <a name="input_destination_bucket_mfa_delete"></a> [destination\_bucket\_mfa\_delete](#input\_destination\_bucket\_mfa\_delete) | Flag to enable or disable MFA delete for the destination bucket. | `string` | `"Disabled"` | no |
 | <a name="input_destination_bucket_name"></a> [destination\_bucket\_name](#input\_destination\_bucket\_name) | The name for the destination bucket. | `string` | `null` | no |
+| <a name="input_destination_bucket_status"></a> [destination\_bucket\_status](#input\_destination\_bucket\_status) | Flag to enable or disable MFA delete for the destination bucket. | `string` | `"Disabled"` | no |
 | <a name="input_destroy_objects_with_bucket"></a> [destroy\_objects\_with\_bucket](#input\_destroy\_objects\_with\_bucket) | Determines if objects should be destroyed when bucket is destroyed. | `bool` | `false` | no |
 | <a name="input_enable_acceleration"></a> [enable\_acceleration](#input\_enable\_acceleration) | Flag to enable or disable acceleration for the S3 bucket. | `bool` | `false` | no |
 | <a name="input_enable_deep_archive"></a> [enable\_deep\_archive](#input\_enable\_deep\_archive) | Enable transition to DEEP\_ARCHIVE storage class | `bool` | `null` | no |

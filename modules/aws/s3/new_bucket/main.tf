@@ -341,7 +341,7 @@ resource "aws_s3_bucket_versioning" "destination_bucket_versioning" {
   bucket = aws_s3_bucket.bucket.id               # The name of the bucket
 
   versioning_configuration {
-    status   = var.destination_bucket_status
+    status     = var.destination_bucket_status
     mfa_delete = var.destination_bucket_mfa_delete ? "Enabled" : "Disabled"
   }
 }
