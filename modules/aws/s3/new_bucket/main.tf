@@ -183,7 +183,7 @@ resource "aws_kms_key" "s3_encryption_key" {
           "kms:GenerateDataKey*",
           "kms:DescribeKey"
         ],
-        "Resource" : "${aws_kms_key.s3_encryption_key.arn}", # This references the ARN of the key being created
+        "Resource" : aws_kms_key.s3_encryption_key[0].arn, # This references the ARN of the key being created
         "Condition" : {
           "StringEquals" : {
             "s3:arn" : "${aws_s3_bucket.bucket.arn}"
