@@ -63,12 +63,12 @@ output "s3_bucket_replication_configuration" {
 
 output "iam_source_replication_role_arn" {
   description = "ARN of the IAM role for source bucket replication"
-  value       = aws_iam_role.source_replication_role[count.index].arn
+  value       = var.enable_replication ? aws_iam_role.source_replication_role[0].arn : null
 }
 
 output "iam_destination_replication_role_arn" {
   description = "ARN of the IAM role for destination bucket replication"
-  value       = aws_iam_role.destination_replication_role[count.index].arn
+  value       = var.enable_replication ? aws_iam_role.destination_replication_role[0].arn : null
 }
 
 ##########################
@@ -77,13 +77,13 @@ output "iam_destination_replication_role_arn" {
 
 output "destination_bucket_id" {
   description = "The ID of the destination S3 bucket (if created)"
-  value       = aws_s3_bucket.destination_bucket[count.index].id
+  value       = var.create_destination_bucket ? aws_s3_bucket.destination_bucket[0].id : null
   depends_on  = [aws_s3_bucket.destination_bucket]
 }
 
 output "destination_bucket_arn" {
   description = "The ARN of the destination S3 bucket (if created)"
-  value       = aws_s3_bucket.destination_bucket[count.index].arn
+  value       = var.create_destination_bucket ? aws_s3_bucket.destination_bucket[0].arn : null
   depends_on  = [aws_s3_bucket.destination_bucket]
 }
 
@@ -99,10 +99,10 @@ output "destination_bucket_versioning" {
 
 output "source_replication_policy_document" {
   description = "IAM policy document for source bucket replication permissions"
-  value       = data.aws_iam_policy_document.source_replication_policy[count.index].json
+  value       = var.enable_replication ? data.aws_iam_policy_document.source_replication_policy[0].json : null
 }
 
 output "destination_replication_policy_document" {
   description = "IAM policy document for destination bucket replication permissions"
-  value       = data.aws_iam_policy_document.destination_replication_policy[count.index].json
+  value       = var.enable_replication ? data.aws_iam_policy_document.destination_replication_policy[0].json : null
 }
