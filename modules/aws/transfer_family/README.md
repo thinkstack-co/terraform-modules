@@ -27,7 +27,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_address_allocation_ids"></a> [address\_allocation\_ids](#input\_address\_allocation\_ids) | List of Elastic IP addresses for the VPC endpoint | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
-| <a name="input_domain"></a> [domain](#input\_domain) | The domain used by the Transfer Family server. Choices are: SFTP, FTP, FTPS. Default is SFTP. | `string` | `"SFTP"` | no |
+| <a name="input_domain"></a> [domain](#input\_domain) | The domain used by the Transfer Family server. Valid values are: S3 and EFS. The default value is S3. | `string` | `"S3"` | no |
 | <a name="input_endpoint_details"></a> [endpoint\_details](#input\_endpoint\_details) | The VPC endpoint settings that are configured for your server | `any` | `null` | no |
 | <a name="input_endpoint_type"></a> [endpoint\_type](#input\_endpoint\_type) | The endpoint type for the Transfer Family server | `string` | `"VPC"` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all user data is deleted when the server is deleted | `bool` | `false` | no |
