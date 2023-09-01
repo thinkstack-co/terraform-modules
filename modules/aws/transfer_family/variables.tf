@@ -72,7 +72,7 @@ variable "subnet_ids" {
 variable "tags" {
   description = "A mapping of tags to assign to the resource"
   type        = map(string)
-  default     = {
+  default = {
     terraform   = "true"
     environment = "prod"
     project     = "SIEM Implementation"
