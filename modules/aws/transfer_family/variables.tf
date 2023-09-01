@@ -5,9 +5,9 @@ variable "address_allocation_ids" {
 }
 
 variable "domain" {
-  description = "The domain used by the Transfer Family server. Choices are: SFTP, FTP, FTPS. Default is SFTP."
+  description = "The domain used by the Transfer Family server. Valid values are: S3 and EFS. The default value is S3."
   type        = string
-  default     = "SFTP"
+  default     = "S3"
 }
 
 variable "endpoint_details" {
