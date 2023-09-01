@@ -27,6 +27,7 @@ resource "aws_transfer_server" "transfer_server" {
   invocation_role        = var.invocation_role
   logging_role           = var.logging_role
   protocols              = var.protocols
+  security_policy_name   = var.security_policy_name
   url                    = var.url
 }
 

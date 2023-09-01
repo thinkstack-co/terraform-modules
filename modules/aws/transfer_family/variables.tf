@@ -57,6 +57,12 @@ variable "security_group_ids" {
   default     = []
 }
 
+variable "security_policy_name" {
+  description = "(Optional) Specifies the name of the security policy that is attached to the server. Possible values are TransferSecurityPolicy-2018-11, TransferSecurityPolicy-2020-06, TransferSecurityPolicy-FIPS-2020-06, TransferSecurityPolicy-2022-03 and TransferSecurityPolicy-2023-05. Default value is: TransferSecurityPolicy-2018-11."
+  type        = string
+  default     = null
+}
+
 variable "subnet_ids" {
   description = "List of subnet IDs to associate with the Transfer Family server"
   type        = list(string)
