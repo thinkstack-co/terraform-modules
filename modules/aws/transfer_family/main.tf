@@ -10,9 +10,9 @@ terraform {
 
 # AWS Transfer Family provides fully managed support for file transfers over SFTP, FTPS, and FTP for Amazon S3 and Amazon EFS.
 resource "aws_transfer_server" "transfer_server" {
-  
-  endpoint_type          = var.endpoint_type
-    
+
+  endpoint_type = var.endpoint_type
+
   endpoint_details {
     address_allocation_ids = var.address_allocation_ids
     security_group_ids     = var.security_group_ids
