@@ -28,7 +28,6 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_address_allocation_ids"></a> [address\_allocation\_ids](#input\_address\_allocation\_ids) | List of Elastic IP addresses for the VPC endpoint | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
 | <a name="input_domain"></a> [domain](#input\_domain) | The domain used by the Transfer Family server. Valid values are: S3 and EFS. The default value is S3. | `string` | `"S3"` | no |
-| <a name="input_endpoint_details"></a> [endpoint\_details](#input\_endpoint\_details) | The VPC endpoint settings that are configured for your server | `any` | `null` | no |
 | <a name="input_endpoint_type"></a> [endpoint\_type](#input\_endpoint\_type) | The endpoint type for the Transfer Family server | `string` | `"VPC"` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all user data is deleted when the server is deleted | `bool` | `false` | no |
 | <a name="input_hosted_zone_id"></a> [hosted\_zone\_id](#input\_hosted\_zone\_id) | Route53 Hosted Zone ID. Only required if using VPC\_ENDPOINT type. | `string` | `null` | no |
@@ -40,7 +39,8 @@ No modules.
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnet IDs to associate with the Transfer Family server | `list(string)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to the resource | `map(string)` | <pre>{<br>  "environment": "prod",<br>  "project": "SIEM Implementation",<br>  "team": "Security Team",<br>  "terraform": "true",<br>  "used_by": "ThinkStack"<br>}</pre> | no |
 | <a name="input_url"></a> [url](#input\_url) | The endpoint URL of the Transfer Family server | `string` | `null` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to associate with the Transfer Family server | `string` | `null` | no |
+| <a name="input_vpc_endpoint_id"></a> [vpc\_endpoint\_id](#input\_vpc\_endpoint\_id) | The ID of the VPC endpoint. This property can only be used when endpoint\_type is set to VPC\_ENDPOINT | `string` | `null` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The VPC ID of the virtual private cloud in which the SFTP server's endpoint will be hosted. This property can only be used when endpoint\_type is set to VPC. | `string` | `null` | no |
 
 ## Outputs
 
