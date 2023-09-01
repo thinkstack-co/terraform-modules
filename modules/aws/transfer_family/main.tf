@@ -17,6 +17,7 @@ resource "aws_transfer_server" "transfer_server" {
     address_allocation_ids = var.address_allocation_ids
     security_group_ids     = var.security_group_ids
     subnet_ids             = var.subnet_ids
+    vpc_endpoint_id        = var.vpc_endpoint_id
     vpc_id                 = var.vpc_id
   }
   domain                 = var.domain

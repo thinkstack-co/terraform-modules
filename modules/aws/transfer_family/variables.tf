@@ -10,12 +10,6 @@ variable "domain" {
   default     = "S3"
 }
 
-variable "endpoint_details" {
-  description = "The VPC endpoint settings that are configured for your server"
-  type        = any # This can be complex, you might need to structure the input or use a map.
-  default     = null
-}
-
 variable "endpoint_type" {
   description = "The endpoint type for the Transfer Family server"
   default     = "VPC"
@@ -88,7 +82,13 @@ variable "url" {
 }
 
 variable "vpc_id" {
-  description = "VPC ID to associate with the Transfer Family server"
+  description = "The VPC ID of the virtual private cloud in which the SFTP server's endpoint will be hosted. This property can only be used when endpoint_type is set to VPC."
+  type        = string
+  default     = null
+}
+
+variable "vpc_endpoint_id" {
+  description = "The ID of the VPC endpoint. This property can only be used when endpoint_type is set to VPC_ENDPOINT"
   type        = string
   default     = null
 }
