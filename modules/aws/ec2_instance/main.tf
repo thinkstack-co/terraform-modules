@@ -69,7 +69,7 @@ resource "aws_instance" "ec2" {
 resource "aws_cloudwatch_metric_alarm" "instance" {
   for_each = { for instance in aws_instance.ec2 : instance.id => instance }
 
-  alarm_actions = []  # No 'Recover' action for StatusCheckFailed_Instance metric
+  alarm_actions = [] # No 'Recover' action for StatusCheckFailed_Instance metric
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
