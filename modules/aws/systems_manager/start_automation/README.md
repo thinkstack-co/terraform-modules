@@ -56,7 +56,7 @@ No modules.
 | <a name="input_stop_max_concurrency"></a> [stop\_max\_concurrency](#input\_stop\_max\_concurrency) | The maximum number of instances to stop concurrently. | `string` | `"1"` | no |
 | <a name="input_stop_max_errors"></a> [stop\_max\_errors](#input\_stop\_max\_errors) | The maximum number of errors allowed before stopping the automation. | `string` | `"1"` | no |
 | <a name="input_stop_order"></a> [stop\_order](#input\_stop\_order) | Order in which EC2 instances should be stopped. | `list(string)` | `[]` | no |
-| <a name="input_target_details"></a> [target\_details](#input\_target\_details) | The targets (e.g., instances) for the maintenance window. It's a list of maps with 'key' and 'values'. | `list(map(string))` | `[]` | no |
+| <a name="input_target_details"></a> [target\_details](#input\_target\_details) | The list of instance IDs that are targets for the maintenance window. | `list(string)` | `[]` | no |
 | <a name="input_target_name_start"></a> [target\_name\_start](#input\_target\_name\_start) | The name of the maintenance window target for starting instances. | `string` | `"StartTarget"` | no |
 | <a name="input_target_name_stop"></a> [target\_name\_stop](#input\_target\_name\_stop) | The name of the maintenance window target for stopping instances. | `string` | `"StopTarget"` | no |
 | <a name="input_target_resource_type"></a> [target\_resource\_type](#input\_target\_resource\_type) | The type of resource you can specify when registering a target. Only 'INSTANCE' is currently supported. | `string` | `"INSTANCE"` | no |
@@ -65,6 +65,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_maintenance_window_id"></a> [maintenance\_window\_id](#output\_maintenance\_window\_id) | The ID of the maintenance window. |
-| <a name="output_maintenance_window_target_id"></a> [maintenance\_window\_target\_id](#output\_maintenance\_window\_target\_id) | The ID of the maintenance window target. |
+| <a name="output_maintenance_window_id_start"></a> [maintenance\_window\_id\_start](#output\_maintenance\_window\_id\_start) | The ID of the maintenance window for starting instances. |
+| <a name="output_maintenance_window_id_stop"></a> [maintenance\_window\_id\_stop](#output\_maintenance\_window\_id\_stop) | The ID of the maintenance window for stopping instances. |
+| <a name="output_maintenance_window_target_id_start"></a> [maintenance\_window\_target\_id\_start](#output\_maintenance\_window\_target\_id\_start) | The ID of the maintenance window target for starting instances. |
+| <a name="output_maintenance_window_target_id_stop"></a> [maintenance\_window\_target\_id\_stop](#output\_maintenance\_window\_target\_id\_stop) | The ID of the maintenance window target for stopping instances. |
 <!-- END_TF_DOCS -->
