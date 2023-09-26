@@ -31,7 +31,6 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_iam_role_arn"></a> [iam\_role\_arn](#input\_iam\_role\_arn) | ARN of the IAM role to associate with the maintenance window tasks | `string` | n/a | yes |
 | <a name="input_mw_allow_unassociated_targets_start"></a> [mw\_allow\_unassociated\_targets\_start](#input\_mw\_allow\_unassociated\_targets\_start) | Indicates whether targets must be registered with the Maintenance Window before tasks can be defined for starting. | `bool` | `true` | no |
 | <a name="input_mw_allow_unassociated_targets_stop"></a> [mw\_allow\_unassociated\_targets\_stop](#input\_mw\_allow\_unassociated\_targets\_stop) | Indicates whether targets must be registered with the Maintenance Window before tasks can be defined. | `bool` | `true` | no |
 | <a name="input_mw_cutoff"></a> [mw\_cutoff](#input\_mw\_cutoff) | The number of hours before the end of the Maintenance Window that Systems Manager stops scheduling new tasks for execution. | `number` | `1` | no |
