@@ -78,7 +78,7 @@ variable "target_description" {
 
 variable "target_details" {
   description = "The targets to register with the maintenance window. Specify targets using instance IDs, resource group names, or tags that have been applied to instances."
-  type        = list(object({
+  type = list(object({
     key    = string
     values = list(string)
   }))

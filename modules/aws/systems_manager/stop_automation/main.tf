@@ -47,12 +47,12 @@ resource "aws_ssm_maintenance_window_target" "target" {
 resource "aws_ssm_maintenance_window_task" "stop_ec2_instance" {
   count = length(var.stop_order)
 
-  window_id     = aws_ssm_maintenance_window.maintenance_window.id # Linking the target to the maintenance window created above
-  max_concurrency = var.max_concurrency
-  max_errors      = var.max_errors
-  priority        = count.index
-  task_arn        = "AWS-StopEC2Instance"
-  task_type       = "AUTOMATION"
+  window_id        = aws_ssm_maintenance_window.maintenance_window.id # Linking the target to the maintenance window created above
+  max_concurrency  = var.max_concurrency
+  max_errors       = var.max_errors
+  priority         = count.index
+  task_arn         = "AWS-StopEC2Instance"
+  task_type        = "AUTOMATION"
   service_role_arn = var.iam_role_arn
 
   targets {

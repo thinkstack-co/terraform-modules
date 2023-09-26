@@ -30,12 +30,12 @@ resource "aws_ssm_maintenance_window_target" "target_stop" {
 resource "aws_ssm_maintenance_window_task" "stop_ec2_instance" {
   count = length(var.stop_order)
 
-  window_id     = aws_ssm_maintenance_window.maintenance_window_stop.id
-  max_concurrency = var.stop_max_concurrency
-  max_errors      = var.stop_max_errors
-  priority        = count.index
-  task_arn        = "AWS-StopEC2Instance"
-  task_type       = "AUTOMATION"
+  window_id        = aws_ssm_maintenance_window.maintenance_window_stop.id
+  max_concurrency  = var.stop_max_concurrency
+  max_errors       = var.stop_max_errors
+  priority         = count.index
+  task_arn         = "AWS-StopEC2Instance"
+  task_type        = "AUTOMATION"
   service_role_arn = aws_iam_role.ssm_role.arn
 
   targets {
@@ -88,12 +88,12 @@ resource "aws_ssm_maintenance_window_target" "target_start" {
 resource "aws_ssm_maintenance_window_task" "start_ec2_instance" {
   count = length(var.start_order)
 
-  window_id     = aws_ssm_maintenance_window.maintenance_window_start.id
-  max_concurrency = var.start_max_concurrency
-  max_errors      = var.start_max_errors
-  priority        = count.index
-  task_arn        = "AWS-StartEC2Instance"
-  task_type       = "AUTOMATION"
+  window_id        = aws_ssm_maintenance_window.maintenance_window_start.id
+  max_concurrency  = var.start_max_concurrency
+  max_errors       = var.start_max_errors
+  priority         = count.index
+  task_arn         = "AWS-StartEC2Instance"
+  task_type        = "AUTOMATION"
   service_role_arn = aws_iam_role.ssm_role.arn
 
   targets {
@@ -144,7 +144,7 @@ resource "aws_iam_role_policy" "ssm_ec2_permissions" {
           "ec2:StartInstances",
           "ec2:StopInstances",
         ],
-        Effect = "Allow",
+        Effect   = "Allow",
         Resource = "*",
       }
     ]
