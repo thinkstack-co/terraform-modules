@@ -177,11 +177,3 @@ variable "start_max_errors" {
   type        = string
   default     = "1"
 }
-
-##############
-# IAM ROLE
-##############
-variable "iam_role_arn" {
-  description = "ARN of the IAM role to associate with the maintenance window tasks"
-  type        = string
-}
