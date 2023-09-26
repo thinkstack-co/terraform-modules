@@ -37,8 +37,8 @@ variable "target_resource_type" {
 }
 
 variable "target_details" {
-  description = "The targets (e.g., instances) for the maintenance window. It's a list of maps with 'key' and 'values'."
-  type        = list(map(string))
+  description = "The list of instance IDs that are targets for the maintenance window."
+  type        = list(string)
   default     = []
 }
 

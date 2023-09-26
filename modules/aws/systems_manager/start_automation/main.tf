@@ -21,7 +21,11 @@ resource "aws_ssm_maintenance_window_target" "target_stop" {
   window_id     = aws_ssm_maintenance_window.maintenance_window_stop.id
   name          = var.target_name_stop
   resource_type = var.target_resource_type
-  targets       = var.target_details
+    
+  targets {
+    key    = "instanceids"
+    values = var.target_details
+  }
 }
 
 # Maintenance Window Task for Stopping EC2 Instances
@@ -79,7 +83,11 @@ resource "aws_ssm_maintenance_window_target" "target_start" {
   window_id     = aws_ssm_maintenance_window.maintenance_window_start.id
   name          = var.target_name_start
   resource_type = var.target_resource_type
-  targets       = var.target_details
+    
+  targets {
+    key    = "instanceids"
+    values = var.target_details
+  }
 }
 
 # Maintenance Window Task for Starting EC2 Instances
