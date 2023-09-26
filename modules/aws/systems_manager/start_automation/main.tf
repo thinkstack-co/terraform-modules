@@ -23,7 +23,7 @@ resource "aws_ssm_maintenance_window_target" "target_stop" {
   resource_type = var.target_resource_type
 
   targets {
-    key    = "instanceids"
+    key    = "InstanceIds"
     values = var.target_details
   }
 }
@@ -85,7 +85,7 @@ resource "aws_ssm_maintenance_window_target" "target_start" {
   resource_type = var.target_resource_type
 
   targets {
-    key    = "instanceids"
+    key    = "InstanceIds"
     values = var.target_details
   }
 }
