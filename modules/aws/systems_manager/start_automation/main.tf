@@ -151,6 +151,20 @@ resource "aws_iam_role_policy" "ssm_ec2_permissions" {
         Action = [
           "ec2:StartInstances",
           "ec2:StopInstances",
+          "ec2:DescribeInstances",
+          "ec2:DescribeInstanceStatus"
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+      {
+        Action = [
+          "ssm:SendCommand",
+          "ssm:CancelCommand",
+          "ssm:ListCommands",
+          "ssm:ListCommandInvocations",
+          "ssm:StartAutomationExecution",
+          "ssm:GetCommandInvocation"
         ],
         Effect   = "Allow",
         Resource = "*",
@@ -158,6 +172,7 @@ resource "aws_iam_role_policy" "ssm_ec2_permissions" {
     ]
   })
 }
+
 
 resource "aws_iam_role_policy_attachment" "ssm_managed_instance_core" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
