@@ -21,6 +21,13 @@
             "Resource": "arn:aws:iam::*:user/${aws:username}"
         },
         {
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetAccountPasswordPolicy"
+            ],
+            "Resource": "*"
+        },
+        {
             "Sid": "AllowManageOwnAccessKeys",
             "Effect": "Allow",
             "Action": [
@@ -81,6 +88,8 @@
             "Action": [
                 "iam:DeactivateMFADevice",
                 "iam:EnableMFADevice",
+                "iam:GetUser",
+                "iam:GetMFADevice",
                 "iam:ListMFADevices",
                 "iam:ResyncMFADevice"
             ],
