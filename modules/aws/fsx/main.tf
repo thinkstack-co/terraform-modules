@@ -185,3 +185,25 @@ resource "aws_cloudwatch_log_group" "log_group" {
   retention_in_days = var.cloudwatch_retention_in_days
   tags              = var.tags
 }
+
+########################################
+# IAM Role for AmazonFSxManager
+########################################
+
+resource "aws_iam_role" "amazon_fsx_manager" {
+  name               = var.fsx_manager_role_name
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "fsx.amazonaws.com"
+        }
+      }
+    ]
+  })
+  description = var.fsx_manager_role_description
+  tags        = var.fsx_manager_role_tags
+}

@@ -202,3 +202,26 @@ variable "cloudwatch_retention_in_days" {
   default     = 90
   type        = number
 }
+
+##############
+# IAM ROLE
+##############
+
+variable "fsx_manager_role_name" {
+  description = "The name of the IAM role for AmazonFSxManager."
+  type        = string
+  default     = "AmazonFSxManager"
+}
+
+variable "fsx_manager_role_description" {
+  description = "The description of the IAM role for AmazonFSxManager."
+  type        = string
+  default     = "Role for Amazon FSx Manager"
+}
+
+variable "fsx_manager_role_tags" {
+  description = "Tags to be applied to the IAM role for AmazonFSxManager."
+  type        = map(string)
+  default     = {}
+}
+
