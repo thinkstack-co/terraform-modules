@@ -224,3 +224,10 @@ variable "vpc_security_group_ids" {
   type        = list(any)
 }
 
+variable "secondary_private_ips" {
+  description = "A list of secondary private IP addresses to associate with the EC2 instance"
+  type        = list(string)
+  default     = []
+}
+
+
