@@ -101,6 +101,7 @@ No modules.
 |------|------|
 | [aws_cloudwatch_log_group.log_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_fsx_windows_file_system.fsx](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/fsx_windows_file_system) | resource |
+| [aws_iam_role.amazon_fsx_manager](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_kms_alias.cloudwatch_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_alias.fsx_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
@@ -132,6 +133,9 @@ No modules.
 | <a name="input_fsx_cloudwatch_key_name"></a> [fsx\_cloudwatch\_key\_name](#input\_fsx\_cloudwatch\_key\_name) | Name of the cloudwatch for fsx KMS key | `string` | `"alias/fsx_cloudwatch_kms_key"` | no |
 | <a name="input_fsx_key_description"></a> [fsx\_key\_description](#input\_fsx\_key\_description) | (Optional) The description of the key as viewed in AWS console. | `string` | `"fsx kms key used to encrypt fsx data at rest"` | no |
 | <a name="input_fsx_key_name"></a> [fsx\_key\_name](#input\_fsx\_key\_name) | Name of the fsx KMS key | `string` | `"alias/fsx_kms_key"` | no |
+| <a name="input_fsx_manager_role_description"></a> [fsx\_manager\_role\_description](#input\_fsx\_manager\_role\_description) | The description of the IAM role for AmazonFSxManager. | `string` | `"Role for Amazon FSx Manager"` | no |
+| <a name="input_fsx_manager_role_name"></a> [fsx\_manager\_role\_name](#input\_fsx\_manager\_role\_name) | The name of the IAM role for AmazonFSxManager. | `string` | `"AmazonFSxManager"` | no |
+| <a name="input_fsx_manager_role_tags"></a> [fsx\_manager\_role\_tags](#input\_fsx\_manager\_role\_tags) | Tags to be applied to the IAM role for AmazonFSxManager. | `map(string)` | `{}` | no |
 | <a name="input_is_enabled"></a> [is\_enabled](#input\_is\_enabled) | (Optional) Specifies whether the key is enabled. Defaults to true. | `string` | `true` | no |
 | <a name="input_key_usage"></a> [key\_usage](#input\_key\_usage) | (Optional) Specifies the intended use of the key. Defaults to ENCRYPT\_DECRYPT, and only symmetric encryption and decryption are supported. | `string` | `"ENCRYPT_DECRYPT"` | no |
 | <a name="input_organizational_unit_distinguished_name"></a> [organizational\_unit\_distinguished\_name](#input\_organizational\_unit\_distinguished\_name) | (Optional) The fully qualified distinguished name of the organizational unit within your self-managed AD directory that the Windows File Server instance will join. For example, OU=FSx,DC=yourdomain,DC=corp,DC=com. Only accepts OU as the direct parent of the file system. If none is provided, the FSx file system is created in the default location of your self-managed AD directory. To learn more, see RFC 2253. | `any` | n/a | yes |

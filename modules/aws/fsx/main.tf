@@ -191,7 +191,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 ########################################
 
 resource "aws_iam_role" "amazon_fsx_manager" {
-  name               = var.fsx_manager_role_name
+  name = var.fsx_manager_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
