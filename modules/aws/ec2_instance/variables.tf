@@ -223,3 +223,15 @@ variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
   type        = list(any)
 }
+
+variable "root_volume_iops" {
+  description = "IOPS for the root volume of the EC2 instance."
+  type        = number
+  default     = 3000
+}
+
+variable "root_volume_throughput" {
+  description = "Throughput for the root volume of the EC2 instance."
+  type        = number
+  default     = 125
+}
