@@ -36,6 +36,7 @@ resource "aws_instance" "ec2" {
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
+  secondary_private_ips                = var.secondary_private_ips
 
   metadata_options {
     http_endpoint = var.http_endpoint
