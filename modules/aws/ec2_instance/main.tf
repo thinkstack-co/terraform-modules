@@ -48,6 +48,8 @@ resource "aws_instance" "ec2" {
     tags                  = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
+    iops                  = var.root_volume_iops
+    throughput            = var.root_volume_throughput
   }
 
   source_dest_check      = var.source_dest_check
