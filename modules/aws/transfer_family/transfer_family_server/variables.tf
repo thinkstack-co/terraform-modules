@@ -76,11 +76,13 @@ variable "pre_authentication_login_banner" {
 variable "security_policy_name" {
   description = "Specifies the name of the security policy that is attached to the server. Possible values are TransferSecurityPolicy-2018-11, TransferSecurityPolicy-2020-06, TransferSecurityPolicy-FIPS-2020-06, TransferSecurityPolicy-2022-03, and TransferSecurityPolicy-2023-05."
   type        = string
+  default     = "TransferSecurityPolicy-2018-11"
 }
 
 variable "structured_log_destinations" {
   description = "A set of ARNs of destinations that will receive structured logs from the transfer server such as CloudWatch Log Group ARNs."
   type        = list(string)
+  default     = []
 }
 
 variable "tags" {
@@ -126,11 +128,13 @@ variable "passive_ip" {
 variable "set_stat_option" {
   description = "Use to ignore the error that is generated when the client attempts to use SETSTAT on a file you are uploading to an S3 bucket. Valid values: DEFAULT, ENABLE_NO_OP."
   type        = string
+  default     = "DEFAULT"
 }
 
 variable "tls_session_resumption_mode" {
   description = "Provides a mechanism to resume or share a negotiated secret key between the control and data connection for an FTPS session. Valid values: DISABLED, ENABLED, ENFORCED."
   type        = string
+  default     = "DISABLED"
 }
 
 variable "workflow_execution_role" {
