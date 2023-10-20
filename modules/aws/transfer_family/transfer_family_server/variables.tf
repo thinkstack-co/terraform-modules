@@ -6,7 +6,7 @@ variable "address_allocation_ids" {
 variable "as2_transports" {
   description = "Indicates the transport method for the AS2 messages. Currently, only HTTP is supported."
   type        = list(string)
-  default     = [""]
+  default     = ["HTTP"]
 }
 
 variable "certificate" {

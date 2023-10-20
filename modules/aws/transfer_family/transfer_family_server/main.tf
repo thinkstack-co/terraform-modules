@@ -28,12 +28,21 @@ resource "aws_transfer_server" "transfer_server" {
   structured_log_destinations      = var.structured_log_destinations
   tags                             = var.tags
 
-  endpoint_details {
-    address_allocation_ids = var.address_allocation_ids
-    security_group_ids     = var.security_group_ids
-    subnet_ids             = var.subnet_ids
-    vpc_endpoint_id        = var.vpc_endpoint_id
-    vpc_id                 = var.vpc_id
+  dynamic "endpoint_details" {
+    for_each = var.endpoint_type == "VPC_ENDPOINT" ? [1] : []
+    content {
+      vpc_endpoint_id = var.vpc_endpoint_id
+    }
+  }
+
+  dynamic "endpoint_details" {
+    for_each = var.endpoint_type == "VPC" ? [1] : []
+    content {
+      address_allocation_ids = var.address_allocation_ids
+      security_group_ids     = var.security_group_ids
+      subnet_ids             = var.subnet_ids
+      vpc_id                 = var.vpc_id
+    }
   }
 
   protocol_details {
