@@ -91,14 +91,14 @@ resource "aws_backup_plan" "plan" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
   name = "${each.value.vault_name}_plan"
-  tags = var.tags 
+  tags = var.tags
 
   rule {
-    rule_name          = each.value.rule_name
-    target_vault_name  = each.value.vault_name
-    schedule           = each.value.schedule
+    rule_name         = each.value.rule_name
+    target_vault_name = each.value.vault_name
+    schedule          = each.value.schedule
     lifecycle {
-      delete_after     = each.value.retention_days
+      delete_after = each.value.retention_days
     }
   }
 }
@@ -110,8 +110,8 @@ resource "aws_backup_plan" "plan" {
 resource "aws_backup_selection" "backup_selection" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
-  plan_id     = aws_backup_plan.backup_plan[each.key].id
-  name        = "${each.key}_selection"
+  plan_id      = aws_backup_plan.backup_plan[each.key].id
+  name         = "${each.key}_selection"
   iam_role_arn = aws_iam_role.backup.arn
 
   selection_tag {
