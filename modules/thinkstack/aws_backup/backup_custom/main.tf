@@ -24,7 +24,7 @@ resource "aws_kms_key" "key" {
   key_usage                          = var.key_usage
   is_enabled                         = var.key_is_enabled
   policy                             = var.key_policy
-  tags                               = var.tags
+  tags                               = var.key_tags
 }
 
 resource "aws_kms_alias" "alias" {
@@ -91,7 +91,7 @@ resource "aws_backup_plan" "plan" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
   name = "${each.value.vault_name}_plan"
-  tags = var.tags
+  tags = var.plan_tags
 
   rule {
     rule_name         = each.value.rule_name

@@ -11,13 +11,23 @@ variable "backup_jobs" {
   default = [] # Default is an empty list, meaning no backup jobs are defined by default
 }
 
-variable "tags" {
+variable "key_tags" {
   type        = map(string)
   description = "A mapping of tags to assign to the resource"
   default     = {}
 }
 
+variable "vault_tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
+}
 
+variable "plan_tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource"
+  default     = {}
+}
 ###############################################################
 # KMS Key Variables
 ###############################################################
