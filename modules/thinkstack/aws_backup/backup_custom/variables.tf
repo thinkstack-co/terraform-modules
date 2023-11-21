@@ -1,12 +1,12 @@
 variable "backup_jobs" {
   description = "List of backup jobs with associated vault details."
   type = list(object({
-    vault_name        = string
-    vault_tags        = list(string)
-    rule_name         = string
-    schedule          = string
-    dr_region         = bool
-    retention_days    = number
+    vault_name     = string
+    vault_tags     = list(string)
+    rule_name      = string
+    schedule       = string
+    dr_region      = bool
+    retention_days = number
   }))
   default = [] # Default is an empty list, meaning no backup jobs are defined by default
 }
