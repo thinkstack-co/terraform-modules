@@ -1,11 +1,11 @@
 variable "backup_jobs" {
   description = "List of backup jobs with associated vault details."
   type = list(object({
-    vault_name        = string # Name of the backup vault
-    vault_kms_key_arn = string # ARN of the KMS key associated with the backup vault
-    vault_tags        = string
+    vault_name        = string
+    vault_tags        = list(string)
     rule_name         = string
     schedule          = string
+    dr_region         = bool
     retention_days    = number
   }))
   default = [] # Default is an empty list, meaning no backup jobs are defined by default
@@ -83,4 +83,10 @@ variable "key_policy" {
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
   default     = null
   type        = string
+}
+
+variable "dr_region_key" {
+  description = "Flag to indicate if the DR region should be used"
+  type        = bool
+  default     = false
 }

@@ -14,8 +14,10 @@ terraform {
 ###############################################################
 
 # Production region key
-resource "aws_kms_key" "key" {
+# KMS Key for Production Region
+resource "aws_kms_key" "prod_key" {
   provider                           = aws.aws_prod_region
+  count                              = var.dr_region_key ? 0 : 1
   bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
   customer_master_key_spec           = var.key_customer_master_key_spec
   description                        = var.key_description
@@ -27,8 +29,32 @@ resource "aws_kms_key" "key" {
   tags                               = var.key_tags
 }
 
-resource "aws_kms_alias" "alias" {
+# KMS Key for DR Region
+resource "aws_kms_key" "dr_key" {
+  provider                           = aws.aws_dr_region
+  count                              = var.dr_region_key ? 1 : 0
+  bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
+  customer_master_key_spec           = var.key_customer_master_key_spec
+  description                        = var.key_description
+  deletion_window_in_days            = var.key_deletion_window_in_days
+  enable_key_rotation                = var.key_enable_key_rotation
+  key_usage                          = var.key_usage
+  is_enabled                         = var.key_is_enabled
+  policy                             = var.key_policy
+  tags                               = var.key_tags
+}
+
+
+resource "aws_kms_alias" "prod_kms_alias" {
   provider      = aws.aws_prod_region
+  count         = var.dr_region_key ? 0 : 1
+  name          = var.key_name
+  target_key_id = aws_kms_key.key.key_id
+}
+
+resource "aws_kms_alias" "dr_kms_alias" {
+  provider      = aws.aws_dr_region
+  count         = var.dr_region_key ? 1 : 0
   name          = var.key_name
   target_key_id = aws_kms_key.key.key_id
 }
@@ -36,9 +62,8 @@ resource "aws_kms_alias" "alias" {
 ###############################################################
 # IAM
 ###############################################################
-# Assume Role
-resource "aws_iam_role" "backup" {
-  provider           = aws.aws_prod_region
+# Assume Role - Prod
+resource "aws_iam_role" "aws_backup_role" {
   name               = "aws_backup_role"
   assume_role_policy = <<POLICY
 {
@@ -58,16 +83,15 @@ POLICY
 
 # Policy Attachment
 resource "aws_iam_role_policy_attachment" "backup" {
-  provider   = aws.aws_prod_region
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
-  role       = aws_iam_role.backup.name
+  role       = aws_iam_role.prod_backup.name
 }
 
 resource "aws_iam_role_policy_attachment" "restores" {
-  provider   = aws.aws_prod_region
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
-  role       = aws_iam_role.backup.name
+  role       = aws_iam_role.prod_backup.name
 }
+
 
 #####################
 # BACKUP VAULTS
@@ -76,9 +100,9 @@ resource "aws_iam_role_policy_attachment" "restores" {
 resource "aws_backup_vault" "vault" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
-  provider    = aws.aws_prod_region
+  provider    = job.dr_region ? aws.aws_dr_region : aws.aws_prod_region
   name        = each.value.vault_name
-  kms_key_arn = each.value.vault_kms_key_arn
+  kms_key_arn = job.dr_region ? aws_kms_key.dr_key[0].arn : aws_kms_key.prod_key[0].arn
   tags        = var.vault_tags
 }
 
@@ -87,7 +111,7 @@ resource "aws_backup_vault" "vault" {
 #######################
 
 resource "aws_backup_plan" "plan" {
-  provider = aws.aws_prod_region
+  provider    = job.dr_region ? aws.aws_dr_region : aws.aws_prod_region
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
   name = "${each.value.vault_name}_plan"
@@ -110,7 +134,8 @@ resource "aws_backup_plan" "plan" {
 resource "aws_backup_selection" "backup_selection" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
-  plan_id      = aws_backup_plan.backup_plan[each.key].id
+  provider     = job.dr_region ? aws.aws_dr_region : aws.aws_prod_region
+  plan_id      = aws_backup_plan.plan[each.key].id
   name         = "${each.key}_selection"
   iam_role_arn = aws_iam_role.backup.arn
 
