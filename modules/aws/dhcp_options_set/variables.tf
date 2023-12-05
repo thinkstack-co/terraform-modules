@@ -4,8 +4,8 @@
 
 variable "domain_name" {
   description = "Enables DHCP options for the VPC"
-  type        = number
-  default     = 125
+  type        = string
+  default     = null
 }
 
 variable "domain_name_servers" {
@@ -29,5 +29,11 @@ variable "tags" {
     environment = "prod"
     description = "DHCP Option Set for the VPC"
   }
+}
+
+variable "vpc_id" {
+  description = "ID of the VPC to attach the DHCP Options Set to"
+  type        = string
+  default     = null
 }
 
