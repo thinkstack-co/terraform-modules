@@ -3,11 +3,20 @@
 ######################################
 
 variable "domain_name" {
-  description = "Enables DHCP options for the VPC"
+  description = "Define the domain name for the DHCP Options Set"
   type        = string
   default     = null
 }
 
+variable "enable_dhcp_options" {
+  description = "(Optional) boolean to determine if DHCP options are enabled"
+  type        = bool
+  default     = true
+  validation {
+    condition     = can(regex("true|false", var.enable_dhcp_options))
+    error_message = "The value must be either true or false."
+  }
+}
 variable "domain_name_servers" {
   description = "List of IP addresses for the DNS servers"
   type        = list(string)

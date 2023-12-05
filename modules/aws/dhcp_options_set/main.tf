@@ -15,6 +15,7 @@ terraform {
 ###########################
 
 resource "aws_vpc_dhcp_options" "dc_dns" {
+  count               = var.enable_dhcp_options ? 1 : 0
   domain_name         = var.domain_name
   domain_name_servers = var.domain_name_servers
   ntp_servers         = var.ntp_servers
