@@ -2,7 +2,7 @@ variable "backup_jobs" {
   description = "List of backup jobs with associated vault details."
   type = list(object({
     vault_name     = string
-    vault_tags     = list(string)
+    vault_tags     = map(string)
     rule_name      = string
     schedule       = string
     dr_region      = bool

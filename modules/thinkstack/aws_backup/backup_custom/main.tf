@@ -49,14 +49,14 @@ resource "aws_kms_alias" "prod_kms_alias" {
   provider      = aws.aws_prod_region
   count         = var.dr_region_key ? 0 : 1
   name          = var.key_name
-  target_key_id = aws_kms_key.prod_key.key_id
+  target_key_id = aws_kms_key.prod_key.key_id[0]
 }
 
 resource "aws_kms_alias" "dr_kms_alias" {
   provider      = aws.aws_dr_region
   count         = var.dr_region_key ? 1 : 0
   name          = var.key_name
-  target_key_id = aws_kms_key.dr_key.key_id
+  target_key_id = aws_kms_key.dr_key.key_id[0]
 }
 
 ###############################################################
