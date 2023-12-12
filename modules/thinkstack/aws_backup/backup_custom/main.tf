@@ -101,7 +101,7 @@ resource "aws_iam_role_policy_attachment" "restores" {
 #####################
 
 resource "aws_backup_vault" "prod_vault" {
-  count = length([for job in var.backup_jobs : job if !job.dr_region])
+  count = length([for job in var.backup_jobs : job if job.prod_region])
 
   provider    = aws.aws_prod_region
   name        = var.backup_jobs[count.index].vault_name
@@ -123,7 +123,7 @@ resource "aws_backup_vault" "dr_vault" {
 #######################
 
 resource "aws_backup_plan" "prod_plan" {
-  count = length([for job in var.backup_jobs : job if !job.dr_region])
+  count = length([for job in var.backup_jobs : job if job.prod_region])
 
   provider   = aws.aws_prod_region
   name       = "${var.backup_jobs[count.index].vault_name}_plan"
@@ -163,7 +163,7 @@ resource "aws_backup_plan" "dr_plan" {
 #########################
 
 resource "aws_backup_selection" "prod_backup_selection" {
-  count = length([for job in var.backup_jobs : job if !job.dr_region])
+  count = length([for job in var.backup_jobs : job if job.prod_region])
 
   provider     = aws.aws_prod_region
   plan_id      = aws_backup_plan.prod_plan[count.index].id
