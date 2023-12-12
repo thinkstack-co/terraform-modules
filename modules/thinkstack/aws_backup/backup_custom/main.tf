@@ -97,25 +97,26 @@ resource "aws_iam_role_policy_attachment" "restores" {
 # BACKUP VAULTS
 #####################
 
-resource "aws_backup_vault" "vault" {
+resource "aws_backup_vault" "backup_vault" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
 
-  provider    = job.dr_region ? aws.aws_dr_region : aws.aws_prod_region
+  provider    = each.value.dr_region ? aws.aws_dr_region : aws.aws_prod_region
   name        = each.value.vault_name
-  kms_key_arn = job.dr_region ? aws_kms_key.dr_key[0].arn : aws_kms_key.prod_key[0].arn
+  kms_key_arn = each.value.dr_region ? aws_kms_key.dr_key[0].arn : aws_kms_key.prod_key[0].arn
   tags        = var.vault_tags
 }
+
 
 #######################
 # BACKUP PLANS
 #######################
 
 resource "aws_backup_plan" "plan" {
-  provider    = job.dr_region ? aws.aws_dr_region : aws.aws_prod_region
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
-
-  name = "${each.value.vault_name}_plan"
-  tags = var.plan_tags
+  
+  provider = each.value.dr_region ? aws.aws_dr_region : aws.aws_prod_region
+  name     = "${each.value.vault_name}_plan"
+  tags     = var.plan_tags
 
   rule {
     rule_name         = each.value.rule_name
@@ -133,8 +134,8 @@ resource "aws_backup_plan" "plan" {
 
 resource "aws_backup_selection" "backup_selection" {
   for_each = { for job in var.backup_jobs : job.selection_tag => job }
-
-  provider     = job.dr_region ? aws.aws_dr_region : aws.aws_prod_region
+  
+  provider     = each.value.dr_region ? aws.aws_dr_region : aws.aws_prod_region
   plan_id      = aws_backup_plan.plan[each.key].id
   name         = "${each.key}_selection"
   iam_role_arn = aws_iam_role.backup.arn
