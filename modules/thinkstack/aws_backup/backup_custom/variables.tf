@@ -7,6 +7,7 @@ variable "backup_jobs" {
     schedule       = string
     dr_region      = bool
     retention_days = number
+    selection_tag  = string
   }))
   default = [] # Default is an empty list, meaning no backup jobs are defined by default
 }
