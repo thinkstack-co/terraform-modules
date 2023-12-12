@@ -125,9 +125,10 @@ resource "aws_backup_vault" "dr_vault" {
 resource "aws_backup_plan" "prod_plan" {
   count = length([for job in var.backup_jobs : job if !job.dr_region])
 
-  provider = aws.aws_prod_region
-  name     = "${var.backup_jobs[count.index].vault_name}_plan"
-  tags     = var.plan_tags
+  provider   = aws.aws_prod_region
+  name       = "${var.backup_jobs[count.index].vault_name}_plan"
+  tags       = var.plan_tags
+  depends_on = [aws_backup_vault.prod_vault]
 
   rule {
     rule_name         = var.backup_jobs[count.index].rule_name
@@ -142,9 +143,10 @@ resource "aws_backup_plan" "prod_plan" {
 resource "aws_backup_plan" "dr_plan" {
   count = length([for job in var.backup_jobs : job if job.dr_region])
 
-  provider = aws.aws_dr_region
-  name     = "${var.backup_jobs[count.index].vault_name}_plan"
-  tags     = var.plan_tags
+  provider   = aws.aws_dr_region
+  name       = "${var.backup_jobs[count.index].vault_name}_plan"
+  tags       = var.plan_tags
+  depends_on = [aws_backup_vault.dr_vault]
 
   rule {
     rule_name         = var.backup_jobs[count.index].rule_name
