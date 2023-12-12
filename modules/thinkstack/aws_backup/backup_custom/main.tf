@@ -46,18 +46,21 @@ resource "aws_kms_key" "dr_key" {
 
 
 resource "aws_kms_alias" "prod_kms_alias" {
+  count = length([for job in var.backup_jobs : job if !job.dr_region])
+
   provider      = aws.aws_prod_region
-  count         = var.dr_region_key ? 0 : 1
   name          = var.key_name
-  target_key_id = aws_kms_key.prod_key.key_id[0]
+  target_key_id = aws_kms_key.prod_key[count.index].key_id
 }
 
 resource "aws_kms_alias" "dr_kms_alias" {
+  count = length([for job in var.backup_jobs : job if job.dr_region])
+
   provider      = aws.aws_dr_region
-  count         = var.dr_region_key ? 1 : 0
   name          = var.key_name
-  target_key_id = aws_kms_key.dr_key.key_id[0]
+  target_key_id = aws_kms_key.dr_key[count.index].key_id
 }
+
 
 ###############################################################
 # IAM
@@ -127,11 +130,11 @@ resource "aws_backup_plan" "prod_plan" {
   tags     = var.plan_tags
 
   rule {
-    rule_name         = each.value.rule_name
-    target_vault_name = each.value.vault_name
-    schedule          = each.value.schedule
+    rule_name         = var.backup_jobs[count.index].rule_name
+    target_vault_name = var.backup_jobs[count.index].vault_name
+    schedule          = var.backup_jobs[count.index].schedule
     lifecycle {
-      delete_after = each.value.retention_days
+      delete_after = var.backup_jobs[count.index].retention_days
     }
   }
 }
@@ -144,14 +147,15 @@ resource "aws_backup_plan" "dr_plan" {
   tags     = var.plan_tags
 
   rule {
-    rule_name         = each.value.rule_name
-    target_vault_name = each.value.vault_name
-    schedule          = each.value.schedule
+    rule_name         = var.backup_jobs[count.index].rule_name
+    target_vault_name = var.backup_jobs[count.index].vault_name
+    schedule          = var.backup_jobs[count.index].schedule
     lifecycle {
-      delete_after = each.value.retention_days
+      delete_after = var.backup_jobs[count.index].retention_days
     }
   }
 }
+
 ##########################
 # BACKUP SELECTION
 #########################
