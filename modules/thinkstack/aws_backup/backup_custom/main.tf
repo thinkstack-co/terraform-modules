@@ -166,7 +166,7 @@ resource "aws_backup_selection" "prod_backup_selection" {
   provider     = aws.aws_prod_region
   plan_id      = aws_backup_plan.prod_plan[count.index].id
   name         = "${var.backup_jobs[count.index].selection_tag}_selection"
-  iam_role_arn = aws_iam_role.backup.arn
+  iam_role_arn = aws_iam_role.aws_backup_role.arn
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -181,7 +181,7 @@ resource "aws_backup_selection" "dr_backup_selection" {
   provider     = aws.aws_dr_region
   plan_id      = aws_backup_plan.dr_plan[count.index].id
   name         = "${var.backup_jobs[count.index].selection_tag}_selection"
-  iam_role_arn = aws_iam_role.backup.arn
+  iam_role_arn = aws_iam_role.aws_backup_role.arn
 
   selection_tag {
     type  = "STRINGEQUALS"
