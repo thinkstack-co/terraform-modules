@@ -49,14 +49,14 @@ resource "aws_kms_alias" "prod_kms_alias" {
   provider      = aws.aws_prod_region
   count         = var.dr_region_key ? 0 : 1
   name          = var.key_name
-  target_key_id = aws_kms_key.key.key_id
+  target_key_id = aws_kms_key.prod_key.key_id
 }
 
 resource "aws_kms_alias" "dr_kms_alias" {
   provider      = aws.aws_dr_region
   count         = var.dr_region_key ? 1 : 0
   name          = var.key_name
-  target_key_id = aws_kms_key.key.key_id
+  target_key_id = aws_kms_key.dr_key.key_id
 }
 
 ###############################################################
@@ -84,12 +84,12 @@ POLICY
 # Policy Attachment
 resource "aws_iam_role_policy_attachment" "backup" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
-  role       = aws_iam_role.prod_backup.name
+  role       = aws_iam_role.aws_backup_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "restores" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
-  role       = aws_iam_role.prod_backup.name
+  role       = aws_iam_role.aws_backup_role.name
 }
 
 
