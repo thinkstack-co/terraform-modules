@@ -97,25 +97,33 @@ resource "aws_iam_role_policy_attachment" "restores" {
 # BACKUP VAULTS
 #####################
 
-resource "aws_backup_vault" "backup_vault" {
-  for_each = { for job in var.backup_jobs : job.selection_tag => job }
+resource "aws_backup_vault" "prod_vault" {
+  count = length([for job in var.backup_jobs : job if !job.dr_region])
 
-  provider    = each.value.dr_region ? aws.aws_dr_region : aws.aws_prod_region
-  name        = each.value.vault_name
-  kms_key_arn = each.value.dr_region ? aws_kms_key.dr_key[0].arn : aws_kms_key.prod_key[0].arn
-  tags        = var.vault_tags
+  provider    = aws.aws_prod_region
+  name        = var.backup_jobs[count.index].vault_name
+  kms_key_arn = aws_kms_key.prod_key[0].arn
+  tags        = var.backup_jobs[count.index].vault_tags
 }
 
+resource "aws_backup_vault" "dr_vault" {
+  count = length([for job in var.backup_jobs : job if job.dr_region])
+
+  provider    = aws.aws_dr_region
+  name        = var.backup_jobs[count.index].vault_name
+  kms_key_arn = aws_kms_key.dr_key[0].arn
+  tags        = var.backup_jobs[count.index].vault_tags
+}
 
 #######################
 # BACKUP PLANS
 #######################
 
-resource "aws_backup_plan" "plan" {
-  for_each = { for job in var.backup_jobs : job.selection_tag => job }
-  
-  provider = each.value.dr_region ? aws.aws_dr_region : aws.aws_prod_region
-  name     = "${each.value.vault_name}_plan"
+resource "aws_backup_plan" "prod_plan" {
+  count = length([for job in var.backup_jobs : job if !job.dr_region])
+
+  provider = aws.aws_prod_region
+  name     = "${var.backup_jobs[count.index].vault_name}_plan"
   tags     = var.plan_tags
 
   rule {
@@ -128,16 +136,32 @@ resource "aws_backup_plan" "plan" {
   }
 }
 
+resource "aws_backup_plan" "dr_plan" {
+  count = length([for job in var.backup_jobs : job if job.dr_region])
+
+  provider = aws.aws_dr_region
+  name     = "${var.backup_jobs[count.index].vault_name}_plan"
+  tags     = var.plan_tags
+
+  rule {
+    rule_name         = each.value.rule_name
+    target_vault_name = each.value.vault_name
+    schedule          = each.value.schedule
+    lifecycle {
+      delete_after = each.value.retention_days
+    }
+  }
+}
 ##########################
 # BACKUP SELECTION
 #########################
 
-resource "aws_backup_selection" "backup_selection" {
-  for_each = { for job in var.backup_jobs : job.selection_tag => job }
-  
-  provider     = each.value.dr_region ? aws.aws_dr_region : aws.aws_prod_region
-  plan_id      = aws_backup_plan.plan[each.key].id
-  name         = "${each.key}_selection"
+resource "aws_backup_selection" "prod_backup_selection" {
+  count = length([for job in var.backup_jobs : job if !job.dr_region])
+
+  provider     = aws.aws_prod_region
+  plan_id      = aws_backup_plan.prod_plan[count.index].id
+  name         = "${var.backup_jobs[count.index].selection_tag}_selection"
   iam_role_arn = aws_iam_role.backup.arn
 
   selection_tag {
@@ -147,7 +171,20 @@ resource "aws_backup_selection" "backup_selection" {
   }
 }
 
+resource "aws_backup_selection" "dr_backup_selection" {
+  count = length([for job in var.backup_jobs : job if job.dr_region])
 
+  provider     = aws.aws_dr_region
+  plan_id      = aws_backup_plan.dr_plan[count.index].id
+  name         = "${var.backup_jobs[count.index].selection_tag}_selection"
+  iam_role_arn = aws_iam_role.backup.arn
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "backup_tag"
+    value = each.value.selection_tag
+  }
+}
 
 
 
