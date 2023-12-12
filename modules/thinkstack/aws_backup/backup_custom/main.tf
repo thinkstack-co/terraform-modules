@@ -171,7 +171,7 @@ resource "aws_backup_selection" "prod_backup_selection" {
   selection_tag {
     type  = "STRINGEQUALS"
     key   = "backup_tag"
-    value = each.value.selection_tag
+    value = var.backup_jobs[count.index].selection_tag
   }
 }
 
@@ -186,7 +186,7 @@ resource "aws_backup_selection" "dr_backup_selection" {
   selection_tag {
     type  = "STRINGEQUALS"
     key   = "backup_tag"
-    value = each.value.selection_tag
+    value = var.backup_jobs[count.index].selection_tag
   }
 }
 
