@@ -17,7 +17,7 @@ terraform {
 # KMS Key for Production Region
 resource "aws_kms_key" "prod_key" {
   provider                           = aws.aws_prod_region
-  count                              = var.dr_region_key ? 0 : 1
+  count                              = local.create_prod_key ? 1 : 0
   bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
   customer_master_key_spec           = var.key_customer_master_key_spec
   description                        = var.key_description
@@ -32,7 +32,7 @@ resource "aws_kms_key" "prod_key" {
 # KMS Key for DR Region
 resource "aws_kms_key" "dr_key" {
   provider                           = aws.aws_dr_region
-  count                              = var.dr_region_key ? 1 : 0
+  count                              = local.create_dr_key ? 1 : 0
   bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
   customer_master_key_spec           = var.key_customer_master_key_spec
   description                        = var.key_description
