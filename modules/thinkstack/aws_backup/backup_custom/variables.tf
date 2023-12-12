@@ -6,6 +6,7 @@ variable "backup_jobs" {
     rule_name      = string
     schedule       = string
     dr_region      = bool
+    prod_region    = bool
     retention_days = number
     selection_tag  = string
   }))
