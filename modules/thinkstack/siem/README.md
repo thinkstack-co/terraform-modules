@@ -269,6 +269,7 @@ No modules.
 | <a name="input_tenancy"></a> [tenancy](#input\_tenancy) | The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host. | `string` | `"default"` | no |
 | <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | (Optional) Identifier of an EC2 Transit Gateway. | `string` | `null` | no |
 | <a name="input_transit_subnet_route_cidr_blocks"></a> [transit\_subnet\_route\_cidr\_blocks](#input\_transit\_subnet\_route\_cidr\_blocks) | (Optional) The destination CIDR blocks to send to the transit gateway. | `list(any)` | `null` | no |
+| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user\_data\_base64 instead. | `string` | `null` | no |
 | <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | The CIDR block for the VPC | `string` | `"10.77.1.0/24"` | no |
 | <a name="input_vpn_peer_ip_address"></a> [vpn\_peer\_ip\_address](#input\_vpn\_peer\_ip\_address) | (Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with | `list(any)` | `null` | no |
 | <a name="input_vpn_route_cidr_blocks"></a> [vpn\_route\_cidr\_blocks](#input\_vpn\_route\_cidr\_blocks) | (Required) CIDR block of the VPN subnets | `list(any)` | `null` | no |
