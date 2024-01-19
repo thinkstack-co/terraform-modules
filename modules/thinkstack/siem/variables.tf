@@ -333,6 +333,12 @@ variable "vpc_cidr" {
   default     = "10.77.1.0/24"
 }
 
+variable "vpc_security_group_ids" {
+  type        = string
+  description = "The CIDR block for the VPC"
+  default     = [aws_security_group.sg.id]
+}
+
 variable "vpn_peer_ip_address" {
   type        = list(any)
   description = "(Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with"
