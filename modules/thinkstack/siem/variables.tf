@@ -322,9 +322,9 @@ variable "tenancy" {
 }
 
 variable "user_data" {
-  type       = string
+  type        = string
   description = "The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead."
-  default    = null
+  default     = null
 }
 
 variable "vpc_cidr" {
