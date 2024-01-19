@@ -219,7 +219,7 @@ resource "aws_instance" "ec2" {
   subnet_id              = aws_subnet.private_subnets[count.index].id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
-  user_data              = file("${path.module}/snypr_centos_script.sh")
+  user_data              = var.user_data #file("${path.module}/snypr_centos_script.sh")
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   vpc_security_group_ids = [aws_security_group.sg.id]
 
@@ -308,6 +308,25 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 # EC2 - Security Group
 ###########################
 
+  /* 
+########################################
+# Port Mappings
+########################################
+Port            | Description
+----------------------------------------
+icmp            - ICMP/Ping
+162 udp         - SNMP Trap Ingester Port
+13001-13020 tcp - RIN Syslog Ingester Ports
+30149 udp       - Windows DHCP Ingestion
+30181 tcp       - Windows DNS Ingestion
+30216 udp       - MS Sysmon Ingestion
+30261 udp       - Fortinet Syslog
+30463 tcp       - Windows Events Ingestion
+30465 tcp       - Powershell Ingestion TCP
+30514 udp       - Syslog Ingestion
+5985-5986 tcp   - WinRM-HTTPS
+ */
+
 resource "aws_security_group" "sg" {
   description = var.security_group_description
   name        = var.security_group_name
@@ -330,40 +349,6 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-  /* 
-########################################
-# Syslog Port Mappings
-########################################
-Port - Description
-13001 - Firewalls
-13002 - Access Points
-13003 - Windows
-13004 - Switches and Routers
-13005 - NTAs (Corelight, Darktrace, Extrahop, etc)
-13006 - PDUs and UPS devices
-13007 - Linux
-13008 - Manage Engine ADAudit
-13009 - Vulnerability Scanners (Trace, Qualys, Nessus, etc)
-13010 - Hypervisors
-13011 - Reserved
-13012 - Web Proxy or Reverse Proxy (NGINX)
-13013 - Reserved
-13014 - Firewall Orchestration (Fortimanager, Cisco FMC, etc)
-13015 - SANs and NAS devices
-13016 - Security Cameras
-13017 - Dell iDRAC
-13018 - HP iLO
-13019 - Backup Platforms (Veeam)
-13020 - Endpoint Security (Carbon Black, Crowdstrike, Cylance, etc)
- */
-
-  ingress {
-    from_port   = 13001
-    to_port     = 13020
-    protocol    = "udp"
-    cidr_blocks = var.sg_cidr_blocks
-    description = "RIN Syslog Ingester Ports"
-  }
 
   ingress {
     from_port   = 13001
@@ -371,6 +356,70 @@ Port - Description
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
     description = "RIN Syslog Ingester Ports"
+  }
+
+  ingress {
+    from_port   = 30149
+    to_port     = 30149
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows DHCP Ingestion"
+  }
+
+  ingress {
+    from_port   = 30181
+    to_port     = 30181
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows DNS Ingestion"
+  }
+
+  ingress {
+    from_port   = 30216
+    to_port     = 30216
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "MS Sysmon Ingestion"
+  }
+
+  ingress {
+    from_port   = 30261
+    to_port     = 30261
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Fortinet Syslog"
+  }
+
+  ingress {
+    from_port   = 30463
+    to_port     = 30463
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows Events Ingestion"
+  }
+
+  ingress {
+    from_port   = 30465
+    to_port     = 30465
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Powershell Ingestion TCP"
+  }
+
+  ingress {
+    from_port   = 30514
+    to_port     = 30514
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Syslog Ingestion"
+  }
+
+  ingress {
+    from_port   = 5985
+    to_port     = 5986
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "WinRM-HTTPS"
   }
 
   egress {
