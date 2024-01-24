@@ -14,14 +14,14 @@ resource "aws_key_pair" "deployer_key" {
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = aws_subnet.private_subnets[count.index].availability_zone
+  availability_zone                    = var.availability_zone
   count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  key_name                             = aws_key_pair.deployer_key.id
+  key_name                             = var.key_name
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
@@ -38,7 +38,7 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
   source_dest_check      = var.source_dest_check
-  subnet_id              = aws_subnet.private_subnets[count.index].id
+  subnet_id              = var.subnet_id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
   user_data              = var.user_data #file("${path.module}/snypr_centos_script.sh")
