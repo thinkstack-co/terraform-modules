@@ -190,7 +190,7 @@ resource "aws_key_pair" "deployer_key" {
 ###########################
 
 resource "aws_instance" "ec2" {
-  count = var.create_instance ? var.instance_count : 0
+  count = var.create_instance ? 1 : 0
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = aws_subnet.private_subnets[count.index].availability_zone
