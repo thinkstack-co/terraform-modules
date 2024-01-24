@@ -190,6 +190,7 @@ resource "aws_key_pair" "deployer_key" {
 ###########################
 
 resource "aws_instance" "ec2" {
+  count = var.create_instance ? var.instance_count : 0
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = aws_subnet.private_subnets[count.index].availability_zone
@@ -233,6 +234,7 @@ resource "aws_instance" "ec2" {
 ######################
 
 resource "aws_ebs_volume" "log_volume" {
+  count = var.create_instance ? var.instance_count : 0
   availability_zone = aws_subnet.private_subnets[count.index].availability_zone
   count             = var.instance_count
   encrypted         = var.encrypted
@@ -242,6 +244,7 @@ resource "aws_ebs_volume" "log_volume" {
 }
 
 resource "aws_volume_attachment" "log_volume_attachment" {
+  count = var.create_instance ? var.instance_count : 0
   count       = var.instance_count
   device_name = var.log_volume_device_name
   instance_id = aws_instance.ec2[count.index].id
@@ -257,6 +260,7 @@ resource "aws_volume_attachment" "log_volume_attachment" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  count = var.create_instance ? var.instance_count : 0
   actions_enabled     = true
   alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
@@ -283,6 +287,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
+  count = var.create_instance ? var.instance_count : 0
   actions_enabled     = true
   alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
@@ -328,6 +333,7 @@ icmp            - ICMP/Ping
  */
 
 resource "aws_security_group" "sg" {
+  count = var.create_instance ? var.instance_count : 0
   description = var.security_group_description
   name        = var.security_group_name
   tags        = merge(var.tags, ({ "Name" = format("%s", var.security_group_name) }))

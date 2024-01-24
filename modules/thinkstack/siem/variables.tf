@@ -1,3 +1,16 @@
+###########################
+# EC2 Instance Creation Variables
+###########################
+
+variable "create_instance" {
+  description = "A boolean to control whether the EC2 instance should be created"
+  type        = bool
+  default     = true
+}
+
+###########################
+# EC2 Instance Variables
+###########################
 variable "ami" {
   type        = string
   description = "ID of AMI to use for the instance"
