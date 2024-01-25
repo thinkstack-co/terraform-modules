@@ -48,21 +48,21 @@ resource "aws_instance" "ec2" {
 # EBS Volume for logs
 ######################
 
-resource "aws_ebs_volume" "log_volume" {
-  availability_zone = var.availability_zone
-  count             = var.instance_count
-  encrypted         = var.encrypted
-  size              = var.log_volume_size
-  type              = var.log_volume_type
-  tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-}
+# resource "aws_ebs_volume" "log_volume" {
+#   availability_zone = var.availability_zone
+#   count             = var.instance_count
+#   encrypted         = var.encrypted
+#   size              = var.log_volume_size
+#   type              = var.log_volume_type
+#   tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
+# }
 
-resource "aws_volume_attachment" "log_volume_attachment" {
-  count       = var.instance_count
-  device_name = var.log_volume_device_name
-  instance_id = aws_instance.ec2[count.index].id
-  volume_id   = aws_ebs_volume.log_volume[count.index].id
-}
+# resource "aws_volume_attachment" "log_volume_attachment" {
+#   count       = var.instance_count
+#   device_name = var.log_volume_device_name
+#   instance_id = aws_instance.ec2[count.index].id
+#   volume_id   = aws_ebs_volume.log_volume[count.index].id
+# }
 
 ###################################################
 # EC2 - CloudWatch Alarms
