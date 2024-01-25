@@ -212,7 +212,12 @@ variable "user_data" {
   default     = null
 }
 
-variable "vpc_security_group_ids" {
+# variable "vpc_security_group_ids" {
+#   type        = string
+#   description = "The CIDR block for the VPC"
+# }
+
+variable "vpc_id" {
   type        = string
   description = "The CIDR block for the VPC"
 }
