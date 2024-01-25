@@ -145,7 +145,7 @@ resource "aws_security_group" "sg" {
   description = var.security_group_description
   name        = var.security_group_name
   tags        = merge(var.tags, ({ "Name" = format("%s", var.security_group_name) }))
-  vpc_id      = var.vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = -1

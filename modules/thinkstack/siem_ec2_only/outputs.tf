@@ -1,7 +1,3 @@
-output "default_security_group_id" {
-  value = aws_vpc.vpc.default_security_group_id
-}
-
 output "instance_id" {
   description = "List of IDs of instances"
   value       = [aws_instance.ec2[*].id]
