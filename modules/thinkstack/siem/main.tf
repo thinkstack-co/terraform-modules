@@ -189,17 +189,19 @@ resource "aws_key_pair" "deployer_key" {
 # EC2 - Instance
 ###########################
 
+data "aws_region" "current" {}
+
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = aws_subnet.private_subnets[count.index].availability_zone
-  count = var.create_instance ? var.instance_count : 0
+  availability_zone                    = var.availability_zone
+  count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  key_name                             = aws_key_pair.deployer_key.id
+  key_name                             = var.key_name
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
@@ -216,12 +218,12 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
   source_dest_check      = var.source_dest_check
-  subnet_id              = aws_subnet.private_subnets[count.index].id
+  subnet_id              = var.subnet_id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  tenancy                = var.tenancy
+  tenancy                = var.instance_tenancy
   user_data              = var.user_data #file("${path.module}/snypr_centos_script.sh")
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  vpc_security_group_ids = var.vpc_security_group_ids
+  vpc_security_group_ids = [aws_security_group.sg.id]
 
   lifecycle {
     ignore_changes = [user_data]
@@ -232,23 +234,21 @@ resource "aws_instance" "ec2" {
 # EBS Volume for logs
 ######################
 
-resource "aws_ebs_volume" "log_volume" {
-  count = var.create_instance ? var.instance_count : 0
-  availability_zone = aws_subnet.private_subnets[count.index].availability_zone
-  count             = var.instance_count
-  encrypted         = var.encrypted
-  size              = var.log_volume_size
-  type              = var.log_volume_type
-  tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-}
+# resource "aws_ebs_volume" "log_volume" {
+#   availability_zone = var.availability_zone
+#   count             = var.instance_count
+#   encrypted         = var.encrypted
+#   size              = var.log_volume_size
+#   type              = var.log_volume_type
+#   tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
+# }
 
-resource "aws_volume_attachment" "log_volume_attachment" {
-  count = var.create_instance ? var.instance_count : 0
-  count       = var.instance_count
-  device_name = var.log_volume_device_name
-  instance_id = aws_instance.ec2[count.index].id
-  volume_id   = aws_ebs_volume.log_volume[count.index].id
-}
+# resource "aws_volume_attachment" "log_volume_attachment" {
+#   count       = var.instance_count
+#   device_name = var.log_volume_device_name
+#   instance_id = aws_instance.ec2[count.index].id
+#   volume_id   = aws_ebs_volume.log_volume[count.index].id
+# }
 
 ###################################################
 # EC2 - CloudWatch Alarms
@@ -259,7 +259,6 @@ resource "aws_volume_attachment" "log_volume_attachment" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  count = var.create_instance ? var.instance_count : 0
   actions_enabled     = true
   alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
@@ -286,7 +285,6 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
-  count = var.create_instance ? var.instance_count : 0
   actions_enabled     = true
   alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
@@ -312,7 +310,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 # EC2 - Security Group
 ###########################
 
-/* 
+  /* 
 ########################################
 # Port Mappings
 ########################################
@@ -332,11 +330,10 @@ icmp            - ICMP/Ping
  */
 
 resource "aws_security_group" "sg" {
-  count = var.create_instance ? var.instance_count : 0
   description = var.security_group_description
   name        = var.security_group_name
   tags        = merge(var.tags, ({ "Name" = format("%s", var.security_group_name) }))
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = -1

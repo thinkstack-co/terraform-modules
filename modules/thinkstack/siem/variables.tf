@@ -232,7 +232,7 @@ variable "monitoring" {
 variable "name" {
   type        = string
   description = "Name to be used on all the resources as identifier"
-  default     = "siem"
+  default     = "siem_chronicle"
 }
 
 variable "placement_group" {
