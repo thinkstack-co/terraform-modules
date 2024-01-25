@@ -16,7 +16,6 @@ variable "associate_public_ip_address" {
 variable "availability_zone" {
   type        = string
   description = "The AZ to start the instance in"
-  default     = aws_subnet.private_subnets[count.index].availability_zone
 }
 
 variable "disable_api_termination" {
@@ -106,13 +105,6 @@ variable "instance_tenancy" {
 variable "key_name" {
   type        = string
   description = "The key name to use for the instance"
-  default     = aws_key_pair.deployer_key.id
-}
-
-variable "key_name_prefix" {
-  type        = string
-  description = "SSL key pair name prefix, used to generate unique keypair name for EC2 instance deployments"
-  default     = "siem_keypair"
 }
 
 variable "log_volume_device_name" {
@@ -169,11 +161,6 @@ variable "private_subnets_list" {
   default     = ["10.77.1.64/26", "10.77.1.192/26"]
 }
 
-variable "public_key" {
-  type        = string
-  description = "(Required) Public rsa key"
-}
-
 variable "root_delete_on_termination" {
   type        = string
   description = "(Optional) Whether the volume should be destroyed on instance termination (Default: true)"
@@ -217,7 +204,6 @@ variable "source_dest_check" {
 variable "subnet_id" {
     type        = string
     description = "The VPC Subnet ID to launch in"
-    default     = aws_subnet.private_subnets[count.index].id
 }
 
 variable "user_data" {
@@ -229,7 +215,6 @@ variable "user_data" {
 variable "vpc_security_group_ids" {
   type        = string
   description = "The CIDR block for the VPC"
-  default     = [aws_security_group.sg.id]
 }
 
 variable "sg_cidr_blocks" {
