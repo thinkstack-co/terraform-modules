@@ -47,7 +47,7 @@ resource "aws_instance" "ec2" {
 ######################
 
 resource "aws_ebs_volume" "log_volume" {
-  availability_zone = aws_subnet.private_subnets[count.index].availability_zone
+  availability_zone = var.availability_zone
   count             = var.instance_count
   encrypted         = var.encrypted
   size              = var.log_volume_size
