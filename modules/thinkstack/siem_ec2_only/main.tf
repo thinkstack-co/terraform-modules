@@ -3,6 +3,8 @@
 # EC2 - Instance
 ###########################
 
+data "aws_region" "current" {}
+
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
