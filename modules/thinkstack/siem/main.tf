@@ -344,6 +344,14 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.mgmt_cidr_blocks
+    description = "Allow SSH"
+  }
+
+  ingress {
     from_port   = 162
     to_port     = 162
     protocol    = "udp"

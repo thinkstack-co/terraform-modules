@@ -227,6 +227,12 @@ variable "sg_cidr_blocks" {
   type        = list(any)
 }
 
+variable "mgmt_cidr_blocks" {
+  description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
+  type        = list(any)
+}
+
+
 variable "iam_role_name" {
   type        = string
   description = "(Optional, Forces new resource) The name of the role. If omitted, Terraform will assign a random, unique name."
