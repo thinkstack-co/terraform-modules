@@ -405,6 +405,10 @@ variable "sg_cidr_blocks" {
   type        = list(any)
 }
 
+variable "additional_sg_id" {
+  description = "ID of additional security group to be added"
+}
+
 variable "mgmt_cidr_blocks" {
   description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
   type        = list(any)

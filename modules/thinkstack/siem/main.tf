@@ -223,7 +223,7 @@ resource "aws_instance" "ec2" {
   tenancy                = var.instance_tenancy
   user_data              = var.user_data #file("${path.module}/snypr_centos_script.sh")
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  vpc_security_group_ids = [aws_security_group.sg.id]
+  vpc_security_group_ids = concat([aws_security_group.sg.id], [var.additional_sg_id])
 
   lifecycle {
     ignore_changes = [user_data]
