@@ -173,15 +173,14 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-
   ingress {
-    from_port   = 13001
-    to_port     = 13020
+    from_port   = 30149
+    to_port     = 30149
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "RIN Syslog Ingester Ports"
+    description = "Windows DHCP Ingestion"
   }
-
+  
   ingress {
     from_port   = 30149
     to_port     = 30149
@@ -207,6 +206,22 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
+    from_port   = 30219
+    to_port     = 30219
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "MS Sysmon Ingestion"
+  }
+
+  ingress {
+    from_port   = 30219
+    to_port     = 30219
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "MS Sysmon Ingestion"
+  }
+
+  ingress {
     from_port   = 30261
     to_port     = 30261
     protocol    = "udp"
@@ -223,6 +238,14 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
+    from_port   = 30463
+    to_port     = 30463
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows Events Ingestion"
+  }
+
+  ingress {
     from_port   = 30465
     to_port     = 30465
     protocol    = "tcp"
@@ -231,9 +254,25 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
+    from_port   = 30465
+    to_port     = 30465
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Powershell Ingestion UDP"
+  }
+
+  ingress {
     from_port   = 30514
     to_port     = 30514
     protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Syslog Ingestion"
+  }
+
+  ingress {
+    from_port   = 30514
+    to_port     = 30514
+    protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
     description = "Syslog Ingestion"
   }
