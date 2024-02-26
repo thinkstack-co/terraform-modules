@@ -100,3 +100,8 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "backup_region" {
+  type        = string
+  description = "Backup Region"
+}
