@@ -47,7 +47,6 @@ resource "aws_iam_role_policy_attachment" "backup_role_policy" {
 #####################
 
 resource "aws_kms_key" "key" {
-  provider                           = aws.aws_prod_region
   bypass_policy_lockout_safety_check = var.key_bypass_policy_lockout_safety_check
   customer_master_key_spec           = var.key_customer_master_key_spec
   description                        = var.key_description
@@ -60,7 +59,6 @@ resource "aws_kms_key" "key" {
 }
 
 resource "aws_kms_alias" "alias" {
-  provider      = aws.aws_prod_region
   name          = var.key_name
   target_key_id = aws_kms_key.key.key_id
 }
