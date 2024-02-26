@@ -35,6 +35,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_backup_plan_name"></a> [backup\_plan\_name](#input\_backup\_plan\_name) | The name of the backup plan | `string` | n/a | yes |
+| <a name="input_backup_region"></a> [backup\_region](#input\_backup\_region) | Backup Region | `string` | n/a | yes |
 | <a name="input_backup_rule_name"></a> [backup\_rule\_name](#input\_backup\_rule\_name) | The name of the backup rule | `string` | n/a | yes |
 | <a name="input_backup_vault_name"></a> [backup\_vault\_name](#input\_backup\_vault\_name) | The name of the backup vault | `string` | `"Default"` | no |
 | <a name="input_cold_storage_after_days"></a> [cold\_storage\_after\_days](#input\_cold\_storage\_after\_days) | The number of days after creation when a recovery point is moved to cold storage. | `number` | n/a | yes |
