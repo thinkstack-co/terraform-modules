@@ -69,7 +69,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_backup_vault" "this" {
   name        = var.backup_vault_name
-  kms_key_arn = aws.aws_kms_key.key.arn
+  kms_key_arn = aws_kms_key.key.arn
   tags        = var.tags
 }
 
