@@ -101,17 +101,3 @@ variable "tags" {
   default     = {}
 }
 
-variable "backup_region" {
-  type        = string
-  description = "Backup Region"
-}
-
-variable "access_id" {
-  description = "AWS access id"
-  sensitive   = true
-}
-
-variable "secret_key" {
-  description = "AWS secret key"
-  sensitive   = true
-}
