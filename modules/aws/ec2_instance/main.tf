@@ -25,7 +25,7 @@ resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = var.availability_zone
-  count                                = var.number
+  count                                = 1
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
@@ -79,7 +79,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = aws_instance.ec2[count.index].id
+    InstanceId = aws_instance.ec2.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = aws_instance.ec2[count.index].id
+    InstanceId = aws_instance.ec2.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
