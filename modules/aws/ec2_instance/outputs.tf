@@ -52,3 +52,9 @@ output "subnet_id" {
   description = "List of IDs of VPC subnets of instances"
   value       = aws_instance.ec2[*].subnet_id
 }
+
+output "instance_arn" {
+  description = "List of IDs of VPC subnets of instances"
+  value       = aws_instance.ec2[*].arn
+}
+
