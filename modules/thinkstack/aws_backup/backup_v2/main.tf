@@ -88,7 +88,7 @@ resource "aws_backup_selection" "this" {
   name         = "${var.backup_plan_name}-selection"
   plan_id      = aws_backup_plan.this.id
 
-  resources = var.instance_ids
+  resources = var.instance_arns
 }
 
 resource "aws_backup_vault_lock_configuration" "this" {

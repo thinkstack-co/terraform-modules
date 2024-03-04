@@ -55,7 +55,7 @@ variable "key_policy" {
   type        = string
 }
 
-variable "instance_ids" {
+variable "instance_arns" {
   description = "List of EC2 instance IDs to backup"
   type        = list(string)
 }
