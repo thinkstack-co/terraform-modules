@@ -202,6 +202,7 @@ No modules.
 |------|-------------|
 | <a name="output_availability_zone"></a> [availability\_zone](#output\_availability\_zone) | List of availability zones of instances |
 | <a name="output_id"></a> [id](#output\_id) | List of IDs of instances |
+| <a name="output_instance_arn"></a> [instance\_arn](#output\_instance\_arn) | List of IDs of VPC subnets of instances |
 | <a name="output_key_name"></a> [key\_name](#output\_key\_name) | List of key names of instances |
 | <a name="output_primary_network_interface_id"></a> [primary\_network\_interface\_id](#output\_primary\_network\_interface\_id) | List of IDs of the primary network interface of instances |
 | <a name="output_private_dns"></a> [private\_dns](#output\_private\_dns) | List of private DNS names assigned to the instances. Can only be used inside the Amazon EC2, and only available if you've enabled DNS hostnames for your VPC |
