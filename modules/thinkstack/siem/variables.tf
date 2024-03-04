@@ -407,6 +407,7 @@ variable "sg_cidr_blocks" {
 
 variable "additional_sg_id" {
   description = "ID of additional security group to be added"
+  type = string
 }
 
 variable "mgmt_cidr_blocks" {
