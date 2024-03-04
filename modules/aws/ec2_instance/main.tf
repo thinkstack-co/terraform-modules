@@ -79,7 +79,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = each.value.id
+    InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = each.value.id
+    InstanceId = aws_instance.ec2[count.index].id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
