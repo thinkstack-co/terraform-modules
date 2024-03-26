@@ -189,17 +189,19 @@ resource "aws_key_pair" "deployer_key" {
 # EC2 - Instance
 ###########################
 
+data "aws_region" "current" {}
+
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
-  availability_zone                    = aws_subnet.private_subnets[count.index].availability_zone
+  availability_zone                    = var.availability_zone
   count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
-  key_name                             = aws_key_pair.deployer_key.id
+  key_name                             = var.key_name
   monitoring                           = var.monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
@@ -216,12 +218,12 @@ resource "aws_instance" "ec2" {
     volume_size           = var.root_volume_size
   }
   source_dest_check      = var.source_dest_check
-  subnet_id              = aws_subnet.private_subnets[count.index].id
+  subnet_id              = var.subnet_id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  tenancy                = var.tenancy
-  user_data              = file("${path.module}/snypr_centos_script.sh")
+  tenancy                = var.instance_tenancy
+  user_data              = var.user_data #file("${path.module}/snypr_centos_script.sh")
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-  vpc_security_group_ids = [aws_security_group.sg.id]
+  vpc_security_group_ids = concat([aws_security_group.sg.id], [var.additional_sg_id])
 
   lifecycle {
     ignore_changes = [user_data]
@@ -232,21 +234,21 @@ resource "aws_instance" "ec2" {
 # EBS Volume for logs
 ######################
 
-resource "aws_ebs_volume" "log_volume" {
-  availability_zone = aws_subnet.private_subnets[count.index].availability_zone
-  count             = var.instance_count
-  encrypted         = var.encrypted
-  size              = var.log_volume_size
-  type              = var.log_volume_type
-  tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
-}
+# resource "aws_ebs_volume" "log_volume" {
+#   availability_zone = var.availability_zone
+#   count             = var.instance_count
+#   encrypted         = var.encrypted
+#   size              = var.log_volume_size
+#   type              = var.log_volume_type
+#   tags              = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
+# }
 
-resource "aws_volume_attachment" "log_volume_attachment" {
-  count       = var.instance_count
-  device_name = var.log_volume_device_name
-  instance_id = aws_instance.ec2[count.index].id
-  volume_id   = aws_ebs_volume.log_volume[count.index].id
-}
+# resource "aws_volume_attachment" "log_volume_attachment" {
+#   count       = var.instance_count
+#   device_name = var.log_volume_device_name
+#   instance_id = aws_instance.ec2[count.index].id
+#   volume_id   = aws_ebs_volume.log_volume[count.index].id
+# }
 
 ###################################################
 # EC2 - CloudWatch Alarms
@@ -308,11 +310,30 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 # EC2 - Security Group
 ###########################
 
+  /* 
+########################################
+# Port Mappings
+########################################
+Port            | Description
+----------------------------------------
+icmp            - ICMP/Ping
+162 udp         - SNMP Trap Ingester Port
+13001-13020 tcp - RIN Syslog Ingester Ports
+30149 udp       - Windows DHCP Ingestion
+30181 tcp       - Windows DNS Ingestion
+30216 udp       - MS Sysmon Ingestion
+30261 udp       - Fortinet Syslog
+30463 tcp       - Windows Events Ingestion
+30465 tcp       - Powershell Ingestion TCP
+30514 udp       - Syslog Ingestion
+5985-5986 tcp   - WinRM-HTTPS
+ */
+
 resource "aws_security_group" "sg" {
   description = var.security_group_description
   name        = var.security_group_name
   tags        = merge(var.tags, ({ "Name" = format("%s", var.security_group_name) }))
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = -1
@@ -323,6 +344,14 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.mgmt_cidr_blocks
+    description = "Allow SSH"
+  }
+
+  ingress {
     from_port   = 162
     to_port     = 162
     protocol    = "udp"
@@ -330,47 +359,124 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-  /* 
-########################################
-# Syslog Port Mappings
-########################################
-Port - Description
-13001 - Firewalls
-13002 - Access Points
-13003 - Windows
-13004 - Switches and Routers
-13005 - NTAs (Corelight, Darktrace, Extrahop, etc)
-13006 - PDUs and UPS devices
-13007 - Linux
-13008 - Manage Engine ADAudit
-13009 - Vulnerability Scanners (Trace, Qualys, Nessus, etc)
-13010 - Hypervisors
-13011 - Reserved
-13012 - Web Proxy or Reverse Proxy (NGINX)
-13013 - Reserved
-13014 - Firewall Orchestration (Fortimanager, Cisco FMC, etc)
-13015 - SANs and NAS devices
-13016 - Security Cameras
-13017 - Dell iDRAC
-13018 - HP iLO
-13019 - Backup Platforms (Veeam)
-13020 - Endpoint Security (Carbon Black, Crowdstrike, Cylance, etc)
- */
-
   ingress {
-    from_port   = 13001
-    to_port     = 13020
+    from_port   = 30149
+    to_port     = 30149
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows DHCP Ingestion"
+  }
+  
+  ingress {
+    from_port   = 30149
+    to_port     = 30149
     protocol    = "udp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "RIN Syslog Ingester Ports"
+    description = "Windows DHCP Ingestion"
   }
 
   ingress {
-    from_port   = 13001
-    to_port     = 13020
+    from_port   = 30181
+    to_port     = 30181
     protocol    = "tcp"
     cidr_blocks = var.sg_cidr_blocks
-    description = "RIN Syslog Ingester Ports"
+    description = "Windows DNS Ingestion"
+  }
+
+  ingress {
+    from_port   = 30216
+    to_port     = 30216
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "MS Sysmon Ingestion"
+  }
+
+  ingress {
+    from_port   = 30219
+    to_port     = 30219
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "MS Sysmon Ingestion"
+  }
+
+  ingress {
+    from_port   = 30219
+    to_port     = 30219
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "MS Sysmon Ingestion"
+  }
+
+  ingress {
+    from_port   = 30261
+    to_port     = 30261
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Fortinet Syslog"
+  }
+
+    ingress {
+    from_port   = 30275
+    to_port     = 30275
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Meraki log ingestion"
+  }
+
+  ingress {
+    from_port   = 30463
+    to_port     = 30463
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows Events Ingestion"
+  }
+
+  ingress {
+    from_port   = 30463
+    to_port     = 30463
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Windows Events Ingestion"
+  }
+
+  ingress {
+    from_port   = 30465
+    to_port     = 30465
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Powershell Ingestion TCP"
+  }
+
+  ingress {
+    from_port   = 30465
+    to_port     = 30465
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Powershell Ingestion UDP"
+  }
+
+  ingress {
+    from_port   = 30514
+    to_port     = 30514
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Syslog Ingestion"
+  }
+
+  ingress {
+    from_port   = 30514
+    to_port     = 30514
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Syslog Ingestion"
+  }
+
+  ingress {
+    from_port   = 5985
+    to_port     = 5986
+    protocol    = "tcp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "WinRM-HTTPS"
   }
 
   egress {
