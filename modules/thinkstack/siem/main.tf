@@ -415,6 +415,14 @@ resource "aws_security_group" "sg" {
     description = "Fortinet Syslog"
   }
 
+    ingress {
+    from_port   = 30275
+    to_port     = 30275
+    protocol    = "udp"
+    cidr_blocks = var.sg_cidr_blocks
+    description = "Meraki log ingestion"
+  }
+
   ingress {
     from_port   = 30463
     to_port     = 30463
