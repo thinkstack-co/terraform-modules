@@ -1,3 +1,8 @@
+variable "ami_id" {
+  type        = string
+  description = "The AMI ID for the Trustgrid node"
+}
+
 variable "instance_profile_name" {
   type        = string
   description = "IAM Instance Profile the Trustgrid EC2 node will use"

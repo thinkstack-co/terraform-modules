@@ -169,7 +169,7 @@ resource "aws_eip" "mgmt_ip" {
 }
 
 resource "aws_instance" "node" {
-  ami           = data.aws_ami.trustgrid-node-ami.id
+  ami           = var.ami_id
   instance_type = var.instance_type
   key_name = var.key_pair_name
 
