@@ -35,12 +35,12 @@ data "aws_region" "current" {}
 #       })
 #   }
 
-  part {
-    content_type = "text/x-shellscript"
-    filename     = "bootstrap.sh"
-    content      = templatefile("${path.module}/scripts/bootstrap.sh.tpl", { region = data.aws_region.current.name})
-  }
-}
+#   part {
+#     content_type = "text/x-shellscript"
+#     filename     = "bootstrap.sh"
+#     content      = templatefile("${path.module}/scripts/bootstrap.sh.tpl", { region = data.aws_region.current.name})
+#   }
+# }
 
 resource "aws_cloudwatch_log_stream" "trustgrid_log_stream" {
   name           = var.name
