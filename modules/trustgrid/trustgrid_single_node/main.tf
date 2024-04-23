@@ -18,22 +18,22 @@ data "aws_ami" "trustgrid-node-ami" {
 
 data "aws_region" "current" {}
 
-data "template_cloudinit_config" "cloud_init" {
-  gzip          = true
-  base64_encode = true
+# data "template_cloudinit_config" "cloud_init" {
+#   gzip          = true
+#   base64_encode = true
 
-  part {
-    content_type = "text/cloud-config"
-    filename     = "bootstrap.cfg"
-    content      = templatefile("${path.module}/templates/cloud-init.yaml.tpl", 
-    { 
-      license = var.license, 
-      trustgrid_log_group_name = var.trustgrid_log_group_name, 
-      trustgrid_log_stream_name = aws_cloudwatch_log_stream.trustgrid_log_stream.name,
-      syslog_log_group_name = var.syslog_log_group_name,
-      syslog_log_stream_name = aws_cloudwatch_log_stream.syslog_log_stream.name 
-      })
-  }
+#   part {
+#     content_type = "text/cloud-config"
+#     filename     = "bootstrap.cfg"
+#     content      = templatefile("${path.module}/templates/cloud-init.yaml.tpl", 
+#     { 
+#       license = var.license, 
+#       trustgrid_log_group_name = var.trustgrid_log_group_name, 
+#       trustgrid_log_stream_name = aws_cloudwatch_log_stream.trustgrid_log_stream.name,
+#       syslog_log_group_name = var.syslog_log_group_name,
+#       syslog_log_stream_name = aws_cloudwatch_log_stream.syslog_log_stream.name 
+#       })
+#   }
 
   part {
     content_type = "text/x-shellscript"
