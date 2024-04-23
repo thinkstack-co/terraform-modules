@@ -8,10 +8,10 @@ variable "instance_profile_name" {
   description = "IAM Instance Profile the Trustgrid EC2 node will use"
 }
 
-variable "license" {
-  type        = string
-  description = "The Trustgrid license given from the API or Portal"
-}
+# variable "license" {
+#   type        = string
+#   description = "The Trustgrid license given from the API or Portal"
+# }
 
 variable "trustgrid_log_group_name" {
   type        = string
