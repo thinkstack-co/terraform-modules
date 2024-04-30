@@ -10,6 +10,12 @@ variable "protocol" {
   default     = "HTTP"
 }
 
+variable "certificate_arn" {
+  type        = string
+  description = "(Optional) ARN of the default SSL server certificate. Exactly one certificate is required if the protocol is HTTPS. For adding additional SSL certificates, see the aws_lb_listener_certificate resource."
+}
+
+
 variable "ssl_certificate" {
   type        = string
   description = "(Optional) The ARN of the default SSL server certificate. Exactly one certificate is required if the protocol is HTTPS. For adding additional SSL certificates, see the `aws_lb_listener_certificate` resource."
