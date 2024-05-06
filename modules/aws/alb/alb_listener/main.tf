@@ -12,7 +12,7 @@ resource "aws_alb_listener" "listener" {
   load_balancer_arn = var.load_balancer_arn
   port              = var.port
   protocol          = var.protocol
-
+  certificate_arn   = var.certificate_arn
 
   # This dynamic block will be executed only when target_group_arn is provided
   dynamic "default_action" {
