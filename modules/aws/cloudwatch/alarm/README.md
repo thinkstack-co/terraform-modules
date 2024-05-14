@@ -26,9 +26,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">Security Group Module</h3>
+<h3 align="center">CloudWatch Alarm Module</h3>
   <p align="center">
-    This module creates a security group with the rules assigned to the security group all built within the module.
+    This module sets up a CloudWatch Alarm
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -99,23 +99,33 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_security_group.sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_cloudwatch_metric_alarm.alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_description"></a> [description](#input\_description) | Description of the security group | `string` | `"Terraform created SG"` | no |
-| <a name="input_name"></a> [name](#input\_name) | Name of the security group | `any` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to the security group | `map` | `{}` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC with which to add the security group to | `any` | n/a | yes |
+| <a name="input_actions_enabled"></a> [actions\_enabled](#input\_actions\_enabled) | (Optional) Indicates whether or not actions should be executed during any changes to the alarm's state. Defaults to true. | `string` | `true` | no |
+| <a name="input_alarm_actions"></a> [alarm\_actions](#input\_alarm\_actions) | (Optional) The list of actions to execute when this alarm transitions into an ALARM state from any other state. Each action is specified as an Amazon Resource Number (ARN). | `string` | n/a | yes |
+| <a name="input_alarm_description"></a> [alarm\_description](#input\_alarm\_description) | (Optional) The description for the alarm. | `string` | n/a | yes |
+| <a name="input_alarm_name"></a> [alarm\_name](#input\_alarm\_name) | (Required) The descriptive name for the alarm. This name must be unique within the user's AWS account | `string` | n/a | yes |
+| <a name="input_comparison_operator"></a> [comparison\_operator](#input\_comparison\_operator) | (Required) The arithmetic operation to use when comparing the specified Statistic and Threshold. The specified Statistic value is used as the first operand. Either of the following is supported: GreaterThanOrEqualToThreshold, GreaterThanThreshold, LessThanThreshold, LessThanOrEqualToThreshold. | `string` | n/a | yes |
+| <a name="input_datapoints_to_alarm"></a> [datapoints\_to\_alarm](#input\_datapoints\_to\_alarm) | (Optional) The number of datapoints that must be breaching to trigger the alarm. | `string` | n/a | yes |
+| <a name="input_dimensions"></a> [dimensions](#input\_dimensions) | (Optional) The dimensions for the alarm's associated metric. For the list of available dimensions see the AWS documentation | `map(any)` | n/a | yes |
+| <a name="input_evaluation_periods"></a> [evaluation\_periods](#input\_evaluation\_periods) | (Required) The number of periods over which data is compared to the specified threshold. | `string` | n/a | yes |
+| <a name="input_insufficient_data_actions"></a> [insufficient\_data\_actions](#input\_insufficient\_data\_actions) | (Optional) The list of actions to execute when this alarm transitions into an INSUFFICIENT\_DATA state from any other state. Each action is specified as an Amazon Resource Number (ARN). | `string` | n/a | yes |
+| <a name="input_metric_name"></a> [metric\_name](#input\_metric\_name) | (Required) The name for the alarm's associated metric. See docs for supported metrics. | `string` | n/a | yes |
+| <a name="input_namespace"></a> [namespace](#input\_namespace) | (Required) The namespace for the alarm's associated metric. See docs for the list of namespaces. See docs for supported metrics. | `string` | n/a | yes |
+| <a name="input_ok_actions"></a> [ok\_actions](#input\_ok\_actions) | (Optional) The list of actions to execute when this alarm transitions into an OK state from any other state. Each action is specified as an Amazon Resource Number (ARN). | `string` | n/a | yes |
+| <a name="input_period"></a> [period](#input\_period) | (Required) The period in seconds over which the specified statistic is applied. | `string` | n/a | yes |
+| <a name="input_statistic"></a> [statistic](#input\_statistic) | (Optional) The statistic to apply to the alarm's associated metric. Either of the following is supported: SampleCount, Average, Sum, Minimum, Maximum | `string` | n/a | yes |
+| <a name="input_threshold"></a> [threshold](#input\_threshold) | (Required) The value against which the specified statistic is compared. | `string` | `1` | no |
+| <a name="input_treat_missing_data"></a> [treat\_missing\_data](#input\_treat\_missing\_data) | (Optional) Sets how this alarm is to handle missing data points. The following values are supported: missing, ignore, breaching and notBreaching. Defaults to missing. | `string` | n/a | yes |
+| <a name="input_unit"></a> [unit](#input\_unit) | (Optional) The unit for the alarm's associated metric. | `string` | n/a | yes |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_id"></a> [id](#output\_id) | n/a |
-| <a name="output_name"></a> [name](#output\_name) | n/a |
+No outputs.
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->

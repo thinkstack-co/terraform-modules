@@ -7,14 +7,14 @@ terraform {
   }
 }
 
-data "aws_ami" "trustgrid-node-ami" {
-  owners      = [ "079972220921" ]
-  most_recent      = true
-  filter {
-    name = "name"
-    values = ["trustgrid-agent*"]
-  }
-}
+# data "aws_ami" "trustgrid-node-ami" {
+#   owners      = [ "079972220921" ]
+#   most_recent      = true
+#   filter {
+#     name = "name"
+#     values = ["trustgrid-agent*"]
+#   }
+# }
 
 data "aws_region" "current" {}
 

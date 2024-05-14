@@ -26,9 +26,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">Security Group Module</h3>
+<h3 align="center">CloudWatch Module</h3>
   <p align="center">
-    This module creates a security group with the rules assigned to the security group all built within the module.
+    This module sets up a CloudWatch event trigger
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -64,10 +64,12 @@
 ## Usage
 
 ```
-module test {
-    source = 
-
-    variable = 
+module "hourly_trigger" {
+  source              = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudwatch/event"
+  description         = "Event which triggers at 20 past the hour, every hour"
+  event_target_arn    = module.lambda_function.arn
+  name                = "hourly-trigger"
+  schedule_expression = "cron(20 0/1 * * ? *)"
 }
 ```
 
@@ -99,23 +101,24 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_security_group.sg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_cloudwatch_event_rule.event_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.event_target](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_description"></a> [description](#input\_description) | Description of the security group | `string` | `"Terraform created SG"` | no |
-| <a name="input_name"></a> [name](#input\_name) | Name of the security group | `any` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to the security group | `map` | `{}` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC with which to add the security group to | `any` | n/a | yes |
+| <a name="input_description"></a> [description](#input\_description) | Description of the cloudwatch event | `any` | n/a | yes |
+| <a name="input_event_target_arn"></a> [event\_target\_arn](#input\_event\_target\_arn) | arn of the target to invoke with this event | `any` | n/a | yes |
+| <a name="input_is_enabled"></a> [is\_enabled](#input\_is\_enabled) | Whether or not the event rule is enabled | `string` | `"true"` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of the cloudwatch event | `any` | n/a | yes |
+| <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | cron expression of time or rate expression of time | `any` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_id"></a> [id](#output\_id) | n/a |
-| <a name="output_name"></a> [name](#output\_name) | n/a |
+| <a name="output_arn"></a> [arn](#output\_arn) | n/a |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
