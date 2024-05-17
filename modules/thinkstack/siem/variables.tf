@@ -1,3 +1,16 @@
+###########################
+# EC2 Instance Creation Variables
+###########################
+
+variable "create_instance" {
+  description = "A boolean to control whether the EC2 instance should be created"
+  type        = bool
+  default     = true
+}
+
+###########################
+# EC2 Instance Variables
+###########################
 variable "ami" {
   type        = string
   description = "ID of AMI to use for the instance"
@@ -219,7 +232,7 @@ variable "monitoring" {
 variable "name" {
   type        = string
   description = "Name to be used on all the resources as identifier"
-  default     = "siem"
+  default     = "siem_chronicle"
 }
 
 variable "placement_group" {
@@ -321,10 +334,22 @@ variable "tenancy" {
   }
 }
 
+variable "user_data" {
+  type        = string
+  description = "The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead."
+  default     = null
+}
+
 variable "vpc_cidr" {
   type        = string
   description = "The CIDR block for the VPC"
   default     = "10.77.1.0/24"
+}
+
+variable "vpc_security_group_ids" {
+  type        = string
+  description = "The CIDR block for the VPC"
+  #default     = [aws_security_group.sg.id]
 }
 
 variable "vpn_peer_ip_address" {
@@ -376,6 +401,16 @@ variable "peer_vpc_subnet" {
 }
 
 variable "sg_cidr_blocks" {
+  description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
+  type        = list(any)
+}
+
+variable "additional_sg_id" {
+  description = "ID of additional security group to be added"
+  type        = string
+}
+
+variable "mgmt_cidr_blocks" {
   description = "(Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector"
   type        = list(any)
 }
