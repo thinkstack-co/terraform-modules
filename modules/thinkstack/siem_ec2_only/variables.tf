@@ -202,8 +202,8 @@ variable "source_dest_check" {
 }
 
 variable "subnet_id" {
-    type        = string
-    description = "The VPC Subnet ID to launch in"
+  type        = string
+  description = "The VPC Subnet ID to launch in"
 }
 
 variable "user_data" {

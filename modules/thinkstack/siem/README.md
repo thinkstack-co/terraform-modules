@@ -131,7 +131,6 @@ No modules.
 | [aws_cloudwatch_metric_alarm.instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.system](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_customer_gateway.customer_gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/customer_gateway) | resource |
-| [aws_ebs_volume.log_volume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume) | resource |
 | [aws_eip.nateip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 | [aws_flow_log.vpc_flow](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/flow_log) | resource |
 | [aws_iam_group.siem_cloudtrail_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_group) | resource |
@@ -172,7 +171,6 @@ No modules.
 | [aws_sqs_queue.cloudtrail_queue](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_subnet.private_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
 | [aws_subnet.public_subnets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
-| [aws_volume_attachment.log_volume_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/volume_attachment) | resource |
 | [aws_vpc.vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
 | [aws_vpc_peering_connection.peer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_peering_connection) | resource |
 | [aws_vpn_connection.vpn_connection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_connection) | resource |
@@ -180,11 +178,13 @@ No modules.
 | [aws_vpn_gateway.vpn_gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_gateway) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| [aws_region.current_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_additional_sg_id"></a> [additional\_sg\_id](#input\_additional\_sg\_id) | ID of additional security group to be added | `string` | n/a | yes |
 | <a name="input_ami"></a> [ami](#input\_ami) | ID of AMI to use for the instance | `string` | n/a | yes |
 | <a name="input_associate_public_ip_address"></a> [associate\_public\_ip\_address](#input\_associate\_public\_ip\_address) | If true, the EC2 instance will have associated public IP address | `bool` | `false` | no |
 | <a name="input_auto_accept"></a> [auto\_accept](#input\_auto\_accept) | (Optional) Accept the peering (both VPCs need to be in the same AWS account). | `string` | `true` | no |
@@ -198,6 +198,7 @@ No modules.
 | <a name="input_cloudtrail_key_is_enabled"></a> [cloudtrail\_key\_is\_enabled](#input\_cloudtrail\_key\_is\_enabled) | (Optional) Specifies whether the key is enabled. Defaults to true. | `string` | `true` | no |
 | <a name="input_cloudtrail_key_name_prefix"></a> [cloudtrail\_key\_name\_prefix](#input\_cloudtrail\_key\_name\_prefix) | (Optional) Creates an unique alias beginning with the specified prefix. The name must start with the word alias followed by a forward slash (alias/). | `string` | `"alias/cloudtrail_logs_key_"` | no |
 | <a name="input_cloudtrail_key_usage"></a> [cloudtrail\_key\_usage](#input\_cloudtrail\_key\_usage) | (Optional) Specifies the intended use of the key. Defaults to ENCRYPT\_DECRYPT, and only symmetric encryption and decryption are supported. | `string` | `"ENCRYPT_DECRYPT"` | no |
+| <a name="input_create_instance"></a> [create\_instance](#input\_create\_instance) | A boolean to control whether the EC2 instance should be created | `bool` | `true` | no |
 | <a name="input_customer_gw_name"></a> [customer\_gw\_name](#input\_customer\_gw\_name) | (Required) List of names to use for the customer gateways. The order of names will be associated with the same IP address peering order | `list(any)` | `null` | no |
 | <a name="input_disable_api_termination"></a> [disable\_api\_termination](#input\_disable\_api\_termination) | If true, enables EC2 Instance Termination Protection | `bool` | `false` | no |
 | <a name="input_ebs_optimized"></a> [ebs\_optimized](#input\_ebs\_optimized) | If true, the launched EC2 instance will be EBS-optimized | `bool` | `false` | no |
@@ -245,8 +246,9 @@ No modules.
 | <a name="input_log_volume_size"></a> [log\_volume\_size](#input\_log\_volume\_size) | (Optional) The size of the drive in GiBs. | `string` | `300` | no |
 | <a name="input_log_volume_type"></a> [log\_volume\_type](#input\_log\_volume\_type) | (Optional) The type of volume. Can be standard, gp2, or io1. (Default: standard) | `string` | `"gp2"` | no |
 | <a name="input_map_public_ip_on_launch"></a> [map\_public\_ip\_on\_launch](#input\_map\_public\_ip\_on\_launch) | should be false if you do not want to auto-assign public IP on launch | `bool` | `false` | no |
+| <a name="input_mgmt_cidr_blocks"></a> [mgmt\_cidr\_blocks](#input\_mgmt\_cidr\_blocks) | (Requirerd) Security group allowed cidr blocks which will allow sending traffic to the SIEM collector | `list(any)` | n/a | yes |
 | <a name="input_monitoring"></a> [monitoring](#input\_monitoring) | If true, the launched EC2 instance will have detailed monitoring enabled | `bool` | `false` | no |
-| <a name="input_name"></a> [name](#input\_name) | Name to be used on all the resources as identifier | `string` | `"siem"` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name to be used on all the resources as identifier | `string` | `"siem_chronicle"` | no |
 | <a name="input_peer_owner_id"></a> [peer\_owner\_id](#input\_peer\_owner\_id) | (Optional) The AWS account ID of the owner of the peer VPC. Defaults to the account ID the AWS provider is currently connected to. | `string` | `""` | no |
 | <a name="input_peer_region"></a> [peer\_region](#input\_peer\_region) | (Optional) The region of the accepter VPC of the [VPC Peering Connection]. auto\_accept must be false, and use the aws\_vpc\_peering\_connection\_accepter to manage the accepter side. | `string` | `""` | no |
 | <a name="input_peer_vpc_ids"></a> [peer\_vpc\_ids](#input\_peer\_vpc\_ids) | (Required) The ID of the VPC with which you are creating the VPC Peering Connection. | `list(any)` | `[]` | no |
@@ -271,6 +273,7 @@ No modules.
 | <a name="input_transit_subnet_route_cidr_blocks"></a> [transit\_subnet\_route\_cidr\_blocks](#input\_transit\_subnet\_route\_cidr\_blocks) | (Optional) The destination CIDR blocks to send to the transit gateway. | `list(any)` | `null` | no |
 | <a name="input_user_data"></a> [user\_data](#input\_user\_data) | The user data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user\_data\_base64 instead. | `string` | `null` | no |
 | <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | The CIDR block for the VPC | `string` | `"10.77.1.0/24"` | no |
+| <a name="input_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#input\_vpc\_security\_group\_ids) | The CIDR block for the VPC | `string` | n/a | yes |
 | <a name="input_vpn_peer_ip_address"></a> [vpn\_peer\_ip\_address](#input\_vpn\_peer\_ip\_address) | (Required) List of customer gateway external IP addresses which will be utilized to create VPN connections with | `list(any)` | `null` | no |
 | <a name="input_vpn_route_cidr_blocks"></a> [vpn\_route\_cidr\_blocks](#input\_vpn\_route\_cidr\_blocks) | (Required) CIDR block of the VPN subnets | `list(any)` | `null` | no |
 | <a name="input_vpn_type"></a> [vpn\_type](#input\_vpn\_type) | Type of VPN tunnel. Currently only supports ipsec.1 | `string` | `"ipsec.1"` | no |
