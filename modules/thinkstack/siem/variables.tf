@@ -349,7 +349,7 @@ variable "vpc_cidr" {
 variable "vpc_security_group_ids" {
   type        = string
   description = "The CIDR block for the VPC"
-  default     = [aws_security_group.sg.id]
+  #default     = [aws_security_group.sg.id]
 }
 
 variable "vpn_peer_ip_address" {
