@@ -189,7 +189,7 @@ resource "aws_key_pair" "deployer_key" {
 # EC2 - Instance
 ###########################
 
-data "aws_region" "current" {}
+#data "aws_region" "current" {}
 
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
