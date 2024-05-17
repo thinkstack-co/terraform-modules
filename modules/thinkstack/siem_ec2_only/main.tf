@@ -124,7 +124,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 # EC2 - Security Group
 ###########################
 
-  /* 
+/* 
 ########################################
 # Port Mappings
 ########################################
@@ -180,7 +180,7 @@ resource "aws_security_group" "sg" {
     cidr_blocks = var.sg_cidr_blocks
     description = "Windows DHCP Ingestion"
   }
-  
+
   ingress {
     from_port   = 30149
     to_port     = 30149
