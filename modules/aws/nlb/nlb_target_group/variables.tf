@@ -13,11 +13,13 @@ variable "health_check_path" {
 variable "deregistration_delay" {
   type        = number
   description = "(Optional) Amount time for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused. The range is 0-3600 seconds. The default value is 300 seconds."
+  default     = ""
 }
 
 variable "lambda_multi_value_headers_enabled" {
   type        = bool
   description = "lambda_multi_value_headers_enabled"
+  default     = ""
 }
 
 variable "health_check_port" {
