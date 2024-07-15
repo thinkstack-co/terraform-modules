@@ -167,6 +167,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   event_selector {
     read_write_type           = var.cloudtrail_event_selector_read_write_type
     include_management_events = var.cloudtrail_event_selector_include_management_events
+    exclude_management_event_sources = var.cloudtrail_event_selector_exclude_management_event_sources
   }
 
 }

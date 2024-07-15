@@ -268,6 +268,12 @@ variable "cloudtrail_event_selector_include_management_events" {
   default     = true
 }
 
+variable "cloudtrail_event_selector_exclude_management_event_sources" {
+  type        = list(string)
+  description = "Specifies the ARN of the event sources for which you want to log events for the trail"
+  default     = []
+}
+
 variable "is_multi_region_trail" {
   type        = bool
   description = "Determines whether or not the cloudtrail is created for all regions"
