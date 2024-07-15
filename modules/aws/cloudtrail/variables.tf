@@ -256,6 +256,18 @@ variable "include_global_service_events" {
   }
 }
 
+variable "cloudtrail_event_selector_read_write_type" {
+  type        = string
+  description = "Specifies the type of events that you want your trail to log. Valid values: All, Read-only, Write-only, None"
+  default     = "All"
+}
+
+variable "cloudtrail_event_selector_include_management_events" {
+  type        = bool
+  description = "Specifies whether the event selector filters management events for the trail"
+  default     = true
+}
+
 variable "is_multi_region_trail" {
   type        = bool
   description = "Determines whether or not the cloudtrail is created for all regions"
