@@ -399,16 +399,16 @@ resource "aws_backup_selection" "all_ec2" {
 # S3 Bucket for Backup Reports
 resource "aws_s3_bucket" "backup_reports" {
   bucket_prefix = "aws-backup-audit-reports"
-  tags   = var.tags
+  tags          = var.tags
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "bucket_config" {
   bucket = aws_s3_bucket.backup_reports.id
 
   rule {
-    id = "Transition to IA and Glacier"
+    id     = "Transition to IA and Glacier"
     status = "Enabled"
-    
+
     expiration {
       days = 365
     }
@@ -424,7 +424,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket_config" {
     }
   }
 }
-  
+
 # Data source to get AWS account ID
 data "aws_caller_identity" "current" {}
 
@@ -471,7 +471,7 @@ resource "aws_backup_report_plan" "daily_backup_report" {
   }
 
   tags = {
-    "Name" = "Daily Backup Report Plan"
+    "Name"    = "Daily Backup Report Plan"
     terraform = true
   }
 }
