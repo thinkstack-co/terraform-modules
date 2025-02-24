@@ -7,7 +7,7 @@ resource "aws_config_configuration_recorder" "config" {
   role_arn = aws_iam_role.config_role.arn
 
   recording_group {
-    all_supported = true
+    all_supported                 = true
     include_global_resource_types = var.include_global_resource_types
   }
 
@@ -25,12 +25,12 @@ resource "aws_config_configuration_recorder_status" "config" {
 
 # S3 Bucket for AWS Config
 resource "aws_s3_bucket" "config_bucket" {
-  bucket_prefix= var.config_bucket_prefix
+  bucket_prefix = var.config_bucket_prefix
 }
 
 # S3 Bucket Policy
 resource "aws_s3_bucket_policy" "config" {
-  bucket = aws_s3_bucket.config.id
+  bucket = aws_s3_bucket.config_bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
