@@ -1,54 +1,74 @@
 output "id" {
-  description = "List of IDs of instances"
-  value       = aws_instance.ec2[*].id
+  description = "The ID of the instance"
+  value       = aws_instance.ec2.id
 }
 
 output "availability_zone" {
-  description = "List of availability zones of instances"
-  value       = aws_instance.ec2[*].availability_zone
+  description = "The availability zone of the instance"
+  value       = aws_instance.ec2.availability_zone
 }
 
 output "key_name" {
-  description = "List of key names of instances"
-  value       = aws_instance.ec2[*].key_name
+  description = "The key name of the instance"
+  value       = aws_instance.ec2.key_name
 }
 
 output "public_dns" {
-  description = "List of public DNS names assigned to the instances. For EC2-VPC, this is only available if you've enabled DNS hostnames for your VPC"
-  value       = aws_instance.ec2[*].public_dns
+  description = "The public DNS name assigned to the instance. For EC2-VPC, this is only available if you've enabled DNS hostnames for your VPC"
+  value       = aws_instance.ec2.public_dns
 }
 
 output "public_ip" {
-  description = "List of public IP addresses assigned to the instances, if applicable"
-  value       = aws_instance.ec2[*].public_ip
+  description = "The public IP address assigned to the instance, if applicable"
+  value       = aws_instance.ec2.public_ip
 }
 
 output "primary_network_interface_id" {
-  description = "List of IDs of the primary network interface of instances"
-  value       = aws_instance.ec2[*].primary_network_interface_id
+  description = "The ID of the primary network interface of the instance"
+  value       = aws_instance.ec2.primary_network_interface_id
 }
 
 output "private_dns" {
-  description = "List of private DNS names assigned to the instances. Can only be used inside the Amazon EC2, and only available if you've enabled DNS hostnames for your VPC"
-  value       = aws_instance.ec2[*].private_dns
+  description = "The private DNS name assigned to the instance. Can only be used inside the Amazon EC2, and only available if you've enabled DNS hostnames for your VPC"
+  value       = aws_instance.ec2.private_dns
 }
 
 output "private_ip" {
-  description = "List of private IP addresses assigned to the instances"
-  value       = aws_instance.ec2[*].private_ip
+  description = "The private IP address assigned to the instance"
+  value       = aws_instance.ec2.private_ip
 }
 
 output "security_groups" {
-  description = "List of associated security groups of instances"
-  value       = aws_instance.ec2[*].security_groups
+  description = "The associated security groups of the instance"
+  value       = aws_instance.ec2.security_groups
 }
 
 output "vpc_security_group_ids" {
-  description = "List of associated security groups of instances, if running in non-default VPC"
-  value       = aws_instance.ec2[*].vpc_security_group_ids
+  description = "The associated security groups of the instance, if running in non-default VPC"
+  value       = aws_instance.ec2.vpc_security_group_ids
 }
 
 output "subnet_id" {
-  description = "List of IDs of VPC subnets of instances"
-  value       = aws_instance.ec2[*].subnet_id
+  description = "The VPC subnet ID of the instance"
+  value       = aws_instance.ec2.subnet_id
+}
+
+output "instance_state" {
+  description = "The state of the instance"
+  value       = aws_instance.ec2.instance_state
+}
+
+output "tags" {
+  description = "A mapping of tags assigned to the instance"
+  value       = aws_instance.ec2.tags
+}
+
+output "instance_alarm_id" {
+  description = "The ID of the instance status alarm"
+  value       = aws_cloudwatch_metric_alarm.instance.id
+}
+
+output "system_alarm_id" {
+  description = "The ID of the system status alarm"
+  value       = aws_cloudwatch_metric_alarm.system.id
 }

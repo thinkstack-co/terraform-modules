@@ -14,7 +14,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/thinkstack-co/terraform-modules">
-    <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
+    <img src="https://raw.githubusercontent.com/thinkstack-co/terraform-modules/main/images/thinkstack_logo.png" alt="ThinkStack Logo" width="300" height="100">
   </a>
 
 <h3 align="center">AWS CloudWatch Event Module</h3>
@@ -175,6 +175,5 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
-[product-screenshot]: /images/screenshot.webp
 [Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
 [Terraform-url]: https://terraform.io

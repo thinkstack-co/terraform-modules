@@ -23,7 +23,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/thinkstack-co/terraform-modules">
-    <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
+    <img src="https://raw.githubusercontent.com/thinkstack-co/terraform-modules/main/images/thinkstack_logo.png" alt="ThinkStack Logo" width="300" height="100">
   </a>
 
 <h3 align="center">Azure AD Named Location</h3>

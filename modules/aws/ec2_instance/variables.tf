@@ -37,12 +37,6 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "number" {
-  type        = number
-  description = "Number of instances to launch"
-  default     = 1
-}
-
 variable "disable_api_termination" {
   type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
@@ -114,7 +108,11 @@ variable "monitoring" {
 
 variable "name" {
   type        = string
-  description = "Name to be used on all resources as prefix"
+  description = "Name to be used on EC2 instance created"
+  validation {
+    condition     = length(var.name) > 0
+    error_message = "The name must not be empty."
+  }
 }
 
 variable "placement_group" {
@@ -234,4 +232,20 @@ variable "root_volume_throughput" {
   description = "Throughput for the root volume of the EC2 instance."
   type        = number
   default     = 125
+}
+
+variable "disable_recovery_actions" {
+  type        = bool
+  description = "(Optional) If true, disables CloudWatch alarm recovery actions regardless of instance type. Use this when you know your instances don't support recovery actions (e.g., instances in Auto Scaling groups, on Dedicated Hosts, or using Elastic Fabric Adapter)."
+  default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.disable_recovery_actions))
+    error_message = "The value must be either true or false."
+  }
+}
+
+variable "additional_unsupported_instance_types" {
+  type        = list(string)
+  description = "(Optional) List of additional instance types that don't support CloudWatch recovery actions. This extends the built-in list in the module."
+  default     = []
 }
