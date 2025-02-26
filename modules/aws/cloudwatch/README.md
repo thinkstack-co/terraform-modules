@@ -1,4 +1,4 @@
-# AWS CloudWatch Log Destination Terraform Module
+# AWS CloudWatch Terraform Modules
 
 <a name="readme-top"></a>
 
@@ -17,9 +17,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">AWS CloudWatch Log Destination Module</h3>
+<h3 align="center">AWS CloudWatch Modules</h3>
   <p align="center">
-    This module creates CloudWatch Log Destinations to forward log data to other AWS services or cross-account destinations.
+    This collection of modules helps you configure AWS CloudWatch monitoring, alerting, and logging capabilities.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -37,12 +37,10 @@
   <summary>Table of Contents</summary>
   <ol>
     <li><a href="#overview">Overview</a></li>
+    <li><a href="#module-components">Module Components</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#requirements">Requirements</a></li>
     <li><a href="#providers">Providers</a></li>
-    <li><a href="#resources">Resources</a></li>
-    <li><a href="#inputs">Inputs</a></li>
-    <li><a href="#outputs">Outputs</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -51,69 +49,86 @@
 
 ## Overview
 
-This Terraform module creates AWS CloudWatch Log Destinations, which are used to forward log data to other AWS services or cross-account destinations. CloudWatch Log Destinations enable:
+AWS CloudWatch is a monitoring and observability service that provides data and actionable insights for AWS, hybrid, and on-premises applications and infrastructure resources. This collection of Terraform modules helps you configure various CloudWatch components to monitor your infrastructure, set up alarms, schedule events, and manage log destinations.
 
-1. Centralized log management across multiple AWS accounts
-2. Real-time log data processing
-3. Integration with services like Kinesis Data Streams, Lambda, and Firehose
-4. Secure log data sharing with proper access controls
+The modules in this collection work together to create a comprehensive monitoring and alerting system for your AWS resources, helping you maintain visibility into your infrastructure's health and performance.
 
-The module supports creating log destinations with appropriate IAM policies and subscription filters to route log data to the specified target service.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Module Components
+
+This collection includes the following modules:
+
+### 1. CloudWatch Alarm Module
+
+Creates CloudWatch metric alarms that trigger based on metric thresholds. These alarms can notify you or take automated actions when metrics cross specified thresholds.
+
+[View Documentation](./alarm/README.md)
+
+### 2. CloudWatch Event Module
+
+Sets up CloudWatch Events (now Amazon EventBridge) rules and targets to respond to operational changes and trigger automated actions based on events or schedules.
+
+[View Documentation](./event/README.md)
+
+### 3. CloudWatch Log Destination Module
+
+Configures CloudWatch Logs destinations to send log data to other services or third-party tools for further processing, analysis, or storage.
+
+[View Documentation](./log_destination/README.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-### Cross-Account Log Forwarding Example
+The CloudWatch modules can be used individually or together to create a comprehensive monitoring solution. Here's an example of how you might use them together:
 
 ```hcl
+# Create a CloudWatch alarm to monitor CPU utilization
+module "cpu_alarm" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudwatch/alarm"
+
+  alarm_name          = "high-cpu-utilization"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 80
+  alarm_description   = "This metric monitors ec2 cpu utilization"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  
+  dimensions = {
+    InstanceId = aws_instance.web_server.id
+  }
+}
+
+# Create a scheduled event to run a Lambda function every day
+module "daily_backup_event" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudwatch/event"
+
+  name                = "daily-backup-trigger"
+  description         = "Triggers daily backup Lambda function"
+  schedule_expression = "cron(0 1 * * ? *)"
+  is_enabled          = true
+  event_target_arn    = aws_lambda_function.backup.arn
+}
+
+# Set up a log destination to send logs to S3
 module "log_destination" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudwatch/log_destination"
 
-  name                  = "central-logging-destination"
-  role_arn              = aws_iam_role.cloudwatch_logs.arn
-  target_arn            = aws_kinesis_stream.log_stream.arn
-  destination_policy    = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          AWS = "arn:aws:iam::111122223333:root"  # Source account
-        },
-        Action = "logs:PutSubscriptionFilter",
-        Resource = "arn:aws:logs:us-east-1:444455556666:destination:central-logging-destination"  # This destination
-      }
-    ]
-  })
+  destination_name    = "s3-log-destination"
+  destination_target_arn = aws_kinesis_firehose_delivery_stream.s3_stream.arn
+  
+  # Additional configuration for IAM roles and policies
+  # ...
 }
 ```
 
-### Log Forwarding to Kinesis Firehose Example
-
-```hcl
-module "firehose_log_destination" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudwatch/log_destination"
-
-  name                  = "firehose-s3-archive"
-  role_arn              = aws_iam_role.cloudwatch_logs.arn
-  target_arn            = aws_kinesis_firehose_delivery_stream.s3_delivery.arn
-  destination_policy    = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "logs.amazonaws.com"
-        },
-        Action = "logs:PutSubscriptionFilter",
-        Resource = "*"
-      }
-    ]
-  })
-}
-```
+For detailed usage instructions for each module, please refer to their individual README files.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -131,32 +146,7 @@ module "firehose_log_destination" {
 |------|---------|
 | aws | >= 4.0.0 |
 
-## Resources
-
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_cloudwatch_log_destination.destination](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_destination) | resource | [AWS CloudWatch Log Destination Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationMembershipFirehose) |
-| [aws_cloudwatch_log_destination_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_destination_policy) | resource | [AWS CloudWatch Log Destination Policy Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#CrossAccountSubscriptions) |
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- INPUTS -->
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | The name of the CloudWatch Log Destination | `string` | n/a | yes |
-| role_arn | The ARN of the IAM role that grants CloudWatch Logs permission to deliver logs to the target | `string` | n/a | yes |
-| target_arn | The ARN of the target resource (Kinesis stream, Lambda function, or Firehose delivery stream) | `string` | n/a | yes |
-| destination_policy | The IAM policy document that governs which AWS accounts can create subscription filters against this destination | `string` | n/a | yes |
-
-<!-- OUTPUTS -->
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| destination_arn | The ARN of the CloudWatch Log Destination |
-| destination_name | The name of the CloudWatch Log Destination |
 
 <!-- LICENSE -->
 ## License
