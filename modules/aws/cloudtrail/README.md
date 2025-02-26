@@ -1,23 +1,14 @@
-<!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+# AWS CloudTrail Terraform Module
+
 <a name="readme-top"></a>
 
-
 <!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -26,9 +17,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">CloudTrail Module</h3>
+<h3 align="center">AWS CloudTrail Module</h3>
   <p align="center">
-    This module sets up and enables CloudTrail for all regions. The module handles setting up a new S3 bucket and CloudWatch log group to which all CloudTrail logs are sent. The S3 bucket enabled versioning by default. It is highly recommended that mfa_delete be enabled after the initial build has completed.
+    This module sets up and enables CloudTrail for all regions. The module handles setting up a new S3 bucket and CloudWatch log group to which all CloudTrail logs are sent. The S3 bucket enables versioning by default.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -41,16 +32,15 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
+    <li><a href="#overview">Overview</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#requirements">Requirements</a></li>
     <li><a href="#providers">Providers</a></li>
-    <li><a href="#modules">Modules</a></li>
-    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#resources">Resources</a></li>
     <li><a href="#inputs">Inputs</a></li>
     <li><a href="#outputs">Outputs</a></li>
     <li><a href="#license">License</a></li>
@@ -59,66 +49,87 @@
   </ol>
 </details>
 
+## Overview
+
+This Terraform module creates and configures AWS CloudTrail to track and monitor all API calls made in your AWS account. The module includes:
+
+1. KMS encryption key for securing CloudTrail logs
+2. CloudWatch log group for real-time monitoring
+3. S3 bucket with proper security configurations for log storage
+4. IAM roles and policies for CloudTrail service
+5. Complete CloudTrail configuration with multi-region support
+
+CloudTrail provides visibility into user activity by recording actions taken on your account, helping with security analysis, resource change tracking, and compliance auditing.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-```
+```hcl
 module "cloudtrail" {
-    source                   = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudtrail"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/cloudtrail"
 
-    bucket_prefix            = "cloudtrail-"
-    enable_s3_bucket_logging = true
-    target_bucket            = module.s3_logging_bucket.id
+  name                          = "organization-cloudtrail"
+  s3_key_prefix                 = "cloudtrail-logs"
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  enable_log_file_validation    = true
+  
+  # Optional - S3 bucket logging configuration
+  enable_s3_bucket_logging = true
+  target_bucket            = module.s3_logging_bucket.id
+  target_prefix            = "cloudtrail-bucket-logs/"
+  
+  # Optional - custom tags
+  tags = {
+    Environment = "Production"
+    Project     = "Security Compliance"
+  }
 }
 ```
 
-_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- terraform-docs output will be input automatically below-->
-<!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
-<!-- BEGIN_TF_DOCS -->
+<!-- REQUIREMENTS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| terraform | >= 1.0.0 |
+| aws | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
-
-## Modules
-
-No modules.
+| aws | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_cloudtrail.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudtrail) | resource |
-| [aws_cloudwatch_log_group.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
-| [aws_iam_policy.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_role.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.role_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_kms_alias.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
-| [aws_kms_key.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
-| [aws_s3_bucket.cloudtrail_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_acl.cloudtrail_bucket_acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
-| [aws_s3_bucket_lifecycle_configuration.cloudtrail_bucket_lifecycle](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
-| [aws_s3_bucket_logging.cloudtrail_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
-| [aws_s3_bucket_policy.cloudtrail_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_public_access_block.cloudtrail_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.cloudtrail_bucket_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_versioning.cloudtrail_bucket_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| Name | Type | Documentation |
+|------|------|--------------|
+| [aws_cloudtrail.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudtrail) | resource | [AWS CloudTrail Documentation](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html) |
+| [aws_cloudwatch_log_group.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource | [AWS CloudWatch Log Groups Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html) |
+| [aws_iam_policy.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource | [AWS IAM Policy Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html) |
+| [aws_iam_role.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | [AWS IAM Role Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) |
+| [aws_iam_role_policy_attachment.role_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource | [AWS IAM Policy Attachment Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage-attach-detach.html) |
+| [aws_kms_alias.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource | [AWS KMS Alias Documentation](https://docs.aws.amazon.com/kms/latest/developerguide/programming-aliases.html) |
+| [aws_kms_key.cloudtrail](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource | [AWS KMS Key Documentation](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html) |
+| [aws_s3_bucket.cloudtrail_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource | [AWS S3 Bucket Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) |
+| [aws_s3_bucket_acl.cloudtrail_bucket_acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource | [AWS S3 Bucket ACL Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html) |
+| [aws_s3_bucket_lifecycle_configuration.cloudtrail_bucket_lifecycle](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource | [AWS S3 Bucket Lifecycle Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html) |
+| [aws_s3_bucket_logging.cloudtrail_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource | [AWS S3 Bucket Logging Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html) |
+| [aws_s3_bucket_policy.cloudtrail_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource | [AWS S3 Bucket Policy Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html) |
+| [aws_s3_bucket_public_access_block.cloudtrail_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource | [AWS S3 Public Access Block Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html) |
+| [aws_s3_bucket_server_side_encryption_configuration.cloudtrail_bucket_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource | [AWS S3 Encryption Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-encryption.html) |
+| [aws_s3_bucket_versioning.cloudtrail_bucket_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource | [AWS S3 Versioning Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html) |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source | [AWS Caller Identity Documentation](https://docs.aws.amazon.com/cli/latest/reference/sts/get-caller-identity.html) |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source | [AWS Region Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- INPUTS -->
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -164,15 +175,15 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cloudtrail_arn"></a> [cloudtrail\_arn](#output\_cloudtrail\_arn) | n/a |
-| <a name="output_cloudtrail_home_region"></a> [cloudtrail\_home\_region](#output\_cloudtrail\_home\_region) | n/a |
-| <a name="output_cloudtrail_id"></a> [cloudtrail\_id](#output\_cloudtrail\_id) | n/a |
-| <a name="output_hosted_zone_id"></a> [hosted\_zone\_id](#output\_hosted\_zone\_id) | n/a |
-| <a name="output_s3_bucket_arn"></a> [s3\_bucket\_arn](#output\_s3\_bucket\_arn) | n/a |
-| <a name="output_s3_bucket_domain_name"></a> [s3\_bucket\_domain\_name](#output\_s3\_bucket\_domain\_name) | n/a |
-| <a name="output_s3_bucket_id"></a> [s3\_bucket\_id](#output\_s3\_bucket\_id) | n/a |
-| <a name="output_s3_bucket_region"></a> [s3\_bucket\_region](#output\_s3\_bucket\_region) | n/a |
-<!-- END_TF_DOCS -->
+| cloudtrail_arn | The Amazon Resource Name of the CloudTrail |
+| cloudtrail_home_region | The region in which the trail was created |
+| cloudtrail_id | The name of the CloudTrail |
+| cloudwatch_log_group_arn | The Amazon Resource Name (ARN) of the CloudWatch log group |
+| hosted_zone_id | The S3 bucket hosted zone ID |
+| s3_bucket_arn | The ARN of the S3 bucket where CloudTrail logs are stored |
+| s3_bucket_domain_name | The domain name of the S3 bucket |
+| s3_bucket_id | The name of the S3 bucket |
+| s3_bucket_region | The region where the S3 bucket is located |
 
 <!-- LICENSE -->
 ## License
@@ -180,8 +191,6 @@ No modules.
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
@@ -192,16 +201,14 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
+* [Wesley Bey](https://github.com/beywesley)
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

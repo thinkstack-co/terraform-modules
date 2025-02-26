@@ -1,4 +1,4 @@
-# AWS ALB Listener Terraform Module
+# AWS Application Load Balancer (ALB) Terraform Modules
 
 <a name="readme-top"></a>
 
@@ -17,9 +17,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">AWS ALB Listener Module</h3>
+<h3 align="center">AWS Application Load Balancer Modules</h3>
   <p align="center">
-    This module creates and manages AWS Application Load Balancer Listeners, which define how the load balancer routes requests to targets.
+    This collection of modules provides a comprehensive solution for deploying and managing AWS Application Load Balancers and their associated resources.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -37,12 +37,9 @@
   <summary>Table of Contents</summary>
   <ol>
     <li><a href="#overview">Overview</a></li>
+    <li><a href="#module-components">Module Components</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#requirements">Requirements</a></li>
-    <li><a href="#providers">Providers</a></li>
-    <li><a href="#resources">Resources</a></li>
-    <li><a href="#inputs">Inputs</a></li>
-    <li><a href="#outputs">Outputs</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -51,40 +48,75 @@
 
 ## Overview
 
-This Terraform module creates and manages AWS Application Load Balancer Listeners. Listeners check for connection requests from clients, using the protocol and port that you configure, and forward requests to one or more target groups based on the rules you define.
+This collection of Terraform modules provides a comprehensive solution for deploying and managing AWS Application Load Balancers (ALB) and their associated resources. Application Load Balancers are a feature of Elastic Load Balancing that allows for content-based routing and applications that run in containers.
 
-The module supports:
-- HTTP and HTTPS listeners
-- Multiple action types (forward, redirect, fixed-response)
-- SSL certificate configuration
-- Default actions for unmatched requests
-- Stickiness configuration
+The modules in this collection work together to create a complete load balancing solution, including the load balancer itself, listeners, target groups, listener rules, and SSL certificates. Each module is designed to be used independently or in combination with the others, providing flexibility for various deployment scenarios.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Module Components
+
+This collection includes the following modules:
+
+### 1. ALB Load Balancer Module
+
+Creates and manages AWS Application Load Balancers with support for internal or internet-facing configurations, security groups, subnets, and access logs.
+
+[View Documentation](./alb_load_balancer/README.md)
+
+### 2. ALB Listener Module
+
+Creates and manages ALB Listeners with support for HTTP and HTTPS protocols, multiple action types, and SSL certificate configuration.
+
+[View Documentation](./alb_listener/README.md)
+
+### 3. ALB Listener Rule Module
+
+Creates and manages ALB Listener Rules for path-based and host-based routing with priority configuration for rule evaluation.
+
+[View Documentation](./alb_listener_rule/README.md)
+
+### 4. ALB SSL Certificate Module
+
+Creates and manages SSL certificates for ALBs with DNS validation and support for Subject Alternative Names (SANs).
+
+[View Documentation](./alb_ssl_cert/README.md)
+
+### 5. ALB Target Group Module
+
+Creates and manages ALB Target Groups with support for different target types, customizable health checks, and target registration.
+
+[View Documentation](./alb_target_group/README.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-### HTTP Listener Example
+### Complete ALB Setup Example
+
+The following example demonstrates how to use all the modules together to create a complete ALB setup:
 
 ```hcl
-module "http_listener" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener"
+# Create the Application Load Balancer
+module "web_alb" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_load_balancer"
 
-  load_balancer_arn = module.web_alb.lb_arn
-  port              = 80
-  protocol          = "HTTP"
+  alb_name           = "web-application-lb"
+  internal           = false
+  subnets            = ["subnet-12345678", "subnet-87654321"]
+  security_groups    = [module.alb_security_group.id]
+  enable_http2       = true
+  access_logs_enabled = true
+  access_logs_bucket = "my-alb-logs-bucket"
   
-  default_action = {
-    type             = "forward"
-    target_group_arn = module.web_target_group.arn
+  tags = {
+    terraform   = "true"
+    environment = "production"
   }
 }
-```
 
-### HTTPS Listener with Redirect Example
-
-```hcl
+# Create an HTTPS listener
 module "https_listener" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener"
 
@@ -92,14 +124,15 @@ module "https_listener" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = module.acm_certificate.acm_certificate_arn
+  certificate_arn   = module.alb_ssl_cert.acm_certificate_arn
   
   default_action = {
     type             = "forward"
-    target_group_arn = module.web_target_group.arn
+    target_group_arn = module.web_target_group.target_group_arn
   }
 }
 
+# Create an HTTP to HTTPS redirect listener
 module "http_redirect_listener" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener"
 
@@ -116,23 +149,51 @@ module "http_redirect_listener" {
     }
   }
 }
+
+# Create a target group for web servers
+module "web_target_group" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_target_group"
+
+  name        = "web-tg"
+  target_type = "instance"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = module.vpc.vpc_id
+  
+  health_check_path = "/health"
+  
+  target_group_arn = aws_lb_target_group.this.arn
+  target_id        = aws_instance.web.id
+}
+
+# Create a listener rule for API traffic
+module "api_listener_rule" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener_rule"
+
+  listener_arn      = module.https_listener.listener_arn
+  priority          = 100
+  target_group_arn  = module.api_target_group.target_group_arn
+  condition_field   = "path-pattern"
+  condition_values  = ["/api/*"]
+  type              = "forward"
+}
+
+# Create and attach an SSL certificate
+module "alb_ssl_cert" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_ssl_cert"
+
+  domain_name               = "example.com"
+  validation_method         = "DNS"
+  subject_alternative_names = ["www.example.com", "api.example.com"]
+  listener_arn              = module.https_listener.listener_arn
+  certificate_arn           = aws_acm_certificate.cert.arn
+  
+  tags = {
+    terraform   = "true"
+    environment = "production"
+  }
+}
 ```
-
-### Argument Reference
-
-* `load_balancer_arn` - (Required) The ARN of the load balancer.
-* `port` - (Required) The port on which the load balancer is listening.
-* `protocol` - (Required) The protocol for connections from clients to the load balancer. Valid values are HTTP and HTTPS.
-* `ssl_policy` - (Optional) The name of the SSL Policy for the listener. Required if protocol is HTTPS.
-* `certificate_arn` - (Optional) The ARN of the default SSL server certificate. Required if protocol is HTTPS.
-* `default_action` - (Required) An action block. Action blocks are documented below.
-
-#### Default Action Blocks
-
-* `type` - (Required) The type of routing action. Valid values are forward, redirect, fixed-response.
-* `target_group_arn` - (Optional) The ARN of the Target Group to which to route traffic. Required if type is forward.
-* `redirect` - (Optional) Information for creating a redirect action. Required if type is redirect.
-* `fixed_response` - (Optional) Information for creating a fixed-response action. Required if type is fixed-response.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -143,40 +204,6 @@ module "http_redirect_listener" {
 |------|---------|
 | terraform | >= 1.0.0 |
 | aws | >= 4.0.0 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
-
-## Resources
-
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_lb_listener.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html) |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- INPUTS -->
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| load_balancer_arn | The ARN of the load balancer | `string` | n/a | yes |
-| port | The port on which the load balancer is listening | `number` | n/a | yes |
-| protocol | The protocol for connections from clients to the load balancer | `string` | n/a | yes |
-| ssl_policy | The name of the SSL Policy for the listener | `string` | `null` | no |
-| certificate_arn | The ARN of the default SSL server certificate | `string` | `null` | no |
-| default_action | An action block containing action configuration | `map(any)` | n/a | yes |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
-
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| listener_arn | The ARN of the listener |
-| listener_id | The ID of the listener |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

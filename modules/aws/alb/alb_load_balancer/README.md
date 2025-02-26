@@ -1,30 +1,14 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+# AWS Application Load Balancer (ALB) Terraform Module
+
 <a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
 
 <!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -33,9 +17,9 @@
     <img src="/images/terraform_modules_logo.webp" alt="Logo" width="300" height="300">
   </a>
 
-<h3 align="center">Application Load Balancer Module</h3>
+<h3 align="center">AWS Application Load Balancer Module</h3>
   <p align="center">
-    This module sets up an Application Load Balancer with the parameters specified.
+    This module provisions and manages AWS Application Load Balancers (ALB) for distributing incoming application traffic across multiple targets.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -48,16 +32,15 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
+    <li><a href="#overview">Overview</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#requirements">Requirements</a></li>
     <li><a href="#providers">Providers</a></li>
-    <li><a href="#modules">Modules</a></li>
-    <li><a href="#Resources">Resources</a></li>
+    <li><a href="#resources">Resources</a></li>
     <li><a href="#inputs">Inputs</a></li>
     <li><a href="#outputs">Outputs</a></li>
     <li><a href="#license">License</a></li>
@@ -66,76 +49,135 @@
   </ol>
 </details>
 
+## Overview
+
+This Terraform module creates and manages AWS Application Load Balancers (ALB). ALBs automatically distribute incoming application traffic across multiple targets, such as EC2 instances, containers, and IP addresses, in multiple Availability Zones.
+
+The module supports:
+- Internal or internet-facing load balancers
+- Cross-zone load balancing
+- HTTP/2 support
+- Access logs to S3
+- Security group configuration
+- Deletion protection
+- Custom idle timeout settings
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-```
-module "app_server" {
-    source             = "github.com/thinkstack-co/terraform-modules//modules/aws/alb"
+### Basic Example
 
-    access_logs_bucket = 
-    name               = 
-    security_groups    = 
-    subnets            = 
+```hcl
+module "web_alb" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_load_balancer"
+
+  alb_name                         = "web-application-lb"
+  internal                         = false
+  subnets                          = ["subnet-12345678", "subnet-87654321"]
+  security_groups                  = [module.alb_security_group.id]
+  enable_deletion_protection       = true
+  access_logs_enabled              = true
+  access_logs_bucket               = "my-alb-logs-bucket"
+  
+  tags = {
+    terraform   = "true"
+    environment = "production"
+    role        = "web"
+  }
 }
 ```
 
-_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
+### Internal Load Balancer Example
+
+```hcl
+module "internal_alb" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_load_balancer"
+
+  alb_name                         = "internal-app-lb"
+  internal                         = true
+  subnets                          = ["subnet-private1", "subnet-private2"]
+  security_groups                  = [module.internal_sg.id]
+  enable_cross_zone_load_balancing = true
+  idle_timeout                     = 120
+  
+  tags = {
+    terraform   = "true"
+    environment = "production"
+    role        = "application"
+  }
+}
+```
+
+### Argument Reference
+
+* `alb_name` - (Required) The name of the load balancer.
+* `subnets` - (Required) A list of subnet IDs to attach to the load balancer.
+* `security_groups` - (Required) A list of security group IDs to assign to the load balancer.
+* `internal` - (Optional) If true, the load balancer will be internal. Default is false.
+* `enable_deletion_protection` - (Optional) If true, deletion of the load balancer will be disabled. Default is false.
+* `enable_http2` - (Optional) Indicates whether HTTP/2 is enabled. Default is true.
+* `enable_cross_zone_load_balancing` - (Optional) If true, cross-zone load balancing is enabled. Default is false.
+* `idle_timeout` - (Optional) The time in seconds that the connection is allowed to be idle. Default is 60.
+* `access_logs_enabled` - (Optional) Boolean to enable/disable access logs. Default is false.
+* `access_logs_bucket` - (Optional) The S3 bucket name to store access logs.
+* `access_logs_prefix` - (Optional) The S3 bucket prefix for access logs. Default is "alb-log".
+* `tags` - (Optional) A map of tags to assign to the resource.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- BEGIN_TF_DOCS -->
+<!-- REQUIREMENTS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| terraform | >= 1.0.0 |
+| aws | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
-
-## Modules
-
-No modules.
+| aws | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_lb.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
+| Name | Type | Documentation |
+|------|------|--------------|
+| [aws_lb.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html) |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- INPUTS -->
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_access_logs_bucket"></a> [access\_logs\_bucket](#input\_access\_logs\_bucket) | (Required) The S3 bucket name to store the logs in. | `string` | n/a | yes |
-| <a name="input_access_logs_enabled"></a> [access\_logs\_enabled](#input\_access\_logs\_enabled) | (Optional) Boolean to enable / disable access\_logs. Defaults to false, even when bucket is specified. | `bool` | `false` | no |
-| <a name="input_access_logs_prefix"></a> [access\_logs\_prefix](#input\_access\_logs\_prefix) | (Optional) The S3 bucket prefix. Logs are stored in the root if not configured. | `string` | `"alb-log"` | no |
-| <a name="input_alb_name"></a> [alb\_name](#input\_alb\_name) | (Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb. | `string` | n/a | yes |
-| <a name="input_drop_invalid_header_fields"></a> [drop\_invalid\_header\_fields](#input\_drop\_invalid\_header\_fields) | (Optional) Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer (true) or routed to targets (false). The default is false. Elastic Load Balancing requires that message header names contain only alphanumeric characters and hyphens. Only valid for Load Balancers of type application. | `bool` | `true` | no |
-| <a name="input_enable_cross_zone_load_balancing"></a> [enable\_cross\_zone\_load\_balancing](#input\_enable\_cross\_zone\_load\_balancing) | (Optional) If true, cross-zone load balancing of the load balancer will be enabled. This is a network load balancer feature. Defaults to false. | `bool` | `false` | no |
-| <a name="input_enable_deletion_protection"></a> [enable\_deletion\_protection](#input\_enable\_deletion\_protection) | (Optional) If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false. | `bool` | `false` | no |
-| <a name="input_enable_http2"></a> [enable\_http2](#input\_enable\_http2) | (Optional) Indicates whether HTTP/2 is enabled in application load balancers. Defaults to true. | `bool` | `true` | no |
-| <a name="input_idle_timeout"></a> [idle\_timeout](#input\_idle\_timeout) | (Optional) The time in seconds that the connection is allowed to be idle. Only valid for Load Balancers of type application. Default: 60. | `number` | `60` | no |
-| <a name="input_internal"></a> [internal](#input\_internal) | (Optional) If true, the LB will be internal. | `bool` | `false` | no |
-| <a name="input_ip_address_type"></a> [ip\_address\_type](#input\_ip\_address\_type) | (Optional) The type of IP addresses used by the subnets for your load balancer. The possible values are ipv4 and dualstack | `string` | `"ipv4"` | no |
-| <a name="input_load_balancer_type"></a> [load\_balancer\_type](#input\_load\_balancer\_type) | (Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application. | `string` | `"application"` | no |
-| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | (Required) A list of security group IDs to assign to the LB. Only valid for Load Balancers of type application. | `list(any)` | n/a | yes |
-| <a name="input_subnets"></a> [subnets](#input\_subnets) | (Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource. | `list(string)` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
+| alb_name | The name of the LB | `string` | n/a | yes |
+| subnets | A list of subnet IDs to attach to the LB | `list(string)` | n/a | yes |
+| security_groups | A list of security group IDs to assign to the LB | `list(any)` | n/a | yes |
+| internal | If true, the LB will be internal | `bool` | `false` | no |
+| enable_deletion_protection | If true, deletion of the load balancer will be disabled | `bool` | `false` | no |
+| enable_http2 | Indicates whether HTTP/2 is enabled | `bool` | `true` | no |
+| enable_cross_zone_load_balancing | If true, cross-zone load balancing is enabled | `bool` | `false` | no |
+| idle_timeout | The time in seconds that the connection is allowed to be idle | `number` | `60` | no |
+| drop_invalid_header_fields | Indicates whether invalid header fields are dropped | `bool` | `true` | no |
+| ip_address_type | The type of IP addresses used by the subnets (ipv4 or dualstack) | `string` | `"ipv4"` | no |
+| load_balancer_type | The type of load balancer to create | `string` | `"application"` | no |
+| access_logs_enabled | Boolean to enable/disable access logs | `bool` | `false` | no |
+| access_logs_bucket | The S3 bucket name to store access logs | `string` | n/a | no |
+| access_logs_prefix | The S3 bucket prefix for access logs | `string` | `"alb-log"` | no |
+| tags | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_lb_arn"></a> [lb\_arn](#output\_lb\_arn) | The ARN of the Load Balancer |
-| <a name="output_lb_dns_name"></a> [lb\_dns\_name](#output\_lb\_dns\_name) | The DNS name of the Load Balancer |
-<!-- END_TF_DOCS -->
+| lb_arn | The ARN of the Load Balancer |
+| lb_dns_name | The DNS name of the Load Balancer |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
 ## License
@@ -143,8 +185,6 @@ No modules.
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
@@ -155,16 +195,14 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
+* [Wesley Bey](https://github.com/beywesley)
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -181,21 +219,5 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
 [product-screenshot]: /images/screenshot.webp
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
 [Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
 [Terraform-url]: https://terraform.io
