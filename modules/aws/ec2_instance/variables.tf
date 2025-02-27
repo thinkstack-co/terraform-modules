@@ -249,3 +249,31 @@ variable "additional_unsupported_instance_types" {
   description = "(Optional) List of additional instance types that don't support CloudWatch recovery actions. This extends the built-in list in the module."
   default     = []
 }
+
+variable "ephemeral_block_device" {
+  type        = list(map(string))
+  description = "(Optional) Customize Ephemeral (also known as Instance Store) volumes on the instance. This is used to check if recovery actions should be disabled for certain instance types with ephemeral storage."
+  default     = []
+}
+
+variable "uses_efa" {
+  type        = bool
+  description = "(Optional) Indicates whether the instance uses an Elastic Fabric Adapter (EFA). Set to true if using EFA, which doesn't support recovery actions."
+  default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.uses_efa))
+    error_message = "The value must be either true or false."
+  }
+}
+
+variable "network_interface" {
+  type        = map(any)
+  description = "(Optional) Customize network interfaces to be attached at instance boot time."
+  default     = null
+}
+
+variable "host_id" {
+  type        = string
+  description = "(Optional) ID of a dedicated host that the instance will be assigned to. Use when an instance is to be launched on a specific dedicated host."
+  default     = null
+}

@@ -72,3 +72,15 @@ output "system_alarm_id" {
   description = "The ID of the system status alarm"
   value       = aws_cloudwatch_metric_alarm.system.id
 }
+
+output "recovery_support_info" {
+  description = "Diagnostic information about CloudWatch recovery action support for this instance"
+  value = {
+    instance_family                  = local.instance_family
+    is_recovery_supported            = local.is_recovery_supported
+    has_instance_store               = local.has_instance_store
+    instance_store_recovery_supported = local.instance_store_recovery_supported
+    disable_recovery                 = local.disable_recovery
+    uses_efa                         = var.uses_efa
+  }
+}
