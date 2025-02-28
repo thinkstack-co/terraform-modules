@@ -173,27 +173,18 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 }
 
 # Creating another CloudWatch metric alarm for the instance. This alarm triggers if the system status check of the instance fails.
-resource "aws_cloudwatch_metric_alarm" "system" {
-  # Use the local variable to determine if recovery actions should be enabled
-  alarm_actions = local.disable_recovery ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
-
-  actions_enabled     = true
-  alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", aws_instance.ec2.id)
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  datapoints_to_alarm = 2
+resource "aws_cloudwatch_metric_alarm" "autorecover" {
+  alarm_name          = "ec2-autorecover"
+  namespace           = "AWS/EC2"
+  evaluation_periods  = "2"
+  period              = "60"
+  alarm_description   = "This metric auto recovers EC2 instances"
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  statistic           = "Minimum"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = "0"
+  metric_name         = "StatusCheckFailed_System"
   dimensions = {
     InstanceId = aws_instance.ec2.id
   }
-  evaluation_periods        = "2"
-  insufficient_data_actions = []
-  metric_name               = "StatusCheckFailed_System"
-  namespace                 = "AWS/EC2"
-  # Always include ok_actions with a dummy value to avoid the Terraform/AWS API issue
-  # See: https://github.com/hashicorp/terraform/issues/5388
-  ok_actions                = local.disable_recovery ? [] : ["arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:dummy-topic"]
-  period                    = "60"
-  statistic                 = "Maximum"
-  threshold                 = "1"
-  treat_missing_data        = "missing"
 }
