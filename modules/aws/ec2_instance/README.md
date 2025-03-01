@@ -71,7 +71,21 @@ This Terraform module creates and manages AWS EC2 instances with intelligent rec
 - Customizable root volume settings
 - Metadata options for IMDSv2 configuration
 
-The module dynamically checks if an instance type supports auto-recovery and configures CloudWatch alarms accordingly, ensuring optimal resilience while avoiding errors with unsupported instance types.
+The module dynamically checks if an instance type supports auto-recovery and configures CloudWatch alarms accordingly, ensuring optimal resilience while avoiding errors with unsupported instance types. It also verifies the instance state, as recovery actions only work on running instances.
+
+### Auto-Recovery Logic
+
+The module implements comprehensive checks to determine if CloudWatch recovery actions should be enabled:
+
+1. **Instance Type Compatibility**: Checks if the instance family is in the supported list based on AWS documentation
+2. **Instance Store Volumes**: Verifies if instance store volumes are compatible with recovery actions
+3. **Auto Scaling Group**: Detects if the instance is part of an ASG (which handles its own recovery)
+4. **Tenancy Restrictions**: Checks for dedicated host tenancy which doesn't support recovery
+5. **Network Interface Type**: Detects Elastic Fabric Adapter usage
+6. **Instance State**: Ensures the instance is in a running state, as recovery actions only work on running instances
+7. **Manual Override**: Allows explicit disabling of recovery actions
+
+This intelligent approach prevents configuration errors and ensures recovery actions are only applied to supported instances in appropriate states.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -138,6 +152,48 @@ module "database_server" {
 }
 ```
 
+### Example with Recovery Support Diagnostic Output
+
+```hcl
+module "app_server" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
+
+  ami                         = "ami-0c55b159cbfafe1f0"
+  instance_type               = "m5.large"
+  name                        = "app-server"
+  subnet_id                   = "subnet-0123456789abcdef0"
+  vpc_security_group_ids      = ["sg-0123456789abcdef0"]
+  key_name                    = "my-key-pair"
+  
+  tags = {
+    terraform   = "true"
+    created_by  = "Terraform"
+    environment = "production"
+    role        = "application"
+  }
+}
+
+# After applying, you can check recovery support information
+output "app_server_recovery_info" {
+  description = "Diagnostic information about recovery support for the app server"
+  value       = module.app_server.recovery_support_info
+}
+
+# Example output will include:
+# {
+#   instance_family = "m5"
+#   is_supported_instance_family = true
+#   has_instance_store_volumes = false
+#   is_instance_running = true
+#   instance_state = "running"
+#   is_in_asg = false
+#   uses_efa = false
+#   is_on_dedicated_host = false
+#   recovery_disabled_by_user = false
+#   recovery_supported = true
+# }
+```
+
 _For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -171,6 +227,7 @@ No modules.
 | [aws_cloudwatch_metric_alarm.system](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource | [AWS Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) |
 | [aws_ec2_instance_type.instance_type_info](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source | [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html) |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source | [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source | [AWS Documentation](https://docs.aws.amazon.com/cli/latest/reference/sts/get-caller-identity.html) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -227,6 +284,7 @@ No modules.
 | <a name="output_security_groups"></a> [security\_groups](#output\_security\_groups) | List of associated security groups of instances |
 | <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | List of IDs of VPC subnets of instances |
 | <a name="output_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#output\_vpc\_security\_group\_ids) | List of associated security groups of instances, if running in non-default VPC |
+| <a name="output_recovery_support_info"></a> [recovery\_support\_info](#output\_recovery\_support\_info) | Diagnostic information about CloudWatch recovery action support for this instance, including instance state |
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
