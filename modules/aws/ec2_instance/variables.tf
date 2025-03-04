@@ -118,6 +118,7 @@ variable "name" {
 variable "placement_group" {
   type        = string
   description = "The Placement Group to start the instance in"
+  default     = null
 }
 
 variable "private_ip" {
