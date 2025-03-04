@@ -63,11 +63,23 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-```
-module test {
-    source = 
+```hcl
+module "ec2_eni" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/eni"
 
-    variable = 
+  description      = "EC2 Instance ENI"
+  device_index     = 0
+  instance_id      = module.ec2_instance.id
+  private_ips      = ["10.11.201.20"]
+  security_groups  = [module.security_group.id]
+  subnet_id        = module.vpc.private_subnet_ids[0]
+  source_dest_check = true
+  tags = {
+    terraform   = "true"
+    created_by  = "Terraform"
+    environment = "prod"
+    role        = "network_interface"
+  }
 }
 ```
 
@@ -85,11 +97,15 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Modules
 
@@ -97,9 +113,11 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_network_interface.eni](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
+| Name | Type | Documentation |
+|------|------|--------------|
+| [aws_network_interface.eni](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource | [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html) |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
@@ -120,13 +138,15 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_attachment"></a> [attachment](#output\_attachment) | n/a |
-| <a name="output_description"></a> [description](#output\_description) | n/a |
-| <a name="output_private_ips"></a> [private\_ips](#output\_private\_ips) | n/a |
-| <a name="output_security_groups"></a> [security\_groups](#output\_security\_groups) | n/a |
-| <a name="output_source_dest_check"></a> [source\_dest\_check](#output\_source\_dest\_check) | n/a |
-| <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | n/a |
-| <a name="output_tags"></a> [tags](#output\_tags) | n/a |
+| <a name="output_attachment"></a> [attachment](#output\_attachment) | The attachment information for the ENI |
+| <a name="output_description"></a> [description](#output\_description) | The description of the ENI |
+| <a name="output_private_ips"></a> [private\_ips](#output\_private\_ips) | The private IPs assigned to the ENI |
+| <a name="output_security_groups"></a> [security\_groups](#output\_security\_groups) | The security groups assigned to the ENI |
+| <a name="output_source_dest_check"></a> [source\_dest\_check](#output\_source\_dest\_check) | The source destination check status of the ENI |
+| <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | The subnet ID the ENI is deployed in |
+| <a name="output_tags"></a> [tags](#output\_tags) | The tags assigned to the ENI |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
@@ -135,8 +155,6 @@ No modules.
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
@@ -147,16 +165,14 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
+* [Wesley Bey](https://github.com/beywesley)
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

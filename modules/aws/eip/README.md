@@ -97,11 +97,15 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Modules
 
@@ -109,9 +113,11 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_eip.eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
+| Name | Type | Documentation |
+|------|------|--------------|
+| [aws_eip.eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource | [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
@@ -129,6 +135,8 @@ No modules.
 |------|-------------|
 | <a name="output_id"></a> [id](#output\_id) | Contains the EIP allocation ID |
 | <a name="output_public_ip"></a> [public\_ip](#output\_public\_ip) | Contains the public IP address |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
@@ -137,8 +145,6 @@ No modules.
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
@@ -149,16 +155,14 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
+* [Wesley Bey](https://github.com/beywesley)
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
