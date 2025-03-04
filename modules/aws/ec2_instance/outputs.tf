@@ -64,13 +64,13 @@ output "tags" {
 }
 
 output "instance_alarm_id" {
-  description = "The ID of the instance status alarm"
-  value       = aws_cloudwatch_metric_alarm.instance.id
+  description = "The ID of the instance status alarm (if created)"
+  value       = local.is_instance_running ? aws_cloudwatch_metric_alarm.instance[0].id : null
 }
 
 output "system_alarm_id" {
-  description = "The ID of the system status alarm"
-  value       = aws_cloudwatch_metric_alarm.system.id
+  description = "The ID of the system status alarm (if created)"
+  value       = local.is_instance_running ? aws_cloudwatch_metric_alarm.system[0].id : null
 }
 
 output "recovery_support_info" {
@@ -82,10 +82,12 @@ output "recovery_support_info" {
     instance_store_recovery_supported = local.instance_store_recovery_supported
     instance_state                   = aws_instance.ec2.instance_state
     is_instance_running              = local.is_instance_running
+    alarms_created                   = local.is_instance_running
     is_in_asg                        = contains(keys(aws_instance.ec2.tags), "aws:autoscaling:groupName")
     uses_efa                         = var.uses_efa
     is_on_dedicated_host             = var.tenancy == "host" || var.host_id != null
     recovery_disabled_by_user        = var.disable_recovery_actions
     recovery_supported               = !local.disable_recovery
+    recovery_actions_enabled         = !local.disable_recovery && local.is_instance_running
   }
 }

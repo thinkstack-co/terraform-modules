@@ -77,9 +77,8 @@ locals {
     # Instance is on a dedicated host
     var.host_id != null ||
     # Instance uses Elastic Fabric Adapter (determined by user flag)
-    var.uses_efa ||
-    # Instance is not in pending or running state
-    !local.is_instance_running
+    var.uses_efa
+    # Note: We handle instance state separately in the alarm_actions
   )
 }
 
@@ -158,6 +157,9 @@ resource "aws_instance" "ec2" {
 
 # Creating a CloudWatch metric alarm for the instance. This alarm triggers if the instance status check fails.
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  # Only create this alarm if the instance is in pending or running state
+  count = local.is_instance_running ? 1 : 0
+  
   alarm_actions             = ["arn:aws:automate:${data.aws_region.current.name}:ec2:reboot"]
   actions_enabled           = true
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
@@ -176,10 +178,20 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
+  
+  # This lifecycle block ensures that the alarm is preserved in the Terraform state
+  # even when the instance is stopped, allowing it to be recreated when the instance
+  # starts running again without losing its configuration
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Creating another CloudWatch metric alarm for the instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
+  # Only create this alarm if the instance is in pending or running state
+  count = local.is_instance_running ? 1 : 0
+  
   # Use the local variable to determine if recovery actions should be enabled
   alarm_actions = local.disable_recovery ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
 
@@ -202,4 +214,11 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
+  
+  # This lifecycle block ensures that the alarm is preserved in the Terraform state
+  # even when the instance is stopped, allowing it to be recreated when the instance
+  # starts running again without losing its configuration
+  lifecycle {
+    create_before_destroy = true
+  }
 }
