@@ -80,10 +80,12 @@ locals {
     # Instance is on a dedicated host
     var.host_id != null ||
     # Instance uses Elastic Fabric Adapter (determined by user flag)
-    var.uses_efa ||
-    # Instance is stopped
-    local.is_instance_stopped
+    var.uses_efa
   )
+  
+  # Determine if actions should be enabled based on instance state
+  # Recovery actions will only work when the instance is running
+  actions_enabled = local.is_instance_running && !local.is_instance_stopped
 }
 
 # Creating EC2 instance with the specified configuration
@@ -161,11 +163,11 @@ resource "aws_instance" "ec2" {
 
 # Creating a CloudWatch metric alarm for the instance. This alarm triggers if the instance status check fails.
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  # Only create this alarm if the instance is in pending or running state AND not in stopped state
-  count = local.is_instance_running && !local.is_instance_stopped ? 1 : 0
+  # Always create the alarm regardless of instance state
+  count = 1
   
   alarm_actions             = ["arn:aws:automate:${data.aws_region.current.name}:ec2:reboot"]
-  actions_enabled           = true
+  actions_enabled           = local.actions_enabled
   alarm_description         = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name                = format("%s-instance-alarm", aws_instance.ec2.id)
   comparison_operator       = "GreaterThanOrEqualToThreshold"
@@ -193,13 +195,13 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 # Creating another CloudWatch metric alarm for the instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
-  # Only create this alarm if the instance is in pending or running state AND not in stopped state
-  count = local.is_instance_running && !local.is_instance_stopped ? 1 : 0
+  # Always create the alarm regardless of instance state
+  count = 1
   
   # Use the local variable to determine if recovery actions should be enabled
   alarm_actions = local.disable_recovery ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
 
-  actions_enabled     = true
+  actions_enabled     = local.actions_enabled
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", aws_instance.ec2.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
