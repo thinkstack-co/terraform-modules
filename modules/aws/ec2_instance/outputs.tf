@@ -65,12 +65,12 @@ output "tags" {
 
 output "instance_alarm_id" {
   description = "The ID of the instance status alarm (if created)"
-  value       = local.is_instance_running ? aws_cloudwatch_metric_alarm.instance[0].id : null
+  value       = local.is_instance_running && !local.is_instance_stopped ? aws_cloudwatch_metric_alarm.instance[0].id : null
 }
 
 output "system_alarm_id" {
   description = "The ID of the system status alarm (if created)"
-  value       = local.is_instance_running ? aws_cloudwatch_metric_alarm.system[0].id : null
+  value       = local.is_instance_running && !local.is_instance_stopped ? aws_cloudwatch_metric_alarm.system[0].id : null
 }
 
 output "recovery_support_info" {

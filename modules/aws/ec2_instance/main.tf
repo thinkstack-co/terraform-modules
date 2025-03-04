@@ -53,7 +53,7 @@ locals {
   # Check for instance store volumes - only specific instance types support recovery with instance store volumes
   instance_store_supported_with_recovery = ["m3", "c3", "r3", "x1", "x1e", "x2idn", "x2iedn"]
   has_instance_store = length(var.ephemeral_block_device) > 0
-  instance_store_recovery_supported = !has_instance_store || contains(instance_store_supported_with_recovery, local.instance_family)
+  instance_store_recovery_supported = !local.has_instance_store || contains(local.instance_store_supported_with_recovery, local.instance_family)
   
   # Check if the instance is in a pending or running state
   # Recovery actions will work on running instances, and pending instances will soon be running
@@ -74,7 +74,7 @@ locals {
     # Instance family not in supported list
     !local.is_recovery_supported ||
     # Instance has instance store volumes but instance type doesn't support recovery with them
-    (has_instance_store && !local.instance_store_recovery_supported) ||
+    (local.has_instance_store && !local.instance_store_recovery_supported) ||
     # Instance has host tenancy (Dedicated Host)
     var.tenancy == "host" ||
     # Instance is on a dedicated host
