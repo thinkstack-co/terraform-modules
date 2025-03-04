@@ -74,20 +74,20 @@ output "system_alarm_id" {
 }
 
 output "recovery_support_info" {
-  description = "Diagnostic information about CloudWatch recovery action support for this instance"
+  description = "Information about the recovery support for this instance"
   value = {
-    instance_family                  = local.instance_family
-    is_supported_instance_family     = local.is_recovery_supported
-    has_instance_store_volumes       = local.has_instance_store
-    instance_store_recovery_supported = local.instance_store_recovery_supported
-    instance_state                   = aws_instance.ec2.instance_state
-    is_instance_running              = local.is_instance_running
-    alarms_created                   = local.is_instance_running
-    is_in_asg                        = contains(keys(aws_instance.ec2.tags), "aws:autoscaling:groupName")
-    uses_efa                         = var.uses_efa
-    is_on_dedicated_host             = var.tenancy == "host" || var.host_id != null
-    recovery_disabled_by_user        = var.disable_recovery_actions
-    recovery_supported               = !local.disable_recovery
-    recovery_actions_enabled         = !local.disable_recovery && local.is_instance_running
+    instance_family                   = local.instance_family
+    is_supported_instance_family      = local.is_recovery_supported
+    has_instance_store_volumes        = local.has_instance_store
+    instance_state                    = aws_instance.ec2.instance_state
+    is_instance_running               = local.is_instance_running
+    is_instance_stopped               = local.is_instance_stopped
+    alarms_created                    = local.is_instance_running && !local.is_instance_stopped
+    is_in_asg                         = contains(keys(aws_instance.ec2.tags), "aws:autoscaling:groupName")
+    uses_efa                          = var.uses_efa
+    is_on_dedicated_host              = var.host_id != null
+    recovery_disabled_by_user         = var.disable_recovery_actions
+    recovery_supported                = !local.disable_recovery
+    recovery_actions_enabled          = !local.disable_recovery && local.is_instance_running && !local.is_instance_stopped
   }
 }

@@ -59,6 +59,9 @@ locals {
   # Recovery actions will work on running instances, and pending instances will soon be running
   is_instance_running = contains(["pending", "running"], aws_instance.ec2.instance_state)
   
+  # Explicitly check if the instance is in a stopped state
+  is_instance_stopped = aws_instance.ec2.instance_state == "stopped"
+  
   # Determine if recovery actions should be disabled based on multiple factors
   # According to AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/cloudwatch-recovery.html
   disable_recovery = (
@@ -77,8 +80,9 @@ locals {
     # Instance is on a dedicated host
     var.host_id != null ||
     # Instance uses Elastic Fabric Adapter (determined by user flag)
-    var.uses_efa
-    # Note: We handle instance state separately in the alarm_actions
+    var.uses_efa ||
+    # Instance is stopped
+    local.is_instance_stopped
   )
 }
 
@@ -157,8 +161,8 @@ resource "aws_instance" "ec2" {
 
 # Creating a CloudWatch metric alarm for the instance. This alarm triggers if the instance status check fails.
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  # Only create this alarm if the instance is in pending or running state
-  count = local.is_instance_running ? 1 : 0
+  # Only create this alarm if the instance is in pending or running state AND not in stopped state
+  count = local.is_instance_running && !local.is_instance_stopped ? 1 : 0
   
   alarm_actions             = ["arn:aws:automate:${data.aws_region.current.name}:ec2:reboot"]
   actions_enabled           = true
@@ -189,8 +193,8 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 # Creating another CloudWatch metric alarm for the instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
-  # Only create this alarm if the instance is in pending or running state
-  count = local.is_instance_running ? 1 : 0
+  # Only create this alarm if the instance is in pending or running state AND not in stopped state
+  count = local.is_instance_running && !local.is_instance_stopped ? 1 : 0
   
   # Use the local variable to determine if recovery actions should be enabled
   alarm_actions = local.disable_recovery ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
