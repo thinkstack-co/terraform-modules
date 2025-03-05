@@ -108,125 +108,330 @@ You can customize both the standard and custom tag keys to fit your tagging stra
 module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
-  # Enable KMS key creation
-  create_kms_key = true
-  
-  # Enable specific backup plans - vaults will be created automatically
-  create_daily_plan = true
-  create_weekly_plan = true
-  
-  # All other resources use default settings
+  # Enable specific backup plans
+  create_daily_plan   = true
+  create_weekly_plan  = true
+  create_monthly_plan = true
+  create_yearly_plan  = true
 }
 ```
 
-### Custom Backup Plans
+## Example Configurations
+
+This section provides specific examples for different backup scenarios to help you understand how to configure the module for your needs.
+
+### Example 1: Standard Daily Backup Plan
+
+This example shows how to configure a daily backup plan for EC2 instances.
 
 ```hcl
-module "aws_backup_custom" {
+module "aws_backup_daily" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
-  # Enable KMS key creation
-  create_kms_key = true
+  # Enable only the daily backup plan
+  create_daily_plan = true
+  
+  # Configure daily backup settings
+  daily_schedule = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC
+  daily_retention_days = 7              # Keep backups for 7 days
+  daily_enable_continuous_backup = true # Enable point-in-time recovery
+  
+  # Optional: Customize the tag key (defaults to "backup_schedule")
+  standard_backup_tag_key = "backup_schedule"
+}
+```
 
-  # Enable specific backup plans - vaults will be created automatically
-  create_daily_plan = false
-  create_weekly_plan = true
+#### Resource Tagging for Daily Backups
+
+To include an EC2 instance in the daily backup plan, tag it as follows:
+
+```hcl
+resource "aws_instance" "app_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+  
+  tags = {
+    Name = "app-server"
+    backup_schedule = "daily"  # This tag includes the instance in the daily backup plan
+  }
+}
+```
+
+### Example 2: Weekly and Monthly Backup Plans
+
+This example shows how to configure both weekly and monthly backup plans with different retention periods.
+
+```hcl
+module "aws_backup_weekly_monthly" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable weekly and monthly backup plans
+  create_weekly_plan  = true
   create_monthly_plan = true
-  create_yearly_plan = false
+  
+  # Weekly backup configuration
+  weekly_schedule = "cron(0 2 ? * SUN *)"  # Every Sunday at 2:00 AM UTC
+  weekly_retention_days = 30               # Keep weekly backups for 30 days
+  
+  # Monthly backup configuration
+  monthly_schedule = "cron(0 3 1 * ? *)"    # 1st of each month at 3:00 AM UTC
+  monthly_retention_days = 90               # Keep monthly backups for 90 days
+}
+```
 
-  # Customize weekly backup settings
-  weekly_schedule = "cron(0 3 ? * SUN *)" # Every Sunday at 3:00 AM UTC
-  weekly_retention_days = 60
+#### Resource Tagging for Weekly and Monthly Backups
 
-  # Customize monthly backup settings
-  monthly_schedule = "cron(0 2 1 * ? *)" # 1st of each month at 2:00 AM UTC
-  monthly_retention_days = 180
+To include resources in these backup plans, tag them as follows:
 
-  # Define custom backup plans
+```hcl
+# EC2 instance for weekly backups
+resource "aws_instance" "weekly_backup_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+  
+  tags = {
+    Name = "weekly-backup-server"
+    backup_schedule = "weekly"  # This tag includes the instance in the weekly backup plan
+  }
+}
+
+# RDS instance for monthly backups
+resource "aws_db_instance" "monthly_backup_db" {
+  # ... RDS configuration ...
+  
+  tags = {
+    Name = "monthly-backup-db"
+    backup_schedule = "monthly"  # This tag includes the database in the monthly backup plan
+  }
+}
+```
+
+### Example 3: Custom Database Backup Plan
+
+This example shows how to create a custom backup plan specifically for databases, using the monthly vault.
+
+```hcl
+module "aws_backup_custom_db" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable monthly plan to create the monthly vault
+  create_monthly_plan = true
+  
+  # Set the default custom backup tag key
+  default_custom_backup_tag_key = "backup_custom"
+  
+  # Custom database backup plan
   custom_backup_plans = {
     database_backup = {
-      vault_name               = "monthly"  # Use the monthly vault
-      schedule                 = "cron(0 2 15 * ? *)"  # 15th of each month at 2:00 AM UTC
-      enable_continuous_backup = true
-      retention_days           = 180
-      resource_type            = "EC2"
-      tag_key                  = "backup_custom"
-      tag_value                = "database"
+      vault_name               = "monthly"        # Uses the monthly vault
+      schedule                 = "cron(0 5 15 * ? *)"  # 15th of each month at 5:00 AM UTC
+      enable_continuous_backup = true             # Enable continuous backup for point-in-time recovery
+      retention_days           = 120              # Keep backups for 120 days
+      resource_type            = "RDS"            # Target RDS resources
+      tag_key                  = ""               # Empty string will use the default_custom_backup_tag_key
+      tag_value                = "database"       # Resources with backup_custom=database will be backed up
+      tags = {
+        backup_type = "database"
+      }
+    }
+  }
+}
+```
+
+#### Resource Tagging for Custom Database Backups
+
+When `tag_key` is empty, the module uses the `default_custom_backup_tag_key` (in this case, "backup_custom"). Tag your RDS instances as follows:
+
+```hcl
+resource "aws_db_instance" "production_database" {
+  # ... RDS configuration ...
+  
+  tags = {
+    Name = "production-database"
+    backup_custom = "database"  # This tag includes the database in the database_backup plan
+    # The tag key "backup_custom" comes from default_custom_backup_tag_key
+    # The tag value "database" matches the tag_value in the custom_backup_plans configuration
+  }
+}
+```
+
+### Example 4: Custom Application Backup Plan with Custom Tag Key
+
+This example shows how to create a custom backup plan with a custom tag key for critical applications.
+
+```hcl
+module "aws_backup_custom_app" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable weekly plan to create the weekly vault
+  create_weekly_plan = true
+  
+  # Custom application backup plan with custom tag key
+  custom_backup_plans = {
+    critical_app_backup = {
+      vault_name               = "weekly"         # Uses the weekly vault
+      schedule                 = "cron(0 4 ? * MON-FRI *)"  # Weekdays at 4:00 AM UTC
+      enable_continuous_backup = false            # Disable continuous backup
+      retention_days           = 14               # Keep backups for 14 days
+      resource_type            = "EC2"            # Target EC2 resources
+      tag_key                  = "app_backup"     # Custom tag key (overrides default_custom_backup_tag_key)
+      tag_value                = "critical"       # Resources with app_backup=critical will be backed up
+      tags = {
+        backup_type = "application"
+      }
+    }
+  }
+}
+```
+
+#### Resource Tagging for Custom Application Backups
+
+When `tag_key` is explicitly set (in this case, "app_backup"), use that tag key instead of the default. Tag your EC2 instances as follows:
+
+```hcl
+resource "aws_instance" "critical_application" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.medium"
+  
+  tags = {
+    Name = "critical-application"
+    app_backup = "critical"  # This tag includes the instance in the critical_app_backup plan
+    # The tag key "app_backup" comes from the tag_key in the custom_backup_plans configuration
+    # The tag value "critical" matches the tag_value in the custom_backup_plans configuration
+  }
+}
+```
+
+### Example 5: EFS Backup Plan Using Daily Vault
+
+This example shows how to create a custom backup plan for EFS filesystems using the daily vault.
+
+```hcl
+module "aws_backup_efs" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable daily plan to create the daily vault
+  create_daily_plan = true
+  
+  # Set the default custom backup tag key
+  default_custom_backup_tag_key = "backup_custom"
+  
+  # Custom EFS backup plan
+  custom_backup_plans = {
+    efs_backup = {
+      vault_name               = "daily"          # Uses the daily vault
+      schedule                 = "cron(0 2 * * ? *)"  # Daily at 2:00 AM UTC
+      enable_continuous_backup = true             # Enable continuous backup
+      retention_days           = 7                # Keep backups for 7 days
+      resource_type            = "EFS"            # Target EFS resources
+      tag_key                  = "backup_custom"  # Explicitly use backup_custom tag key
+      tag_value                = "efs"            # Resources with backup_custom=efs will be backed up
+      tags = {
+        backup_type = "filesystem"
+      }
+    }
+  }
+}
+```
+
+#### Resource Tagging for EFS Backups
+
+Tag your EFS filesystems as follows:
+
+```hcl
+resource "aws_efs_file_system" "shared_storage" {
+  creation_token = "shared-storage"
+  
+  tags = {
+    Name = "shared-storage"
+    backup_custom = "efs"  # This tag includes the filesystem in the efs_backup plan
+    # The tag key "backup_custom" matches the tag_key in the custom_backup_plans configuration
+    # The tag value "efs" matches the tag_value in the custom_backup_plans configuration
+  }
+}
+```
+
+### Example 6: Complete Configuration with All Plans
+
+This example shows a complete configuration with all standard and custom backup plans enabled.
+
+```hcl
+module "aws_backup_complete" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable KMS key for encryption
+  create_kms_key             = true
+  kms_key_description        = "AWS Backup KMS key for encrypting backups"
+  kms_key_deletion_window    = 30
+  kms_key_enable_key_rotation = true
+
+  # Enable all standard backup plans
+  create_daily_plan   = true
+  create_weekly_plan  = true
+  create_monthly_plan = true
+  create_yearly_plan  = true
+
+  # Configure standard backup plans
+  standard_backup_tag_key = "backup_schedule"  # Tag key for standard plans
+
+  # Configure backup schedules and retention periods
+  daily_schedule         = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC
+  daily_retention_days   = 7                    # Keep daily backups for 7 days
+  
+  weekly_schedule        = "cron(0 2 ? * SUN *)"  # Every Sunday at 2:00 AM UTC
+  weekly_retention_days  = 30                     # Keep weekly backups for 30 days
+  
+  monthly_schedule       = "cron(0 3 1 * ? *)"    # 1st of each month at 3:00 AM UTC
+  monthly_retention_days = 90                     # Keep monthly backups for 90 days
+  
+  yearly_schedule        = "cron(0 4 1 1 ? *)"    # January 1st at 4:00 AM UTC
+  yearly_retention_days  = 365                    # Keep yearly backups for 365 days
+
+  # Windows VSS backup configuration
+  enable_windows_vss     = true                  # Enable Windows VSS for consistent backups of Windows instances
+
+  # Custom backup plans configuration
+  default_custom_backup_tag_key = "backup_custom"  # Default tag key for custom plans
+
+  custom_backup_plans = {
+    # Database backup plan
+    database_backup = {
+      vault_name               = "monthly"        # Uses the monthly vault
+      schedule                 = "cron(0 5 15 * ? *)"  # 15th of each month at 5:00 AM UTC
+      enable_continuous_backup = true             # Enable continuous backup for point-in-time recovery
+      retention_days           = 120              # Keep backups for 120 days
+      resource_type            = "RDS"            # Target RDS resources
+      tag_key                  = ""               # Empty string will use the default_custom_backup_tag_key
+      tag_value                = "database"       # Resources with backup_custom=database will be backed up
       tags = {
         backup_type = "database"
       }
     },
-    critical_servers = {
-      vault_name               = "weekly"
-      schedule                 = "cron(0 3 ? * SAT *)"  # Every Saturday at 3:00 AM UTC
-      enable_continuous_backup = false
-      retention_days           = 90
-      resource_type            = "EC2"
-      tag_key                  = "backup_custom"
-      tag_value                = "critical"
+    
+    # Critical application backup plan
+    critical_app_backup = {
+      vault_name               = "weekly"         # Uses the weekly vault
+      schedule                 = "cron(0 4 ? * MON-FRI *)"  # Weekdays at 4:00 AM UTC
+      enable_continuous_backup = false            # Disable continuous backup
+      retention_days           = 14               # Keep backups for 14 days
+      resource_type            = "EC2"            # Target EC2 resources
+      tag_key                  = "app_backup"     # Custom tag key
+      tag_value                = "critical"       # Resources with app_backup=critical will be backed up
       tags = {
-        backup_type = "critical"
+        backup_type = "application"
       }
     }
   }
 
-  # Custom tags
+  # Global tags for all resources created by this module
   tags = {
-    terraform   = "true"
-    created_by  = "ThinkStack"
-    environment = "prod"
-    project     = "backup-implementation"
+    Environment = "production"
+    Project     = "data-protection"
+    Terraform   = "true"
   }
 }
 ```
 
-### Tagging Resources for Backup
-
-To include an EC2 instance in a backup plan, add the appropriate tag:
-
-```hcl
-resource "aws_instance" "example" {
-  # ... other configuration ...
-
-  tags = {
-    Name            = "example-instance"
-    backup_schedule = "monthly"  # Will be included in the monthly backup plan
-    # OR
-    backup_custom   = "database"  # Will be included in the custom database_backup plan
-  }
-}
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- REQUIREMENTS -->
-## Requirements
-
-| Name | Version |
-|------|---------|
-| terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
-
-## Resources
-
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_kms_key.backup_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource | [AWS Documentation](https://docs.aws.amazon.com/kms/latest/developerguide/overview.html) |
-| [aws_kms_alias.backup_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource | [AWS Documentation](https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html) |
-| [aws_iam_role.backup_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | [AWS Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) |
-| [aws_backup_vault.backup_vault](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_vault) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/vaults.html) |
-| [aws_backup_plan.daily_backup_plan](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/about-backup-plans.html) |
-| [aws_backup_selection.daily_selection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html) |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- INPUTS -->
 ## Inputs
 
 | Name | Description | Type | Default | Required |
