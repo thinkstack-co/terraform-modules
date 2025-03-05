@@ -20,21 +20,26 @@ output "config_bucket_id" {
   value       = aws_s3_bucket.config_bucket.id
 }
 
+output "delivery_channel_id" {
+  description = "The ID of the AWS Config delivery channel"
+  value       = aws_config_delivery_channel.config.id
+}
+
 # Config Rules Outputs
 output "password_policy_rule_arn" {
   description = "The ARN of the IAM password policy Config rule"
-  value       = aws_config_config_rule.iam_password_policy.arn
+  value       = var.enable_config_rules ? aws_config_config_rule.iam_password_policy[0].arn : null
 }
 
 output "ebs_encryption_rule_arn" {
   description = "The ARN of the EBS encryption Config rule"
-  value       = aws_config_config_rule.ebs_encryption.arn
+  value       = var.enable_config_rules ? aws_config_config_rule.ebs_encryption[0].arn : null
 }
 
 output "config_rules_arns" {
   description = "Map of all Config rules ARNs"
-  value = {
-    password_policy = aws_config_config_rule.iam_password_policy.arn
-    ebs_encryption  = aws_config_config_rule.ebs_encryption.arn
-  }
+  value = var.enable_config_rules ? {
+    password_policy = aws_config_config_rule.iam_password_policy[0].arn
+    ebs_encryption  = aws_config_config_rule.ebs_encryption[0].arn
+  } : {}
 }

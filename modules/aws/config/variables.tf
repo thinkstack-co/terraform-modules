@@ -60,3 +60,21 @@ variable "recording_frequency" {
   type        = string
   default     = "DAILY"
 }
+
+variable "s3_key_prefix" {
+  description = "The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files"
+  type        = string
+  default     = "config"
+}
+
+variable "sns_topic_arn" {
+  description = "The ARN of the SNS topic that AWS Config delivers notifications to"
+  type        = string
+  default     = null
+}
+
+variable "snapshot_delivery_frequency" {
+  description = "The frequency with which AWS Config delivers configuration snapshots (One_Hour, Three_Hours, Six_Hours, Twelve_Hours, TwentyFour_Hours)"
+  type        = string
+  default     = "TwentyFour_Hours"
+}

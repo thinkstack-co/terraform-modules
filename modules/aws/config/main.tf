@@ -16,16 +16,10 @@ resource "aws_config_configuration_recorder" "config" {
   }
 }
 
-# AWS Config Recorder Status
-resource "aws_config_configuration_recorder_status" "config" {
-  name       = aws_config_configuration_recorder.config.name
-  is_enabled = true
-  depends_on = [aws_config_configuration_recorder.config]
-}
-
 # S3 Bucket for AWS Config
 resource "aws_s3_bucket" "config_bucket" {
   bucket_prefix = var.config_bucket_prefix
+  tags          = var.tags
 }
 
 # S3 Bucket Policy
@@ -61,9 +55,31 @@ resource "aws_s3_bucket_policy" "config" {
   })
 }
 
+# AWS Config Delivery Channel
+resource "aws_config_delivery_channel" "config" {
+  name           = var.config_recorder_name
+  s3_bucket_name = aws_s3_bucket.config_bucket.id
+  s3_key_prefix  = var.s3_key_prefix
+  sns_topic_arn  = var.sns_topic_arn
+
+  snapshot_delivery_properties {
+    delivery_frequency = var.snapshot_delivery_frequency
+  }
+
+  depends_on = [aws_config_configuration_recorder.config, aws_s3_bucket_policy.config]
+}
+
+# AWS Config Recorder Status
+resource "aws_config_configuration_recorder_status" "config" {
+  name       = aws_config_configuration_recorder.config.name
+  is_enabled = true
+  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+}
+
 # IAM Role for AWS Config
 resource "aws_iam_role" "config_role" {
   name = var.config_iam_role_name
+  tags = var.tags
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -86,9 +102,9 @@ resource "aws_iam_role_policy_attachment" "config" {
 }
 
 # AWS Config Rules
-
-# IAM Password Policy Rule
+# Only create rules if enabled
 resource "aws_config_config_rule" "iam_password_policy" {
+  count       = var.enable_config_rules ? 1 : 0
   name        = "${var.config_recorder_name}-iam-password-policy"
   description = "Ensures the account password policy for IAM users meets the specified requirements"
 
@@ -102,16 +118,17 @@ resource "aws_config_config_rule" "iam_password_policy" {
     RequireLowercaseCharacters = "true"
     RequireSymbols             = "true"
     RequireNumbers             = "true"
-    MinimumPasswordLength      = "16"
-    PasswordReusePrevention    = "24"
-    MaxPasswordAge             = "45"
+    MinimumPasswordLength      = tostring(var.password_min_length)
+    PasswordReusePrevention    = tostring(var.password_reuse_prevention)
+    MaxPasswordAge             = tostring(var.password_max_age)
   })
 
-  depends_on = [aws_config_configuration_recorder.config]
+  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
 }
 
 # EBS Encryption Rule
 resource "aws_config_config_rule" "ebs_encryption" {
+  count       = var.enable_config_rules ? 1 : 0
   name        = "${var.config_recorder_name}-ebs-encryption-enabled"
   description = "Checks whether EBS volumes are encrypted"
 
@@ -124,5 +141,5 @@ resource "aws_config_config_rule" "ebs_encryption" {
     compliance_resource_types = ["AWS::EC2::Volume"]
   }
 
-  depends_on = [aws_config_configuration_recorder.config]
+  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
 }
