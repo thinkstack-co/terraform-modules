@@ -70,6 +70,28 @@ All resources are conditionally created based on the corresponding `create_*_pla
 - Windows VSS support for EC2 instances with granular control
 - Configurable backup schedules and retention periods
 - Custom backup plans with flexible configuration
+- Vault lock support to prevent backup deletion or modifications
+
+## Vault Lock Support
+
+This module provides the ability to enable AWS Backup Vault Lock, which helps you prevent backup deletion or modifications to recovery points:
+
+1. **Universal Vault Lock Control**:
+   - The `enable_vault_lock` variable acts as a master switch for enabling vault lock on all vaults
+   - When set to `true`, vault lock is applied to all backup vaults created by this module
+
+2. **Configurable Vault Lock Parameters**:
+   - `vault_lock_changeable_for_days`: Number of days during which the vault lock configuration can be changed (default: 3)
+   - `vault_lock_max_retention_days`: Maximum retention period for recovery points (default: 1200)
+   - Each vault uses its corresponding backup plan's retention period as the minimum retention days
+
+3. **Important Considerations**:
+   - Once a vault lock becomes immutable (after the changeable period), it CANNOT be removed
+   - Vault lock prevents deletion of recovery points before their minimum retention period
+   - Vault lock prevents modifications to existing recovery points
+   - Consider testing in a non-production environment before enabling in production
+
+Vault lock is particularly important for compliance requirements that mandate immutable backups.
 
 ## Windows VSS Support
 
@@ -465,6 +487,11 @@ module "aws_backup_complete" {
   monthly_windows_vss = false     # Disable VSS for monthly backups
   yearly_windows_vss = false      # Disable VSS for yearly backups
   
+  # Enable vault lock for compliance requirements
+  enable_vault_lock = true                  # Enable vault lock for all vaults
+  vault_lock_changeable_for_days = 7        # Allow changes to vault lock for 7 days
+  vault_lock_max_retention_days = 2555      # Maximum retention of 7 years (2555 days)
+  
   # Custom backup plan for database servers
   custom_backup_plans = {
     database_backup = {
@@ -560,6 +587,9 @@ resource "aws_db_instance" "critical_database" {
 | standard_backup_tag_key | The tag key used for standard backup plans | `string` | `"backup_schedule"` | no |
 | default_custom_backup_tag_key | The default tag key used for custom backup plans | `string` | `"backup_custom"` | no |
 | tags | A mapping of tags to assign to all resources | `map(any)` | See variables.tf | no |
+| enable_vault_lock | Whether to enable vault lock for all backup vaults | `bool` | `false` | no |
+| vault_lock_changeable_for_days | Number of days during which the vault lock configuration can be changed | `number` | `3` | no |
+| vault_lock_max_retention_days | Maximum retention period for recovery points | `number` | `1200` | no |
 
 ## Outputs
 

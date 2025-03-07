@@ -139,6 +139,16 @@ resource "aws_backup_vault" "daily" {
   tags          = merge(var.tags, { Name = "daily" })
 }
 
+resource "aws_backup_vault_lock_configuration" "daily" {
+  count        = local.create_daily_vault && var.enable_vault_lock ? 1 : 0
+  backup_vault_name = aws_backup_vault.daily[0].name
+  
+  # Use the configurable vault lock parameters
+  changeable_for_days = var.vault_lock_changeable_for_days
+  max_retention_days  = var.vault_lock_max_retention_days
+  min_retention_days  = var.daily_retention_days
+}
+
 # Hourly Backup Vault
 resource "aws_backup_vault" "hourly" {
   count         = local.create_hourly_vault ? 1 : 0
@@ -146,6 +156,16 @@ resource "aws_backup_vault" "hourly" {
   kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
   force_destroy = var.force_destroy
   tags          = merge(var.tags, { Name = "hourly" })
+}
+
+resource "aws_backup_vault_lock_configuration" "hourly" {
+  count        = local.create_hourly_vault && var.enable_vault_lock ? 1 : 0
+  backup_vault_name = aws_backup_vault.hourly[0].name
+  
+  # Use the configurable vault lock parameters
+  changeable_for_days = var.vault_lock_changeable_for_days
+  max_retention_days  = var.vault_lock_max_retention_days
+  min_retention_days  = var.hourly_retention_days
 }
 
 # Weekly Backup Vault
@@ -157,6 +177,16 @@ resource "aws_backup_vault" "weekly" {
   tags          = merge(var.tags, { Name = "weekly" })
 }
 
+resource "aws_backup_vault_lock_configuration" "weekly" {
+  count        = local.create_weekly_vault && var.enable_vault_lock ? 1 : 0
+  backup_vault_name = aws_backup_vault.weekly[0].name
+  
+  # Use the configurable vault lock parameters
+  changeable_for_days = var.vault_lock_changeable_for_days
+  max_retention_days  = var.vault_lock_max_retention_days
+  min_retention_days  = var.weekly_retention_days
+}
+
 # Monthly Backup Vault
 resource "aws_backup_vault" "monthly" {
   count         = local.create_monthly_vault ? 1 : 0
@@ -166,6 +196,16 @@ resource "aws_backup_vault" "monthly" {
   tags          = merge(var.tags, { Name = "monthly" })
 }
 
+resource "aws_backup_vault_lock_configuration" "monthly" {
+  count        = local.create_monthly_vault && var.enable_vault_lock ? 1 : 0
+  backup_vault_name = aws_backup_vault.monthly[0].name
+  
+  # Use the configurable vault lock parameters
+  changeable_for_days = var.vault_lock_changeable_for_days
+  max_retention_days  = var.vault_lock_max_retention_days
+  min_retention_days  = var.monthly_retention_days
+}
+
 # Yearly Backup Vault
 resource "aws_backup_vault" "yearly" {
   count         = local.create_yearly_vault ? 1 : 0
@@ -173,6 +213,16 @@ resource "aws_backup_vault" "yearly" {
   kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
   force_destroy = var.force_destroy
   tags          = merge(var.tags, { Name = "yearly" })
+}
+
+resource "aws_backup_vault_lock_configuration" "yearly" {
+  count        = local.create_yearly_vault && var.enable_vault_lock ? 1 : 0
+  backup_vault_name = aws_backup_vault.yearly[0].name
+  
+  # Use the configurable vault lock parameters
+  changeable_for_days = var.vault_lock_changeable_for_days
+  max_retention_days  = var.vault_lock_max_retention_days
+  min_retention_days  = var.yearly_retention_days
 }
 
 ###############################################################

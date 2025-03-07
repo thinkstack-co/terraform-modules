@@ -85,6 +85,24 @@ variable "force_destroy" {
   type        = bool
 }
 
+variable "enable_vault_lock" {
+  description = "(Optional) Whether to enable vault lock for all backup vaults created by this module. When enabled, vault lock prevents backup deletion or modifications to recovery points. This is a universal setting for all vaults."
+  default     = false
+  type        = bool
+}
+
+variable "vault_lock_changeable_for_days" {
+  description = "(Optional) The number of days before the lock date. If this value is 0, you cannot change the vault lock after it's created. If this value is greater than 0, you can change the vault lock configuration for the specified number of days."
+  default     = 3
+  type        = number
+}
+
+variable "vault_lock_max_retention_days" {
+  description = "(Optional) The maximum retention period that the vault retains its recovery points. If this parameter is not specified, Vault Lock does not enforce a maximum retention period (allowing indefinite retention)."
+  default     = 1200
+  type        = number
+}
+
 ###############################################################
 # Backup Plan Variables
 ###############################################################
