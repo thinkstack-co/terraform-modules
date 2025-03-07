@@ -7,6 +7,12 @@ variable "create_kms_key" {
   type        = bool
 }
 
+variable "kms_key_arn" {
+  description = "(Optional) The ARN of an existing KMS key to use for encrypting backups. Only used if create_kms_key is false."
+  default     = null
+  type        = string
+}
+
 variable "kms_alias_name" {
   description = "(Optional) The alias name for the KMS key."
   default     = "backup-custom-key"
@@ -71,6 +77,15 @@ variable "backup_role_name" {
 }
 
 ###############################################################
+# Backup Vault Variables
+###############################################################
+variable "force_destroy" {
+  description = "(Optional) A boolean that indicates whether all recovery points stored in the vault should be deleted so that the vault can be destroyed without error."
+  default     = false
+  type        = bool
+}
+
+###############################################################
 # Backup Plan Variables
 ###############################################################
 variable "backup_start_window" {
@@ -120,6 +135,43 @@ variable "daily_retention_days" {
   description = "(Optional) Number of days to retain daily backups."
   default     = 3
   type        = number
+}
+
+# Hourly Backup Plan
+variable "create_hourly_plan" {
+  description = "(Optional) Whether to create an hourly backup plan."
+  default     = false
+  type        = bool
+}
+
+variable "hourly_plan_name" {
+  description = "(Optional) The name of the hourly backup plan."
+  default     = "hourly-backup-plan"
+  type        = string
+}
+
+variable "hourly_schedule" {
+  description = "(Optional) CRON expression for hourly backups. Default is every hour at minute 0."
+  default     = "cron(0 * * * ? *)"
+  type        = string
+}
+
+variable "hourly_retention_days" {
+  description = "(Optional) Number of days to retain hourly backups. Default is 1 day."
+  default     = 1
+  type        = number
+}
+
+variable "hourly_enable_continuous_backup" {
+  description = "(Optional) Whether to enable continuous backups for hourly backup plan."
+  default     = true
+  type        = bool
+}
+
+variable "hourly_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for hourly backup plan."
+  default     = false
+  type        = bool
 }
 
 # Weekly Backup Plan
@@ -213,6 +265,15 @@ variable "yearly_retention_days" {
   description = "(Optional) Number of days to retain yearly backups."
   default     = 365
   type        = number
+}
+
+###############################################################
+# Windows VSS Support
+###############################################################
+variable "enable_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for all backup plans that support it."
+  default     = false
+  type        = bool
 }
 
 ###############################################################

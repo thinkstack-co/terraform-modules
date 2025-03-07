@@ -55,7 +55,7 @@ This Terraform module creates custom AWS Backup plans and vaults that allow you 
 
 The module supports:
 - Creating backup vaults with KMS encryption
-- Creating standard backup plans (daily, weekly, monthly, yearly) with configurable schedules and retention periods
+- Creating standard backup plans (hourly, daily, weekly, monthly, yearly) with configurable schedules and retention periods
 - Creating custom backup plans with specific schedules and retention periods
 - Targeting resources using tag-based selection
 - Supporting EC2 instance backups with Windows VSS support
@@ -75,9 +75,9 @@ All resources are conditionally created based on the corresponding `create_*_pla
 
 This module uses a tag-based approach to select resources for backup:
 
-1. **Standard Backup Plans** (daily, weekly, monthly, yearly):
+1. **Standard Backup Plans** (hourly, daily, weekly, monthly, yearly):
    - Resources are selected based on the tag key specified by `standard_backup_tag_key` (defaults to "backup_schedule")
-   - Tag values should match the plan name: "daily", "weekly", "monthly", or "yearly"
+   - Tag values should match the plan name: "hourly", "daily", "weekly", "monthly", or "yearly"
    
    Example:
    ```hcl
@@ -109,6 +109,7 @@ module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
   # Enable specific backup plans
+  create_hourly_plan  = true
   create_daily_plan   = true
   create_weekly_plan  = true
   create_monthly_plan = true
@@ -120,7 +121,44 @@ module "aws_backup_custom" {
 
 This section provides specific examples for different backup scenarios to help you understand how to configure the module for your needs.
 
-### Example 1: Standard Daily Backup Plan
+### Example 1: Hourly Backup Plan
+
+This example shows how to configure an hourly backup plan for critical workloads that need frequent backups.
+
+```hcl
+module "aws_backup_hourly" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable only the hourly backup plan
+  create_hourly_plan = true
+  
+  # Configure hourly backup settings
+  hourly_schedule = "cron(0 * * * ? *)"  # Every hour at minute 0
+  hourly_retention_days = 1              # Keep hourly backups for 1 day
+  hourly_enable_continuous_backup = true # Enable point-in-time recovery
+  
+  # Optional: Customize the tag key (defaults to "backup_schedule")
+  standard_backup_tag_key = "backup_schedule"
+}
+```
+
+#### Resource Tagging for Hourly Backups
+
+To include resources in the hourly backup plan, tag them as follows:
+
+```hcl
+resource "aws_instance" "critical_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+  
+  tags = {
+    Name = "critical-server"
+    backup_schedule = "hourly"  # This tag includes the instance in the hourly backup plan
+  }
+}
+```
+
+### Example 2: Standard Daily Backup Plan
 
 This example shows how to configure a daily backup plan for EC2 instances.
 
@@ -133,7 +171,7 @@ module "aws_backup_daily" {
   
   # Configure daily backup settings
   daily_schedule = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC
-  daily_retention_days = 7              # Keep backups for 7 days
+  daily_retention_days = 7              # Keep daily backups for 7 days
   daily_enable_continuous_backup = true # Enable point-in-time recovery
   
   # Optional: Customize the tag key (defaults to "backup_schedule")
@@ -157,7 +195,7 @@ resource "aws_instance" "app_server" {
 }
 ```
 
-### Example 2: Weekly and Monthly Backup Plans
+### Example 3: Weekly and Monthly Backup Plans
 
 This example shows how to configure both weekly and monthly backup plans with different retention periods.
 
@@ -206,7 +244,7 @@ resource "aws_db_instance" "monthly_backup_db" {
 }
 ```
 
-### Example 3: Custom Database Backup Plan
+### Example 4: Custom Database Backup Plan
 
 This example shows how to create a custom backup plan specifically for databases, using the monthly vault.
 
@@ -255,7 +293,7 @@ resource "aws_db_instance" "production_database" {
 }
 ```
 
-### Example 4: Custom Application Backup Plan with Custom Tag Key
+### Example 5: Custom Application Backup Plan with Custom Tag Key
 
 This example shows how to create a custom backup plan with a custom tag key for critical applications.
 
@@ -274,7 +312,7 @@ module "aws_backup_custom_app" {
       enable_continuous_backup = false            # Disable continuous backup
       retention_days           = 14               # Keep backups for 14 days
       resource_type            = "EC2"            # Target EC2 resources
-      tag_key                  = "app_backup"     # Custom tag key (overrides default_custom_backup_tag_key)
+      tag_key                  = "app_backup"     # Custom tag key
       tag_value                = "critical"       # Resources with app_backup=critical will be backed up
       tags = {
         backup_type = "application"
@@ -302,7 +340,7 @@ resource "aws_instance" "critical_application" {
 }
 ```
 
-### Example 5: EFS Backup Plan Using Daily Vault
+### Example 6: EFS Backup Plan Using Daily Vault
 
 This example shows how to create a custom backup plan for EFS filesystems using the daily vault.
 
@@ -351,7 +389,73 @@ resource "aws_efs_file_system" "shared_storage" {
 }
 ```
 
-### Example 6: Complete Configuration with All Plans
+### Example 7: Hourly and Daily Backup Plan for Critical Systems
+
+This example shows how to configure both hourly and daily backup plans for critical systems that need frequent backups during the day and a daily backup for longer retention.
+
+```hcl
+module "aws_backup_critical" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable hourly and daily backup plans
+  create_hourly_plan = true
+  create_daily_plan = true
+  
+  # Hourly backup configuration
+  hourly_schedule = "cron(0 * * * ? *)"  # Every hour at minute 0
+  hourly_retention_days = 1              # Keep hourly backups for 1 day
+  hourly_enable_continuous_backup = true # Enable point-in-time recovery
+  
+  # Daily backup configuration
+  daily_schedule = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC
+  daily_retention_days = 7              # Keep daily backups for 7 days
+  
+  # Custom backup plan for critical databases
+  custom_backup_plans = {
+    critical_db_backup = {
+      vault_name               = "hourly"        # Uses the hourly vault
+      schedule                 = "cron(15 * * * ? *)"  # Every hour at minute 15
+      enable_continuous_backup = true            # Enable continuous backup
+      retention_days           = 2               # Keep backups for 2 days
+      resource_type            = "RDS"           # Target RDS resources
+      tag_key                  = "critical_backup" # Custom tag key
+      tag_value                = "database"      # Resources with critical_backup=database will be backed up
+      tags = {
+        backup_type = "critical_database"
+      }
+    }
+  }
+}
+```
+
+#### Resource Tagging for Critical Systems
+
+Tag your resources as follows:
+
+```hcl
+# EC2 instance with hourly backups
+resource "aws_instance" "critical_app_server" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t3.micro"
+  
+  tags = {
+    Name = "critical-app-server"
+    backup_schedule = "hourly"  # This tag includes the instance in the hourly backup plan
+  }
+}
+
+# RDS instance with custom critical backup plan
+resource "aws_db_instance" "critical_database" {
+  # ... RDS configuration ...
+  
+  tags = {
+    Name = "critical-database"
+    critical_backup = "database"  # This tag includes the database in the critical_db_backup plan
+  }
+}
+```
+
+### Example 8: Complete Configuration with All Plans
 
 This example shows a complete configuration with all standard and custom backup plans enabled.
 
@@ -366,6 +470,7 @@ module "aws_backup_complete" {
   kms_key_enable_key_rotation = true
 
   # Enable all standard backup plans
+  create_hourly_plan  = true
   create_daily_plan   = true
   create_weekly_plan  = true
   create_monthly_plan = true
@@ -375,17 +480,20 @@ module "aws_backup_complete" {
   standard_backup_tag_key = "backup_schedule"  # Tag key for standard plans
 
   # Configure backup schedules and retention periods
-  daily_schedule         = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC
-  daily_retention_days   = 7                    # Keep daily backups for 7 days
+  hourly_schedule        = "cron(0 * * * ? *)"   # Every hour at minute 0
+  hourly_retention_days  = 1                     # Keep hourly backups for 1 day
   
-  weekly_schedule        = "cron(0 2 ? * SUN *)"  # Every Sunday at 2:00 AM UTC
-  weekly_retention_days  = 30                     # Keep weekly backups for 30 days
+  daily_schedule         = "cron(0 1 * * ? *)"   # Daily at 1:00 AM UTC
+  daily_retention_days   = 7                     # Keep daily backups for 7 days
   
-  monthly_schedule       = "cron(0 3 1 * ? *)"    # 1st of each month at 3:00 AM UTC
-  monthly_retention_days = 90                     # Keep monthly backups for 90 days
+  weekly_schedule        = "cron(0 2 ? * SUN *)" # Every Sunday at 2:00 AM UTC
+  weekly_retention_days  = 30                    # Keep weekly backups for 30 days
   
-  yearly_schedule        = "cron(0 4 1 1 ? *)"    # January 1st at 4:00 AM UTC
-  yearly_retention_days  = 365                    # Keep yearly backups for 365 days
+  monthly_schedule       = "cron(0 3 1 * ? *)"   # 1st of each month at 3:00 AM UTC
+  monthly_retention_days = 90                    # Keep monthly backups for 90 days
+  
+  yearly_schedule        = "cron(0 4 1 1 ? *)"   # January 1st at 4:00 AM UTC
+  yearly_retention_days  = 365                   # Keep yearly backups for 365 days
 
   # Windows VSS backup configuration
   enable_windows_vss     = true                  # Enable Windows VSS for consistent backups of Windows instances
@@ -410,10 +518,10 @@ module "aws_backup_complete" {
     
     # Critical application backup plan
     critical_app_backup = {
-      vault_name               = "weekly"         # Uses the weekly vault
-      schedule                 = "cron(0 4 ? * MON-FRI *)"  # Weekdays at 4:00 AM UTC
-      enable_continuous_backup = false            # Disable continuous backup
-      retention_days           = 14               # Keep backups for 14 days
+      vault_name               = "hourly"         # Uses the hourly vault
+      schedule                 = "cron(15 * * * ? *)"  # Every hour at minute 15
+      enable_continuous_backup = true             # Enable continuous backup
+      retention_days           = 2                # Keep backups for 2 days
       resource_type            = "EC2"            # Target EC2 resources
       tag_key                  = "app_backup"     # Custom tag key
       tag_value                = "critical"       # Resources with app_backup=critical will be backed up
@@ -437,26 +545,47 @@ module "aws_backup_complete" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | create_kms_key | Whether to create a new KMS key for backups | `bool` | `false` | no |
+| kms_key_arn | The ARN of an existing KMS key to use for encrypting backups | `string` | `null` | no |
 | kms_alias_name | The alias name for the KMS key | `string` | `"backup-custom-key"` | no |
+| key_bypass_policy_lockout_safety_check | Specifies whether to disable the policy lockout check | `bool` | `false` | no |
+| key_customer_master_key_spec | Specifies the key spec | `string` | `"SYMMETRIC_DEFAULT"` | no |
+| key_description | The description of the key as viewed in AWS console | `string` | `"AWS custom backups KMS key used to encrypt backups"` | no |
+| key_deletion_window_in_days | Duration in days after which the key is deleted | `number` | `30` | no |
+| key_enable_key_rotation | Specifies whether key rotation is enabled | `bool` | `true` | no |
+| key_usage | Specifies the intended use of the key | `string` | `"ENCRYPT_DECRYPT"` | no |
+| key_is_enabled | Specifies whether the key is enabled | `bool` | `true` | no |
+| key_policy | A valid policy JSON document | `string` | `null` | no |
+| force_destroy | Whether all recovery points should be deleted when destroying the vault | `bool` | `false` | no |
 | backup_role_name | The name of the IAM role for AWS Backup | `string` | `"aws-backup-custom-role"` | no |
 | backup_start_window | The amount of time in minutes before beginning a backup | `number` | `60` | no |
 | backup_completion_window | The amount of time in minutes AWS Backup attempts a backup before canceling | `number` | `1440` | no |
+| create_hourly_plan | Whether to create an hourly backup plan | `bool` | `false` | no |
+| hourly_plan_name | The name of the hourly backup plan | `string` | `"hourly-backup-plan"` | no |
+| hourly_schedule | CRON expression for hourly backups | `string` | `"cron(0 * * * ? *)"` | no |
+| hourly_retention_days | Number of days to retain hourly backups | `number` | `1` | no |
+| hourly_enable_continuous_backup | Whether to enable continuous backups for hourly backup plan | `bool` | `true` | no |
+| hourly_windows_vss | Whether to enable Windows VSS for hourly backup plan | `bool` | `false` | no |
 | create_daily_plan | Whether to create a daily backup plan | `bool` | `false` | no |
 | daily_plan_name | The name of the daily backup plan | `string` | `"daily-backup-plan"` | no |
 | daily_schedule | CRON expression for daily backups | `string` | `"cron(0 1 * * ? *)"` | no |
-| daily_retention_days | Number of days to retain daily backups | `number` | `3` | no |
+| daily_retention_days | Number of days to retain daily backups | `number` | `7` | no |
+| daily_enable_continuous_backup | Whether to enable continuous backups for daily backup plan | `bool` | `false` | no |
 | create_weekly_plan | Whether to create a weekly backup plan | `bool` | `false` | no |
 | weekly_plan_name | The name of the weekly backup plan | `string` | `"weekly-backup-plan"` | no |
-| weekly_schedule | CRON expression for weekly backups | `string` | `"cron(0 1 ? * SUN *)"` | no |
+| weekly_schedule | CRON expression for weekly backups | `string` | `"cron(0 2 ? * SUN *)"` | no |
 | weekly_retention_days | Number of days to retain weekly backups | `number` | `30` | no |
+| weekly_enable_continuous_backup | Whether to enable continuous backups for weekly backup plan | `bool` | `false` | no |
 | create_monthly_plan | Whether to create a monthly backup plan | `bool` | `false` | no |
 | monthly_plan_name | The name of the monthly backup plan | `string` | `"monthly-backup-plan"` | no |
-| monthly_schedule | CRON expression for monthly backups | `string` | `"cron(0 1 1 * ? *)"` | no |
-| monthly_retention_days | Number of days to retain monthly backups | `number` | `365` | no |
+| monthly_schedule | CRON expression for monthly backups | `string` | `"cron(0 3 1 * ? *)"` | no |
+| monthly_retention_days | Number of days to retain monthly backups | `number` | `90` | no |
+| monthly_enable_continuous_backup | Whether to enable continuous backups for monthly backup plan | `bool` | `false` | no |
 | create_yearly_plan | Whether to create a yearly backup plan | `bool` | `false` | no |
 | yearly_plan_name | The name of the yearly backup plan | `string` | `"yearly-backup-plan"` | no |
-| yearly_schedule | CRON expression for yearly backups | `string` | `"cron(0 1 1 1 ? *)"` | no |
+| yearly_schedule | CRON expression for yearly backups | `string` | `"cron(0 4 1 1 ? *)"` | no |
 | yearly_retention_days | Number of days to retain yearly backups | `number` | `365` | no |
+| yearly_enable_continuous_backup | Whether to enable continuous backups for yearly backup plan | `bool` | `false` | no |
+| enable_windows_vss | Whether to enable Windows VSS for all backup plans that support it | `bool` | `false` | no |
 | custom_backup_plans | Map of custom backup plans | `map(object)` | `{}` | no |
 | standard_backup_tag_key | The tag key used for standard backup plans | `string` | `"backup_schedule"` | no |
 | default_custom_backup_tag_key | The default tag key used for custom backup plans | `string` | `"backup_custom"` | no |
@@ -472,6 +601,7 @@ module "aws_backup_complete" {
 | backup_role_name | The name of the IAM role used for AWS Backup |
 | backup_vault_arns | Map of backup vault names to their ARNs |
 | backup_vault_ids | Map of backup vault names to their IDs |
+| hourly_backup_plan_id | The ID of the hourly backup plan |
 | daily_backup_plan_id | The ID of the daily backup plan |
 | weekly_backup_plan_id | The ID of the weekly backup plan |
 | monthly_backup_plan_id | The ID of the monthly backup plan |

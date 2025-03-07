@@ -40,6 +40,11 @@ output "backup_vault_ids" {
 ###############################################################
 # Backup Plan Outputs
 ###############################################################
+output "hourly_backup_plan_id" {
+  description = "The ID of the hourly backup plan."
+  value       = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : null
+}
+
 output "daily_backup_plan_id" {
   description = "The ID of the daily backup plan."
   value       = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : null
@@ -68,6 +73,11 @@ output "custom_backup_plan_ids" {
 ###############################################################
 # Backup Selection Outputs
 ###############################################################
+output "hourly_selection_id" {
+  description = "The ID of the hourly backup selection."
+  value       = var.create_hourly_plan ? aws_backup_selection.hourly_selection[0].id : null
+}
+
 output "daily_selection_id" {
   description = "The ID of the daily backup selection."
   value       = var.create_daily_plan ? aws_backup_selection.daily_selection[0].id : null

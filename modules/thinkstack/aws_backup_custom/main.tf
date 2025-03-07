@@ -99,40 +99,116 @@ resource "aws_iam_role_policy_attachment" "tag_policy_attach" {
 }
 
 ###############################################################
+# Local variables for configuration logic
+###############################################################
+
+locals {
+  # Determine which vaults should be created based on enabled backup plans
+  create_daily_vault   = var.create_daily_plan
+  create_weekly_vault  = var.create_weekly_plan
+  create_monthly_vault = var.create_monthly_plan
+  create_yearly_vault  = var.create_yearly_plan
+  create_hourly_vault  = var.create_hourly_plan
+
+  # Map of vault names to their creation status
+  vault_map = {
+    "daily"   = local.create_daily_vault
+    "weekly"  = local.create_weekly_vault
+    "monthly" = local.create_monthly_vault
+    "yearly"  = local.create_yearly_vault
+    "hourly"  = local.create_hourly_vault
+  }
+
+  # Filter custom backup plans to only include those referencing existing vaults
+  valid_custom_plans = {
+    for k, v in var.custom_backup_plans :
+    k => v if lookup(local.vault_map, v.vault_name, false)
+  }
+}
+
+###############################################################
 # Backup Vaults
 ###############################################################
 
-resource "aws_backup_vault" "daily_vault" {
-  count       = var.create_daily_plan ? 1 : 0
-  name        = "daily"
-  kms_key_arn = var.create_kms_key ? aws_kms_key.backup_key[0].arn : null
-  tags        = merge(var.tags, { backup_type = "daily" })
+# Daily Backup Vault
+resource "aws_backup_vault" "daily" {
+  count         = local.create_daily_vault ? 1 : 0
+  name          = "daily"
+  kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
+  force_destroy = var.force_destroy
+  tags          = merge(var.tags, { Name = "daily" })
 }
 
-resource "aws_backup_vault" "weekly_vault" {
-  count       = var.create_weekly_plan ? 1 : 0
-  name        = "weekly"
-  kms_key_arn = var.create_kms_key ? aws_kms_key.backup_key[0].arn : null
-  tags        = merge(var.tags, { backup_type = "weekly" })
+# Hourly Backup Vault
+resource "aws_backup_vault" "hourly" {
+  count         = local.create_hourly_vault ? 1 : 0
+  name          = "hourly"
+  kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
+  force_destroy = var.force_destroy
+  tags          = merge(var.tags, { Name = "hourly" })
 }
 
-resource "aws_backup_vault" "monthly_vault" {
-  count       = var.create_monthly_plan ? 1 : 0
-  name        = "monthly"
-  kms_key_arn = var.create_kms_key ? aws_kms_key.backup_key[0].arn : null
-  tags        = merge(var.tags, { backup_type = "monthly" })
+# Weekly Backup Vault
+resource "aws_backup_vault" "weekly" {
+  count         = local.create_weekly_vault ? 1 : 0
+  name          = "weekly"
+  kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
+  force_destroy = var.force_destroy
+  tags          = merge(var.tags, { Name = "weekly" })
 }
 
-resource "aws_backup_vault" "yearly_vault" {
-  count       = var.create_yearly_plan ? 1 : 0
-  name        = "yearly"
-  kms_key_arn = var.create_kms_key ? aws_kms_key.backup_key[0].arn : null
-  tags        = merge(var.tags, { backup_type = "yearly" })
+# Monthly Backup Vault
+resource "aws_backup_vault" "monthly" {
+  count         = local.create_monthly_vault ? 1 : 0
+  name          = "monthly"
+  kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
+  force_destroy = var.force_destroy
+  tags          = merge(var.tags, { Name = "monthly" })
+}
+
+# Yearly Backup Vault
+resource "aws_backup_vault" "yearly" {
+  count         = local.create_yearly_vault ? 1 : 0
+  name          = "yearly"
+  kms_key_arn   = var.create_kms_key ? aws_kms_key.backup_key[0].arn : var.kms_key_arn
+  force_destroy = var.force_destroy
+  tags          = merge(var.tags, { Name = "yearly" })
 }
 
 ###############################################################
 # Backup Plans
 ###############################################################
+
+# Hourly Backup Plan
+resource "aws_backup_plan" "hourly_backup_plan" {
+  count = var.create_hourly_plan ? 1 : 0
+  name  = var.hourly_plan_name
+
+  rule {
+    rule_name                = "hourly-backup-rule"
+    target_vault_name        = aws_backup_vault.hourly[0].name
+    schedule                 = var.hourly_schedule
+    enable_continuous_backup = var.hourly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.hourly_retention_days
+    }
+
+    dynamic "advanced_backup_setting" {
+      for_each = var.enable_windows_vss && var.hourly_windows_vss ? [1] : []
+      content {
+        backup_options = {
+          WindowsVSS = "enabled"
+        }
+        resource_type = "EC2"
+      }
+    }
+  }
+
+  tags = merge(var.tags, { Name = var.hourly_plan_name })
+}
 
 # Daily Backup Plan
 resource "aws_backup_plan" "daily_backup_plan" {
@@ -142,7 +218,7 @@ resource "aws_backup_plan" "daily_backup_plan" {
 
   rule {
     rule_name                = "daily_backup_rule"
-    target_vault_name        = aws_backup_vault.daily_vault[0].name
+    target_vault_name        = aws_backup_vault.daily[0].name
     schedule                 = var.daily_schedule
     enable_continuous_backup = var.daily_enable_continuous_backup
     start_window             = var.backup_start_window
@@ -162,7 +238,7 @@ resource "aws_backup_plan" "weekly_backup_plan" {
 
   rule {
     rule_name                = "weekly_backup_rule"
-    target_vault_name        = aws_backup_vault.weekly_vault[0].name
+    target_vault_name        = aws_backup_vault.weekly[0].name
     schedule                 = var.weekly_schedule
     enable_continuous_backup = var.weekly_enable_continuous_backup
     start_window             = var.backup_start_window
@@ -182,7 +258,7 @@ resource "aws_backup_plan" "monthly_backup_plan" {
 
   rule {
     rule_name                = "monthly_backup_rule"
-    target_vault_name        = aws_backup_vault.monthly_vault[0].name
+    target_vault_name        = aws_backup_vault.monthly[0].name
     schedule                 = var.monthly_schedule
     enable_continuous_backup = var.monthly_enable_continuous_backup
     start_window             = var.backup_start_window
@@ -202,7 +278,7 @@ resource "aws_backup_plan" "yearly_backup_plan" {
 
   rule {
     rule_name                = "yearly_backup_rule"
-    target_vault_name        = aws_backup_vault.yearly_vault[0].name
+    target_vault_name        = aws_backup_vault.yearly[0].name
     schedule                 = var.yearly_schedule
     enable_continuous_backup = var.yearly_enable_continuous_backup
     start_window             = var.backup_start_window
@@ -217,6 +293,20 @@ resource "aws_backup_plan" "yearly_backup_plan" {
 ###############################################################
 # Backup Selections (Tag-Based)
 ###############################################################
+
+# Hourly Backup Selection
+resource "aws_backup_selection" "hourly_selection" {
+  count        = var.create_hourly_plan ? 1 : 0
+  name         = "hourly-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.hourly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = "hourly"
+  }
+}
 
 # Daily Backup Selection
 resource "aws_backup_selection" "daily_selection" {
@@ -277,22 +367,6 @@ resource "aws_backup_selection" "yearly_selection" {
 ###############################################################
 # Custom Backup Plans
 ###############################################################
-
-# Local map to reference vaults by name
-locals {
-  vault_map = {
-    daily   = var.create_daily_plan ? aws_backup_vault.daily_vault[0].name : null
-    weekly  = var.create_weekly_plan ? aws_backup_vault.weekly_vault[0].name : null
-    monthly = var.create_monthly_plan ? aws_backup_vault.monthly_vault[0].name : null
-    yearly  = var.create_yearly_plan ? aws_backup_vault.yearly_vault[0].name : null
-  }
-  
-  # Filter custom backup plans to only include those with valid vault references
-  valid_custom_plans = {
-    for k, v in var.custom_backup_plans : k => v
-    if contains(keys(local.vault_map), v.vault_name) && local.vault_map[v.vault_name] != null
-  }
-}
 
 resource "aws_backup_plan" "custom_backup_plans" {
   for_each = local.valid_custom_plans
