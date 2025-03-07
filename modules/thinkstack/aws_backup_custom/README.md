@@ -67,9 +67,32 @@ All resources are conditionally created based on the corresponding `create_*_pla
 - Automatic backup vault creation based on enabled backup plans
 - KMS key encryption for backup vaults
 - Tag-based resource selection for backup plans
-- Windows VSS support for EC2 instances
+- Windows VSS support for EC2 instances with granular control
 - Configurable backup schedules and retention periods
 - Custom backup plans with flexible configuration
+
+## Windows VSS Support
+
+This module provides comprehensive Windows VSS (Volume Shadow Copy Service) support for EC2 instances, ensuring application-consistent backups for Windows workloads:
+
+1. **Global VSS Control**: 
+   - The `enable_windows_vss` variable acts as a master switch for Windows VSS support
+   - When set to `true`, Windows VSS can be enabled for individual backup plans
+
+2. **Plan-Specific VSS Control**:
+   - Each backup plan has its own VSS control variable:
+     - `hourly_windows_vss`
+     - `daily_windows_vss`
+     - `weekly_windows_vss`
+     - `monthly_windows_vss`
+     - `yearly_windows_vss`
+   - Custom backup plans can also enable VSS via the `windows_vss` property
+
+3. **Conditional Activation**:
+   - Windows VSS is only enabled when both the global `enable_windows_vss` AND the plan-specific VSS variable are set to `true`
+   - This provides granular control over which backup plans use VSS
+
+Windows VSS is particularly important for consistent backups of Windows instances running applications like SQL Server, Exchange, and Active Directory.
 
 ## Tagging Strategy
 
@@ -136,6 +159,10 @@ module "aws_backup_hourly" {
   hourly_schedule = "cron(0 * * * ? *)"  # Every hour at minute 0
   hourly_retention_days = 1              # Keep hourly backups for 1 day
   hourly_enable_continuous_backup = true # Enable point-in-time recovery
+  
+  # Windows VSS support for consistent Windows backups
+  enable_windows_vss = true              # Enable global Windows VSS support
+  hourly_windows_vss = true              # Enable VSS for hourly backups
   
   # Optional: Customize the tag key (defaults to "backup_schedule")
   standard_backup_tag_key = "backup_schedule"
@@ -268,6 +295,7 @@ module "aws_backup_custom_db" {
       resource_type            = "RDS"            # Target RDS resources
       tag_key                  = ""               # Empty string will use the default_custom_backup_tag_key
       tag_value                = "database"       # Resources with backup_custom=database will be backed up
+      windows_vss              = true             # Enable Windows VSS for database backups
       tags = {
         backup_type = "database"
       }
@@ -304,6 +332,9 @@ module "aws_backup_custom_app" {
   # Enable weekly plan to create the weekly vault
   create_weekly_plan = true
   
+  # Enable Windows VSS support
+  enable_windows_vss = true
+  
   # Custom application backup plan with custom tag key
   custom_backup_plans = {
     critical_app_backup = {
@@ -314,6 +345,7 @@ module "aws_backup_custom_app" {
       resource_type            = "EC2"            # Target EC2 resources
       tag_key                  = "app_backup"     # Custom tag key
       tag_value                = "critical"       # Resources with app_backup=critical will be backed up
+      windows_vss              = true             # Enable Windows VSS for this custom plan
       tags = {
         backup_type = "application"
       }
@@ -389,46 +421,70 @@ resource "aws_efs_file_system" "shared_storage" {
 }
 ```
 
-### Example 7: Hourly and Daily Backup Plan for Critical Systems
+### Example 7: Complete Configuration with All Plans and Windows VSS
 
-This example shows how to configure both hourly and daily backup plans for critical systems that need frequent backups during the day and a daily backup for longer retention.
+This example shows a complete configuration with all standard backup plans and Windows VSS support.
 
 ```hcl
-module "aws_backup_critical" {
+module "aws_backup_complete" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
-  # Enable hourly and daily backup plans
-  create_hourly_plan = true
-  create_daily_plan = true
+  # Create KMS key for encryption
+  create_kms_key = true
   
-  # Hourly backup configuration
-  hourly_schedule = "cron(0 * * * ? *)"  # Every hour at minute 0
-  hourly_retention_days = 1              # Keep hourly backups for 1 day
-  hourly_enable_continuous_backup = true # Enable point-in-time recovery
+  # Enable all standard backup plans
+  create_hourly_plan  = true
+  create_daily_plan   = true
+  create_weekly_plan  = true
+  create_monthly_plan = true
+  create_yearly_plan  = true
   
-  # Daily backup configuration
-  daily_schedule = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC
-  daily_retention_days = 7              # Keep daily backups for 7 days
+  # Configure backup schedules
+  hourly_schedule  = "cron(0 * * * ? *)"    # Every hour at minute 0
+  daily_schedule   = "cron(0 1 * * ? *)"    # Daily at 1:00 AM UTC
+  weekly_schedule  = "cron(0 2 ? * SUN *)"  # Weekly on Sunday at 2:00 AM UTC
+  monthly_schedule = "cron(0 3 1 * ? *)"    # Monthly on the 1st at 3:00 AM UTC
+  yearly_schedule  = "cron(0 4 1 1 ? *)"    # Yearly on January 1st at 4:00 AM UTC
   
-  # Custom backup plan for critical databases
+  # Configure retention periods
+  hourly_retention_days  = 1    # Keep hourly backups for 1 day
+  daily_retention_days   = 7    # Keep daily backups for 7 days
+  weekly_retention_days  = 30   # Keep weekly backups for 30 days
+  monthly_retention_days = 365  # Keep monthly backups for 365 days
+  yearly_retention_days  = 1825 # Keep yearly backups for 5 years (1825 days)
+  
+  # Enable continuous backup for hourly and daily plans
+  hourly_enable_continuous_backup = true
+  daily_enable_continuous_backup = true
+  
+  # Configure Windows VSS support
+  enable_windows_vss = true       # Enable global Windows VSS support
+  hourly_windows_vss = true       # Enable VSS for hourly backups
+  daily_windows_vss = true        # Enable VSS for daily backups
+  weekly_windows_vss = false      # Disable VSS for weekly backups
+  monthly_windows_vss = false     # Disable VSS for monthly backups
+  yearly_windows_vss = false      # Disable VSS for yearly backups
+  
+  # Custom backup plan for database servers
   custom_backup_plans = {
-    critical_db_backup = {
-      vault_name               = "hourly"        # Uses the hourly vault
-      schedule                 = "cron(15 * * * ? *)"  # Every hour at minute 15
+    database_backup = {
+      vault_name               = "daily"         # Uses the daily vault
+      schedule                 = "cron(30 1 * * ? *)"  # Daily at 1:30 AM UTC
       enable_continuous_backup = true            # Enable continuous backup
-      retention_days           = 2               # Keep backups for 2 days
-      resource_type            = "RDS"           # Target RDS resources
-      tag_key                  = "critical_backup" # Custom tag key
-      tag_value                = "database"      # Resources with critical_backup=database will be backed up
+      retention_days           = 14              # Keep backups for 14 days
+      resource_type            = "EC2"           # Target EC2 resources
+      tag_key                  = ""              # Use default_custom_backup_tag_key
+      tag_value                = "database"      # Resources with backup_custom=database will be backed up
+      windows_vss              = true            # Enable Windows VSS for database backups
       tags = {
-        backup_type = "critical_database"
+        backup_type = "database"
       }
     }
   }
 }
 ```
 
-#### Resource Tagging for Critical Systems
+#### Resource Tagging for Complete Configuration
 
 Tag your resources as follows:
 
@@ -444,98 +500,13 @@ resource "aws_instance" "critical_app_server" {
   }
 }
 
-# RDS instance with custom critical backup plan
+# RDS instance with custom database backup plan
 resource "aws_db_instance" "critical_database" {
   # ... RDS configuration ...
   
   tags = {
     Name = "critical-database"
-    critical_backup = "database"  # This tag includes the database in the critical_db_backup plan
-  }
-}
-```
-
-### Example 8: Complete Configuration with All Plans
-
-This example shows a complete configuration with all standard and custom backup plans enabled.
-
-```hcl
-module "aws_backup_complete" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
-
-  # Enable KMS key for encryption
-  create_kms_key             = true
-  kms_key_description        = "AWS Backup KMS key for encrypting backups"
-  kms_key_deletion_window    = 30
-  kms_key_enable_key_rotation = true
-
-  # Enable all standard backup plans
-  create_hourly_plan  = true
-  create_daily_plan   = true
-  create_weekly_plan  = true
-  create_monthly_plan = true
-  create_yearly_plan  = true
-
-  # Configure standard backup plans
-  standard_backup_tag_key = "backup_schedule"  # Tag key for standard plans
-
-  # Configure backup schedules and retention periods
-  hourly_schedule        = "cron(0 * * * ? *)"   # Every hour at minute 0
-  hourly_retention_days  = 1                     # Keep hourly backups for 1 day
-  
-  daily_schedule         = "cron(0 1 * * ? *)"   # Daily at 1:00 AM UTC
-  daily_retention_days   = 7                     # Keep daily backups for 7 days
-  
-  weekly_schedule        = "cron(0 2 ? * SUN *)" # Every Sunday at 2:00 AM UTC
-  weekly_retention_days  = 30                    # Keep weekly backups for 30 days
-  
-  monthly_schedule       = "cron(0 3 1 * ? *)"   # 1st of each month at 3:00 AM UTC
-  monthly_retention_days = 90                    # Keep monthly backups for 90 days
-  
-  yearly_schedule        = "cron(0 4 1 1 ? *)"   # January 1st at 4:00 AM UTC
-  yearly_retention_days  = 365                   # Keep yearly backups for 365 days
-
-  # Windows VSS backup configuration
-  enable_windows_vss     = true                  # Enable Windows VSS for consistent backups of Windows instances
-
-  # Custom backup plans configuration
-  default_custom_backup_tag_key = "backup_custom"  # Default tag key for custom plans
-
-  custom_backup_plans = {
-    # Database backup plan
-    database_backup = {
-      vault_name               = "monthly"        # Uses the monthly vault
-      schedule                 = "cron(0 5 15 * ? *)"  # 15th of each month at 5:00 AM UTC
-      enable_continuous_backup = true             # Enable continuous backup for point-in-time recovery
-      retention_days           = 120              # Keep backups for 120 days
-      resource_type            = "RDS"            # Target RDS resources
-      tag_key                  = ""               # Empty string will use the default_custom_backup_tag_key
-      tag_value                = "database"       # Resources with backup_custom=database will be backed up
-      tags = {
-        backup_type = "database"
-      }
-    },
-    
-    # Critical application backup plan
-    critical_app_backup = {
-      vault_name               = "hourly"         # Uses the hourly vault
-      schedule                 = "cron(15 * * * ? *)"  # Every hour at minute 15
-      enable_continuous_backup = true             # Enable continuous backup
-      retention_days           = 2                # Keep backups for 2 days
-      resource_type            = "EC2"            # Target EC2 resources
-      tag_key                  = "app_backup"     # Custom tag key
-      tag_value                = "critical"       # Resources with app_backup=critical will be backed up
-      tags = {
-        backup_type = "application"
-      }
-    }
-  }
-
-  # Global tags for all resources created by this module
-  tags = {
-    Environment = "production"
-    Project     = "data-protection"
-    Terraform   = "true"
+    backup_custom = "database"  # This tag includes the database in the database_backup plan
   }
 }
 ```
@@ -546,12 +517,11 @@ module "aws_backup_complete" {
 |------|-------------|------|---------|:--------:|
 | create_kms_key | Whether to create a new KMS key for backups | `bool` | `false` | no |
 | kms_key_arn | The ARN of an existing KMS key to use for encrypting backups | `string` | `null` | no |
-| kms_alias_name | The alias name for the KMS key | `string` | `"backup-custom-key"` | no |
+| kms_key_description | The description of the KMS key | `string` | `"AWS Backup KMS key for encrypting backups"` | no |
+| kms_key_deletion_window | Duration in days after which the key is deleted | `number` | `30` | no |
+| kms_key_enable_key_rotation | Specifies whether key rotation is enabled | `bool` | `true` | no |
 | key_bypass_policy_lockout_safety_check | Specifies whether to disable the policy lockout check | `bool` | `false` | no |
 | key_customer_master_key_spec | Specifies the key spec | `string` | `"SYMMETRIC_DEFAULT"` | no |
-| key_description | The description of the key as viewed in AWS console | `string` | `"AWS custom backups KMS key used to encrypt backups"` | no |
-| key_deletion_window_in_days | Duration in days after which the key is deleted | `number` | `30` | no |
-| key_enable_key_rotation | Specifies whether key rotation is enabled | `bool` | `true` | no |
 | key_usage | Specifies the intended use of the key | `string` | `"ENCRYPT_DECRYPT"` | no |
 | key_is_enabled | Specifies whether the key is enabled | `bool` | `true` | no |
 | key_policy | A valid policy JSON document | `string` | `null` | no |

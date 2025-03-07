@@ -195,15 +195,15 @@ resource "aws_backup_plan" "hourly_backup_plan" {
     lifecycle {
       delete_after = var.hourly_retention_days
     }
+  }
 
-    dynamic "advanced_backup_setting" {
-      for_each = var.enable_windows_vss && var.hourly_windows_vss ? [1] : []
-      content {
-        backup_options = {
-          WindowsVSS = "enabled"
-        }
-        resource_type = "EC2"
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.hourly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
       }
+      resource_type = "EC2"
     }
   }
 
@@ -228,6 +228,16 @@ resource "aws_backup_plan" "daily_backup_plan" {
       delete_after = var.daily_retention_days
     }
   }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.daily_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
 }
 
 # Weekly Backup Plan
@@ -246,6 +256,16 @@ resource "aws_backup_plan" "weekly_backup_plan" {
 
     lifecycle {
       delete_after = var.weekly_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.weekly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
     }
   }
 }
@@ -268,6 +288,16 @@ resource "aws_backup_plan" "monthly_backup_plan" {
       delete_after = var.monthly_retention_days
     }
   }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.monthly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
 }
 
 # Yearly Backup Plan
@@ -286,6 +316,16 @@ resource "aws_backup_plan" "yearly_backup_plan" {
 
     lifecycle {
       delete_after = var.yearly_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.yearly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
     }
   }
 }
@@ -387,7 +427,7 @@ resource "aws_backup_plan" "custom_backup_plans" {
   }
 
   dynamic "advanced_backup_setting" {
-    for_each = each.value.resource_type == "EC2" ? [1] : []
+    for_each = each.value.resource_type == "EC2" && var.enable_windows_vss && each.value.windows_vss ? [1] : []
     content {
       backup_options = {
         WindowsVSS = "enabled"

@@ -29,12 +29,24 @@ output "backup_role_name" {
 ###############################################################
 output "backup_vault_arns" {
   description = "Map of backup vault names to their ARNs."
-  value       = { for k, v in aws_backup_vault.backup_vault : k => v.arn }
+  value = merge(
+    local.create_daily_vault ? { "daily" = aws_backup_vault.daily[0].arn } : {},
+    local.create_hourly_vault ? { "hourly" = aws_backup_vault.hourly[0].arn } : {},
+    local.create_weekly_vault ? { "weekly" = aws_backup_vault.weekly[0].arn } : {},
+    local.create_monthly_vault ? { "monthly" = aws_backup_vault.monthly[0].arn } : {},
+    local.create_yearly_vault ? { "yearly" = aws_backup_vault.yearly[0].arn } : {}
+  )
 }
 
 output "backup_vault_ids" {
   description = "Map of backup vault names to their IDs."
-  value       = { for k, v in aws_backup_vault.backup_vault : k => v.id }
+  value = merge(
+    local.create_daily_vault ? { "daily" = aws_backup_vault.daily[0].id } : {},
+    local.create_hourly_vault ? { "hourly" = aws_backup_vault.hourly[0].id } : {},
+    local.create_weekly_vault ? { "weekly" = aws_backup_vault.weekly[0].id } : {},
+    local.create_monthly_vault ? { "monthly" = aws_backup_vault.monthly[0].id } : {},
+    local.create_yearly_vault ? { "yearly" = aws_backup_vault.yearly[0].id } : {}
+  )
 }
 
 ###############################################################

@@ -133,7 +133,7 @@ variable "daily_enable_continuous_backup" {
 
 variable "daily_retention_days" {
   description = "(Optional) Number of days to retain daily backups."
-  default     = 3
+  default     = 7
   type        = number
 }
 
@@ -165,12 +165,6 @@ variable "hourly_retention_days" {
 variable "hourly_enable_continuous_backup" {
   description = "(Optional) Whether to enable continuous backups for hourly backup plan."
   default     = true
-  type        = bool
-}
-
-variable "hourly_windows_vss" {
-  description = "(Optional) Whether to enable Windows VSS for hourly backup plan."
-  default     = false
   type        = bool
 }
 
@@ -271,7 +265,37 @@ variable "yearly_retention_days" {
 # Windows VSS Support
 ###############################################################
 variable "enable_windows_vss" {
-  description = "(Optional) Whether to enable Windows VSS for all backup plans that support it."
+  description = "(Optional) Whether to enable Windows VSS for all backup plans that support it. This is a global setting that can be overridden by plan-specific settings."
+  default     = false
+  type        = bool
+}
+
+variable "hourly_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for hourly backups. Only applies when enable_windows_vss is also true."
+  default     = false
+  type        = bool
+}
+
+variable "daily_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for daily backups. Only applies when enable_windows_vss is also true."
+  default     = false
+  type        = bool
+}
+
+variable "weekly_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for weekly backups. Only applies when enable_windows_vss is also true."
+  default     = false
+  type        = bool
+}
+
+variable "monthly_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for monthly backups. Only applies when enable_windows_vss is also true."
+  default     = false
+  type        = bool
+}
+
+variable "yearly_windows_vss" {
+  description = "(Optional) Whether to enable Windows VSS for yearly backups. Only applies when enable_windows_vss is also true."
   default     = false
   type        = bool
 }
@@ -290,6 +314,7 @@ variable "custom_backup_plans" {
     tag_key                  = string
     tag_value                = string
     tags                     = map(string)
+    windows_vss              = bool
   }))
   default = {}
 }
