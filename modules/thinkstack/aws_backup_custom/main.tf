@@ -400,18 +400,28 @@ resource "aws_backup_selection" "hourly_selection" {
 
 # Hourly Backup Selection - For comma-separated values
 resource "aws_backup_selection" "hourly_selection_csv" {
-  for_each = var.create_hourly_plan ? toset([
-    "hourly,daily", "hourly,weekly", "hourly,monthly", "hourly,yearly",
-    "hourly,daily,weekly", "hourly,daily,monthly", "hourly,daily,yearly",
-    "hourly,weekly,monthly", "hourly,weekly,yearly", "hourly,monthly,yearly",
-    "hourly,daily,weekly,monthly", "hourly,daily,weekly,yearly", "hourly,daily,monthly,yearly",
-    "hourly,weekly,monthly,yearly", "hourly,daily,weekly,monthly,yearly",
-    "daily,hourly", "weekly,hourly", "monthly,hourly", "yearly,hourly",
-    "daily,weekly,hourly", "daily,monthly,hourly", "daily,yearly,hourly",
-    "weekly,monthly,hourly", "weekly,yearly,hourly", "monthly,yearly,hourly",
-    "daily,weekly,monthly,hourly", "daily,weekly,yearly,hourly", "daily,monthly,yearly,hourly",
-    "weekly,monthly,yearly,hourly", "daily,weekly,monthly,yearly,hourly"
-  ]) : toset([])
+  # Only create this selection if hourly plan is enabled AND
+  # all other plans mentioned in the tag combination are also enabled
+  for_each = var.create_hourly_plan ? {
+    for combo in [
+      "hourly,daily", "hourly,weekly", "hourly,monthly", "hourly,yearly",
+      "hourly,daily,weekly", "hourly,daily,monthly", "hourly,daily,yearly",
+      "hourly,weekly,monthly", "hourly,weekly,yearly", "hourly,monthly,yearly",
+      "hourly,daily,weekly,monthly", "hourly,daily,weekly,yearly", "hourly,daily,monthly,yearly",
+      "hourly,weekly,monthly,yearly", "hourly,daily,weekly,monthly,yearly",
+      "daily,hourly", "weekly,hourly", "monthly,hourly", "yearly,hourly",
+      "daily,weekly,hourly", "daily,monthly,hourly", "daily,yearly,hourly",
+      "weekly,monthly,hourly", "weekly,yearly,hourly", "monthly,yearly,hourly",
+      "daily,weekly,monthly,hourly", "daily,weekly,yearly,hourly", "daily,monthly,yearly,hourly",
+      "weekly,monthly,yearly,hourly", "daily,weekly,monthly,yearly,hourly"
+    ] : combo => combo
+    if(
+      (!contains(split(",", combo), "daily") || var.create_daily_plan) &&
+      (!contains(split(",", combo), "weekly") || var.create_weekly_plan) &&
+      (!contains(split(",", combo), "monthly") || var.create_monthly_plan) &&
+      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
+    )
+  } : {}
 
   # Generate a shorter name using a hash of the combination
   name         = "h-sel-${substr(md5(each.key), 0, 8)}"
@@ -441,14 +451,24 @@ resource "aws_backup_selection" "daily_selection" {
 
 # Daily Backup Selection - For comma-separated values
 resource "aws_backup_selection" "daily_selection_csv" {
-  for_each = var.create_daily_plan ? toset([
-    "daily,weekly", "daily,monthly", "daily,yearly",
-    "daily,weekly,monthly", "daily,weekly,yearly", "daily,monthly,yearly",
-    "daily,weekly,monthly,yearly",
-    "weekly,daily", "monthly,daily", "yearly,daily",
-    "weekly,monthly,daily", "weekly,yearly,daily", "monthly,yearly,daily",
-    "weekly,monthly,yearly,daily"
-  ]) : toset([])
+  # Only create this selection if daily plan is enabled AND
+  # all other plans mentioned in the tag combination are also enabled
+  for_each = var.create_daily_plan ? {
+    for combo in [
+      "daily,weekly", "daily,monthly", "daily,yearly",
+      "daily,weekly,monthly", "daily,weekly,yearly", "daily,monthly,yearly",
+      "daily,weekly,monthly,yearly",
+      "weekly,daily", "monthly,daily", "yearly,daily",
+      "weekly,monthly,daily", "weekly,yearly,daily", "monthly,yearly,daily",
+      "weekly,monthly,yearly,daily"
+    ] : combo => combo
+    if(
+      (!contains(split(",", combo), "hourly") || var.create_hourly_plan) &&
+      (!contains(split(",", combo), "weekly") || var.create_weekly_plan) &&
+      (!contains(split(",", combo), "monthly") || var.create_monthly_plan) &&
+      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
+    )
+  } : {}
 
   # Generate a shorter name using a hash of the combination
   name         = "d-sel-${substr(md5(each.key), 0, 8)}"
@@ -478,12 +498,22 @@ resource "aws_backup_selection" "weekly_selection" {
 
 # Weekly Backup Selection - For comma-separated values
 resource "aws_backup_selection" "weekly_selection_csv" {
-  for_each = var.create_weekly_plan ? toset([
-    "weekly,monthly", "weekly,yearly",
-    "weekly,monthly,yearly",
-    "monthly,weekly", "yearly,weekly",
-    "monthly,yearly,weekly"
-  ]) : toset([])
+  # Only create this selection if weekly plan is enabled AND
+  # all other plans mentioned in the tag combination are also enabled
+  for_each = var.create_weekly_plan ? {
+    for combo in [
+      "weekly,monthly", "weekly,yearly",
+      "weekly,monthly,yearly",
+      "monthly,weekly", "yearly,weekly",
+      "monthly,yearly,weekly"
+    ] : combo => combo
+    if(
+      (!contains(split(",", combo), "hourly") || var.create_hourly_plan) &&
+      (!contains(split(",", combo), "daily") || var.create_daily_plan) &&
+      (!contains(split(",", combo), "monthly") || var.create_monthly_plan) &&
+      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
+    )
+  } : {}
 
   # Generate a shorter name using a hash of the combination
   name         = "w-sel-${substr(md5(each.key), 0, 8)}"
@@ -513,10 +543,20 @@ resource "aws_backup_selection" "monthly_selection" {
 
 # Monthly Backup Selection - For comma-separated values
 resource "aws_backup_selection" "monthly_selection_csv" {
-  for_each = var.create_monthly_plan ? toset([
-    "monthly,yearly",
-    "yearly,monthly"
-  ]) : toset([])
+  # Only create this selection if monthly plan is enabled AND
+  # all other plans mentioned in the tag combination are also enabled
+  for_each = var.create_monthly_plan ? {
+    for combo in [
+      "monthly,yearly",
+      "yearly,monthly"
+    ] : combo => combo
+    if(
+      (!contains(split(",", combo), "hourly") || var.create_hourly_plan) &&
+      (!contains(split(",", combo), "daily") || var.create_daily_plan) &&
+      (!contains(split(",", combo), "weekly") || var.create_weekly_plan) &&
+      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
+    )
+  } : {}
 
   # Generate a shorter name using a hash of the combination
   name         = "m-sel-${substr(md5(each.key), 0, 8)}"
