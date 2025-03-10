@@ -411,7 +411,7 @@ resource "aws_backup_selection" "hourly_selection_csv" {
     "weekly,monthly,hourly", "weekly,yearly,hourly", "monthly,yearly,hourly",
     "daily,weekly,monthly,hourly", "daily,weekly,yearly,hourly", "daily,monthly,yearly,hourly",
     "weekly,monthly,yearly,hourly", "daily,weekly,monthly,yearly,hourly"
-  ]) : {}
+  ]) : toset([])
 
   name         = "hourly-selection-${replace(each.key, ",", "-")}"
   iam_role_arn = aws_iam_role.backup_role.arn
@@ -447,7 +447,7 @@ resource "aws_backup_selection" "daily_selection_csv" {
     "weekly,daily", "monthly,daily", "yearly,daily",
     "weekly,monthly,daily", "weekly,yearly,daily", "monthly,yearly,daily",
     "weekly,monthly,yearly,daily"
-  ]) : {}
+  ]) : toset([])
 
   name         = "daily-selection-${replace(each.key, ",", "-")}"
   iam_role_arn = aws_iam_role.backup_role.arn
@@ -481,7 +481,7 @@ resource "aws_backup_selection" "weekly_selection_csv" {
     "weekly,monthly,yearly",
     "monthly,weekly", "yearly,weekly",
     "monthly,yearly,weekly"
-  ]) : {}
+  ]) : toset([])
 
   name         = "weekly-selection-${replace(each.key, ",", "-")}"
   iam_role_arn = aws_iam_role.backup_role.arn
@@ -513,7 +513,7 @@ resource "aws_backup_selection" "monthly_selection_csv" {
   for_each = var.create_monthly_plan ? toset([
     "monthly,yearly",
     "yearly,monthly"
-  ]) : {}
+  ]) : toset([])
 
   name         = "monthly-selection-${replace(each.key, ",", "-")}"
   iam_role_arn = aws_iam_role.backup_role.arn
