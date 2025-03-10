@@ -413,7 +413,8 @@ resource "aws_backup_selection" "hourly_selection_csv" {
     "weekly,monthly,yearly,hourly", "daily,weekly,monthly,yearly,hourly"
   ]) : toset([])
 
-  name         = "hourly-selection-${replace(each.key, ",", "-")}"
+  # Generate a shorter name using a hash of the combination
+  name         = "h-sel-${substr(md5(each.key), 0, 8)}"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
 
@@ -449,7 +450,8 @@ resource "aws_backup_selection" "daily_selection_csv" {
     "weekly,monthly,yearly,daily"
   ]) : toset([])
 
-  name         = "daily-selection-${replace(each.key, ",", "-")}"
+  # Generate a shorter name using a hash of the combination
+  name         = "d-sel-${substr(md5(each.key), 0, 8)}"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
 
@@ -483,7 +485,8 @@ resource "aws_backup_selection" "weekly_selection_csv" {
     "monthly,yearly,weekly"
   ]) : toset([])
 
-  name         = "weekly-selection-${replace(each.key, ",", "-")}"
+  # Generate a shorter name using a hash of the combination
+  name         = "w-sel-${substr(md5(each.key), 0, 8)}"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
 
@@ -515,7 +518,8 @@ resource "aws_backup_selection" "monthly_selection_csv" {
     "yearly,monthly"
   ]) : toset([])
 
-  name         = "monthly-selection-${replace(each.key, ",", "-")}"
+  # Generate a shorter name using a hash of the combination
+  name         = "m-sel-${substr(md5(each.key), 0, 8)}"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
 
