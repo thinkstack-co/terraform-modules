@@ -392,7 +392,7 @@ resource "aws_backup_selection" "hourly_selection" {
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGEQUALS"
+    type  = "STRINGEQUALSIGNORECASE"
     key   = var.standard_backup_tag_key
     value = "hourly"
   }
@@ -406,7 +406,7 @@ resource "aws_backup_selection" "daily_selection" {
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGEQUALS"
+    type  = "STRINGEQUALSIGNORECASE"
     key   = var.standard_backup_tag_key
     value = "daily"
   }
@@ -420,7 +420,7 @@ resource "aws_backup_selection" "weekly_selection" {
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGEQUALS"
+    type  = "STRINGEQUALSIGNORECASE"
     key   = var.standard_backup_tag_key
     value = "weekly"
   }
@@ -434,7 +434,7 @@ resource "aws_backup_selection" "monthly_selection" {
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGEQUALS"
+    type  = "STRINGEQUALSIGNORECASE"
     key   = var.standard_backup_tag_key
     value = "monthly"
   }
@@ -448,7 +448,7 @@ resource "aws_backup_selection" "yearly_selection" {
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGEQUALS"
+    type  = "STRINGEQUALSIGNORECASE"
     key   = var.standard_backup_tag_key
     value = "yearly"
   }
@@ -495,7 +495,7 @@ resource "aws_backup_selection" "custom_selections" {
   plan_id      = aws_backup_plan.custom_backup_plans[each.key].id
 
   selection_tag {
-    type  = "STRINGEQUALS"
+    type  = "STRINGEQUALSIGNORECASE"
     key   = each.value.tag_key != "" ? each.value.tag_key : var.default_custom_backup_tag_key
     value = each.value.tag_value
   }

@@ -119,7 +119,7 @@ variable "backup_completion_window" {
 }
 
 variable "standard_backup_tag_key" {
-  description = "(Optional) The tag key to use for standard backup plans (daily, weekly, monthly, yearly). This is the tag key that will be used to identify resources to include in these backup plans."
+  description = "(Optional) The tag key to use for standard backup plans (daily, weekly, monthly, yearly). This is the tag key that will be used to identify resources to include in these backup plans. When tagging EC2 instances, the value can be a string or a list of strings (e.g., [\"hourly\", \"daily\", \"weekly\"])."
   default     = "backup_schedule"
   type        = string
 }
