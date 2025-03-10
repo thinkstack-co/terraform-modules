@@ -112,5 +112,5 @@ output "yearly_selection_id" {
 
 output "custom_selection_ids" {
   description = "Map of custom backup selection names to their IDs."
-  value       = { for k, v in aws_backup_selection.custom_selections : k => v.id }
+  value       = { for k, v in aws_backup_selection.custom_selection : k => v.id }
 }
