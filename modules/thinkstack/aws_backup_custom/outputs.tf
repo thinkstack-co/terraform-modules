@@ -114,3 +114,26 @@ output "custom_selection_ids" {
   description = "Map of custom backup selection names to their IDs."
   value       = { for k, v in aws_backup_selection.custom_selection : k => v.id }
 }
+
+###############################################################
+# Backup Selection Combination Outputs
+###############################################################
+output "hourly_combinations_selection_ids" {
+  description = "Map of hourly combination backup selection names to their IDs."
+  value       = var.create_hourly_plan ? { for k, v in aws_backup_selection.hourly_selection_csv : k => v.id } : {}
+}
+
+output "daily_combinations_selection_ids" {
+  description = "Map of daily combination backup selection names to their IDs."
+  value       = var.create_daily_plan ? { for k, v in aws_backup_selection.daily_selection_csv : k => v.id } : {}
+}
+
+output "weekly_combinations_selection_ids" {
+  description = "Map of weekly combination backup selection names to their IDs."
+  value       = var.create_weekly_plan ? { for k, v in aws_backup_selection.weekly_selection_csv : k => v.id } : {}
+}
+
+output "monthly_combinations_selection_ids" {
+  description = "Map of monthly combination backup selection names to their IDs."
+  value       = var.create_monthly_plan ? { for k, v in aws_backup_selection.monthly_selection_csv : k => v.id } : {}
+}

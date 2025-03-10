@@ -392,9 +392,35 @@ resource "aws_backup_selection" "hourly_selection" {
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGCONTAINS"
+    type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = "hourly"
+  }
+}
+
+# Hourly Backup Selection - For comma-separated values
+resource "aws_backup_selection" "hourly_selection_csv" {
+  for_each = var.create_hourly_plan ? toset([
+    "hourly,daily", "hourly,weekly", "hourly,monthly", "hourly,yearly",
+    "hourly,daily,weekly", "hourly,daily,monthly", "hourly,daily,yearly",
+    "hourly,weekly,monthly", "hourly,weekly,yearly", "hourly,monthly,yearly",
+    "hourly,daily,weekly,monthly", "hourly,daily,weekly,yearly", "hourly,daily,monthly,yearly",
+    "hourly,weekly,monthly,yearly", "hourly,daily,weekly,monthly,yearly",
+    "daily,hourly", "weekly,hourly", "monthly,hourly", "yearly,hourly",
+    "daily,weekly,hourly", "daily,monthly,hourly", "daily,yearly,hourly",
+    "weekly,monthly,hourly", "weekly,yearly,hourly", "monthly,yearly,hourly",
+    "daily,weekly,monthly,hourly", "daily,weekly,yearly,hourly", "daily,monthly,yearly,hourly",
+    "weekly,monthly,yearly,hourly", "daily,weekly,monthly,yearly,hourly"
+  ]) : {}
+
+  name         = "hourly-selection-${replace(each.key, ",", "-")}"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.hourly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
   }
 }
 
@@ -406,9 +432,31 @@ resource "aws_backup_selection" "daily_selection" {
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGCONTAINS"
+    type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = "daily"
+  }
+}
+
+# Daily Backup Selection - For comma-separated values
+resource "aws_backup_selection" "daily_selection_csv" {
+  for_each = var.create_daily_plan ? toset([
+    "daily,weekly", "daily,monthly", "daily,yearly",
+    "daily,weekly,monthly", "daily,weekly,yearly", "daily,monthly,yearly",
+    "daily,weekly,monthly,yearly",
+    "weekly,daily", "monthly,daily", "yearly,daily",
+    "weekly,monthly,daily", "weekly,yearly,daily", "monthly,yearly,daily",
+    "weekly,monthly,yearly,daily"
+  ]) : {}
+
+  name         = "daily-selection-${replace(each.key, ",", "-")}"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.daily_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
   }
 }
 
@@ -420,9 +468,29 @@ resource "aws_backup_selection" "weekly_selection" {
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGCONTAINS"
+    type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = "weekly"
+  }
+}
+
+# Weekly Backup Selection - For comma-separated values
+resource "aws_backup_selection" "weekly_selection_csv" {
+  for_each = var.create_weekly_plan ? toset([
+    "weekly,monthly", "weekly,yearly",
+    "weekly,monthly,yearly",
+    "monthly,weekly", "yearly,weekly",
+    "monthly,yearly,weekly"
+  ]) : {}
+
+  name         = "weekly-selection-${replace(each.key, ",", "-")}"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.weekly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
   }
 }
 
@@ -434,9 +502,27 @@ resource "aws_backup_selection" "monthly_selection" {
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGCONTAINS"
+    type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = "monthly"
+  }
+}
+
+# Monthly Backup Selection - For comma-separated values
+resource "aws_backup_selection" "monthly_selection_csv" {
+  for_each = var.create_monthly_plan ? toset([
+    "monthly,yearly",
+    "yearly,monthly"
+  ]) : {}
+
+  name         = "monthly-selection-${replace(each.key, ",", "-")}"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.monthly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
   }
 }
 
@@ -448,7 +534,7 @@ resource "aws_backup_selection" "yearly_selection" {
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id
 
   selection_tag {
-    type  = "STRINGCONTAINS"
+    type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = "yearly"
   }
@@ -495,7 +581,7 @@ resource "aws_backup_selection" "custom_selection" {
   plan_id      = aws_backup_plan.custom_backup_plans[each.key].id
 
   selection_tag {
-    type  = "STRINGCONTAINS"
+    type  = "STRINGEQUALS"
     key   = each.value.tag_key != "" ? each.value.tag_key : var.default_custom_backup_tag_key
     value = each.value.tag_value
   }

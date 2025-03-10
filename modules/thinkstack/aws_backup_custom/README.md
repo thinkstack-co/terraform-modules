@@ -50,20 +50,68 @@ resource "aws_instance" "example" {
   }
 }
 
-# EC2 instance included in all standard backup plans
-resource "aws_instance" "critical_system" {
+# RDS instance included in only the monthly backup plan
+resource "aws_db_instance" "example" {
   # ... other configuration ...
   
   tags = {
-    Name            = "critical-system"
-    backup_schedule = "hourly,daily,weekly,monthly,yearly"
+    Name            = "example-db"
+    backup_schedule = "monthly"  # Include in only the monthly backup plan
+  }
+}
+
+# EFS file system included in all standard backup plans
+resource "aws_efs_file_system" "example" {
+  # ... other configuration ...
+  
+  tags = {
+    Name            = "example-efs"
+    backup_schedule = "hourly,daily,weekly,monthly,yearly"  # Include in all backup plans
   }
 }
 ```
 
-The module uses the `STRINGCONTAINS` selection type to match resources with comma-separated backup schedule values. This allows you to include resources in multiple backup plans while maintaining compatibility with the `map(string)` tag type used by most AWS resources.
+#### Supported Tag Combinations
 
-## Complete Example
+The module supports all possible combinations of backup schedules. Here are some examples:
+
+| Tag Value | Included in Backup Plans |
+|-----------|--------------------------|
+| `"hourly"` | Hourly |
+| `"daily"` | Daily |
+| `"weekly"` | Weekly |
+| `"monthly"` | Monthly |
+| `"yearly"` | Yearly |
+| `"hourly,daily"` | Hourly, Daily |
+| `"daily,weekly"` | Daily, Weekly |
+| `"weekly,monthly"` | Weekly, Monthly |
+| `"monthly,yearly"` | Monthly, Yearly |
+| `"hourly,daily,weekly"` | Hourly, Daily, Weekly |
+| `"daily,weekly,monthly"` | Daily, Weekly, Monthly |
+| `"weekly,monthly,yearly"` | Weekly, Monthly, Yearly |
+| `"hourly,daily,weekly,monthly"` | Hourly, Daily, Weekly, Monthly |
+| `"daily,weekly,monthly,yearly"` | Daily, Weekly, Monthly, Yearly |
+| `"hourly,daily,weekly,monthly,yearly"` | All backup plans |
+
+> **Note:** The order of the values in the comma-separated string doesn't matter. For example, `"daily,weekly"` and `"weekly,daily"` will both include the resource in both the daily and weekly backup plans.
+
+### Custom Backup Plans
+
+For custom backup plans, you can use a different tag key:
+
+```hcl
+# EC2 instance included in custom backup plan
+resource "aws_instance" "example" {
+  # ... other configuration ...
+  
+  tags = {
+    Name            = "example-instance"
+    custom_backup_schedule = "custom-plan-1,custom-plan-2"  # Include in custom backup plans
+  }
+}
+```
+
+### Complete Example
 
 ```hcl
 module "aws_custom_backup" {
