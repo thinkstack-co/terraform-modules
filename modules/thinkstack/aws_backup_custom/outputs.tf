@@ -87,27 +87,27 @@ output "custom_backup_plan_ids" {
 ###############################################################
 output "hourly_selection_id" {
   description = "The ID of the hourly backup selection."
-  value       = var.create_hourly_plan ? aws_backup_selection.hourly_selection[0].id : null
+  value       = var.create_hourly_plan ? aws_backup_selection.hourly_selection["hourly"].id : null
 }
 
 output "daily_selection_id" {
   description = "The ID of the daily backup selection."
-  value       = var.create_daily_plan ? aws_backup_selection.daily_selection[0].id : null
+  value       = var.create_daily_plan ? aws_backup_selection.daily_selection["daily"].id : null
 }
 
 output "weekly_selection_id" {
   description = "The ID of the weekly backup selection."
-  value       = var.create_weekly_plan ? aws_backup_selection.weekly_selection[0].id : null
+  value       = var.create_weekly_plan ? aws_backup_selection.weekly_selection["weekly"].id : null
 }
 
 output "monthly_selection_id" {
   description = "The ID of the monthly backup selection."
-  value       = var.create_monthly_plan ? aws_backup_selection.monthly_selection[0].id : null
+  value       = var.create_monthly_plan ? aws_backup_selection.monthly_selection["monthly"].id : null
 }
 
 output "yearly_selection_id" {
   description = "The ID of the yearly backup selection."
-  value       = var.create_yearly_plan ? aws_backup_selection.yearly_selection[0].id : null
+  value       = var.create_yearly_plan ? aws_backup_selection.yearly_selection["yearly"].id : null
 }
 
 output "custom_selection_ids" {
