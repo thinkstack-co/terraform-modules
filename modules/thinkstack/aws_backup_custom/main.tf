@@ -119,6 +119,156 @@ locals {
     "hourly"  = local.create_hourly_vault
   }
 
+  # Map of plan names to their enabled status
+  plan_enabled_map = {
+    "hourly"  = var.create_hourly_plan
+    "daily"   = var.create_daily_plan
+    "weekly"  = var.create_weekly_plan
+    "monthly" = var.create_monthly_plan
+    "yearly"  = var.create_yearly_plan
+  }
+
+  # Define all possible combinations of standard backup plans
+  # We'll only create selections for combinations where all referenced plans are enabled
+  standard_plan_combinations = {
+    "hourly-daily" = {
+      plans    = ["hourly", "daily"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan
+      hash     = substr(sha256("hourly-daily"), 0, 8)
+    }
+    "hourly-weekly" = {
+      plans    = ["hourly", "weekly"]
+      enabled  = var.create_hourly_plan && var.create_weekly_plan
+      hash     = substr(sha256("hourly-weekly"), 0, 8)
+    }
+    "hourly-monthly" = {
+      plans    = ["hourly", "monthly"]
+      enabled  = var.create_hourly_plan && var.create_monthly_plan
+      hash     = substr(sha256("hourly-monthly"), 0, 8)
+    }
+    "hourly-yearly" = {
+      plans    = ["hourly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-yearly"), 0, 8)
+    }
+    "daily-weekly" = {
+      plans    = ["daily", "weekly"]
+      enabled  = var.create_daily_plan && var.create_weekly_plan
+      hash     = substr(sha256("daily-weekly"), 0, 8)
+    }
+    "daily-monthly" = {
+      plans    = ["daily", "monthly"]
+      enabled  = var.create_daily_plan && var.create_monthly_plan
+      hash     = substr(sha256("daily-monthly"), 0, 8)
+    }
+    "daily-yearly" = {
+      plans    = ["daily", "yearly"]
+      enabled  = var.create_daily_plan && var.create_yearly_plan
+      hash     = substr(sha256("daily-yearly"), 0, 8)
+    }
+    "weekly-monthly" = {
+      plans    = ["weekly", "monthly"]
+      enabled  = var.create_weekly_plan && var.create_monthly_plan
+      hash     = substr(sha256("weekly-monthly"), 0, 8)
+    }
+    "weekly-yearly" = {
+      plans    = ["weekly", "yearly"]
+      enabled  = var.create_weekly_plan && var.create_yearly_plan
+      hash     = substr(sha256("weekly-yearly"), 0, 8)
+    }
+    "monthly-yearly" = {
+      plans    = ["monthly", "yearly"]
+      enabled  = var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("monthly-yearly"), 0, 8)
+    }
+    "hourly-daily-weekly" = {
+      plans    = ["hourly", "daily", "weekly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_weekly_plan
+      hash     = substr(sha256("hourly-daily-weekly"), 0, 8)
+    }
+    "hourly-daily-monthly" = {
+      plans    = ["hourly", "daily", "monthly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_monthly_plan
+      hash     = substr(sha256("hourly-daily-monthly"), 0, 8)
+    }
+    "hourly-daily-yearly" = {
+      plans    = ["hourly", "daily", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-daily-yearly"), 0, 8)
+    }
+    "hourly-weekly-monthly" = {
+      plans    = ["hourly", "weekly", "monthly"]
+      enabled  = var.create_hourly_plan && var.create_weekly_plan && var.create_monthly_plan
+      hash     = substr(sha256("hourly-weekly-monthly"), 0, 8)
+    }
+    "hourly-weekly-yearly" = {
+      plans    = ["hourly", "weekly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_weekly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-weekly-yearly"), 0, 8)
+    }
+    "hourly-monthly-yearly" = {
+      plans    = ["hourly", "monthly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-monthly-yearly"), 0, 8)
+    }
+    "daily-weekly-monthly" = {
+      plans    = ["daily", "weekly", "monthly"]
+      enabled  = var.create_daily_plan && var.create_weekly_plan && var.create_monthly_plan
+      hash     = substr(sha256("daily-weekly-monthly"), 0, 8)
+    }
+    "daily-weekly-yearly" = {
+      plans    = ["daily", "weekly", "yearly"]
+      enabled  = var.create_daily_plan && var.create_weekly_plan && var.create_yearly_plan
+      hash     = substr(sha256("daily-weekly-yearly"), 0, 8)
+    }
+    "daily-monthly-yearly" = {
+      plans    = ["daily", "monthly", "yearly"]
+      enabled  = var.create_daily_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("daily-monthly-yearly"), 0, 8)
+    }
+    "weekly-monthly-yearly" = {
+      plans    = ["weekly", "monthly", "yearly"]
+      enabled  = var.create_weekly_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("weekly-monthly-yearly"), 0, 8)
+    }
+    "hourly-daily-weekly-monthly" = {
+      plans    = ["hourly", "daily", "weekly", "monthly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_weekly_plan && var.create_monthly_plan
+      hash     = substr(sha256("hourly-daily-weekly-monthly"), 0, 8)
+    }
+    "hourly-daily-weekly-yearly" = {
+      plans    = ["hourly", "daily", "weekly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_weekly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-daily-weekly-yearly"), 0, 8)
+    }
+    "hourly-daily-monthly-yearly" = {
+      plans    = ["hourly", "daily", "monthly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-daily-monthly-yearly"), 0, 8)
+    }
+    "hourly-weekly-monthly-yearly" = {
+      plans    = ["hourly", "weekly", "monthly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_weekly_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-weekly-monthly-yearly"), 0, 8)
+    }
+    "daily-weekly-monthly-yearly" = {
+      plans    = ["daily", "weekly", "monthly", "yearly"]
+      enabled  = var.create_daily_plan && var.create_weekly_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("daily-weekly-monthly-yearly"), 0, 8)
+    }
+    "hourly-daily-weekly-monthly-yearly" = {
+      plans    = ["hourly", "daily", "weekly", "monthly", "yearly"]
+      enabled  = var.create_hourly_plan && var.create_daily_plan && var.create_weekly_plan && var.create_monthly_plan && var.create_yearly_plan
+      hash     = substr(sha256("hourly-daily-weekly-monthly-yearly"), 0, 8)
+    }
+  }
+
+  # Filter to only include combinations where all referenced plans are enabled
+  valid_plan_combinations = {
+    for k, v in local.standard_plan_combinations :
+    k => v if v.enabled
+  }
+
   # Filter custom backup plans to only include those referencing existing vaults
   valid_custom_plans = {
     for k, v in var.custom_backup_plans :
@@ -384,9 +534,44 @@ resource "aws_backup_plan" "yearly_backup_plan" {
 # Backup Selections (Tag-Based)
 ###############################################################
 
-# Hourly Backup Selection
+# Create selections for each valid plan combination
+# For each combination, create a selection for each plan in the combination
+resource "aws_backup_selection" "multi_plan_selections" {
+  for_each = {
+    for item in flatten([
+      for combo_name, combo in local.valid_plan_combinations : [
+        for plan in combo.plans : {
+          combo_name = combo_name
+          combo      = combo
+          plan       = plan
+          key        = "${combo_name}-${plan}"
+        } if lookup(local.plan_enabled_map, plan, false)
+      ]
+    ]) : item.key => item
+  }
+
+  name         = "multi-${each.value.combo.hash}-${each.value.plan}"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  
+  # Use the appropriate plan ID based on the current plan
+  plan_id = lookup({
+    "hourly"  = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : null,
+    "daily"   = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : null,
+    "weekly"  = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : null,
+    "monthly" = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : null,
+    "yearly"  = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : null
+  }, each.value.plan)
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.value.combo_name
+  }
+}
+
+# Create individual plan selections for hourly plan
 resource "aws_backup_selection" "hourly_selection" {
-  count        = var.create_hourly_plan ? 1 : 0
+  for_each = var.create_hourly_plan ? toset(["hourly"]) : toset([])
   name         = "hourly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
@@ -394,37 +579,70 @@ resource "aws_backup_selection" "hourly_selection" {
   selection_tag {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
-    value = "hourly"
+    value = each.key
   }
 }
 
-# Hourly Backup Selection - For comma-separated values
-resource "aws_backup_selection" "hourly_selection_csv" {
-  # Only create this selection if hourly plan is enabled AND
-  # all other plans mentioned in the tag combination are also enabled
-  for_each = var.create_hourly_plan ? {
-    for combo in [
-      "hourly,daily", "hourly,weekly", "hourly,monthly", "hourly,yearly",
-      "hourly,daily,weekly", "hourly,daily,monthly", "hourly,daily,yearly",
-      "hourly,weekly,monthly", "hourly,weekly,yearly", "hourly,monthly,yearly",
-      "hourly,daily,weekly,monthly", "hourly,daily,weekly,yearly", "hourly,daily,monthly,yearly",
-      "hourly,weekly,monthly,yearly", "hourly,daily,weekly,monthly,yearly",
-      "daily,hourly", "weekly,hourly", "monthly,hourly", "yearly,hourly",
-      "daily,weekly,hourly", "daily,monthly,hourly", "daily,yearly,hourly",
-      "weekly,monthly,hourly", "weekly,yearly,hourly", "monthly,yearly,hourly",
-      "daily,weekly,monthly,hourly", "daily,weekly,yearly,hourly", "daily,monthly,yearly,hourly",
-      "weekly,monthly,yearly,hourly", "daily,weekly,monthly,yearly,hourly"
-    ] : combo => combo
-    if(
-      (!contains(split(",", combo), "daily") || var.create_daily_plan) &&
-      (!contains(split(",", combo), "weekly") || var.create_weekly_plan) &&
-      (!contains(split(",", combo), "monthly") || var.create_monthly_plan) &&
-      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
-    )
-  } : {}
+# Create individual plan selections for daily plan
+resource "aws_backup_selection" "daily_selection" {
+  for_each = var.create_daily_plan ? toset(["daily"]) : toset([])
+  name         = "daily-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.daily_backup_plan[0].id
 
-  # Generate a shorter name using a hash of the combination
-  name         = "h-sel-${substr(md5(each.key), 0, 8)}"
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
+  }
+}
+
+# Create individual plan selections for weekly plan
+resource "aws_backup_selection" "weekly_selection" {
+  for_each = var.create_weekly_plan ? toset(["weekly"]) : toset([])
+  name         = "weekly-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.weekly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
+  }
+}
+
+# Create individual plan selections for monthly plan
+resource "aws_backup_selection" "monthly_selection" {
+  for_each = var.create_monthly_plan ? toset(["monthly"]) : toset([])
+  name         = "monthly-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.monthly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
+  }
+}
+
+# Create individual plan selections for yearly plan
+resource "aws_backup_selection" "yearly_selection" {
+  for_each = var.create_yearly_plan ? toset(["yearly"]) : toset([])
+  name         = "yearly-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.yearly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.standard_backup_tag_key
+    value = each.key
+  }
+}
+
+# "All" tag selection - only create if the corresponding plan is enabled
+resource "aws_backup_selection" "hourly_selection_all" {
+  for_each = var.create_hourly_plan ? toset(["all"]) : toset([])
+  name         = "hourly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
 
@@ -435,43 +653,9 @@ resource "aws_backup_selection" "hourly_selection_csv" {
   }
 }
 
-# Daily Backup Selection
-resource "aws_backup_selection" "daily_selection" {
-  count        = var.create_daily_plan ? 1 : 0
-  name         = "daily-tag-selection"
-  iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.daily_backup_plan[0].id
-
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
-    value = "daily"
-  }
-}
-
-# Daily Backup Selection - For comma-separated values
-resource "aws_backup_selection" "daily_selection_csv" {
-  # Only create this selection if daily plan is enabled AND
-  # all other plans mentioned in the tag combination are also enabled
-  for_each = var.create_daily_plan ? {
-    for combo in [
-      "daily,weekly", "daily,monthly", "daily,yearly",
-      "daily,weekly,monthly", "daily,weekly,yearly", "daily,monthly,yearly",
-      "daily,weekly,monthly,yearly",
-      "weekly,daily", "monthly,daily", "yearly,daily",
-      "weekly,monthly,daily", "weekly,yearly,daily", "monthly,yearly,daily",
-      "weekly,monthly,yearly,daily"
-    ] : combo => combo
-    if(
-      (!contains(split(",", combo), "hourly") || var.create_hourly_plan) &&
-      (!contains(split(",", combo), "weekly") || var.create_weekly_plan) &&
-      (!contains(split(",", combo), "monthly") || var.create_monthly_plan) &&
-      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
-    )
-  } : {}
-
-  # Generate a shorter name using a hash of the combination
-  name         = "d-sel-${substr(md5(each.key), 0, 8)}"
+resource "aws_backup_selection" "daily_selection_all" {
+  for_each = var.create_daily_plan ? toset(["all"]) : toset([])
+  name         = "daily-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
 
@@ -482,41 +666,9 @@ resource "aws_backup_selection" "daily_selection_csv" {
   }
 }
 
-# Weekly Backup Selection
-resource "aws_backup_selection" "weekly_selection" {
-  count        = var.create_weekly_plan ? 1 : 0
-  name         = "weekly-tag-selection"
-  iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.weekly_backup_plan[0].id
-
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
-    value = "weekly"
-  }
-}
-
-# Weekly Backup Selection - For comma-separated values
-resource "aws_backup_selection" "weekly_selection_csv" {
-  # Only create this selection if weekly plan is enabled AND
-  # all other plans mentioned in the tag combination are also enabled
-  for_each = var.create_weekly_plan ? {
-    for combo in [
-      "weekly,monthly", "weekly,yearly",
-      "weekly,monthly,yearly",
-      "monthly,weekly", "yearly,weekly",
-      "monthly,yearly,weekly"
-    ] : combo => combo
-    if(
-      (!contains(split(",", combo), "hourly") || var.create_hourly_plan) &&
-      (!contains(split(",", combo), "daily") || var.create_daily_plan) &&
-      (!contains(split(",", combo), "monthly") || var.create_monthly_plan) &&
-      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
-    )
-  } : {}
-
-  # Generate a shorter name using a hash of the combination
-  name         = "w-sel-${substr(md5(each.key), 0, 8)}"
+resource "aws_backup_selection" "weekly_selection_all" {
+  for_each = var.create_weekly_plan ? toset(["all"]) : toset([])
+  name         = "weekly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
 
@@ -527,39 +679,9 @@ resource "aws_backup_selection" "weekly_selection_csv" {
   }
 }
 
-# Monthly Backup Selection
-resource "aws_backup_selection" "monthly_selection" {
-  count        = var.create_monthly_plan ? 1 : 0
-  name         = "monthly-tag-selection"
-  iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.monthly_backup_plan[0].id
-
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
-    value = "monthly"
-  }
-}
-
-# Monthly Backup Selection - For comma-separated values
-resource "aws_backup_selection" "monthly_selection_csv" {
-  # Only create this selection if monthly plan is enabled AND
-  # all other plans mentioned in the tag combination are also enabled
-  for_each = var.create_monthly_plan ? {
-    for combo in [
-      "monthly,yearly",
-      "yearly,monthly"
-    ] : combo => combo
-    if(
-      (!contains(split(",", combo), "hourly") || var.create_hourly_plan) &&
-      (!contains(split(",", combo), "daily") || var.create_daily_plan) &&
-      (!contains(split(",", combo), "weekly") || var.create_weekly_plan) &&
-      (!contains(split(",", combo), "yearly") || var.create_yearly_plan)
-    )
-  } : {}
-
-  # Generate a shorter name using a hash of the combination
-  name         = "m-sel-${substr(md5(each.key), 0, 8)}"
+resource "aws_backup_selection" "monthly_selection_all" {
+  for_each = var.create_monthly_plan ? toset(["all"]) : toset([])
+  name         = "monthly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
 
@@ -570,17 +692,16 @@ resource "aws_backup_selection" "monthly_selection_csv" {
   }
 }
 
-# Yearly Backup Selection
-resource "aws_backup_selection" "yearly_selection" {
-  count        = var.create_yearly_plan ? 1 : 0
-  name         = "yearly-tag-selection"
+resource "aws_backup_selection" "yearly_selection_all" {
+  for_each = var.create_yearly_plan ? toset(["all"]) : toset([])
+  name         = "yearly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id
 
   selection_tag {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
-    value = "yearly"
+    value = each.key
   }
 }
 
