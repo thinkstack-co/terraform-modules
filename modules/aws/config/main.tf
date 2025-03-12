@@ -1,6 +1,14 @@
 # AWS Config Module
 # This module sets up AWS Config to enable continuous monitoring and assessment of AWS resource configurations
 
+# Local variables
+locals {
+  customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
+}
+
+# Get current AWS account ID
+data "aws_caller_identity" "current" {}
+
 # AWS Config Recorder
 resource "aws_config_configuration_recorder" "config" {
   name     = var.config_recorder_name
@@ -55,12 +63,83 @@ resource "aws_s3_bucket_policy" "config" {
   })
 }
 
+# SNS Topic for AWS Config Notifications
+resource "aws_sns_topic" "config_notifications" {
+  name = "${var.config_recorder_name}-notifications"
+  tags = var.tags
+}
+
+# SNS Topic Policy
+resource "aws_sns_topic_policy" "config_notifications" {
+  arn = aws_sns_topic.config_notifications.arn
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowConfigPublish"
+        Effect = "Allow"
+        Principal = {
+          Service = "config.amazonaws.com"
+        }
+        Action   = "sns:Publish"
+        Resource = aws_sns_topic.config_notifications.arn
+      },
+      {
+        Sid    = "AllowCloudWatchEventsPublish"
+        Effect = "Allow"
+        Principal = {
+          Service = "events.amazonaws.com"
+        }
+        Action   = "sns:Publish"
+        Resource = aws_sns_topic.config_notifications.arn
+      }
+    ]
+  })
+}
+
+# SNS Topic Subscription for Email Notifications
+resource "aws_sns_topic_subscription" "config_email_subscription" {
+  count     = var.notification_email != "" ? 1 : 0
+  topic_arn = aws_sns_topic.config_notifications.arn
+  protocol  = "email"
+  endpoint  = var.notification_email
+}
+
+# CloudWatch Event Rule for Monthly Compliance Report
+resource "aws_cloudwatch_event_rule" "monthly_compliance_report" {
+  count               = var.create_monthly_compliance_report ? 1 : 0
+  name                = "${var.config_recorder_name}-monthly-compliance-report"
+  description         = "Triggers on the first day of every month to generate a compliance report"
+  schedule_expression = "cron(0 8 1 * ? *)" # 8:00 AM on the 1st day of every month
+  tags                = var.tags
+}
+
+# CloudWatch Event Target for Monthly Compliance Report
+resource "aws_cloudwatch_event_target" "monthly_compliance_report" {
+  count     = var.create_monthly_compliance_report ? 1 : 0
+  rule      = aws_cloudwatch_event_rule.monthly_compliance_report[0].name
+  target_id = "SendToSNS"
+  arn       = aws_sns_topic.config_notifications.arn
+  
+  input_transformer {
+    input_paths = {
+      time = "$.time"
+    }
+    input_template = <<EOF
+{
+  "Subject": "${local.customer_identifier} - AWS Config Monthly Compliance Report - $(time)",
+  "Message": "This is an automated monthly report of AWS Config compliance status for ${local.customer_identifier}.\n\nPlease review the AWS Config dashboard for a list of non-compliant resources: https://console.aws.amazon.com/config/home"
+}
+EOF
+  }
+}
+
 # AWS Config Delivery Channel
 resource "aws_config_delivery_channel" "config" {
   name           = var.config_recorder_name
   s3_bucket_name = aws_s3_bucket.config_bucket.id
   s3_key_prefix  = var.s3_key_prefix
-  sns_topic_arn  = var.sns_topic_arn
+  sns_topic_arn  = var.sns_topic_arn != null ? var.sns_topic_arn : aws_sns_topic.config_notifications.arn
 
   snapshot_delivery_properties {
     delivery_frequency = var.snapshot_delivery_frequency

@@ -78,3 +78,21 @@ variable "snapshot_delivery_frequency" {
   type        = string
   default     = "TwentyFour_Hours"
 }
+
+variable "notification_email" {
+  description = "Email address to receive monthly non-compliance notifications"
+  type        = string
+  default     = "support@thinkstack.co"
+}
+
+variable "create_monthly_compliance_report" {
+  description = "Whether to create a monthly compliance report sent via email"
+  type        = bool
+  default     = true
+}
+
+variable "customer_name" {
+  description = "Name of the customer whose AWS account this is being deployed in, used to identify the source of compliance reports"
+  type        = string
+  default     = ""
+}
