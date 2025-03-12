@@ -37,7 +37,7 @@ module "aws_custom_backup" {
 
 ### Resource Tagging for Backup Selection
 
-Resources are included in backup plans based on tags. The module supports including resources in multiple backup plans using a comma-separated string approach:
+Resources are included in backup plans based on tags. The module supports including resources in multiple backup plans using a hyphen-separated string approach:
 
 ```hcl
 # EC2 instance included in daily and weekly backup plans
@@ -46,7 +46,7 @@ resource "aws_instance" "example" {
   
   tags = {
     Name            = "example-instance"
-    backup_schedule = "daily,weekly"  # Include in both daily and weekly backup plans
+    backup_schedule = "daily-weekly"  # Include in both daily and weekly backup plans
   }
 }
 
@@ -66,12 +66,12 @@ resource "aws_efs_file_system" "example" {
   
   tags = {
     Name            = "example-efs"
-    backup_schedule = "hourly,daily,weekly,monthly,yearly"  # Include in all backup plans
+    backup_schedule = "all"  # Include in all enabled backup plans
   }
 }
 ```
 
-#### Supported Tag Combinations
+#### Supported Tag Values
 
 The module supports all possible combinations of backup schedules. Here are some examples:
 
@@ -82,18 +82,19 @@ The module supports all possible combinations of backup schedules. Here are some
 | `"weekly"` | Weekly |
 | `"monthly"` | Monthly |
 | `"yearly"` | Yearly |
-| `"hourly,daily"` | Hourly, Daily |
-| `"daily,weekly"` | Daily, Weekly |
-| `"weekly,monthly"` | Weekly, Monthly |
-| `"monthly,yearly"` | Monthly, Yearly |
-| `"hourly,daily,weekly"` | Hourly, Daily, Weekly |
-| `"daily,weekly,monthly"` | Daily, Weekly, Monthly |
-| `"weekly,monthly,yearly"` | Weekly, Monthly, Yearly |
-| `"hourly,daily,weekly,monthly"` | Hourly, Daily, Weekly, Monthly |
-| `"daily,weekly,monthly,yearly"` | Daily, Weekly, Monthly, Yearly |
-| `"hourly,daily,weekly,monthly,yearly"` | All backup plans |
+| `"hourly-daily"` | Hourly, Daily |
+| `"daily-weekly"` | Daily, Weekly |
+| `"weekly-monthly"` | Weekly, Monthly |
+| `"monthly-yearly"` | Monthly, Yearly |
+| `"hourly-daily-weekly"` | Hourly, Daily, Weekly |
+| `"daily-weekly-monthly"` | Daily, Weekly, Monthly |
+| `"weekly-monthly-yearly"` | Weekly, Monthly, Yearly |
+| `"hourly-daily-weekly-monthly"` | Hourly, Daily, Weekly, Monthly |
+| `"daily-weekly-monthly-yearly"` | Daily, Weekly, Monthly, Yearly |
+| `"hourly-daily-weekly-monthly-yearly"` | All backup plans |
+| `"all"` | All enabled backup plans |
 
-> **Note:** The order of the values in the comma-separated string doesn't matter. For example, `"daily,weekly"` and `"weekly,daily"` will both include the resource in both the daily and weekly backup plans.
+> **Note:** Resources will only be included in backup plans that are enabled in the module configuration. For example, if a resource is tagged with `"daily-weekly"` but only the daily plan is enabled, the resource will only be backed up by the daily plan.
 
 ### Custom Backup Plans
 
@@ -106,7 +107,7 @@ resource "aws_instance" "example" {
   
   tags = {
     Name            = "example-instance"
-    custom_backup_schedule = "custom-plan-1,custom-plan-2"  # Include in custom backup plans
+    custom_backup_schedule = "custom-plan-1-custom-plan-2"  # Include in custom backup plans
   }
 }
 ```
@@ -172,7 +173,7 @@ resource "aws_instance" "example" {
     project         = "server_infrastructure"
     service         = "ops"
     backup          = "true"
-    backup_schedule = "daily,weekly,monthly"  # Include in daily, weekly, and monthly backup plans
+    backup_schedule = "daily-weekly"  # Include in daily and weekly backup plans
   }
 }
 
@@ -182,7 +183,7 @@ resource "aws_db_instance" "example" {
   
   tags = {
     Name            = "example-db"
-    backup_schedule = "hourly,daily"  # Include in hourly and daily backup plans
+    backup_schedule = "hourly-daily"  # Include in hourly and daily backup plans
   }
 }
 ```
@@ -213,3 +214,20 @@ resource "aws_db_instance" "example" {
 | backup_plans | Map of backup plans created by the module |
 | kms_key_arn | ARN of the KMS key used for backup encryption (if created) |
 | iam_role_arn | ARN of the IAM role used for AWS Backup |
+| hourly_selection_id | The ID of the hourly backup selection (for resources tagged with "hourly") |
+| daily_selection_id | The ID of the daily backup selection (for resources tagged with "daily") |
+| weekly_selection_id | The ID of the weekly backup selection (for resources tagged with "weekly") |
+| monthly_selection_id | The ID of the monthly backup selection (for resources tagged with "monthly") |
+| yearly_selection_id | The ID of the yearly backup selection (for resources tagged with "yearly") |
+| hourly_all_selection_ids | Map of hourly 'all' tag backup selection names to their IDs |
+| daily_all_selection_ids | Map of daily 'all' tag backup selection names to their IDs |
+| weekly_all_selection_ids | Map of weekly 'all' tag backup selection names to their IDs |
+| monthly_all_selection_ids | Map of monthly 'all' tag backup selection names to their IDs |
+| yearly_all_selection_ids | Map of yearly 'all' tag backup selection names to their IDs |
+| hourly_combinations_selection_ids | Map of hourly combination backup selection names to their IDs |
+| daily_combinations_selection_ids | Map of daily combination backup selection names to their IDs |
+| weekly_combinations_selection_ids | Map of weekly combination backup selection names to their IDs |
+| monthly_combinations_selection_ids | Map of monthly combination backup selection names to their IDs |
+| yearly_combinations_selection_ids | Map of yearly combination backup selection names to their IDs |
+| multi_plan_selection_ids | Map of multi-plan backup selection names to their IDs |
+| custom_selection_ids | Map of custom backup selection names to their IDs |
