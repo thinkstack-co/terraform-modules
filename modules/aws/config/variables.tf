@@ -96,3 +96,57 @@ variable "customer_name" {
   type        = string
   default     = ""
 }
+
+# Report Delivery Configuration
+variable "report_delivery_schedule" {
+  description = "Cron expression for when to deliver the config report (default is 8:00 AM on the 1st day of every month)"
+  type        = string
+  default     = "cron(0 8 1 * ? *)"
+}
+
+variable "report_frequency" {
+  description = "Frequency of config report generation (daily, weekly, or monthly)"
+  type        = string
+  default     = "monthly"
+  validation {
+    condition     = contains(["daily", "weekly", "monthly"], var.report_frequency)
+    error_message = "Report frequency must be one of: daily, weekly, or monthly."
+  }
+}
+
+# S3 Lifecycle Configuration
+variable "enable_s3_lifecycle_rules" {
+  description = "Whether to enable S3 lifecycle rules for config reports"
+  type        = bool
+  default     = true
+}
+
+variable "report_retention_days" {
+  description = "Number of days to retain config reports in S3 before deletion (set to 0 to disable deletion)"
+  type        = number
+  default     = 365
+}
+
+variable "enable_glacier_transition" {
+  description = "Whether to transition config reports to Glacier storage class"
+  type        = bool
+  default     = false
+}
+
+variable "glacier_transition_days" {
+  description = "Number of days after which to transition config reports to Glacier storage class"
+  type        = number
+  default     = 90
+}
+
+variable "glacier_retention_days" {
+  description = "Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion from Glacier)"
+  type        = number
+  default     = 730
+}
+
+variable "monthly_folder_format" {
+  description = "Format for the monthly folder names (using strftime format)"
+  type        = string
+  default     = "%Y-%m"
+}

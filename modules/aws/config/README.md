@@ -64,24 +64,82 @@
 
 ```hcl
 module "aws_config" {
-    source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
 
-    config_recorder_name         = "example-config-recorder"
-    config_bucket_prefix         = "example-config-bucket-"
-    include_global_resource_types = true
-    enable_config_rules          = true
-    recording_frequency          = "DAILY"
-    snapshot_delivery_frequency  = "TwentyFour_Hours"
-    s3_key_prefix                = "config"
-    notification_email           = "support@thinkstack.co"
-    create_monthly_compliance_report = true
-    customer_name                = "Acme Corp"
-    tags                         = {
-        terraform   = "true"
-        created_by  = "Terraform"
-        environment = "prod"
-        role        = "security"
-    }
+  # Basic Configuration
+  config_recorder_name = "example-config-recorder"
+  config_bucket_prefix = "example-config-recordings-"
+  config_iam_role_name = "example-config-role"
+  
+  # Report Delivery Configuration
+  report_frequency       = "monthly"  # Options: daily, weekly, monthly
+  report_delivery_schedule = "cron(0 8 1 * ? *)"  # 8:00 AM on the 1st day of every month
+  monthly_folder_format  = "%Y-%m"  # Format: YYYY-MM
+  
+  # S3 Lifecycle Configuration
+  enable_s3_lifecycle_rules = true
+  report_retention_days     = 365  # Keep reports for 1 year
+  enable_glacier_transition = true
+  glacier_transition_days   = 90   # Move to Glacier after 90 days
+  glacier_retention_days    = 730  # Delete from Glacier after 2 years
+  
+  # Other Settings
+  include_global_resource_types = true
+  tags = {
+    Environment = "Production"
+    Owner       = "Operations"
+  }
+}
+```
+
+### Basic Example
+
+```hcl
+module "aws_config" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
+
+  config_recorder_name = "prod-config-recorder"
+  notification_email   = "alerts@example.com"
+}
+```
+
+### Example with Daily Reports and 30-Day Retention
+
+```hcl
+module "aws_config" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
+
+  config_recorder_name    = "prod-config-recorder"
+  notification_email      = "alerts@example.com"
+  
+  # Configure daily reports
+  report_frequency        = "daily"
+  
+  # Set 30-day retention with no Glacier transition
+  enable_s3_lifecycle_rules = true
+  report_retention_days     = 30
+  enable_glacier_transition = false
+}
+```
+
+### Example with Weekly Reports and Glacier Archiving
+
+```hcl
+module "aws_config" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
+
+  config_recorder_name    = "prod-config-recorder"
+  notification_email      = "alerts@example.com"
+  
+  # Configure weekly reports on Mondays
+  report_frequency        = "weekly"
+  
+  # Set up Glacier archiving
+  enable_s3_lifecycle_rules = true
+  report_retention_days     = 0  # Don't delete from standard storage
+  enable_glacier_transition = true
+  glacier_transition_days   = 30  # Move to Glacier after 30 days
+  glacier_retention_days    = 365 # Delete from Glacier after 1 year
 }
 ```
 
@@ -148,6 +206,14 @@ No modules.
 | <a name="input_notification_email"></a> [notification\_email](#input\_notification\_email) | Email address to receive monthly non-compliance notifications | `string` | `"support@thinkstack.co"` | no |
 | <a name="input_create_monthly_compliance_report"></a> [create\_monthly\_compliance\_report](#input\_create\_monthly\_compliance\_report) | Whether to create a monthly compliance report sent via email | `bool` | `true` | no |
 | <a name="input_customer_name"></a> [customer\_name](#input\_customer\_name) | Name of the customer whose AWS account this is being deployed in, used to identify the source of compliance reports | `string` | `""` | no |
+| <a name="input_report_delivery_schedule"></a> [report\_delivery\_schedule](#input\_report\_delivery\_schedule) | Cron expression for when to deliver the config report (default is 8:00 AM on the 1st day of every month) | `string` | `"cron(0 8 1 * ? *)"` | no |
+| <a name="input_report_frequency"></a> [report\_frequency](#input\_report\_frequency) | Frequency of config report generation (daily, weekly, or monthly) | `string` | `"monthly"` | no |
+| <a name="input_enable_s3_lifecycle_rules"></a> [enable\_s3\_lifecycle\_rules](#input\_enable\_s3\_lifecycle\_rules) | Whether to enable S3 lifecycle rules for config reports | `bool` | `true` | no |
+| <a name="input_report_retention_days"></a> [report\_retention\_days](#input\_report\_retention\_days) | Number of days to retain config reports in S3 before deletion (set to 0 to disable deletion) | `number` | `365` | no |
+| <a name="input_enable_glacier_transition"></a> [enable\_glacier\_transition](#input\_enable\_glacier\_transition) | Whether to transition config reports to Glacier storage class | `bool` | `false` | no |
+| <a name="input_glacier_transition_days"></a> [glacier\_transition\_days](#input\_glacier\_transition\_days) | Number of days after which to transition config reports to Glacier storage class | `number` | `90` | no |
+| <a name="input_glacier_retention_days"></a> [glacier\_retention\_days](#input\_glacier\_retention\_days) | Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion from Glacier) | `number` | `730` | no |
+| <a name="input_monthly_folder_format"></a> [monthly\_folder\_format](#input\_monthly\_folder\_format) | Format for the monthly folder names (using strftime format) | `string` | `"%Y-%m"` | no |
 
 ## Outputs
 

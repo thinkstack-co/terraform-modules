@@ -4,6 +4,17 @@
 # Local variables
 locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
+  
+  # Generate the appropriate S3 key prefix based on report frequency
+  monthly_folder = formatdate(var.monthly_folder_format, timestamp())
+  s3_key_prefix_with_date = "${var.s3_key_prefix}/${local.monthly_folder}"
+  
+  # Generate the appropriate schedule expression based on report frequency
+  report_schedule = var.report_delivery_schedule != "cron(0 8 1 * ? *)" ? var.report_delivery_schedule : (
+    var.report_frequency == "daily" ? "cron(0 8 * * ? *)" :  # Daily at 8:00 AM
+    var.report_frequency == "weekly" ? "cron(0 8 ? * MON *)" :  # Weekly on Monday at 8:00 AM
+    "cron(0 8 1 * ? *)"  # Monthly on the 1st at 8:00 AM (default)
+  )
 }
 
 # Get current AWS account ID
@@ -63,6 +74,73 @@ resource "aws_s3_bucket_policy" "config" {
   })
 }
 
+# S3 Lifecycle Configuration
+resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
+  count  = var.enable_s3_lifecycle_rules ? 1 : 0
+  bucket = aws_s3_bucket.config_bucket.id
+
+  rule {
+    id     = "config-reports-lifecycle"
+    status = "Enabled"
+    
+    filter {
+      prefix = var.s3_key_prefix
+    }
+
+    dynamic "transition" {
+      for_each = var.enable_glacier_transition && var.glacier_transition_days > 0 ? [1] : []
+      content {
+        days          = var.glacier_transition_days
+        storage_class = "GLACIER"
+      }
+    }
+
+    dynamic "expiration" {
+      for_each = var.report_retention_days > 0 ? [1] : []
+      content {
+        days = var.report_retention_days
+      }
+    }
+    
+    dynamic "noncurrent_version_expiration" {
+      for_each = var.report_retention_days > 0 ? [1] : []
+      content {
+        noncurrent_days = var.report_retention_days
+      }
+    }
+    
+    dynamic "noncurrent_version_transition" {
+      for_each = var.enable_glacier_transition && var.glacier_transition_days > 0 ? [1] : []
+      content {
+        noncurrent_days = var.glacier_transition_days
+        storage_class   = "GLACIER"
+      }
+    }
+  }
+
+  # If Glacier transition is enabled and we have a separate Glacier retention period
+  dynamic "rule" {
+    for_each = var.enable_glacier_transition && var.glacier_retention_days > 0 ? [1] : []
+    content {
+      id     = "config-reports-glacier-expiration"
+      status = "Enabled"
+      
+      filter {
+        and {
+          prefix = var.s3_key_prefix
+          tags = {
+            "storage-class" = "GLACIER"
+          }
+        }
+      }
+      
+      expiration {
+        days = var.glacier_retention_days
+      }
+    }
+  }
+}
+
 # SNS Topic for AWS Config Notifications
 resource "aws_sns_topic" "config_notifications" {
   name = "${var.config_recorder_name}-notifications"
@@ -105,19 +183,19 @@ resource "aws_sns_topic_subscription" "config_email_subscription" {
   endpoint  = var.notification_email
 }
 
-# CloudWatch Event Rule for Monthly Compliance Report
-resource "aws_cloudwatch_event_rule" "monthly_compliance_report" {
+# CloudWatch Event Rule for Compliance Report
+resource "aws_cloudwatch_event_rule" "compliance_report" {
   count               = var.create_monthly_compliance_report ? 1 : 0
-  name                = "${var.config_recorder_name}-monthly-compliance-report"
-  description         = "Triggers on the first day of every month to generate a compliance report"
-  schedule_expression = "cron(0 8 1 * ? *)" # 8:00 AM on the 1st day of every month
+  name                = "${var.config_recorder_name}-${var.report_frequency}-compliance-report"
+  description         = "Triggers to generate a ${var.report_frequency} compliance report"
+  schedule_expression = local.report_schedule
   tags                = var.tags
 }
 
-# CloudWatch Event Target for Monthly Compliance Report
-resource "aws_cloudwatch_event_target" "monthly_compliance_report" {
+# CloudWatch Event Target for Compliance Report
+resource "aws_cloudwatch_event_target" "compliance_report" {
   count     = var.create_monthly_compliance_report ? 1 : 0
-  rule      = aws_cloudwatch_event_rule.monthly_compliance_report[0].name
+  rule      = aws_cloudwatch_event_rule.compliance_report[0].name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.config_notifications.arn
   
@@ -127,8 +205,8 @@ resource "aws_cloudwatch_event_target" "monthly_compliance_report" {
     }
     input_template = <<EOF
 {
-  "Subject": "${local.customer_identifier} - AWS Config Monthly Compliance Report - $(time)",
-  "Message": "This is an automated monthly report of AWS Config compliance status for ${local.customer_identifier}.\n\nPlease review the AWS Config dashboard for a list of non-compliant resources: https://console.aws.amazon.com/config/home"
+  "Subject": "${local.customer_identifier} - AWS Config ${title(var.report_frequency)} Compliance Report - $(time)",
+  "Message": "This is an automated ${var.report_frequency} report of AWS Config compliance status for ${local.customer_identifier}.\n\nReports are stored in S3 bucket: ${aws_s3_bucket.config_bucket.id}/${local.s3_key_prefix_with_date}/\n\nPlease review the AWS Config dashboard for a list of non-compliant resources: https://console.aws.amazon.com/config/home"
 }
 EOF
   }
@@ -138,7 +216,7 @@ EOF
 resource "aws_config_delivery_channel" "config" {
   name           = var.config_recorder_name
   s3_bucket_name = aws_s3_bucket.config_bucket.id
-  s3_key_prefix  = var.s3_key_prefix
+  s3_key_prefix  = local.s3_key_prefix_with_date
   sns_topic_arn  = var.sns_topic_arn != null ? var.sns_topic_arn : aws_sns_topic.config_notifications.arn
 
   snapshot_delivery_properties {
