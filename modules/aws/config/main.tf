@@ -6,7 +6,7 @@ locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
   
   # Generate the appropriate S3 key prefix based on report frequency
-  monthly_folder = formatdate(var.monthly_folder_format, timestamp())
+  monthly_folder = formatdate("%Y-%m", timestamp())
   s3_key_prefix_with_date = "${var.s3_key_prefix}/${local.monthly_folder}"
   
   # Generate the appropriate schedule expression based on report frequency
@@ -185,7 +185,7 @@ resource "aws_sns_topic_subscription" "config_email_subscription" {
 
 # CloudWatch Event Rule for Compliance Report
 resource "aws_cloudwatch_event_rule" "compliance_report" {
-  count               = var.create_monthly_compliance_report ? 1 : 0
+  count               = var.create_compliance_report ? 1 : 0
   name                = "${var.config_recorder_name}-${var.report_frequency}-compliance-report"
   description         = "Triggers to generate a ${var.report_frequency} compliance report"
   schedule_expression = local.report_schedule
@@ -194,7 +194,7 @@ resource "aws_cloudwatch_event_rule" "compliance_report" {
 
 # CloudWatch Event Target for Compliance Report
 resource "aws_cloudwatch_event_target" "compliance_report" {
-  count     = var.create_monthly_compliance_report ? 1 : 0
+  count     = var.create_compliance_report ? 1 : 0
   rule      = aws_cloudwatch_event_rule.compliance_report[0].name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.config_notifications.arn

@@ -49,7 +49,7 @@ output "config_notification_topic_arn" {
   value       = aws_sns_topic.config_notifications.arn
 }
 
-output "monthly_compliance_report_rule_arn" {
-  description = "The ARN of the CloudWatch event rule for monthly compliance reports"
-  value       = var.create_monthly_compliance_report ? aws_cloudwatch_event_rule.monthly_compliance_report[0].arn : null
+output "compliance_report_rule_arn" {
+  description = "The ARN of the CloudWatch event rule for compliance reports"
+  value       = var.create_compliance_report ? aws_cloudwatch_event_rule.compliance_report[0].arn : null
 }

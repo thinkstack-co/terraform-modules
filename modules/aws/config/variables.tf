@@ -80,13 +80,13 @@ variable "snapshot_delivery_frequency" {
 }
 
 variable "notification_email" {
-  description = "Email address to receive monthly non-compliance notifications"
+  description = "Email address to receive compliance notifications"
   type        = string
   default     = "support@thinkstack.co"
 }
 
-variable "create_monthly_compliance_report" {
-  description = "Whether to create a monthly compliance report sent via email"
+variable "create_compliance_report" {
+  description = "Whether to create a compliance report sent via email based on the report_frequency setting"
   type        = bool
   default     = true
 }
@@ -110,7 +110,7 @@ variable "report_frequency" {
   default     = "monthly"
   validation {
     condition     = contains(["daily", "weekly", "monthly"], var.report_frequency)
-    error_message = "Report frequency must be one of: daily, weekly, or monthly."
+    error_message = "The report_frequency must be one of: daily, weekly, or monthly."
   }
 }
 
@@ -118,7 +118,7 @@ variable "report_frequency" {
 variable "enable_s3_lifecycle_rules" {
   description = "Whether to enable S3 lifecycle rules for config reports"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "report_retention_days" {
@@ -143,10 +143,4 @@ variable "glacier_retention_days" {
   description = "Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion from Glacier)"
   type        = number
   default     = 730
-}
-
-variable "monthly_folder_format" {
-  description = "Format for the monthly folder names (using strftime format)"
-  type        = string
-  default     = "%Y-%m"
 }
