@@ -9,12 +9,20 @@ locals {
   monthly_folder = formatdate("%Y-%m", timestamp())
   s3_key_prefix_with_date = "${var.s3_key_prefix}/${local.monthly_folder}"
   
+  # For the monthly summary email, calculate the previous month's folder
+  previous_month_timestamp = timeadd(timestamp(), "-744h") # Approximately 31 days back
+  previous_month_folder = formatdate("%Y-%m", local.previous_month_timestamp)
+  previous_month_path = "${var.s3_key_prefix}/${local.previous_month_folder}"
+  
   # Generate the appropriate schedule expression based on report frequency
   report_schedule = var.report_delivery_schedule != "cron(0 8 1 * ? *)" ? var.report_delivery_schedule : (
     var.report_frequency == "daily" ? "cron(0 8 * * ? *)" :  # Daily at 8:00 AM
     var.report_frequency == "weekly" ? "cron(0 8 ? * MON *)" :  # Weekly on Monday at 8:00 AM
     "cron(0 8 1 * ? *)"  # Monthly on the 1st at 8:00 AM (default)
   )
+  
+  # Fixed schedule for the monthly summary email - always on the 1st of the month at 8:15 AM UTC
+  monthly_summary_schedule = "cron(15 8 1 * ? *)"
 }
 
 # Get current AWS account ID
@@ -207,6 +215,33 @@ resource "aws_cloudwatch_event_target" "compliance_report" {
 {
   "Subject": "${local.customer_identifier} - AWS Config ${title(var.report_frequency)} Compliance Report - $(time)",
   "Message": "This is an automated ${var.report_frequency} report of AWS Config compliance status for ${local.customer_identifier}.\n\nReports are stored in S3 bucket: ${aws_s3_bucket.config_bucket.id}/${local.s3_key_prefix_with_date}/\n\nPlease review the AWS Config dashboard for a list of non-compliant resources: https://console.aws.amazon.com/config/home"
+}
+EOF
+  }
+}
+
+# CloudWatch Event Rule for Monthly Summary Email
+resource "aws_cloudwatch_event_rule" "monthly_summary_email" {
+  name                = "${var.config_recorder_name}-monthly-summary-email"
+  description         = "Triggers on the 1st of each month to send a summary email with a link to the previous month's reports"
+  schedule_expression = local.monthly_summary_schedule
+  tags                = var.tags
+}
+
+# CloudWatch Event Target for Monthly Summary Email
+resource "aws_cloudwatch_event_target" "monthly_summary_email" {
+  rule      = aws_cloudwatch_event_rule.monthly_summary_email.name
+  target_id = "SendToSNS"
+  arn       = aws_sns_topic.config_notifications.arn
+  
+  input_transformer {
+    input_paths = {
+      time = "$.time"
+    }
+    input_template = <<EOF
+{
+  "Subject": "${local.customer_identifier} - AWS Config Monthly Summary - $(time)",
+  "Message": "This is an automated monthly summary of AWS Config compliance reports for ${local.customer_identifier}.\n\nAll reports from the previous month (${local.previous_month_folder}) are available in the following S3 location:\n\nBucket: ${aws_s3_bucket.config_bucket.id}\nFolder: ${local.previous_month_path}/\n\nPlease review the AWS Config dashboard for a complete view of your compliance status: https://console.aws.amazon.com/config/home"
 }
 EOF
   }

@@ -274,6 +274,37 @@ For more details on cron expressions, refer to the [AWS CloudWatch Events docume
 All reports are automatically organized into monthly folders using the format `YYYY-MM` (e.g., "2025-03"). 
 This organization applies regardless of the report frequency, making it easy to locate reports for a specific month.
 
+## Email Delivery
+
+The module automatically sends compliance reports via email to the address specified in the `notification_email` variable. Here's how the email delivery works:
+
+1. **Individual Report Emails**: 
+   - Each time a compliance report is generated, an email notification is sent
+   - Contains a link to download the specific compliance report from S3
+   - Follows the schedule defined by `report_frequency` (daily, weekly, or monthly)
+   - Emails arrive around 8:00 AM UTC on the scheduled day
+
+2. **Monthly Summary Email**:
+   - A monthly summary email is automatically sent on the 1st of each month at 8:15 AM UTC
+   - Contains a link to the previous month's folder of reports
+   - For example, on April 1st, you'll receive a summary email with a link to March's reports folder
+   - This summary is sent regardless of your `report_frequency` setting
+   - Provides a convenient way to access all reports from the previous month in one place
+
+3. **Email Content**: Each email includes:
+   - A subject line identifying the AWS account and report type
+   - A link to access the report(s) from S3
+   - The report's expiration date (if lifecycle rules are enabled)
+
+4. **Customization**:
+   - The `customer_name` variable can be set to identify the source of the report
+   - The email subject will include this name (e.g., "Acme Corp - AWS Config Compliance Report")
+
+5. **Report Links**:
+   - Links in the email are pre-signed URLs that provide temporary access to the report
+   - Links expire after 7 days by default
+   - No AWS credentials are required to access the report via the link
+
 ## S3 Lifecycle Management
 
 When enabled, the module can manage the lifecycle of your compliance reports:
@@ -364,8 +395,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+* [Wesley Bey](https://github.com/beywesley)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
