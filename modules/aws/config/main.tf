@@ -6,12 +6,12 @@ locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
   
   # Generate the appropriate S3 key prefix based on report frequency
-  monthly_folder = formatdate("%Y-%m", timestamp())
+  monthly_folder = formatdate("YYYY-MM", timestamp())
   s3_key_prefix_with_date = "${var.s3_key_prefix}/${local.monthly_folder}"
   
   # For the monthly summary email, calculate the previous month's folder
   previous_month_timestamp = timeadd(timestamp(), "-744h") # Approximately 31 days back
-  previous_month_folder = formatdate("%Y-%m", local.previous_month_timestamp)
+  previous_month_folder = formatdate("YYYY-MM", local.previous_month_timestamp)
   previous_month_path = "${var.s3_key_prefix}/${local.previous_month_folder}"
   
   # Generate the appropriate schedule expression based on report frequency
