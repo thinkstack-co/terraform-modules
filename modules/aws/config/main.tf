@@ -335,3 +335,125 @@ resource "aws_config_config_rule" "ebs_encryption" {
 
   depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
 }
+
+# Lambda function for processing Config snapshots
+# This is only created if enable_config_processor is set to true
+resource "aws_lambda_function" "config_processor" {
+  count         = var.enable_config_processor ? 1 : 0
+  function_name = "${var.config_recorder_name}-config-processor"
+  description   = "Processes AWS Config snapshots into readable formats"
+  
+  filename      = "${path.module}/files/config_processor.py.zip"
+  source_code_hash = data.archive_file.config_processor[0].output_base64sha256
+  
+  runtime       = "python3.9"
+  handler       = "config_processor.lambda_handler"
+  timeout       = 300
+  memory_size   = 512
+  
+  role          = aws_iam_role.config_processor[0].arn
+  
+  environment {
+    variables = {
+      GENERATE_SUMMARY = tostring(var.config_processor_generate_summary)
+    }
+  }
+  
+  tags = var.tags
+}
+
+# Archive file for Lambda function
+data "archive_file" "config_processor" {
+  count       = var.enable_config_processor ? 1 : 0
+  type        = "zip"
+  source_file = "${path.module}/files/config_processor.py"
+  output_path = "${path.module}/files/config_processor.py.zip"
+}
+
+# IAM role for the Lambda function
+resource "aws_iam_role" "config_processor" {
+  count       = var.enable_config_processor ? 1 : 0
+  name        = "${var.config_recorder_name}-config-processor-role"
+  description = "Role for the AWS Config snapshot processor Lambda function"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+  
+  tags = var.tags
+}
+
+# IAM policy for the Lambda function
+resource "aws_iam_policy" "config_processor" {
+  count       = var.enable_config_processor ? 1 : 0
+  name        = "${var.config_recorder_name}-config-processor-policy"
+  description = "Policy for the AWS Config snapshot processor Lambda function"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.config_bucket.arn,
+          "${aws_s3_bucket.config_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# Attach the policy to the role
+resource "aws_iam_role_policy_attachment" "config_processor" {
+  count      = var.enable_config_processor ? 1 : 0
+  role       = aws_iam_role.config_processor[0].name
+  policy_arn = aws_iam_policy.config_processor[0].arn
+}
+
+# S3 event notification to trigger Lambda
+resource "aws_s3_bucket_notification" "config_processor" {
+  count  = var.enable_config_processor ? 1 : 0
+  bucket = aws_s3_bucket.config_bucket.id
+  
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.config_processor[0].arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = var.s3_key_prefix
+    filter_suffix       = ".json.json"
+  }
+
+  depends_on = [aws_lambda_permission.config_processor]
+}
+
+# Lambda permission for S3 to invoke the function
+resource "aws_lambda_permission" "config_processor" {
+  count         = var.enable_config_processor ? 1 : 0
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.config_processor[0].function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.config_bucket.arn
+}

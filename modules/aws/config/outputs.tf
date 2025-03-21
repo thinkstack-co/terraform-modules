@@ -53,3 +53,14 @@ output "compliance_report_rule_arn" {
   description = "The ARN of the CloudWatch event rule for compliance reports"
   value       = var.create_compliance_report ? aws_cloudwatch_event_rule.compliance_report[0].arn : null
 }
+
+# Config Processor Outputs
+output "config_processor_lambda_arn" {
+  description = "The ARN of the Lambda function for processing Config snapshots"
+  value       = var.enable_config_processor ? aws_lambda_function.config_processor[0].arn : null
+}
+
+output "config_processor_role_arn" {
+  description = "The ARN of the IAM role for the Config processor Lambda function"
+  value       = var.enable_config_processor ? aws_iam_role.config_processor[0].arn : null
+}

@@ -71,6 +71,8 @@ This Terraform module configures AWS Config to record and evaluate the configura
 - **S3 Lifecycle Management**: Optional lifecycle rules for report retention and Glacier transitions
 - **Config Rules**: Optional IAM password policy and EBS encryption rules
 - **Notifications**: SNS notifications for compliance events
+- **Monthly Summary Email**: Optional monthly summary email with links to the previous month's reports
+- **Config Snapshot Processing**: Optional Lambda function to automatically convert gzipped Config snapshots into readable JSON formats
 
 ## Architecture
 
@@ -118,9 +120,13 @@ module "aws_config" {
   report_retention_days     = 365   # Keep reports for 1 year in standard storage
   enable_glacier_transition = true  # Enable transition to Glacier
   glacier_transition_days   = 90    # Move to Glacier after 90 days
-  glacier_retention_days    = 730   # Delete from Glacier after 2 years
+  glacier_retention_days    = 730   # Keep in Glacier for 2 years
   
-  # Password Policy Rules
+  # Config Snapshot Processing
+  enable_config_processor           = true   # Enable the Lambda function to process Config snapshots
+  config_processor_generate_summary = true   # Generate summary files in addition to formatted files
+  
+  # Config Rules
   enable_config_rules       = true  # Enable AWS Config Rules
   password_min_length       = 16    # Minimum password length
   password_reuse_prevention = 24    # Number of previous passwords that can't be reused
@@ -278,23 +284,21 @@ This organization applies regardless of the report frequency, making it easy to 
 
 The module automatically sends compliance reports via email to the address specified in the `notification_email` variable. Here's how the email delivery works:
 
-1. **Individual Report Emails**: 
-   - Each time a compliance report is generated, an email notification is sent
-   - Contains a link to download the specific compliance report from S3
-   - Follows the schedule defined by `report_frequency` (daily, weekly, or monthly)
-   - Emails arrive around 8:00 AM UTC on the scheduled day
-
-2. **Monthly Summary Email**:
-   - A monthly summary email is automatically sent on the 1st of each month at 8:15 AM UTC
-   - Contains a link to the previous month's folder of reports
-   - For example, on April 1st, you'll receive a summary email with a link to March's reports folder
-   - This summary is sent regardless of your `report_frequency` setting
-   - Provides a convenient way to access all reports from the previous month in one place
-
-3. **Email Content**: Each email includes:
+1. **Email Content**: Each email includes:
    - A subject line identifying the AWS account and report type
-   - A link to access the report(s) from S3
+   - A link to download the compliance report from S3
    - The report's expiration date (if lifecycle rules are enabled)
+
+2. **Delivery Timing**: 
+   - Emails are sent shortly after the report is generated according to the schedule
+   - For daily reports: Emails arrive around 8:00 AM UTC each day
+   - For weekly reports: Emails arrive around 8:00 AM UTC each Monday
+   - For monthly reports: Emails arrive around 8:00 AM UTC on the 1st of each month
+
+3. **Monthly Summary Email**:
+   - An additional monthly summary email is sent on the 1st of each month at 8:15 AM UTC
+   - This email contains a link to the previous month's folder of reports
+   - For example, on April 1st, you'll receive a summary with a link to all March reports
 
 4. **Customization**:
    - The `customer_name` variable can be set to identify the source of the report
@@ -304,6 +308,38 @@ The module automatically sends compliance reports via email to the address speci
    - Links in the email are pre-signed URLs that provide temporary access to the report
    - Links expire after 7 days by default
    - No AWS credentials are required to access the report via the link
+
+## Config Snapshot Processing
+
+AWS Config snapshots are stored in S3 as gzipped JSON files, which can be difficult to read and analyze. This module includes an optional Lambda function that automatically processes these files to make them more accessible:
+
+1. **How It Works**:
+   - When a new Config snapshot is uploaded to S3, the Lambda function is triggered
+   - The function decompresses the gzipped file and formats the JSON for readability
+   - The formatted JSON is saved alongside the original file with a `_formatted.json` suffix
+   - Optionally, a summary file with resource counts is generated with a `_summary.json` suffix
+
+2. **Benefits**:
+   - Preserves the original gzipped files for compliance and archival purposes
+   - Provides human-readable versions for easier analysis and troubleshooting
+   - Summary files offer a quick overview of resources in your AWS environment
+   - All processing happens automatically without manual intervention
+
+3. **Enabling the Feature**:
+   - This feature is disabled by default (following the opt-in architecture)
+   - Enable it by setting `enable_config_processor = true` in your module configuration
+   - Control summary generation with `config_processor_generate_summary` (defaults to true)
+
+4. **Resource Organization**:
+   - Processed files are stored in the same S3 location as the original snapshots
+   - Example: If the original file is `s3://bucket/config/2025-03/snapshot.json.json`
+   - The formatted file will be `s3://bucket/config/2025-03/snapshot_formatted.json`
+   - The summary file will be `s3://bucket/config/2025-03/snapshot_summary.json`
+
+5. **Security and Permissions**:
+   - The Lambda function has minimal permissions following the principle of least privilege
+   - It can only access the Config S3 bucket and write CloudWatch logs
+   - All processing happens within your AWS account with no external dependencies
 
 ## S3 Lifecycle Management
 
@@ -358,6 +394,8 @@ To disable automatic deletion, set `report_retention_days = 0`.
 | <a name="input_enable_glacier_transition"></a> [enable\_glacier\_transition](#input\_enable\_glacier\_transition) | Whether to transition config reports to Glacier storage class | `bool` | `false` | no |
 | <a name="input_glacier_transition_days"></a> [glacier\_transition\_days](#input\_glacier\_transition\_days) | Number of days after which to transition config reports to Glacier storage class | `number` | `90` | no |
 | <a name="input_glacier_retention_days"></a> [glacier\_retention\_days](#input\_glacier\_retention\_days) | Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion) | `number` | `730` | no |
+| <a name="input_enable_config_processor"></a> [enable\_config\_processor](#input\_enable\_config\_processor) | Enable the Lambda function that processes Config snapshots into readable formats | `bool` | `false` | no |
+| <a name="input_config_processor_generate_summary"></a> [config\_processor\_generate\_summary](#input\_config\_processor\_generate\_summary) | Whether the Config processor Lambda should generate summary files in addition to formatted files | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
 
 ## Outputs
@@ -371,6 +409,8 @@ To disable automatic deletion, set `report_retention_days = 0`.
 | <a name="output_config_recorder_id"></a> [config\_recorder\_id](#output\_config\_recorder\_id) | The ID of the AWS Config recorder |
 | <a name="output_config_rules_arns"></a> [config\_rules\_arns](#output\_config\_rules\_arns) | Map of all Config rules ARNs |
 | <a name="output_compliance_report_rule_arn"></a> [compliance\_report\_rule\_arn](#output\_compliance\_report\_rule\_arn) | The ARN of the CloudWatch event rule for compliance reports |
+| <a name="output_config_processor_lambda_arn"></a> [config\_processor\_lambda\_arn](#output\_config\_processor\_lambda\_arn) | The ARN of the Lambda function for processing Config snapshots |
+| <a name="output_config_processor_role_arn"></a> [config\_processor\_role\_arn](#output\_config\_processor\_role\_arn) | The ARN of the IAM role for the Config processor Lambda function |
 | <a name="output_delivery_channel_id"></a> [delivery\_channel\_id](#output\_delivery\_channel\_id) | The ID of the AWS Config delivery channel |
 | <a name="output_ebs_encryption_rule_arn"></a> [ebs\_encryption\_rule\_arn](#output\_ebs\_encryption\_rule\_arn) | The ARN of the EBS encryption Config rule |
 | <a name="output_password_policy_rule_arn"></a> [password\_policy\_rule\_arn](#output\_password\_policy\_rule\_arn) | The ARN of the IAM password policy Config rule |

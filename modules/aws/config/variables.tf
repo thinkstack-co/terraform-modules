@@ -144,3 +144,15 @@ variable "glacier_retention_days" {
   type        = number
   default     = 730
 }
+
+variable "enable_config_processor" {
+  description = "Enable the Lambda function that processes Config snapshots into readable formats"
+  type        = bool
+  default     = false
+}
+
+variable "config_processor_generate_summary" {
+  description = "Whether the Config processor Lambda should generate summary files in addition to formatted files"
+  type        = bool
+  default     = true
+}
