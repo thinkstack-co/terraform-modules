@@ -142,6 +142,9 @@ module "aws_config" {
 
   config_recorder_name = "prod-config-recorder"
   notification_email   = "alerts@example.com"
+  
+  # Enable Config snapshot processing
+  enable_config_processor = true
 }
 ```
 
