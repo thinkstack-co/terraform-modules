@@ -158,11 +158,15 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Modules
 
@@ -170,15 +174,17 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_cloudwatch_metric_alarm.instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.system](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_instance.ec2_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
-| [aws_vpc_dhcp_options.dc_dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_dhcp_options) | resource |
-| [aws_vpc_dhcp_options_association.dc_dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_dhcp_options_association) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| Name | Type | Documentation |
+|------|------|--------------|
+| [aws_cloudwatch_metric_alarm.instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource | [AWS Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) |
+| [aws_cloudwatch_metric_alarm.system](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource | [AWS Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) |
+| [aws_instance.ec2_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource | [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html) |
+| [aws_vpc_dhcp_options.dc_dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_dhcp_options) | resource | [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html) |
+| [aws_vpc_dhcp_options_association.dc_dns](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_dhcp_options_association) | resource | [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_DHCP_Options.html) |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source | [AWS Documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html) |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source | [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
@@ -219,12 +225,14 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_dhcp_options_id"></a> [dhcp\_options\_id](#output\_dhcp\_options\_id) | n/a |
-| <a name="output_ec2_instance_id"></a> [ec2\_instance\_id](#output\_ec2\_instance\_id) | n/a |
-| <a name="output_ec2_instance_priv_ip"></a> [ec2\_instance\_priv\_ip](#output\_ec2\_instance\_priv\_ip) | n/a |
-| <a name="output_ec2_instance_pub_ip"></a> [ec2\_instance\_pub\_ip](#output\_ec2\_instance\_pub\_ip) | n/a |
-| <a name="output_ec2_instance_security_groups"></a> [ec2\_instance\_security\_groups](#output\_ec2\_instance\_security\_groups) | n/a |
-| <a name="output_ec2_instance_subnet_id"></a> [ec2\_instance\_subnet\_id](#output\_ec2\_instance\_subnet\_id) | n/a |
+| <a name="output_dhcp_options_id"></a> [dhcp\_options\_id](#output\_dhcp\_options\_id) | The ID of the DHCP Options Set |
+| <a name="output_ec2_instance_id"></a> [ec2\_instance\_id](#output\_ec2\_instance\_id) | The ID of the EC2 instance |
+| <a name="output_ec2_instance_priv_ip"></a> [ec2\_instance\_priv\_ip](#output\_ec2\_instance\_priv\_ip) | The private IP address of the EC2 instance |
+| <a name="output_ec2_instance_pub_ip"></a> [ec2\_instance\_pub\_ip](#output\_ec2\_instance\_pub\_ip) | The public IP address of the EC2 instance |
+| <a name="output_ec2_instance_security_groups"></a> [ec2\_instance\_security\_groups](#output\_ec2\_instance\_security\_groups) | The security groups attached to the EC2 instance |
+| <a name="output_ec2_instance_subnet_id"></a> [ec2\_instance\_subnet\_id](#output\_ec2\_instance\_subnet\_id) | The subnet ID the EC2 instance was launched in |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
@@ -233,8 +241,6 @@ No modules.
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- CONTACT -->
 ## Contact
@@ -245,16 +251,14 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
+* [Wesley Bey](https://github.com/beywesley)
 * [Zachary Hill](https://zacharyhill.co)
 * [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

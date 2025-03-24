@@ -37,12 +37,6 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "number" {
-  type        = number
-  description = "Number of instances to launch"
-  default     = 1
-}
-
 variable "disable_api_termination" {
   type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
@@ -114,13 +108,17 @@ variable "monitoring" {
 
 variable "name" {
   type        = string
-  description = "Name to be used on all resources as prefix"
+  description = "Name to be used on EC2 instance created"
+  validation {
+    condition     = length(var.name) > 0
+    error_message = "The name must not be empty."
+  }
 }
 
 variable "placement_group" {
   type        = string
   description = "The Placement Group to start the instance in"
-  default     = ""
+  default     = null
 }
 
 variable "private_ip" {
@@ -234,4 +232,48 @@ variable "root_volume_throughput" {
   description = "Throughput for the root volume of the EC2 instance."
   type        = number
   default     = 125
+}
+
+variable "disable_recovery_actions" {
+  type        = bool
+  description = "(Optional) If true, disables CloudWatch alarm recovery actions regardless of instance type. Use this when you know your instances don't support recovery actions (e.g., instances in Auto Scaling groups, on Dedicated Hosts, or using Elastic Fabric Adapter)."
+  default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.disable_recovery_actions))
+    error_message = "The value must be either true or false."
+  }
+}
+
+variable "additional_unsupported_instance_types" {
+  type        = list(string)
+  description = "(Optional) List of additional instance types that don't support CloudWatch recovery actions. This extends the built-in list in the module."
+  default     = []
+}
+
+variable "ephemeral_block_device" {
+  type        = list(map(string))
+  description = "(Optional) Customize Ephemeral (also known as Instance Store) volumes on the instance. This is used to check if recovery actions should be disabled for certain instance types with ephemeral storage."
+  default     = []
+}
+
+variable "uses_efa" {
+  type        = bool
+  description = "(Optional) Indicates whether the instance uses an Elastic Fabric Adapter (EFA). Set to true if using EFA, which doesn't support recovery actions."
+  default     = false
+  validation {
+    condition     = can(regex("^(true|false)$", var.uses_efa))
+    error_message = "The value must be either true or false."
+  }
+}
+
+variable "network_interface" {
+  type        = map(any)
+  description = "(Optional) Customize network interfaces to be attached at instance boot time."
+  default     = null
+}
+
+variable "host_id" {
+  type        = string
+  description = "(Optional) ID of a dedicated host that the instance will be assigned to. Use when an instance is to be launched on a specific dedicated host."
+  default     = null
 }
