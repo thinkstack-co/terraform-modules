@@ -67,28 +67,10 @@ variable "s3_key_prefix" {
   default     = "config"
 }
 
-variable "sns_topic_arn" {
-  description = "The ARN of the SNS topic that AWS Config delivers notifications to"
-  type        = string
-  default     = null
-}
-
 variable "snapshot_delivery_frequency" {
   description = "The frequency with which AWS Config delivers configuration snapshots (One_Hour, Three_Hours, Six_Hours, Twelve_Hours, TwentyFour_Hours)"
   type        = string
   default     = "TwentyFour_Hours"
-}
-
-variable "notification_email" {
-  description = "Email address to receive compliance notifications"
-  type        = string
-  default     = "support@thinkstack.co"
-}
-
-variable "create_compliance_report" {
-  description = "Whether to create a compliance report sent via email based on the report_frequency setting"
-  type        = bool
-  default     = true
 }
 
 variable "customer_name" {
@@ -143,16 +125,4 @@ variable "glacier_retention_days" {
   description = "Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion from Glacier)"
   type        = number
   default     = 730
-}
-
-variable "enable_config_processor" {
-  description = "Enable the Lambda function that processes Config snapshots into readable formats"
-  type        = bool
-  default     = false
-}
-
-variable "config_processor_generate_summary" {
-  description = "Whether the Config processor Lambda should generate summary files in addition to formatted files"
-  type        = bool
-  default     = true
 }
