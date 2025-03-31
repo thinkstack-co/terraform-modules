@@ -4,22 +4,6 @@
 # Local variables
 locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
-  
-  # Generate the appropriate S3 key prefix based on report frequency
-  monthly_folder = formatdate("YYYY-MM", timestamp())
-  s3_key_prefix_with_date = "${var.s3_key_prefix}/${local.monthly_folder}"
-  
-  # For the monthly summary email, calculate the previous month's folder
-  previous_month_timestamp = timeadd(timestamp(), "-744h") # Approximately 31 days back
-  previous_month_folder = formatdate("YYYY-MM", local.previous_month_timestamp)
-  previous_month_path = "${var.s3_key_prefix}/${local.previous_month_folder}"
-  
-  # Generate the appropriate schedule expression based on report frequency
-  report_schedule = var.report_delivery_schedule != "cron(0 8 1 * ? *)" ? var.report_delivery_schedule : (
-    var.report_frequency == "daily" ? "cron(0 8 * * ? *)" :  # Daily at 8:00 AM
-    var.report_frequency == "weekly" ? "cron(0 8 ? * MON *)" :  # Weekly on Monday at 8:00 AM
-    "cron(0 8 1 * ? *)"  # Monthly on the 1st at 8:00 AM (default)
-  )
 }
 
 # Get current AWS account ID
@@ -123,7 +107,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
     }
   }
 
-  # If Glacier transition is enabled and we have a separate Glacier retention period
   dynamic "rule" {
     for_each = var.enable_glacier_transition && var.glacier_retention_days > 0 ? [1] : []
     content {
@@ -150,7 +133,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
 resource "aws_config_delivery_channel" "config" {
   name           = var.config_recorder_name
   s3_bucket_name = aws_s3_bucket.config_bucket.id
-  s3_key_prefix  = local.s3_key_prefix_with_date
+  s3_key_prefix  = var.s3_key_prefix
 
   snapshot_delivery_properties {
     delivery_frequency = var.snapshot_delivery_frequency

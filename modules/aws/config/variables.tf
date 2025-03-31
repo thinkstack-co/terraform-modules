@@ -62,7 +62,7 @@ variable "recording_frequency" {
 }
 
 variable "s3_key_prefix" {
-  description = "The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files"
+  description = "The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files. AWS Config will append its standard structure under this prefix (AWSLogs/[account_id]/Config/[region]/YYYY/M/D)."
   type        = string
   default     = "config"
 }
@@ -77,23 +77,6 @@ variable "customer_name" {
   description = "Name of the customer whose AWS account this is being deployed in, used to identify the source of compliance reports"
   type        = string
   default     = ""
-}
-
-# Report Delivery Configuration
-variable "report_delivery_schedule" {
-  description = "Cron expression for when to deliver the config report (default is 8:00 AM on the 1st day of every month)"
-  type        = string
-  default     = "cron(0 8 1 * ? *)"
-}
-
-variable "report_frequency" {
-  description = "Frequency of config report generation (daily, weekly, or monthly)"
-  type        = string
-  default     = "monthly"
-  validation {
-    condition     = contains(["daily", "weekly", "monthly"], var.report_frequency)
-    error_message = "The report_frequency must be one of: daily, weekly, or monthly."
-  }
 }
 
 # S3 Lifecycle Configuration
