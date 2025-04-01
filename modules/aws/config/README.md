@@ -25,7 +25,7 @@
 
 <h3 align="center">AWS Config Module</h3>
   <p align="center">
-    Module for deploying AWS Config with configuration recorder, delivery channel, and config rules
+    Module for deploying AWS Config with configuration recorder, delivery channel to S3, and optional config rules.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -60,312 +60,153 @@
 <!-- BEGIN_TF_DOCS -->
 # AWS Config Module
 
-This Terraform module configures AWS Config to record and evaluate the configuration of your AWS resources. It provides compliance monitoring, resource inventory, and configuration history tracking.
+This Terraform module configures AWS Config to record and evaluate the configuration of your AWS resources. It establishes continuous monitoring, resource inventory, and configuration history tracking, storing data in an S3 bucket.
 
 ## Features
 
-- **AWS Config Recorder**: Records configuration changes for AWS resources
-- **Delivery Channel**: Delivers configuration snapshots and history to S3
-- **Compliance Reporting**: Generates configurable compliance reports (daily, weekly, or monthly)
-- **Automatic Folder Organization**: Organizes reports into monthly folders (YYYY-MM format)
-- **S3 Lifecycle Management**: Optional lifecycle rules for report retention and Glacier transitions
-- **Config Rules**: Optional IAM password policy and EBS encryption rules
-- **Notifications**: SNS notifications for compliance events
-- **Monthly Summary Email**: Optional monthly summary email with links to the previous month's reports
-- **Config Snapshot Processing**: Optional Lambda function to automatically convert gzipped Config snapshots into readable JSON formats
+*   Sets up AWS Config Configuration Recorder and Delivery Channel.
+*   Creates an S3 bucket for storing configuration snapshots and history.
+*   Records specific resource types (`AWS::EC2::Volume`, `AWS::IAM::User`) required for the optional rules, including global IAM types.
+*   Optionally enables AWS Managed Config rules:
+    *   `IAM_PASSWORD_POLICY`: Checks account password policy.
+    *   `ENCRYPTED_VOLUMES`: Checks if attached EBS volumes are encrypted.
+*   Optionally deploys a Lambda function to generate scheduled PDF compliance reports summarizing the status of Config Rules and storing them in the Config S3 bucket.
 
 ## Architecture
 
 The module follows an opt-in architecture where:
-- Basic AWS Config recording is enabled by default
-- Additional features like compliance reports and lifecycle rules are disabled by default
-- Resources are only created when explicitly enabled via variables
+- Basic AWS Config recording to S3 is enabled by default.
+- Additional features like AWS Config Rules and S3 lifecycle management are disabled by default and can be enabled via input variables.
+- Resources are only created when explicitly enabled.
 
 ## Usage
 
-### Complete Example with All Options
+### Basic Example (Core Recording to S3)
 
 ```hcl
 module "aws_config" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
 
-  # Basic Configuration
-  config_recorder_name         = "example-config-recorder"
-  config_bucket_prefix         = "example-config-recordings-"
-  config_iam_role_name         = "example-config-role"
-  include_global_resource_types = true
+  # Required names (can use defaults)
+  config_recorder_name = "my-config-recorder"
+  config_bucket_prefix = "my-config-recordings-"
+  config_iam_role_name = "my-config-role"
+
+  # Optional: Add tags
   tags = {
     Environment = "Production"
-    Owner       = "Operations"
     Terraform   = "true"
   }
-
-  # AWS Config Recording Settings
-  recording_frequency         = "DAILY"  # How often AWS Config records configuration changes
-  snapshot_delivery_frequency = "TwentyFour_Hours"  # How often AWS Config delivers snapshots
-  s3_key_prefix               = "config"  # Base prefix for S3 bucket
-  
-  # Report Delivery Configuration
-  create_compliance_report = true  # Whether to create compliance reports
-  report_frequency         = "monthly"  # Options: daily, weekly, monthly
-  report_delivery_schedule = "cron(0 8 1 * ? *)"  # 8:00 AM on the 1st day of every month
-  
-  # Notification Settings
-  notification_email = "alerts@example.com"  # Email to receive notifications
-  sns_topic_arn      = null  # Optional external SNS topic ARN (null to create a new one)
-  customer_name      = "Acme Corp"  # Used in notification subjects
-  
-  # S3 Lifecycle Configuration
-  enable_s3_lifecycle_rules = true  # Enable S3 lifecycle rules
-  report_retention_days     = 365   # Keep reports for 1 year in standard storage
-  enable_glacier_transition = true  # Enable transition to Glacier
-  glacier_transition_days   = 90    # Move to Glacier after 90 days
-  glacier_retention_days    = 730   # Keep in Glacier for 2 years
-  
-  # Config Snapshot Processing
-  enable_config_processor           = true   # Enable the Lambda function to process Config snapshots
-  config_processor_generate_summary = true   # Generate summary files in addition to formatted files
-  
-  # Config Rules
-  enable_config_rules       = true  # Enable AWS Config Rules
-  password_min_length       = 16    # Minimum password length
-  password_reuse_prevention = 24    # Number of previous passwords that can't be reused
-  password_max_age          = 45    # Days before password must be changed
 }
 ```
 
-### Basic Example
+### Example with Config Rules Enabled
 
 ```hcl
 module "aws_config" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
 
   config_recorder_name = "prod-config-recorder"
-  notification_email   = "alerts@example.com"
-  
-  # Enable Config snapshot processing
-  enable_config_processor = true
+
+  # Enable Config Rules
+  enable_config_rules       = true
+  password_min_length       = 16  # Customize password policy rules
+  password_reuse_prevention = 24
+  password_max_age          = 45
+
+  tags = {
+    CostCenter = "IT-Security"
+  }
 }
 ```
 
-### Example with Daily Reports and 30-Day Retention
+### Example with S3 Lifecycle Rules (Retention & Glacier)
 
 ```hcl
 module "aws_config" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
 
-  config_recorder_name    = "prod-config-recorder"
-  notification_email      = "alerts@example.com"
-  
-  # Configure daily reports
-  create_compliance_report = true
-  report_frequency        = "daily"
-  
-  # Set 30-day retention with no Glacier transition
+  config_recorder_name = "prod-config-recorder"
+
+  # Configure S3 Lifecycle
   enable_s3_lifecycle_rules = true
-  report_retention_days     = 30
-  enable_glacier_transition = false
+  report_retention_days     = 365   # Keep data for 1 year in standard storage
+  enable_glacier_transition = true  # Enable transition to Glacier Deep Archive
+  glacier_transition_days   = 90    # Move to Glacier after 90 days
+  glacier_retention_days    = 2555  # Keep in Glacier for 7 years (approx)
 }
 ```
 
-### Example with Weekly Reports and Glacier Archiving
+### Example 2: Enabling Compliance Reporter with Custom Settings
 
 ```hcl
-module "aws_config" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/config"
+module "aws_config_with_reporter" {
+  source = "../../modules/aws/config" # Adjust path as needed
 
-  config_recorder_name    = "prod-config-recorder"
-  notification_email      = "alerts@example.com"
-  
-  # Configure weekly reports on Mondays
-  create_compliance_report = true
-  report_frequency        = "weekly"
-  
-  # Set up Glacier archiving
-  enable_s3_lifecycle_rules = true
-  report_retention_days     = 0  # Don't delete from standard storage
-  enable_glacier_transition = true
-  glacier_transition_days   = 30  # Move to Glacier after 30 days
-  glacier_retention_days    = 365 # Delete from Glacier after 1 year
+  config_recorder_name = "my-app-config-recorder-with-report"
+  config_iam_role_name = "my-app-config-role-with-report"
+  config_bucket_prefix = "my-app-config-delivery-"
+
+  # Enable the core rules
+  enable_config_rules = true
+
+  # Enable and configure the compliance reporter
+  enable_compliance_reporter = true
+  reporter_schedule_expression = "cron(0 8 ? * MON *)" # Run every Monday at 8 AM UTC
+  reporter_output_s3_prefix  = "compliance-reports/weekly/"
+  reporter_lambda_memory_size = 512 # Increase memory
+  reporter_lambda_timeout     = 180 # Increase timeout
+
+  tags = {
+    Environment = "production"
+    Project     = "ComplianceReporting"
+  }
 }
 ```
 
-_For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
+_For detailed variable and output descriptions, please refer to the Inputs and Outputs sections below (these are auto-generated by terraform-docs)._
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Report Delivery Schedule
+## Resources
 
-The module automatically sets appropriate CloudWatch Event schedules based on the `report_frequency`:
-
-- **daily**: Runs at 8:00 AM every day (`cron(0 8 * * ? *)`)
-- **weekly**: Runs at 8:00 AM every Monday (`cron(0 8 ? * MON *)`)
-- **monthly**: Runs at 8:00 AM on the 1st of every month (`cron(0 8 1 * ? *)`)
-
-You can override these defaults by setting the `report_delivery_schedule` variable with your own cron expression.
-
-### Customizing Cron Expressions
-
-AWS CloudWatch Events uses a cron expression format with six required fields:
-
-```
-cron(minutes hours day-of-month month day-of-week year)
-```
-
-Here's how to customize each part of the cron expression:
-
-#### Daily Reports
-
-Default: `cron(0 8 * * ? *)`
-- `0` - Minutes (0-59)
-- `8` - Hours (0-23) in UTC
-- `*` - Any day of month
-- `*` - Any month
-- `?` - No specific day of week
-- `*` - Any year
-
-To change the time to 2:30 PM UTC:
-```
-cron(30 14 * * ? *)
-```
-
-#### Weekly Reports
-
-Default: `cron(0 8 ? * MON *)`
-- `0` - Minutes (0-59)
-- `8` - Hours (0-23) in UTC
-- `?` - No specific day of month
-- `*` - Any month
-- `MON` - Monday (options: SUN, MON, TUE, WED, THU, FRI, SAT)
-- `*` - Any year
-
-To change to Friday at 9:15 AM UTC:
-```
-cron(15 9 ? * FRI *)
-```
-
-#### Monthly Reports
-
-Default: `cron(0 8 1 * ? *)`
-- `0` - Minutes (0-59)
-- `8` - Hours (0-23) in UTC
-- `1` - Day 1 of the month
-- `*` - Any month
-- `?` - No specific day of week
-- `*` - Any year
-
-To change to the 15th of each month at 12:00 PM UTC:
-```
-cron(0 12 15 * ? *)
-```
-
-#### Quarterly Reports
-
-To run on the first day of each quarter (Jan, Apr, Jul, Oct) at 8:00 AM UTC:
-```
-cron(0 8 1 1,4,7,10 ? *)
-```
-
-#### Notes on Cron Expressions
-
-- The `?` character is required in either the day-of-month or day-of-week field (but not both)
-- All times are in UTC
-- For day-of-week, both 1-7 (where 1 is Sunday) or SUN-SAT can be used
-- Use commas to specify multiple values (e.g., `MON,WED,FRI`)
-- Use hyphens for ranges (e.g., `1-15` for first half of the month)
-- Use asterisk `*` to include all values
-- Use forward slash with a number for "every x" (e.g., `*/2` for every 2nd value)
-
-For more details on cron expressions, refer to the [AWS CloudWatch Events documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html).
-
-## Report Storage Organization
-
-All reports are automatically organized into monthly folders using the format `YYYY-MM` (e.g., "2025-03"). 
-This organization applies regardless of the report frequency, making it easy to locate reports for a specific month.
-
-## Email Delivery
-
-The module automatically sends compliance reports via email to the address specified in the `notification_email` variable. Here's how the email delivery works:
-
-1. **Email Content**: Each email includes:
-   - A subject line identifying the AWS account and report type
-   - A link to download the compliance report from S3
-   - The report's expiration date (if lifecycle rules are enabled)
-
-2. **Delivery Timing**: 
-   - Emails are sent shortly after the report is generated according to the schedule
-   - For daily reports: Emails arrive around 8:00 AM UTC each day
-   - For weekly reports: Emails arrive around 8:00 AM UTC each Monday
-   - For monthly reports: Emails arrive around 8:00 AM UTC on the 1st of each month
-
-3. **Monthly Summary Email**:
-   - An additional monthly summary email is sent on the 1st of each month at 8:15 AM UTC
-   - This email contains a link to the previous month's folder of reports
-   - For example, on April 1st, you'll receive a summary with a link to all March reports
-
-4. **Customization**:
-   - The `customer_name` variable can be set to identify the source of the report
-   - The email subject will include this name (e.g., "Acme Corp - AWS Config Compliance Report")
-
-5. **Report Links**:
-   - Links in the email are pre-signed URLs that provide temporary access to the report
-   - Links expire after 7 days by default
-   - No AWS credentials are required to access the report via the link
-
-## Config Snapshot Processing
-
-AWS Config snapshots are stored in S3 as gzipped JSON files, which can be difficult to read and analyze. This module includes an optional Lambda function that automatically processes these files to make them more accessible:
-
-1. **How It Works**:
-   - When a new Config snapshot is uploaded to S3, the Lambda function is triggered
-   - The function decompresses the gzipped file and formats the JSON for readability
-   - The formatted JSON is saved alongside the original file with a `_formatted.json` suffix
-   - Optionally, a summary file with resource counts is generated with a `_summary.json` suffix
-
-2. **Benefits**:
-   - Preserves the original gzipped files for compliance and archival purposes
-   - Provides human-readable versions for easier analysis and troubleshooting
-   - Summary files offer a quick overview of resources in your AWS environment
-   - All processing happens automatically without manual intervention
-
-3. **Enabling the Feature**:
-   - This feature is disabled by default (following the opt-in architecture)
-   - Enable it by setting `enable_config_processor = true` in your module configuration
-   - Control summary generation with `config_processor_generate_summary` (defaults to true)
-
-4. **Resource Organization**:
-   - Processed files are stored in the same S3 location as the original snapshots
-   - Example: If the original file is `s3://bucket/config/2025-03/snapshot.json.json`
-   - The formatted file will be `s3://bucket/config/2025-03/snapshot_formatted.json`
-   - The summary file will be `s3://bucket/config/2025-03/snapshot_summary.json`
-
-5. **Security and Permissions**:
-   - The Lambda function has minimal permissions following the principle of least privilege
-   - It can only access the Config S3 bucket and write CloudWatch logs
-   - All processing happens within your AWS account with no external dependencies
-
-## S3 Lifecycle Management
-
-When enabled, the module can manage the lifecycle of your compliance reports:
-
-1. **Standard Storage**: Reports are initially stored in S3 Standard
-2. **Optional Glacier Transition**: Reports can transition to Glacier after a specified number of days
-3. **Optional Expiration**: Reports can be deleted after a specified retention period
-
-To disable automatic deletion, set `report_retention_days = 0`.
+| Name | Type | Documentation |
+|------|------|---------------|
+| [aws_config_configuration_recorder.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_configuration_recorder) | resource | [AWS Config Recorder Docs](https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#config-recorder) |
+| [aws_config_config_rule.ebs_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule) | resource | [AWS Config Rules Docs](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html) |
+| [aws_config_config_rule.iam_password_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule) | resource | [AWS Config Rules Docs](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html) |
+| [aws_config_delivery_channel.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_delivery_channel) | resource | [AWS Config Delivery Channel Docs](https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#delivery-channel) |
+| [aws_config_configuration_recorder_status.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_configuration_recorder_status) | resource | [AWS Config Recorder Status Docs](https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html) |
+| [aws_iam_role.config_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | [AWS IAM Roles Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) |
+| [aws_iam_role_policy_attachment.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource | [AWS IAM Policy Attachment Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage-attach-detach.html#add-policies-console) |
+| [aws_s3_bucket.config_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource | [AWS S3 Bucket Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-buckets.html) |
+| [aws_s3_bucket_lifecycle_configuration.config_lifecycle](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource | [AWS S3 Lifecycle Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html) |
+| [aws_s3_bucket_policy.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource | [AWS S3 Policy Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html) |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source | [AWS STS Caller Identity Docs](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html) |
+| [aws_iam_policy_document.config_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_iam_policy_document.config_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_iam_policy_document.reporter_lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | *(conditional)* [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_iam_policy_document.reporter_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | *(conditional)* [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_iam_role.reporter_lambda_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | *(conditional)* [AWS IAM Roles Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) |
+| [aws_iam_role_policy.reporter_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource | *(conditional)* [AWS IAM Role Policy Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) |
+| [aws_lambda_function.compliance_reporter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource | *(conditional)* [AWS Lambda Function Docs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-functions.html) |
+| [aws_cloudwatch_event_rule.reporter_schedule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource | *(conditional)* [CloudWatch Event Rule Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html) |
+| [aws_cloudwatch_event_target.reporter_lambda_target](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource | *(conditional)* [CloudWatch Event Target Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html) |
+| [aws_lambda_permission.allow_cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource | *(conditional)* [Lambda Permission Docs](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html) |
+| [archive_file.lambda_compliance_reporter_zip](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file) | data source | *(conditional)* [Archive File Data Source Docs](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file) |
 
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
 
 ## Inputs
 
@@ -375,7 +216,6 @@ To disable automatic deletion, set `report_retention_days = 0`.
 | <a name="input_config_iam_role_name"></a> [config\_iam\_role\_name](#input\_config\_iam\_role\_name) | The name of the IAM role that AWS Config will use to make read or write requests to the delivery channel and to call AWS Config API operations | `string` | `"aws-config-role"` | no |
 | <a name="input_config_recorder_name"></a> [config\_recorder\_name](#input\_config\_recorder\_name) | The name of the AWS Config recorder | `string` | `"aws-config-recorder"` | no |
 | <a name="input_enable_config_rules"></a> [enable\_config\_rules](#input\_enable\_config\_rules) | Whether to enable AWS Config rules | `bool` | `false` | no |
-| <a name="input_include_global_resource_types"></a> [include\_global\_resource\_types](#input\_include\_global\_resource\_types) | Whether to include global resource types in AWS Config recording | `bool` | `true` | no |
 | <a name="input_password_max_age"></a> [password\_max\_age](#input\_password\_max\_age) | The maximum age in days for IAM user passwords | `number` | `90` | no |
 | <a name="input_password_min_length"></a> [password\_min\_length](#input\_password\_min\_length) | The minimum length for IAM user passwords | `number` | `14` | no |
 | <a name="input_password_require_lowercase"></a> [password\_require\_lowercase](#input\_password\_require\_lowercase) | Whether IAM user passwords must contain at least one lowercase letter | `bool` | `true` | no |
@@ -385,21 +225,17 @@ To disable automatic deletion, set `report_retention_days = 0`.
 | <a name="input_password_reuse_prevention"></a> [password\_reuse\_prevention](#input\_password\_reuse\_prevention) | The number of previous passwords that IAM users are prevented from reusing | `number` | `24` | no |
 | <a name="input_recording_frequency"></a> [recording\_frequency](#input\_recording\_frequency) | The frequency with which AWS Config records configuration changes (CONTINUOUS or DAILY) | `string` | `"CONTINUOUS"` | no |
 | <a name="input_s3_key_prefix"></a> [s3\_key\_prefix](#input\_s3\_key\_prefix) | The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files | `string` | `"config"` | no |
-| <a name="input_sns_topic_arn"></a> [sns\_topic\_arn](#input\_sns\_topic\_arn) | The ARN of the SNS topic that AWS Config delivers notifications to | `string` | `null` | no |
-| <a name="input_snapshot_delivery_frequency"></a> [snapshot\_delivery\_frequency](#input\_snapshot\_delivery\_frequency) | The frequency with which AWS Config delivers configuration snapshots (One_Hour, Three_Hours, Six_Hours, Twelve_Hours, TwentyFour_Hours) | `string` | `"TwentyFour_Hours"` | no |
-| <a name="input_notification_email"></a> [notification\_email](#input\_notification\_email) | Email address to receive compliance notifications | `string` | `"support@thinkstack.co"` | no |
-| <a name="input_create_compliance_report"></a> [create\_compliance\_report](#input\_create\_compliance\_report) | Whether to create a compliance report sent via email based on the report_frequency setting | `bool` | `true` | no |
-| <a name="input_customer_name"></a> [customer\_name](#input\_customer\_name) | Name of the customer whose AWS account this is being deployed in, used to identify the source of compliance reports | `string` | `""` | no |
-| <a name="input_report_delivery_schedule"></a> [report\_delivery\_schedule](#input\_report\_delivery\_schedule) | Cron expression for when to deliver the config report (default is 8:00 AM on the 1st day of every month) | `string` | `"cron(0 8 1 * ? *)"` | no |
-| <a name="input_report_frequency"></a> [report\_frequency](#input\_report\_frequency) | Frequency of config report generation (daily, weekly, or monthly) | `string` | `"monthly"` | no |
 | <a name="input_enable_s3_lifecycle_rules"></a> [enable\_s3\_lifecycle\_rules](#input\_enable\_s3\_lifecycle\_rules) | Whether to enable S3 lifecycle rules for config reports | `bool` | `false` | no |
 | <a name="input_report_retention_days"></a> [report\_retention\_days](#input\_report\_retention\_days) | Number of days to retain config reports in S3 before deletion (set to 0 to disable deletion) | `number` | `365` | no |
 | <a name="input_enable_glacier_transition"></a> [enable\_glacier\_transition](#input\_enable\_glacier\_transition) | Whether to transition config reports to Glacier storage class | `bool` | `false` | no |
 | <a name="input_glacier_transition_days"></a> [glacier\_transition\_days](#input\_glacier\_transition\_days) | Number of days after which to transition config reports to Glacier storage class | `number` | `90` | no |
 | <a name="input_glacier_retention_days"></a> [glacier\_retention\_days](#input\_glacier\_retention\_days) | Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion) | `number` | `730` | no |
-| <a name="input_enable_config_processor"></a> [enable\_config\_processor](#input\_enable\_config\_processor) | Enable the Lambda function that processes Config snapshots into readable formats | `bool` | `false` | no |
-| <a name="input_config_processor_generate_summary"></a> [config\_processor\_generate\_summary](#input\_config\_processor\_generate\_summary) | Whether the Config processor Lambda should generate summary files in addition to formatted files | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
+| <a name="input_enable_compliance_reporter"></a> [enable\_compliance\_reporter](#input\_enable\_compliance\_reporter) | Set to true to enable the scheduled Lambda function that generates PDF compliance reports | `bool` | `false` | no |
+| <a name="input_reporter_schedule_expression"></a> [reporter\_schedule\_expression](#input\_reporter\_schedule\_expression) | Cron expression for triggering the compliance report Lambda | `string` | `"cron(0 6 1 * ? *)"` | no |
+| <a name="input_reporter_output_s3_prefix"></a> [reporter\_output\_s3\_prefix](#input\_reporter\_output\_s3\_prefix) | S3 key prefix within the Config bucket where PDF compliance reports will be stored | `string` | `"compliance-reports/"` | no |
+| <a name="input_reporter_lambda_memory_size"></a> [reporter\_lambda\_memory\_size](#input\_reporter\_lambda\_memory\_size) | Memory size (MB) allocated to the compliance reporter Lambda function | `number` | `256` | no |
+| <a name="input_reporter_lambda_timeout"></a> [reporter\_lambda\_timeout](#input\_reporter\_lambda\_timeout) | Timeout (seconds) for the compliance reporter Lambda function | `number` | `120` | no |
 
 ## Outputs
 
@@ -408,27 +244,39 @@ To disable automatic deletion, set `report_retention_days = 0`.
 | <a name="output_config_bucket_arn"></a> [config\_bucket\_arn](#output\_config\_bucket\_arn) | The ARN of the S3 bucket used for AWS Config recordings |
 | <a name="output_config_bucket_id"></a> [config\_bucket\_id](#output\_config\_bucket\_id) | The ID of the S3 bucket used for AWS Config recordings |
 | <a name="output_config_iam_role_arn"></a> [config\_iam\_role\_arn](#output\_config\_iam\_role\_arn) | The ARN of the IAM role used for AWS Config |
-| <a name="output_config_notification_topic_arn"></a> [config\_notification\_topic\_arn](#output\_config\_notification\_topic\_arn) | The ARN of the SNS topic used for AWS Config notifications |
 | <a name="output_config_recorder_id"></a> [config\_recorder\_id](#output\_config\_recorder\_id) | The ID of the AWS Config recorder |
 | <a name="output_config_rules_arns"></a> [config\_rules\_arns](#output\_config\_rules\_arns) | Map of all Config rules ARNs |
-| <a name="output_compliance_report_rule_arn"></a> [compliance\_report\_rule\_arn](#output\_compliance\_report\_rule\_arn) | The ARN of the CloudWatch event rule for compliance reports |
-| <a name="output_config_processor_lambda_arn"></a> [config\_processor\_lambda\_arn](#output\_config\_processor\_lambda\_arn) | The ARN of the Lambda function for processing Config snapshots |
-| <a name="output_config_processor_role_arn"></a> [config\_processor\_role\_arn](#output\_config\_processor\_role\_arn) | The ARN of the IAM role for the Config processor Lambda function |
 | <a name="output_delivery_channel_id"></a> [delivery\_channel\_id](#output\_delivery\_channel\_id) | The ID of the AWS Config delivery channel |
 | <a name="output_ebs_encryption_rule_arn"></a> [ebs\_encryption\_rule\_arn](#output\_ebs\_encryption\_rule\_arn) | The ARN of the EBS encryption Config rule |
 | <a name="output_password_policy_rule_arn"></a> [password\_policy\_rule\_arn](#output\_password\_policy\_rule\_arn) | The ARN of the IAM password policy Config rule |
-<!-- END_TF_DOCS -->
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+| <a name="output_compliance_reporter_lambda_arn"></a> [compliance\_reporter\_lambda\_arn](#output\_compliance\_reporter\_lambda\_arn) | The ARN of the compliance reporter Lambda function (only if enabled) |
+| <a name="output_compliance_reporter_lambda_role_arn"></a> [compliance\_reporter\_lambda\_role\_arn](#output\_compliance\_reporter\_lambda\_role\_arn) | The ARN of the IAM role for the compliance reporter Lambda function (only if enabled) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- CONTACT -->
-## Contact
-
++## Optional Compliance Reporter
++
++This module includes an optional feature to automatically generate PDF compliance reports on a schedule.
++
++**How it works:**
++
++1.  If `enable_compliance_reporter` is set to `true`, a Lambda function is deployed.
++2.  A CloudWatch Event Rule triggers this Lambda function based on the `reporter_schedule_expression` (defaults to the 1st of every month at 6 AM UTC).
++3.  The Lambda function uses the AWS SDK (`boto3`) to query the AWS Config service for the current compliance status of all Config Rules in the account and region.
++4.  It generates a PDF report summarizing:
++    *   Overall compliance status (Counts of Compliant/Non-Compliant rules).
++    *   A list of Non-Compliant rules.
++    *   For each Non-Compliant rule, a list of associated Non-Compliant resources (Resource Type and ID).
++    *   The AWS Account ID.
++5.  The generated PDF report is uploaded to the main Config S3 bucket under the prefix specified by `reporter_output_s3_prefix` (defaults to `compliance-reports/`). The filename includes the date and time of generation.
++
++**Note:** This reporter queries the *live* compliance status from the AWS Config service API. It does not parse the historical logs stored in the S3 bucket.
++
++<p align="right">(<a href="#readme-top">back to top</a>)</p>
++
+ <!-- CONTACT -->
+ ## Contact
+ 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)

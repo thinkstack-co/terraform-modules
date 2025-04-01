@@ -18,12 +18,6 @@ variable "config_iam_role_name" {
   default     = "aws-config-role"
 }
 
-variable "include_global_resource_types" {
-  description = "Specifies whether AWS Config includes all supported types of global resources with the resources that it records"
-  type        = bool
-  default     = true
-}
-
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
@@ -108,4 +102,42 @@ variable "glacier_retention_days" {
   description = "Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion from Glacier)"
   type        = number
   default     = 730
+}
+
+# --- Compliance Reporter Variables (Optional) ---
+
+variable "enable_compliance_reporter" {
+  description = "Set to true to enable the scheduled Lambda function that generates PDF compliance reports."
+  type        = bool
+  default     = false
+}
+
+variable "reporter_schedule_expression" {
+  description = "Cron expression for triggering the compliance report Lambda. Default: Monthly on the 1st at 6 AM UTC."
+  type        = string
+  default     = "cron(0 6 1 * ? *)"
+}
+
+variable "reporter_output_s3_prefix" {
+  description = "S3 key prefix within the Config bucket where PDF compliance reports will be stored."
+  type        = string
+  default     = "compliance-reports/"
+
+  validation {
+    # Ensure it ends with a slash if not empty
+    condition     = var.reporter_output_s3_prefix == "" || substr(var.reporter_output_s3_prefix, -1, 1) == "/"
+    error_message = "The reporter_output_s3_prefix must end with a '/'."
+  }
+}
+
+variable "reporter_lambda_memory_size" {
+  description = "Memory size (MB) allocated to the compliance reporter Lambda function."
+  type        = number
+  default     = 256
+}
+
+variable "reporter_lambda_timeout" {
+  description = "Timeout (seconds) for the compliance reporter Lambda function."
+  type        = number
+  default     = 120 # 2 minutes, PDF generation can take time
 }

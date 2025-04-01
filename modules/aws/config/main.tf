@@ -9,14 +9,41 @@ locals {
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
 
-# AWS Config Recorder
+# --- Core AWS Config Resources --- 
+ 
+ # IAM Role for AWS Config Service
+resource "aws_iam_role" "config_role" {
+  name = var.config_iam_role_name
+  tags = var.tags
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "config.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+ # AWS Config Configuration Recorder
+# This resource enables AWS Config and defines what resources it records.
 resource "aws_config_configuration_recorder" "config" {
   name     = var.config_recorder_name
   role_arn = aws_iam_role.config_role.arn
 
   recording_group {
-    all_supported                 = true
-    include_global_resource_types = var.include_global_resource_types
+    all_supported                 = false
+    include_global_resource_types = true # Required for IAM resources
+    resource_types = [
+      "AWS::EC2::Volume", # For ENCRYPTED_VOLUMES rule
+      "AWS::IAM::User"    # For IAM_PASSWORD_POLICY rule
+      # Add other types here if needed for future rules
+    ]
   }
 
   recording_mode {
@@ -24,13 +51,15 @@ resource "aws_config_configuration_recorder" "config" {
   }
 }
 
-# S3 Bucket for AWS Config
+ # S3 Bucket for AWS Config
+# Stores configuration snapshots and history files delivered by AWS Config.
 resource "aws_s3_bucket" "config_bucket" {
   bucket_prefix = var.config_bucket_prefix
   tags          = var.tags
 }
 
-# S3 Bucket Policy
+ # S3 Bucket Policy
+# Grants AWS Config service permissions to write objects (delivery) and check bucket ACLs.
 resource "aws_s3_bucket_policy" "config" {
   bucket = aws_s3_bucket.config_bucket.id
   policy = jsonencode({
@@ -63,7 +92,84 @@ resource "aws_s3_bucket_policy" "config" {
   })
 }
 
-# S3 Lifecycle Configuration
+ # AWS Config Delivery Channel
+# Specifies where AWS Config delivers configuration snapshots and history files (the S3 bucket).
+resource "aws_config_delivery_channel" "config" {
+  name           = var.config_recorder_name # Often named the same as the recorder
+  s3_bucket_name = aws_s3_bucket.config_bucket.id
+  s3_key_prefix  = var.s3_key_prefix
+
+  snapshot_delivery_properties {
+    delivery_frequency = var.snapshot_delivery_frequency
+  }
+
+  depends_on = [aws_config_configuration_recorder.config, aws_s3_bucket_policy.config]
+}
+
+ # AWS Config Recorder Status
+# Controls whether the configuration recorder is currently recording.
+resource "aws_config_configuration_recorder_status" "config" {
+  name       = aws_config_configuration_recorder.config.name
+  is_enabled = true
+  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+}
+
+# IAM Policy Attachment for AWS Config
+resource "aws_iam_role_policy_attachment" "config" {
+  role       = aws_iam_role.config_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
+}
+
+# --- Optional AWS Managed Config Rules --- 
+ 
+# IAM Password Policy Rule
+# Checks whether the account password policy for IAM users meets the specified requirements.
+resource "aws_config_config_rule" "iam_password_policy" {
+  count       = var.enable_config_rules ? 1 : 0
+  name        = "${var.config_recorder_name}-iam-password-policy"
+  description = "Ensures the account password policy for IAM users meets the specified requirements"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_PASSWORD_POLICY"
+  }
+
+  input_parameters = jsonencode({
+    RequireUppercaseCharacters = "true"
+    RequireLowercaseCharacters = "true"
+    RequireSymbols             = "true"
+    RequireNumbers             = "true"
+    MinimumPasswordLength      = tostring(var.password_min_length)
+    PasswordReusePrevention    = tostring(var.password_reuse_prevention)
+    MaxPasswordAge             = tostring(var.password_max_age)
+  })
+
+  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+}
+
+ # EBS Encryption Rule
+# Checks whether EBS volumes that are in an attached state are encrypted.
+resource "aws_config_config_rule" "ebs_encryption" {
+  count       = var.enable_config_rules ? 1 : 0
+  name        = "${var.config_recorder_name}-encrypted-ebs-volumes"
+  description = "Checks whether EBS volumes are encrypted"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "ENCRYPTED_VOLUMES"
+  }
+
+  scope {
+    compliance_resource_types = ["AWS::EC2::Volume"]
+  }
+
+  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+}
+
+# --- Optional S3 Bucket Lifecycle Configuration ---
+ 
+# Manages the lifecycle of objects within the Config S3 bucket.
+# Can be used for transitioning old data to cheaper storage (Glacier) or expiring it.
 resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
   count  = var.enable_s3_lifecycle_rules ? 1 : 0
   bucket = aws_s3_bucket.config_bucket.id
@@ -129,90 +235,156 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
   }
 }
 
-# AWS Config Delivery Channel
-resource "aws_config_delivery_channel" "config" {
-  name           = var.config_recorder_name
-  s3_bucket_name = aws_s3_bucket.config_bucket.id
-  s3_key_prefix  = var.s3_key_prefix
+# --- Optional Compliance Reporter Lambda --- 
+ 
+# 1. Package the Lambda code
+# Uses the archive_file data source to zip the contents of the lambda_compliance_reporter directory.
+data "archive_file" "lambda_compliance_reporter_zip" {
+  count = var.enable_compliance_reporter ? 1 : 0
 
-  snapshot_delivery_properties {
-    delivery_frequency = var.snapshot_delivery_frequency
+  type        = "zip"
+  source_dir  = "${path.module}/lambda_compliance_reporter"
+  output_path = "${path.module}/lambda_compliance_reporter.zip"
+ }
+
+# 2. IAM Role for Lambda
+# Defines the execution role for the Lambda function, granting necessary permissions.
+data "aws_iam_policy_document" "reporter_lambda_assume_role" {
+  count = var.enable_compliance_reporter ? 1 : 0
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
   }
-
-  depends_on = [aws_config_configuration_recorder.config, aws_s3_bucket_policy.config]
 }
 
-# AWS Config Recorder Status
-resource "aws_config_configuration_recorder_status" "config" {
-  name       = aws_config_configuration_recorder.config.name
-  is_enabled = true
-  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
-}
+data "aws_iam_policy_document" "reporter_lambda_policy" {
+  count = var.enable_compliance_reporter ? 1 : 0
 
-# IAM Role for AWS Config
-resource "aws_iam_role" "config_role" {
-  name = var.config_iam_role_name
-  tags = var.tags
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "config.amazonaws.com"
-        }
-      }
+  # Permissions required by the Lambda function:
+  # - Write logs to CloudWatch
+  # - Read compliance data from AWS Config service
+  # - Get caller identity (for Account ID)
+  # - Write the PDF report to the Config S3 bucket
+  statement { # Basic CloudWatch Logging
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
     ]
-  })
+    resources = ["arn:aws:logs:*:*:*"] # Allow creating logs
+    effect    = "Allow"
+  }
+  statement { # Config read access
+    actions = [
+      "config:DescribeComplianceByConfigRule",
+      "config:GetComplianceDetailsByConfigRule"
+    ]
+    resources = ["*"] # Config read actions often require * 
+    effect    = "Allow"
+  }
+  statement { # STS access
+    actions   = ["sts:GetCallerIdentity"]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+  statement { # S3 write access to the config bucket
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "${aws_s3_bucket.config_bucket.arn}/${var.reporter_output_s3_prefix}*" # Restrict to the report prefix
+    ]
+    effect    = "Allow"
+  }
 }
 
-# IAM Policy Attachment for AWS Config
-resource "aws_iam_role_policy_attachment" "config" {
-  role       = aws_iam_role.config_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
+# Creates the IAM Role using the assume role policy document.
+resource "aws_iam_role" "reporter_lambda_role" {
+  count = var.enable_compliance_reporter ? 1 : 0
+
+  name               = "${var.config_recorder_name}-reporter-lambda-role"
+  assume_role_policy = data.aws_iam_policy_document.reporter_lambda_assume_role[count.index].json
+  tags               = var.tags
 }
 
-# AWS Config Rules
-# Only create rules if enabled
-resource "aws_config_config_rule" "iam_password_policy" {
-  count       = var.enable_config_rules ? 1 : 0
-  name        = "${var.config_recorder_name}-iam-password-policy"
-  description = "Ensures the account password policy for IAM users meets the specified requirements"
+# Attaches the inline policy (defined in the policy document) to the Lambda role.
+resource "aws_iam_role_policy" "reporter_lambda_policy" {
+  count = var.enable_compliance_reporter ? 1 : 0
 
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_PASSWORD_POLICY"
-  }
-
-  input_parameters = jsonencode({
-    RequireUppercaseCharacters = "true"
-    RequireLowercaseCharacters = "true"
-    RequireSymbols             = "true"
-    RequireNumbers             = "true"
-    MinimumPasswordLength      = tostring(var.password_min_length)
-    PasswordReusePrevention    = tostring(var.password_reuse_prevention)
-    MaxPasswordAge             = tostring(var.password_max_age)
-  })
-
-  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+  name   = "${var.config_recorder_name}-reporter-lambda-policy"
+  role   = aws_iam_role.reporter_lambda_role[count.index].id
+  policy = data.aws_iam_policy_document.reporter_lambda_policy[count.index].json
 }
 
-# EBS Encryption Rule
-resource "aws_config_config_rule" "ebs_encryption" {
-  count       = var.enable_config_rules ? 1 : 0
-  name        = "${var.config_recorder_name}-ebs-encryption-enabled"
-  description = "Checks whether EBS volumes are encrypted"
+# 3. Lambda Function
+# Defines the Lambda function resource itself.
+resource "aws_lambda_function" "compliance_reporter" {
+  count = var.enable_compliance_reporter ? 1 : 0
 
-  source {
-    owner             = "AWS"
-    source_identifier = "ENCRYPTED_VOLUMES"
+  filename         = data.archive_file.lambda_compliance_reporter_zip[count.index].output_path
+  function_name    = "${var.config_recorder_name}-compliance-reporter"
+  role             = aws_iam_role.reporter_lambda_role[count.index].arn
+  handler          = "lambda_function.lambda_handler"
+  source_code_hash = data.archive_file.lambda_compliance_reporter_zip[count.index].output_base64sha256
+  runtime          = "python3.9" # Ensure this runtime is available and supports reportlab
+  memory_size      = var.reporter_lambda_memory_size
+  timeout          = var.reporter_lambda_timeout
+
+  environment {
+    variables = {
+      S3_BUCKET_NAME     = aws_s3_bucket.config_bucket.id
+      REPORT_S3_PREFIX = var.reporter_output_s3_prefix
+    }
   }
 
-  scope {
-    compliance_resource_types = ["AWS::EC2::Volume"]
-  }
+  tags = var.tags
+}
 
-  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+# 4. CloudWatch Event Schedule
+# Creates a scheduled event rule (using a cron expression) to trigger the Lambda function.
+resource "aws_cloudwatch_event_rule" "reporter_schedule" {
+  count = var.enable_compliance_reporter ? 1 : 0
+
+  name                = "${var.config_recorder_name}-reporter-schedule"
+  description         = "Triggers the AWS Config compliance reporter Lambda function."
+  schedule_expression = var.reporter_schedule_expression
+  tags                = var.tags
+}
+
+# Creates a target for the CloudWatch Event Rule, specifying the Lambda function to invoke.
+resource "aws_cloudwatch_event_target" "reporter_lambda_target" {
+  count = var.enable_compliance_reporter ? 1 : 0
+
+  rule      = aws_cloudwatch_event_rule.reporter_schedule[count.index].name
+  target_id = "${var.config_recorder_name}-reporter-lambda-target"
+  arn       = aws_lambda_function.compliance_reporter[count.index].arn
+}
+
+# 5. Lambda Permission for CloudWatch Events
+# Grants CloudWatch Events service permission to invoke the Lambda function.
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  count = var.enable_compliance_reporter ? 1 : 0
+
+  statement_id  = "AllowExecutionFromCloudWatchEvents"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.compliance_reporter[count.index].function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.reporter_schedule[count.index].arn
+}
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+    archive = {
+      source  = "hashicorp/archive"
+      version = ">= 2.2.0" # For archive_file data source
+    }
+  }
 }

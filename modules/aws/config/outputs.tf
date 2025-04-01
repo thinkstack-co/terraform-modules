@@ -5,6 +5,11 @@ output "config_recorder_id" {
   value       = aws_config_configuration_recorder.config.id
 }
 
+output "config_recorder_name" {
+  description = "The name of the AWS Config Configuration Recorder"
+  value       = aws_config_configuration_recorder.config.name
+}
+
 output "config_bucket_arn" {
   description = "The ARN of the S3 bucket used for AWS Config recordings"
   value       = aws_s3_bucket.config_bucket.arn
@@ -23,6 +28,16 @@ output "config_bucket_id" {
 output "delivery_channel_id" {
   description = "The ID of the AWS Config delivery channel"
   value       = aws_config_delivery_channel.config.id
+}
+
+output "compliance_reporter_lambda_arn" {
+  description = "The ARN of the compliance reporter Lambda function (only if enabled)"
+  value       = var.enable_compliance_reporter ? aws_lambda_function.compliance_reporter[0].arn : null
+}
+
+output "compliance_reporter_lambda_role_arn" {
+  description = "The ARN of the IAM role for the compliance reporter Lambda function (only if enabled)"
+  value       = var.enable_compliance_reporter ? aws_iam_role.reporter_lambda_role[0].arn : null
 }
 
 # Config Rules Outputs
