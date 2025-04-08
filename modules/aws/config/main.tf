@@ -38,7 +38,6 @@ resource "aws_config_configuration_recorder" "config" {
 
   recording_group {
     all_supported                 = false
-    include_global_resource_types = true # Required for IAM resources
     resource_types = [
       "AWS::EC2::Volume", # For ENCRYPTED_VOLUMES rule
       "AWS::IAM::User"    # For IAM_PASSWORD_POLICY rule
@@ -237,13 +236,43 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
 
 # --- Optional Compliance Reporter Lambda --- 
  
-# 1. Package the Lambda code
-# Uses the archive_file data source to zip the contents of the lambda_compliance_reporter directory.
-data "archive_file" "lambda_compliance_reporter_zip" {
+# 0. Build Lambda Package with Dependencies
+# This resource runs pip install to package the lambda function with its requirements.
+resource "null_resource" "lambda_package_build" {
   count = var.enable_compliance_reporter ? 1 : 0
 
+  triggers = {
+    # Trigger rebuild if source code or requirements change
+    lambda_py_hash = filemd5("${path.module}/lambda_compliance_reporter/lambda_function.py")
+    requirements_hash = filemd5("${path.module}/lambda_compliance_reporter/requirements.txt")
+  }
+
+  provisioner "local-exec" {
+    # Create build directory, copy code, install requirements into the build directory
+    command = <<EOT
+      set -e
+      BUILD_DIR="${path.module}/lambda_build"
+      SOURCE_DIR="${path.module}/lambda_compliance_reporter"
+      rm -rf $BUILD_DIR
+      mkdir -p $BUILD_DIR
+      cp $SOURCE_DIR/lambda_function.py $BUILD_DIR/
+      pip install --platform manylinux2014_x86_64 --implementation cp --python-version 3.9 --only-binary=:all: --upgrade -r $SOURCE_DIR/requirements.txt -t $BUILD_DIR
+    EOT
+    # Use bash for set -e and multi-line command
+    interpreter = ["bash", "-c"]
+  }
+}
+
+ # 1. Package the Lambda code
+ # Uses the archive_file data source to zip the contents of the lambda_compliance_reporter directory.
+ data "archive_file" "lambda_compliance_reporter_zip" {
+  count = var.enable_compliance_reporter ? 1 : 0
+
+  # Depend on the build step completing successfully
+  depends_on = [null_resource.lambda_package_build]
+
   type        = "zip"
-  source_dir  = "${path.module}/lambda_compliance_reporter"
+  source_dir  = "${path.module}/lambda_build" # Zip the directory containing code AND installed packages
   output_path = "${path.module}/lambda_compliance_reporter.zip"
  }
 
