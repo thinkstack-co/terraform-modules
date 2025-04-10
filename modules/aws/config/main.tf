@@ -40,7 +40,7 @@ resource "aws_config_configuration_recorder" "config" {
               var.enable_mfa_for_iam_console_rule ||
               var.enable_ec2_volume_inuse_rule ||
               var.enable_eip_attached_rule ||
-              var.enable_rds_storage_encrypted_rule) > 0 ? 1 : 0
+              var.enable_rds_storage_encrypted_rule) ? 1 : 0
 
   name     = var.config_recorder_name
   role_arn = aws_iam_role.config_role.arn
