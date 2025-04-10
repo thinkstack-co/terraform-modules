@@ -193,20 +193,6 @@ resource "aws_config_config_rule" "encrypted_volumes" {
   }
 }
 
-# AWS Config Managed Rule for IAM Password Policy
-resource "aws_config_config_rule" "iam_password_policy" {
-  count = var.enable_iam_password_policy_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]] # Depend on recorder if created
-
-  name        = "iam-password-policy"
-  description = "Checks whether the account password policy for IAM users meets the specified requirements."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_PASSWORD_POLICY"
-  }
-}
-
 # AWS Config Managed Rule for S3 Bucket Public Read Prohibited
 resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
