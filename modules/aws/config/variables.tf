@@ -104,6 +104,55 @@ variable "glacier_retention_days" {
   default     = 730
 }
 
+# Variable to control the Encrypted Volumes rule (was missing)
+variable "enable_encrypted_volumes_rule" {
+  description = "Enable the Encrypted Volumes managed rule."
+  type        = bool
+  default     = true
+}
+
+variable "enable_iam_password_policy_rule" {
+  description = "Enable the IAM Password Policy managed rule."
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3_public_access_rules" {
+  description = "Enable S3_BUCKET_PUBLIC_READ_PROHIBITED and S3_BUCKET_PUBLIC_WRITE_PROHIBITED managed rules."
+  type        = bool
+  default     = true
+}
+
+variable "enable_iam_root_key_rule" {
+  description = "Enable the ROOT_ACCOUNT_MFA_ENABLED managed rule (checks root user MFA)."
+  type        = bool
+  default     = true
+}
+
+variable "enable_mfa_for_iam_console_rule" {
+  description = "Enable the MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS managed rule."
+  type        = bool
+  default     = true
+}
+
+variable "enable_ec2_volume_inuse_rule" {
+  description = "Enable the EC2_VOLUME_INUSE_CHECK managed rule."
+  type        = bool
+  default     = true
+}
+
+variable "enable_eip_attached_rule" {
+  description = "Enable the EIP_ATTACHED managed rule."
+  type        = bool
+  default     = true
+}
+
+variable "enable_rds_storage_encrypted_rule" {
+  description = "Enable the RDS_STORAGE_ENCRYPTED managed rule."
+  type        = bool
+  default     = true
+}
+
 # --- Compliance Reporter Variables (Optional) ---
 
 variable "enable_compliance_reporter" {
