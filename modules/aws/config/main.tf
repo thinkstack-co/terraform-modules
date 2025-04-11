@@ -370,48 +370,34 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
 
 # --- Optional Compliance Reporter Lambda --- 
  
-# 0. Build Lambda Package with Dependencies
-# This resource runs pip install to package the lambda function with its requirements.
-resource "null_resource" "lambda_package_build" {
-  count = var.enable_compliance_reporter ? 1 : 0
-
-  triggers = {
-    # Trigger rebuild if source code or requirements change
-    lambda_py_hash = filemd5("${path.module}/lambda_compliance_reporter/lambda_function.py")
-    requirements_hash = filemd5("${path.module}/lambda_compliance_reporter/requirements.txt")
-  }
-
-  provisioner "local-exec" {
-    # Create build directory, copy code, install requirements into the build directory
-    command = <<EOT
-      set -e
-      BUILD_DIR="${path.module}/lambda_build"
-      SOURCE_DIR="${path.module}/lambda_compliance_reporter"
-      rm -rf $BUILD_DIR
-      mkdir -p $BUILD_DIR
-      cp $SOURCE_DIR/lambda_function.py $BUILD_DIR/
-      pip install --platform manylinux2014_x86_64 --implementation cp --python-version 3.9 --only-binary=:all: --upgrade -r $SOURCE_DIR/requirements.txt -t $BUILD_DIR
-    EOT
-    # Use bash for set -e and multi-line command
-    interpreter = ["bash", "-c"]
-  }
-}
-
  # 1. Package the Lambda code
  # Uses the archive_file data source to zip the contents of the lambda_compliance_reporter directory.
  data "archive_file" "lambda_compliance_reporter_zip" {
-  count = var.enable_compliance_reporter ? 1 : 0
-
-  # Depend on the build step completing successfully
-  depends_on = [null_resource.lambda_package_build]
-
-  type        = "zip"
-  source_dir  = "${path.module}/lambda_build" # Zip the directory containing code AND installed packages
-  output_path = "${path.module}/lambda_compliance_reporter.zip"
+   count = var.enable_compliance_reporter ? 1 : 0
+ 
+   type        = "zip"
+   source_dir  = "${path.module}/lambda_compliance_reporter" # Zip the directory containing just the source code
+   output_path = "${path.module}/lambda_compliance_reporter.zip"
  }
 
+# Create a Lambda Layer for the reportlab dependency
+resource "aws_lambda_layer_version" "reportlab_layer" {
+  count = var.enable_compliance_reporter ? 1 : 0
+  
+  layer_name = "reportlab-layer"
+  description = "Layer containing the reportlab package for PDF generation"
+  
+  # Use a pre-built layer from a public S3 bucket
+  s3_bucket = "reportlab-lambda-layer"
+  s3_key = "reportlab-layer.zip"
+  
+  # Alternatively, you can specify a local file
+  # filename = "${path.module}/layers/reportlab-layer.zip"
+  
+  compatible_runtimes = ["python3.9"]
+}
+
 # 2. IAM Role for Lambda
-# Defines the execution role for the Lambda function, granting necessary permissions.
 data "aws_iam_policy_document" "reporter_lambda_assume_role" {
   count = var.enable_compliance_reporter ? 1 : 0
 
@@ -484,27 +470,33 @@ resource "aws_iam_role_policy" "reporter_lambda_policy" {
 }
 
 # 3. Lambda Function
-# Defines the Lambda function resource itself.
 resource "aws_lambda_function" "compliance_reporter" {
   count = var.enable_compliance_reporter ? 1 : 0
 
-  filename         = data.archive_file.lambda_compliance_reporter_zip[count.index].output_path
-  function_name    = "${var.config_recorder_name}-compliance-reporter"
-  role             = aws_iam_role.reporter_lambda_role[count.index].arn
-  handler          = "lambda_function.lambda_handler"
-  source_code_hash = data.archive_file.lambda_compliance_reporter_zip[count.index].output_base64sha256
-  runtime          = "python3.9" # Ensure this runtime is available and supports reportlab
-  memory_size      = var.reporter_lambda_memory_size
-  timeout          = var.reporter_lambda_timeout
+  function_name = "aws-config-compliance-reporter"
+  description   = "Generates compliance reports from AWS Config rule evaluations"
+  role          = aws_iam_role.reporter_lambda_role[0].arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.9"
+  timeout       = var.reporter_lambda_timeout
+  memory_size   = var.reporter_lambda_memory_size
 
+  filename         = data.archive_file.lambda_compliance_reporter_zip[0].output_path
+  source_code_hash = data.archive_file.lambda_compliance_reporter_zip[0].output_base64sha256
+
+  # Use the reportlab layer
+  layers = [aws_lambda_layer_version.reportlab_layer[0].arn]
+  
   environment {
     variables = {
-      S3_BUCKET_NAME     = aws_s3_bucket.config_bucket.id
+      S3_BUCKET_NAME   = aws_s3_bucket.config_bucket.id
       REPORT_S3_PREFIX = var.reporter_output_s3_prefix
     }
   }
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    Name = "aws-config-compliance-reporter"
+  })
 }
 
 # 4. CloudWatch Event Schedule
