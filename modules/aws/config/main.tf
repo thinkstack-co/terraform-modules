@@ -157,7 +157,7 @@ resource "aws_config_config_rule" "iam_password_policy" {
     MaxPasswordAge             = tostring(var.password_max_age)
   })
 
-  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
  # EBS Encryption Rule
@@ -176,13 +176,12 @@ resource "aws_config_config_rule" "ebs_encryption" {
     compliance_resource_types = ["AWS::EC2::Volume"]
   }
 
-  depends_on = [aws_config_configuration_recorder.config, aws_config_delivery_channel.config]
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for Encrypted EBS Volumes
 resource "aws_config_config_rule" "encrypted_volumes" {
   count = var.enable_encrypted_volumes_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]] # Depend on recorder if created
 
   name        = "encrypted-volumes"
   description = "Checks whether EBS volumes that are in an attached state are encrypted."
@@ -191,12 +190,13 @@ resource "aws_config_config_rule" "encrypted_volumes" {
     owner             = "AWS"
     source_identifier = "ENCRYPTED_VOLUMES"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for S3 Bucket Public Read Prohibited
 resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "s3-bucket-public-read-prohibited"
   description = "Checks that your S3 buckets do not allow public read access."
@@ -205,12 +205,13 @@ resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for S3 Bucket Public Write Prohibited
 resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "s3-bucket-public-write-prohibited"
   description = "Checks that your S3 buckets do not allow public write access."
@@ -219,12 +220,13 @@ resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_PUBLIC_WRITE_PROHIBITED"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for IAM Root Access Key Check
 resource "aws_config_config_rule" "iam_root_access_key_check" {
   count = var.enable_iam_root_key_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "iam-root-access-key-check"
   description = "Checks whether the root user of your AWS account requires multi-factor authentication for console sign-in."
@@ -233,12 +235,13 @@ resource "aws_config_config_rule" "iam_root_access_key_check" {
     owner             = "AWS"
     source_identifier = "ROOT_ACCOUNT_MFA_ENABLED" # Note: Changed to ROOT_ACCOUNT_MFA_ENABLED as IAM_ROOT_ACCESS_KEY_CHECK might be deprecated/less common
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for MFA Enabled for IAM Console Access
 resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
   count = var.enable_mfa_for_iam_console_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "mfa-enabled-for-iam-console-access"
   description = "Checks whether AWS Multi-Factor Authentication (MFA) is enabled for all IAM users that use a console password."
@@ -247,12 +250,13 @@ resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
     owner             = "AWS"
     source_identifier = "MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for EC2 Volume In Use Check
 resource "aws_config_config_rule" "ec2_volume_inuse_check" {
   count = var.enable_ec2_volume_inuse_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "ec2-volume-inuse-check"
   description = "Checks whether EBS volumes are attached to EC2 instances."
@@ -261,12 +265,13 @@ resource "aws_config_config_rule" "ec2_volume_inuse_check" {
     owner             = "AWS"
     source_identifier = "EC2_VOLUME_INUSE_CHECK"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for EIP Attached Check
 resource "aws_config_config_rule" "eip_attached" {
   count = var.enable_eip_attached_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "eip-attached"
   description = "Checks whether Elastic IP addresses are attached to EC2 instances or in-use ENIs."
@@ -275,12 +280,13 @@ resource "aws_config_config_rule" "eip_attached" {
     owner             = "AWS"
     source_identifier = "EIP_ATTACHED"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # AWS Config Managed Rule for RDS Storage Encrypted
 resource "aws_config_config_rule" "rds_storage_encrypted" {
   count = var.enable_rds_storage_encrypted_rule ? 1 : 0
-  depends_on = [aws_config_configuration_recorder.config[0]]
 
   name        = "rds-storage-encrypted"
   description = "Checks whether storage encryption is enabled for your RDS DB instances."
@@ -289,6 +295,8 @@ resource "aws_config_config_rule" "rds_storage_encrypted" {
     owner             = "AWS"
     source_identifier = "RDS_STORAGE_ENCRYPTED"
   }
+
+  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
 }
 
 # --- Optional S3 Bucket Lifecycle Configuration ---
