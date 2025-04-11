@@ -157,7 +157,7 @@ resource "aws_config_config_rule" "iam_password_policy" {
     MaxPasswordAge             = tostring(var.password_max_age)
   })
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
  # EBS Encryption Rule
@@ -176,7 +176,7 @@ resource "aws_config_config_rule" "ebs_encryption" {
     compliance_resource_types = ["AWS::EC2::Volume"]
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for Encrypted EBS Volumes
@@ -191,7 +191,7 @@ resource "aws_config_config_rule" "encrypted_volumes" {
     source_identifier = "ENCRYPTED_VOLUMES"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for S3 Bucket Public Read Prohibited
@@ -206,7 +206,7 @@ resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
     source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for S3 Bucket Public Write Prohibited
@@ -221,7 +221,7 @@ resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
     source_identifier = "S3_BUCKET_PUBLIC_WRITE_PROHIBITED"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for IAM Root Access Key Check
@@ -236,7 +236,7 @@ resource "aws_config_config_rule" "iam_root_access_key_check" {
     source_identifier = "ROOT_ACCOUNT_MFA_ENABLED" # Note: Changed to ROOT_ACCOUNT_MFA_ENABLED as IAM_ROOT_ACCESS_KEY_CHECK might be deprecated/less common
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for MFA Enabled for IAM Console Access
@@ -251,7 +251,7 @@ resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
     source_identifier = "MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for EC2 Volume In Use Check
@@ -266,7 +266,7 @@ resource "aws_config_config_rule" "ec2_volume_inuse_check" {
     source_identifier = "EC2_VOLUME_INUSE_CHECK"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for EIP Attached Check
@@ -281,7 +281,7 @@ resource "aws_config_config_rule" "eip_attached" {
     source_identifier = "EIP_ATTACHED"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # AWS Config Managed Rule for RDS Storage Encrypted
@@ -296,7 +296,7 @@ resource "aws_config_config_rule" "rds_storage_encrypted" {
     source_identifier = "RDS_STORAGE_ENCRYPTED"
   }
 
-  depends_on = concat([aws_config_delivery_channel.config], length(aws_config_configuration_recorder.config) > 0 ? [aws_config_configuration_recorder.config[0]] : [])
+  depends_on = [aws_config_delivery_channel.config]
 }
 
 # --- Optional S3 Bucket Lifecycle Configuration ---
