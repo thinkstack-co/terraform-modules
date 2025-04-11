@@ -473,7 +473,7 @@ resource "aws_iam_role_policy" "reporter_lambda_policy" {
 resource "aws_lambda_function" "compliance_reporter" {
   count = var.enable_compliance_reporter ? 1 : 0
 
-  function_name = "aws-config-compliance-reporter"
+  function_name = "${var.config_recorder_name}-compliance-reporter"
   description   = "Generates compliance reports from AWS Config rule evaluations"
   role          = aws_iam_role.reporter_lambda_role[0].arn
   handler       = "lambda_function.lambda_handler"
@@ -495,7 +495,7 @@ resource "aws_lambda_function" "compliance_reporter" {
   }
 
   tags = merge(var.tags, {
-    Name = "aws-config-compliance-reporter"
+    Name = "${var.config_recorder_name}-compliance-reporter"
   })
 }
 
