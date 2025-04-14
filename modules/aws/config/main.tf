@@ -370,17 +370,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
 
 # --- Optional Compliance Reporter Lambda --- 
  
- # 1. Package the Lambda code
- # Uses the archive_file data source to zip the contents of the lambda_compliance_reporter directory.
- data "archive_file" "lambda_compliance_reporter_zip" {
-   count = var.enable_compliance_reporter ? 1 : 0
+ # The Lambda function is pre-packaged with all dependencies in the repository
+ # This eliminates the need for local Python/pip installation
  
-   type        = "zip"
-   source_dir  = "${path.module}/lambda_compliance_reporter" # Zip the directory containing just the source code
-   output_path = "${path.module}/lambda_compliance_reporter.zip"
- }
-
-# 2. IAM Role for Lambda
+ # 2. IAM Role for Lambda
 data "aws_iam_policy_document" "reporter_lambda_assume_role" {
   count = var.enable_compliance_reporter ? 1 : 0
 
@@ -464,8 +457,9 @@ resource "aws_lambda_function" "compliance_reporter" {
   timeout       = var.reporter_lambda_timeout
   memory_size   = var.reporter_lambda_memory_size
 
-  filename         = data.archive_file.lambda_compliance_reporter_zip[0].output_path
-  source_code_hash = data.archive_file.lambda_compliance_reporter_zip[0].output_base64sha256
+  # Use the pre-packaged Lambda function ZIP file
+  filename         = "${path.module}/lambda_compliance_reporter/lambda_package.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambda_compliance_reporter/lambda_package.zip")
 
   environment {
     variables = {
