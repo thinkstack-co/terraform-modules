@@ -38,6 +38,9 @@ REPORT_S3_PREFIX = os.environ.get('REPORT_S3_PREFIX', 'compliance-reports/')
 config_client = boto3.client('config')
 sts_client = boto3.client('sts')
 s3_client = boto3.client('s3')
+iam_client = boto3.client('iam')
+ec2_client = boto3.client('ec2')
+rds_client = boto3.client('rds')
 
 def get_account_id():
     """
@@ -102,10 +105,10 @@ def get_compliance_summary():
 def get_non_compliant_resources(rule_name):
     """
     Gets details of non-compliant resources for a specific AWS Config rule.
-
+    
     Args:
         rule_name (str): The name of the Config rule to get non-compliant resources for
-
+        
     Returns:
         list or None: A list of lists containing resource type and ID information,
                      formatted for inclusion in a table, or None if no resources found
@@ -118,17 +121,24 @@ def get_non_compliant_resources(rule_name):
             Limit=100  # Limit results per rule in the report for brevity
         )
         evaluations = eval_results.get('EvaluationResults', [])
-
+        
         if evaluations:
             # Create a table-ready data structure with headers
-            resource_data = [['Resource Type', 'Resource ID']]
+            resource_data = [['Resource Type', 'Resource ID', 'Friendly Name']]
             for eval_item in evaluations:
                 res_id = eval_item.get('EvaluationResultIdentifier', {}).get('EvaluationResultQualifier', {})
+                resource_type = res_id.get('ResourceType', 'N/A')
+                resource_id = res_id.get('ResourceId', 'N/A')
+                
+                # Get a more user-friendly identifier for the resource
+                friendly_name = get_resource_friendly_name(resource_type, resource_id)
+                
                 resource_data.append([
-                    res_id.get('ResourceType', 'N/A'),
-                    res_id.get('ResourceId', 'N/A')
+                    resource_type,
+                    resource_id,
+                    friendly_name
                 ])
-
+            
             return resource_data
         else:
             return None
@@ -136,6 +146,92 @@ def get_non_compliant_resources(rule_name):
     except Exception as e:
         print(f"Error fetching resources for {rule_name}: {e}")
         return None
+
+def get_resource_friendly_name(resource_type, resource_id):
+    """
+    Gets a user-friendly name for a resource based on its type and ID.
+    
+    For most resources, this will try to get the Name tag.
+    For IAM users, this will get the username.
+    
+    Args:
+        resource_type (str): The AWS resource type (e.g., AWS::EC2::Instance)
+        resource_id (str): The resource ID (e.g., i-1234567890abcdef0)
+        
+    Returns:
+        str: A user-friendly name for the resource, or the resource ID if not found
+    """
+    try:
+        # Handle IAM users
+        if resource_type == 'AWS::IAM::User':
+            # For IAM users, the resource ID is often the user ARN
+            # Extract the username from the ARN
+            if 'arn:aws:iam::' in resource_id:
+                # Format: arn:aws:iam::123456789012:user/username
+                username = resource_id.split('/')[-1]
+                return username
+            
+            # Try to get the user details directly if not an ARN
+            try:
+                user = iam_client.get_user(UserName=resource_id)
+                return user.get('User', {}).get('UserName', resource_id)
+            except:
+                pass
+        
+        # Handle EC2 instances
+        elif resource_type == 'AWS::EC2::Instance':
+            try:
+                response = ec2_client.describe_instances(InstanceIds=[resource_id])
+                for reservation in response.get('Reservations', []):
+                    for instance in reservation.get('Instances', []):
+                        for tag in instance.get('Tags', []):
+                            if tag.get('Key') == 'Name':
+                                return tag.get('Value')
+            except:
+                pass
+        
+        # Handle S3 buckets
+        elif resource_type == 'AWS::S3::Bucket':
+            # For S3 buckets, the bucket name is already user-friendly
+            return resource_id
+        
+        # Handle EBS volumes
+        elif resource_type == 'AWS::EC2::Volume':
+            try:
+                response = ec2_client.describe_volumes(VolumeIds=[resource_id])
+                for volume in response.get('Volumes', []):
+                    for tag in volume.get('Tags', []):
+                        if tag.get('Key') == 'Name':
+                            return tag.get('Value')
+            except:
+                pass
+        
+        # Handle EIPs
+        elif resource_type == 'AWS::EC2::EIP':
+            try:
+                response = ec2_client.describe_addresses(AllocationIds=[resource_id])
+                for eip in response.get('Addresses', []):
+                    for tag in eip.get('Tags', []):
+                        if tag.get('Key') == 'Name':
+                            return tag.get('Value')
+            except:
+                pass
+        
+        # Handle RDS instances
+        elif resource_type == 'AWS::RDS::DBInstance':
+            try:
+                response = rds_client.describe_db_instances(DBInstanceIdentifier=resource_id)
+                for instance in response.get('DBInstances', []):
+                    return instance.get('DBName', resource_id)
+            except:
+                pass
+        
+        # Default case: return the resource ID
+        return resource_id
+    
+    except Exception as e:
+        print(f"Error getting friendly name for {resource_type} {resource_id}: {e}")
+        return resource_id
 
 def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details):
     """
@@ -225,7 +321,7 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
     if non_compliant_details:
         for rule_name, resource_data in non_compliant_details.items():
             story.append(Paragraph(f"<b>Rule:</b> {rule_name}", styles['h3']))
-            resource_table = Table(resource_data, colWidths=[200, 250])
+            resource_table = Table(resource_data, colWidths=[200, 250, 200])
             resource_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),

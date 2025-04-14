@@ -380,23 +380,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
    output_path = "${path.module}/lambda_compliance_reporter.zip"
  }
 
-# Create a Lambda Layer for the reportlab dependency
-resource "aws_lambda_layer_version" "reportlab_layer" {
-  count = var.enable_compliance_reporter ? 1 : 0
-  
-  layer_name = "reportlab-layer"
-  description = "Layer containing the reportlab package for PDF generation"
-  
-  # Use a pre-built layer from a public S3 bucket
-  s3_bucket = "reportlab-lambda-layer"
-  s3_key = "reportlab-layer.zip"
-  
-  # Alternatively, you can specify a local file
-  # filename = "${path.module}/layers/reportlab-layer.zip"
-  
-  compatible_runtimes = ["python3.9"]
-}
-
 # 2. IAM Role for Lambda
 data "aws_iam_policy_document" "reporter_lambda_assume_role" {
   count = var.enable_compliance_reporter ? 1 : 0
@@ -484,9 +467,6 @@ resource "aws_lambda_function" "compliance_reporter" {
   filename         = data.archive_file.lambda_compliance_reporter_zip[0].output_path
   source_code_hash = data.archive_file.lambda_compliance_reporter_zip[0].output_base64sha256
 
-  # Use the reportlab layer
-  layers = [aws_lambda_layer_version.reportlab_layer[0].arn]
-  
   environment {
     variables = {
       S3_BUCKET_NAME   = aws_s3_bucket.config_bucket.id
