@@ -139,7 +139,7 @@ resource "aws_iam_role_policy_attachment" "config" {
 # Checks whether the account password policy for IAM users meets the specified requirements.
 resource "aws_config_config_rule" "iam_password_policy" {
   count       = var.enable_config_rules ? 1 : 0
-  name        = "${var.config_recorder_name}-iam-password-policy"
+  name        = "iam-password-policy"
   description = "Ensures the account password policy for IAM users meets the specified requirements"
 
   source {
@@ -164,7 +164,7 @@ resource "aws_config_config_rule" "iam_password_policy" {
 # Checks whether EBS volumes that are in an attached state are encrypted.
 resource "aws_config_config_rule" "ebs_encryption" {
   count       = var.enable_config_rules ? 1 : 0
-  name        = "${var.config_recorder_name}-encrypted-ebs-volumes"
+  name        = "ebs-encryption-enabled"
   description = "Checks whether EBS volumes are encrypted"
 
   source {
@@ -394,6 +394,7 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
   # - Read compliance data from AWS Config service
   # - Get caller identity (for Account ID)
   # - Write the PDF report to the Config S3 bucket
+  # - Retrieve resource tags from various AWS services
   statement { # Basic CloudWatch Logging
     actions = [
       "logs:CreateLogGroup",
@@ -406,7 +407,8 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
   statement { # Config read access
     actions = [
       "config:DescribeComplianceByConfigRule",
-      "config:GetComplianceDetailsByConfigRule"
+      "config:GetComplianceDetailsByConfigRule",
+      "config:GetResourceConfigHistory"
     ]
     resources = ["*"] # Config read actions often require * 
     effect    = "Allow"
@@ -423,6 +425,46 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
     resources = [
       "${aws_s3_bucket.config_bucket.arn}/${var.reporter_output_s3_prefix}*" # Restrict to the report prefix
     ]
+    effect    = "Allow"
+  }
+  statement { # EC2 resource tag access
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeTags"
+    ]
+    resources = ["*"] # EC2 describe actions require *
+    effect    = "Allow"
+  }
+  statement { # S3 bucket tag access
+    actions = [
+      "s3:GetBucketTagging"
+    ]
+    resources = ["*"] # Allow checking tags on any bucket
+    effect    = "Allow"
+  }
+  statement { # RDS resource tag access
+    actions = [
+      "rds:DescribeDBInstances",
+      "rds:ListTagsForResource"
+    ]
+    resources = ["*"] # RDS describe actions require *
+    effect    = "Allow"
+  }
+  statement { # IAM user access
+    actions = [
+      "iam:GetUser",
+      "iam:ListUserTags"
+    ]
+    resources = ["*"] # Allow checking any IAM user
+    effect    = "Allow"
+  }
+  statement { # Organizations account info access
+    actions = [
+      "organizations:DescribeAccount"
+    ]
+    resources = ["*"]
     effect    = "Allow"
   }
 }

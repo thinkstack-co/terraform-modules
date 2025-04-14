@@ -41,6 +41,7 @@ s3_client = boto3.client('s3')
 iam_client = boto3.client('iam')
 ec2_client = boto3.client('ec2')
 rds_client = boto3.client('rds')
+org_client = boto3.client('organizations')
 
 def get_account_id():
     """
@@ -55,6 +56,20 @@ def get_account_id():
     except Exception as e:
         print(f"Error fetching account ID: {e}")
         return "UNKNOWN_ACCOUNT"
+
+def get_account_name():
+    """
+    Fetches the AWS Account Name using the Organizations API.
+    Returns:
+        str: The AWS account name, or "Unknown" if not available
+    """
+    try:
+        account_id = sts_client.get_caller_identity()['Account']
+        resp = org_client.describe_account(AccountId=account_id)
+        return resp['Account'].get('Name', 'Unknown')
+    except Exception as e:
+        print(f"Error fetching account name: {e}")
+        return "Unknown"
 
 def get_compliance_summary():
     """
@@ -110,7 +125,7 @@ def get_non_compliant_resources(rule_name):
         rule_name (str): The name of the Config rule to get non-compliant resources for
         
     Returns:
-        list or None: A list of lists containing resource type and ID information,
+        list or None: A list of lists containing resource type and friendly name information,
                      formatted for inclusion in a table, or None if no resources found
                      or an error occurs
     """
@@ -124,19 +139,23 @@ def get_non_compliant_resources(rule_name):
         
         if evaluations:
             # Create a table-ready data structure with headers
-            resource_data = [['Resource Type', 'Resource ID', 'Friendly Name']]
+            # For IAM users, we want to show both the username and ARN
+            if rule_name.lower().find('mfa') >= 0 or rule_name.lower().find('iam') >= 0:
+                resource_data = [['Resource Type', 'Name']]
+            else:
+                resource_data = [['Resource Type', 'Name']]
+                
             for eval_item in evaluations:
                 res_id = eval_item.get('EvaluationResultIdentifier', {}).get('EvaluationResultQualifier', {})
                 resource_type = res_id.get('ResourceType', 'N/A')
                 resource_id = res_id.get('ResourceId', 'N/A')
                 
                 # Get a more user-friendly identifier for the resource
-                friendly_name = get_resource_friendly_name(resource_type, resource_id)
+                name_tag = get_resource_name_tag(resource_type, resource_id)
                 
                 resource_data.append([
                     resource_type,
-                    resource_id,
-                    friendly_name
+                    name_tag
                 ])
             
             return resource_data
@@ -147,39 +166,75 @@ def get_non_compliant_resources(rule_name):
         print(f"Error fetching resources for {rule_name}: {e}")
         return None
 
-def get_resource_friendly_name(resource_type, resource_id):
+def get_resource_name_tag(resource_type, resource_id):
     """
-    Gets a user-friendly name for a resource based on its type and ID.
-    
-    For most resources, this will try to get the Name tag.
-    For IAM users, this will get the username.
-    
-    Args:
-        resource_type (str): The AWS resource type (e.g., AWS::EC2::Instance)
-        resource_id (str): The resource ID (e.g., i-1234567890abcdef0)
-        
-    Returns:
-        str: A user-friendly name for the resource, or the resource ID if not found
-    """
+    Gets the 'Name' tag value for a resource based on its type and ID.
+     
+    For most AWS resources, this will try to get the 'Name' tag.
+     For IAM users, this will get the username.
+     
+     Args:
+         resource_type (str): The AWS resource type (e.g., AWS::EC2::Instance)
+         resource_id (str): The resource ID (e.g., i-1234567890abcdef0)
+         
+     Returns:
+        str: The 'Name' tag value for the resource, or the resource ID if not found
+     """
     try:
         # Handle IAM users
         if resource_type == 'AWS::IAM::User':
-            # For IAM users, the resource ID is often the user ARN
-            # Extract the username from the ARN
+            # The resource_id from Config is usually the IAM user ARN
+            # We need to extract the username from the ARN
+            try:
+                # First, try to get the IAM user details from AWS Config
+                config_response = config_client.get_resource_config_history(
+                    resourceType='AWS::IAM::User',
+                    resourceId=resource_id,
+                    limit=1
+                )
+                
+                if config_response.get('configurationItems'):
+                    config_item = config_response['configurationItems'][0]
+                    resource_name = config_item.get('resourceName')
+                    if resource_name:
+                        return resource_name  # This is the IAM username
+            except Exception as e:
+                print(f"Error getting config history for IAM user: {e}")
+            
+            # If we couldn't get it from Config, extract from ARN
             if 'arn:aws:iam::' in resource_id:
                 # Format: arn:aws:iam::123456789012:user/username
                 username = resource_id.split('/')[-1]
                 return username
             
-            # Try to get the user details directly if not an ARN
+            # As a last resort, try to get user details directly
+            # Note: This might fail due to permissions
             try:
+                # If resource_id is not an ARN but a username
                 user = iam_client.get_user(UserName=resource_id)
                 return user.get('User', {}).get('UserName', resource_id)
-            except:
-                pass
+            except Exception as e:
+                print(f"Error getting IAM user details: {e}")
         
         # Handle EC2 instances
         elif resource_type == 'AWS::EC2::Instance':
+            try:
+                # Try to get the resource configuration from AWS Config
+                config_response = config_client.get_resource_config_history(
+                    resourceType='AWS::EC2::Instance',
+                    resourceId=resource_id,
+                    limit=1
+                )
+                
+                if config_response.get('configurationItems'):
+                    config_item = config_response['configurationItems'][0]
+                    tags = config_item.get('tags', {})
+                    if 'Name' in tags:
+                        return tags['Name']
+            except Exception as e:
+                print(f"Error getting config history for EC2 instance: {e}")
+            
+            # If Config doesn't have the info, try EC2 API directly
             try:
                 response = ec2_client.describe_instances(InstanceIds=[resource_id])
                 for reservation in response.get('Reservations', []):
@@ -187,53 +242,132 @@ def get_resource_friendly_name(resource_type, resource_id):
                         for tag in instance.get('Tags', []):
                             if tag.get('Key') == 'Name':
                                 return tag.get('Value')
-            except:
-                pass
+            except Exception as e:
+                print(f"Error getting EC2 instance details: {e}")
         
         # Handle S3 buckets
         elif resource_type == 'AWS::S3::Bucket':
-            # For S3 buckets, the bucket name is already user-friendly
-            return resource_id
+            try:
+                # Try to get tags for the S3 bucket
+                response = s3_client.get_bucket_tagging(Bucket=resource_id)
+                for tag in response.get('TagSet', []):
+                    if tag.get('Key') == 'Name':
+                        return tag.get('Value')
+            except Exception as e:
+                # If no tags or can't get tags, return the bucket name
+                return resource_id
         
         # Handle EBS volumes
         elif resource_type == 'AWS::EC2::Volume':
+            try:
+                # Try to get the resource configuration from AWS Config
+                config_response = config_client.get_resource_config_history(
+                    resourceType='AWS::EC2::Volume',
+                    resourceId=resource_id,
+                    limit=1
+                )
+                
+                if config_response.get('configurationItems'):
+                    config_item = config_response['configurationItems'][0]
+                    tags = config_item.get('tags', {})
+                    if 'Name' in tags:
+                        return tags['Name']
+            except Exception as e:
+                print(f"Error getting config history for EBS volume: {e}")
+            
+            # If Config doesn't have the info, try EC2 API directly
             try:
                 response = ec2_client.describe_volumes(VolumeIds=[resource_id])
                 for volume in response.get('Volumes', []):
                     for tag in volume.get('Tags', []):
                         if tag.get('Key') == 'Name':
                             return tag.get('Value')
-            except:
-                pass
+            except Exception as e:
+                print(f"Error getting EBS volume details: {e}")
         
         # Handle EIPs
         elif resource_type == 'AWS::EC2::EIP':
+            try:
+                # Try to get the resource configuration from AWS Config
+                config_response = config_client.get_resource_config_history(
+                    resourceType='AWS::EC2::EIP',
+                    resourceId=resource_id,
+                    limit=1
+                )
+                
+                if config_response.get('configurationItems'):
+                    config_item = config_response['configurationItems'][0]
+                    tags = config_item.get('tags', {})
+                    if 'Name' in tags:
+                        return tags['Name']
+            except Exception as e:
+                print(f"Error getting config history for EIP: {e}")
+            
+            # If Config doesn't have the info, try EC2 API directly
             try:
                 response = ec2_client.describe_addresses(AllocationIds=[resource_id])
                 for eip in response.get('Addresses', []):
                     for tag in eip.get('Tags', []):
                         if tag.get('Key') == 'Name':
                             return tag.get('Value')
-            except:
-                pass
+            except Exception as e:
+                print(f"Error getting EIP details: {e}")
         
         # Handle RDS instances
         elif resource_type == 'AWS::RDS::DBInstance':
             try:
+                # Try to get the resource configuration from AWS Config
+                config_response = config_client.get_resource_config_history(
+                    resourceType='AWS::RDS::DBInstance',
+                    resourceId=resource_id,
+                    limit=1
+                )
+                
+                if config_response.get('configurationItems'):
+                    config_item = config_response['configurationItems'][0]
+                    tags = config_item.get('tags', {})
+                    if 'Name' in tags:
+                        return tags['Name']
+            except Exception as e:
+                print(f"Error getting config history for RDS instance: {e}")
+            
+            # If Config doesn't have the info, try RDS API directly
+            try:
                 response = rds_client.describe_db_instances(DBInstanceIdentifier=resource_id)
+                # First check for tags
                 for instance in response.get('DBInstances', []):
+                    for tag in instance.get('TagList', []):
+                        if tag.get('Key') == 'Name':
+                            return tag.get('Value')
+                    # If no Name tag, use the DB name or instance ID
                     return instance.get('DBName', resource_id)
-            except:
-                pass
+            except Exception as e:
+                print(f"Error getting RDS instance details: {e}")
+        
+        # Try AWS Config for any resource type
+        try:
+            config_response = config_client.get_resource_config_history(
+                resourceType=resource_type,
+                resourceId=resource_id,
+                limit=1
+            )
+            
+            if config_response.get('configurationItems'):
+                config_item = config_response['configurationItems'][0]
+                tags = config_item.get('tags', {})
+                if 'Name' in tags:
+                    return tags['Name']
+        except Exception as e:
+            print(f"Error getting config history for {resource_type}: {e}")
         
         # Default case: return the resource ID
         return resource_id
     
     except Exception as e:
-        print(f"Error getting friendly name for {resource_type} {resource_id}: {e}")
+        print(f"Error getting Name tag for {resource_type} {resource_id}: {e}")
         return resource_id
 
-def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details):
+def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details, account_name):
     """
     Generates a formatted PDF report with compliance information.
 
@@ -249,6 +383,7 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
         non_compliant_count (int): Number of non-compliant rules
         rules_summary (list): List of dictionaries with rule names and statuses
         non_compliant_details (dict): Dictionary mapping rule names to non-compliant resource details
+        account_name (str): The AWS account name
 
     Returns:
         bytes: The PDF report as a byte stream
@@ -267,6 +402,7 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
 
     # Add report metadata (account ID and timestamp)
     report_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    story.append(Paragraph(f"Account Name: {account_name}", styles['Normal']))
     story.append(Paragraph(f"Account ID: {account_id}", styles['Normal']))
     story.append(Paragraph(f"Generated On: {report_time}", styles['Normal']))
     story.append(Spacer(1, 0.3*inch))
@@ -321,7 +457,7 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
     if non_compliant_details:
         for rule_name, resource_data in non_compliant_details.items():
             story.append(Paragraph(f"<b>Rule:</b> {rule_name}", styles['h3']))
-            resource_table = Table(resource_data, colWidths=[200, 250, 200])
+            resource_table = Table(resource_data, colWidths=[200, 350])
             resource_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -395,9 +531,11 @@ def lambda_handler(event, context):
         print("Error: S3_BUCKET_NAME environment variable not set.")
         return {'statusCode': 500, 'body': 'S3 bucket name not configured.'}
 
-    # Get the AWS account ID
+    # Get the AWS account ID and account name
     account_id = get_account_id()
+    account_name = get_account_name()
     print(f"Account ID: {account_id}")
+    print(f"Account Name: {account_name}")
 
     # Fetch compliance data from AWS Config
     print("Fetching compliance summary and rule details...")
@@ -407,7 +545,7 @@ def lambda_handler(event, context):
 
     # Generate the PDF report
     print("Generating PDF report...")
-    pdf_data = generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details)
+    pdf_data = generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details, account_name)
 
     # Upload the report to S3
     print(f"Uploading report to S3 bucket: {S3_BUCKET_NAME}, Prefix: {REPORT_S3_PREFIX}")
