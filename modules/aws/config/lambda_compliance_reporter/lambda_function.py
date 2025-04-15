@@ -41,7 +41,7 @@ s3_client = boto3.client('s3')
 iam_client = boto3.client('iam')
 ec2_client = boto3.client('ec2')
 rds_client = boto3.client('rds')
-org_client = boto3.client('organizations')
+organizations_client = boto3.client('organizations')
 
 def get_account_id():
     """
@@ -59,17 +59,34 @@ def get_account_id():
 
 def get_account_name():
     """
-    Fetches the AWS Account Name using the Organizations API.
+    Attempts to get the AWS account name using multiple methods:
+    1. Organizations API (if account is part of an organization)
+    2. IAM account alias (if set)
+    3. Default to account ID if other methods fail
+    
     Returns:
-        str: The AWS account name, or "Unknown" if not available
+        str: The account name or alias, or account ID if neither is available
     """
+    account_id = get_account_id()
+    
+    # Try Organizations API first
     try:
-        account_id = sts_client.get_caller_identity()['Account']
-        resp = org_client.describe_account(AccountId=account_id)
-        return resp['Account'].get('Name', 'Unknown')
+        response = organizations_client.describe_account(AccountId=account_id)
+        if 'Account' in response and 'Name' in response['Account']:
+            return response['Account']['Name']
     except Exception as e:
-        print(f"Error fetching account name: {e}")
-        return "Unknown"
+        print(f"Unable to get account name from Organizations API: {e}")
+    
+    # Try IAM account alias
+    try:
+        response = iam_client.list_account_aliases()
+        if response['AccountAliases'] and len(response['AccountAliases']) > 0:
+            return response['AccountAliases'][0]
+    except Exception as e:
+        print(f"Unable to get account alias: {e}")
+    
+    # Default to account ID
+    return f"Account {account_id}"
 
 def get_compliance_summary():
     """
@@ -367,15 +384,15 @@ def get_resource_name_tag(resource_type, resource_id):
         print(f"Error getting Name tag for {resource_type} {resource_id}: {e}")
         return resource_id
 
-def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details, account_name):
+def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details):
     """
     Generates a formatted PDF report with compliance information.
 
-    The report includes:
-    - Account information and generation timestamp
-    - Compliance summary statistics
-    - Table of all Config rules and their status
-    - Detailed information about non-compliant resources
+    This function creates a PDF document with:
+    1. A title and header with account ID and timestamp
+    2. A summary of compliant vs. non-compliant rules
+    3. A table of all rules and their compliance status
+    4. For each non-compliant rule, a table of affected resources
 
     Args:
         account_id (str): The AWS account ID
@@ -383,30 +400,42 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
         non_compliant_count (int): Number of non-compliant rules
         rules_summary (list): List of dictionaries with rule names and statuses
         non_compliant_details (dict): Dictionary mapping rule names to non-compliant resource details
-        account_name (str): The AWS account name
 
     Returns:
         bytes: The PDF report as a byte stream
     """
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter,
-                            leftMargin=72, rightMargin=72,
-                            topMargin=72, bottomMargin=72)
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from io import BytesIO
+    
+    # Get styles
     styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='Heading2', fontSize=14, spaceAfter=6))
+    
+    # Create a buffer and document
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, 
+                           rightMargin=72, leftMargin=72,
+                           topMargin=72, bottomMargin=72)
+    
+    # Build the story (content)
     story = []
-
-    # Add report title
-    title = "AWS Config Compliance Report"
-    story.append(Paragraph(title, styles['h1']))
-    story.append(Spacer(1, 0.2*inch))
-
+    
+    # Title
+    story.append(Paragraph("AWS Config Compliance Report", styles['Title']))
+    story.append(Spacer(1, 0.25*inch))
+    
     # Add report metadata (account ID and timestamp)
     report_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    account_name = get_account_name()
     story.append(Paragraph(f"Account Name: {account_name}", styles['Normal']))
     story.append(Paragraph(f"Account ID: {account_id}", styles['Normal']))
     story.append(Paragraph(f"Generated On: {report_time}", styles['Normal']))
     story.append(Spacer(1, 0.3*inch))
-
+    
     # Overall Summary
     story.append(Paragraph("Overall Compliance Summary", styles['h2']))
     summary_data = [
@@ -426,7 +455,7 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
     ]))
     story.append(summary_table)
     story.append(Spacer(1, 0.3*inch))
-
+    
     # Rule Compliance Status Section
     story.append(Paragraph("Rule Compliance Status", styles['h2']))
     if rules_summary:
@@ -451,7 +480,7 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
     else:
         story.append(Paragraph("No Config rules found or compliance data available.", styles['Normal']))
     story.append(Spacer(1, 0.3*inch))
-
+    
     # Non-Compliant Details Section
     story.append(Paragraph("Non-Compliant Rule Details", styles['h2']))
     if non_compliant_details:
@@ -526,26 +555,28 @@ def lambda_handler(event, context):
     """
     print("Starting compliance report generation...")
 
-    # Validate that required environment variables are set
+    # Validate environment variables
+    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+    REPORT_S3_PREFIX = os.environ.get('REPORT_S3_PREFIX', 'compliance-reports/')
+    
     if not S3_BUCKET_NAME:
         print("Error: S3_BUCKET_NAME environment variable not set.")
         return {'statusCode': 500, 'body': 'S3 bucket name not configured.'}
 
-    # Get the AWS account ID and account name
+    # Get the AWS account ID
     account_id = get_account_id()
-    account_name = get_account_name()
     print(f"Account ID: {account_id}")
+    account_name = get_account_name()
     print(f"Account Name: {account_name}")
 
     # Fetch compliance data from AWS Config
     print("Fetching compliance summary and rule details...")
     compliant_count, non_compliant_count, rules_summary, non_compliant_details = get_compliance_summary()
-    total_rules = len(rules_summary)
-    print(f"Summary: Total Rules={total_rules}, Compliant={compliant_count}, Non-Compliant={non_compliant_count}")
+    print(f"Found {compliant_count} compliant and {non_compliant_count} non-compliant rules.")
 
     # Generate the PDF report
     print("Generating PDF report...")
-    pdf_data = generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details, account_name)
+    pdf_data = generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_summary, non_compliant_details)
 
     # Upload the report to S3
     print(f"Uploading report to S3 bucket: {S3_BUCKET_NAME}, Prefix: {REPORT_S3_PREFIX}")

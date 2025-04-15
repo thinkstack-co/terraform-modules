@@ -395,6 +395,7 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
   # - Get caller identity (for Account ID)
   # - Write the PDF report to the Config S3 bucket
   # - Retrieve resource tags from various AWS services
+  # - Get account name information
   statement { # Basic CloudWatch Logging
     actions = [
       "logs:CreateLogGroup",
@@ -455,7 +456,8 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
   statement { # IAM user access
     actions = [
       "iam:GetUser",
-      "iam:ListUserTags"
+      "iam:ListUserTags",
+      "iam:ListAccountAliases"
     ]
     resources = ["*"] # Allow checking any IAM user
     effect    = "Allow"
