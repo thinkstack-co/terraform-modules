@@ -1,16 +1,18 @@
-FROM python:3.9-slim
+FROM amazonlinux:2
 
-# Install zip
-RUN apt-get update && apt-get install -y zip && apt-get clean
+# Install Python and development tools
+RUN yum update -y && \
+    yum install -y python3-pip python3-devel gcc zip && \
+    yum clean all
 
 # Set up working directory
-WORKDIR /build
+WORKDIR /var/task
 
 # Copy requirements and Lambda function
 COPY requirements.txt lambda_function.py ./
 
 # Install dependencies
-RUN pip install -r requirements.txt -t .
+RUN pip3 install -r requirements.txt --target .
 
 # Create the Lambda package
 RUN zip -r lambda_package.zip .

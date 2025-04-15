@@ -12,8 +12,7 @@ echo "Building Docker image for Lambda packaging..."
 docker build -t aws-config-lambda-builder .
 
 echo "Creating Lambda package..."
-docker run --rm -v "$(pwd)/../":/output aws-config-lambda-builder \
-  bash -c "cp lambda_package.zip /output/ && echo 'Package created successfully!'"
+docker run --rm -v "$(pwd)/../":/output aws-config-lambda-builder
 
 echo "Cleaning up temporary files..."
 rm -f lambda_function.py requirements.txt
