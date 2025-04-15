@@ -501,9 +501,12 @@ resource "aws_lambda_function" "compliance_reporter" {
   timeout       = var.reporter_lambda_timeout
   memory_size   = var.reporter_lambda_memory_size
 
-  # Use the pre-packaged Lambda function ZIP file
-  filename         = "${path.module}/lambda_compliance_reporter/lambda_package.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambda_compliance_reporter/lambda_package.zip")
+  # Use a minimal Lambda function without dependencies
+  filename         = "${path.module}/lambda_compliance_reporter/lambda_function.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambda_compliance_reporter/lambda_function.zip")
+  
+  # Use a public Lambda Layer for reportlab/PIL
+  layers = ["arn:aws:lambda:${data.aws_region.current.name}:770693421928:layer:Klayers-p39-reportlab:1"]
 
   environment {
     variables = {

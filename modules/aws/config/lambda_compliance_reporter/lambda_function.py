@@ -25,7 +25,7 @@ from datetime import datetime
 # ReportLab imports for PDF generation
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -34,7 +34,7 @@ from reportlab.lib.units import inch
 S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
 REPORT_S3_PREFIX = os.environ.get('REPORT_S3_PREFIX', 'compliance-reports/')
 
-# Initialize AWS service clients
+# AWS clients
 config_client = boto3.client('config')
 sts_client = boto3.client('sts')
 s3_client = boto3.client('s3')
@@ -404,30 +404,19 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
     Returns:
         bytes: The PDF report as a byte stream
     """
-    from reportlab.lib.pagesizes import letter
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import inch
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib import colors
-    from io import BytesIO
-    
-    # Get styles
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            leftMargin=72, rightMargin=72,
+                            topMargin=72, bottomMargin=72)
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name='Heading2', fontSize=14, spaceAfter=6))
-    
-    # Create a buffer and document
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, 
-                           rightMargin=72, leftMargin=72,
-                           topMargin=72, bottomMargin=72)
-    
-    # Build the story (content)
     story = []
-    
-    # Title
-    story.append(Paragraph("AWS Config Compliance Report", styles['Title']))
-    story.append(Spacer(1, 0.25*inch))
-    
+
+    # Add report title
+    title = "AWS Config Compliance Report"
+    story.append(Paragraph(title, styles['Title']))
+    story.append(Spacer(1, 0.2*inch))
+
     # Add report metadata (account ID and timestamp)
     report_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     account_name = get_account_name()
@@ -435,74 +424,84 @@ def generate_pdf_report(account_id, compliant_count, non_compliant_count, rules_
     story.append(Paragraph(f"Account ID: {account_id}", styles['Normal']))
     story.append(Paragraph(f"Generated On: {report_time}", styles['Normal']))
     story.append(Spacer(1, 0.3*inch))
-    
+
     # Overall Summary
-    story.append(Paragraph("Overall Compliance Summary", styles['h2']))
+    story.append(Paragraph("Overall Compliance Summary", styles['Heading2']))
     summary_data = [
-        ['Status', 'Count'],
-        ['Compliant Rules', str(compliant_count)],
-        ['Non-Compliant Rules', str(non_compliant_count)]
+        ["Status", "Count"],
+        ["Compliant", str(compliant_count)],
+        ["Non-Compliant", str(non_compliant_count)],
+        ["Total", str(compliant_count + non_compliant_count)]
     ]
-    summary_table = Table(summary_data)
+    summary_table = Table(summary_data, colWidths=[2*inch, 1*inch])
     summary_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ('BACKGROUND', (0, 0), (1, 0), colors.navy),
+        ('TEXTCOLOR', (0, 0), (1, 0), colors.white),
+        ('ALIGN', (0, 0), (1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (1, 0), 12),
+        ('BACKGROUND', (0, 1), (1, -1), colors.lightgrey),
+        ('GRID', (0, 0), (1, -1), 1, colors.black)
     ]))
     story.append(summary_table)
     story.append(Spacer(1, 0.3*inch))
-    
-    # Rule Compliance Status Section
-    story.append(Paragraph("Rule Compliance Status", styles['h2']))
-    if rules_summary:
-        rule_data = [['Rule Name', 'Status']]
-        rules_summary.sort(key=lambda x: x['name']) # Sort alphabetically
-        for rule in rules_summary:
-            rule_data.append([Paragraph(rule['name'], styles['Normal']), rule['status']])
 
+    # Rule Compliance Status Section
+    story.append(Paragraph("Rule Compliance Status", styles['Heading2']))
+    if rules_summary:
+        rule_data = [["Rule Name", "Status"]]
+        for rule in rules_summary:
+            status = rule.get('status', 'UNKNOWN')
+            status_color = colors.green if status == 'COMPLIANT' else colors.red if status == 'NON_COMPLIANT' else colors.orange
+            rule_data.append([rule.get('name', 'Unknown Rule'), status])
+        
         rule_table = Table(rule_data, colWidths=[4*inch, 1.5*inch])
         rule_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'), # Header alignment
-            ('ALIGN', (1, 1), (1, -1), 'CENTER'), # Status column alignment
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (1, 0), colors.navy),
+            ('TEXTCOLOR', (0, 0), (1, 0), colors.white),
+            ('ALIGN', (0, 0), (1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (1, 0), 12),
+            ('GRID', (0, 0), (1, -1), 1, colors.black),
+            ('ALIGN', (1, 1), (1, -1), 'CENTER')
         ]))
         story.append(rule_table)
     else:
         story.append(Paragraph("No Config rules found or compliance data available.", styles['Normal']))
     story.append(Spacer(1, 0.3*inch))
-    
-    # Non-Compliant Details Section
-    story.append(Paragraph("Non-Compliant Rule Details", styles['h2']))
-    if non_compliant_details:
-        for rule_name, resource_data in non_compliant_details.items():
-            story.append(Paragraph(f"<b>Rule:</b> {rule_name}", styles['h3']))
-            resource_table = Table(resource_data, colWidths=[200, 350])
-            resource_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-            ]))
-            story.append(resource_table)
-            story.append(Spacer(1, 12))
-    else:
-        story.append(Paragraph("No Non-Compliant Rules Found", styles['h2']))
 
+    # Non-Compliant Details Section
+    story.append(Paragraph("Non-Compliant Rule Details", styles['Heading2']))
+    if non_compliant_details:
+        for rule_name, resources in non_compliant_details.items():
+            story.append(Paragraph(f"Rule: {rule_name}", styles['Heading2']))
+            
+            if resources:
+                resource_data = [["Resource Type", "Resource Name"]]
+                for resource in resources:
+                    resource_data.append([resource[0], resource[1]])
+                
+                resource_table = Table(resource_data, colWidths=[2*inch, 3.5*inch])
+                resource_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (1, 0), colors.navy),
+                    ('TEXTCOLOR', (0, 0), (1, 0), colors.white),
+                    ('ALIGN', (0, 0), (1, 0), 'CENTER'),
+                    ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (1, 0), 12),
+                    ('GRID', (0, 0), (1, -1), 1, colors.black)
+                ]))
+                story.append(resource_table)
+            else:
+                story.append(Paragraph("No specific resource details available.", styles['Normal']))
+            
+            story.append(Spacer(1, 0.2*inch))
+    else:
+        story.append(Paragraph("No non-compliant resources found.", styles['Normal']))
+    
+    # Build the PDF
     doc.build(story)
-    return buffer.getvalue()
+    buffer.seek(0)
+    return buffer.read()
 
 def upload_to_s3(pdf_data, bucket_name, report_prefix):
     """
@@ -555,10 +554,7 @@ def lambda_handler(event, context):
     """
     print("Starting compliance report generation...")
 
-    # Validate environment variables
-    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
-    REPORT_S3_PREFIX = os.environ.get('REPORT_S3_PREFIX', 'compliance-reports/')
-    
+    # Validate that required environment variables are set
     if not S3_BUCKET_NAME:
         print("Error: S3_BUCKET_NAME environment variable not set.")
         return {'statusCode': 500, 'body': 'S3 bucket name not configured.'}
@@ -595,12 +591,3 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'body': 'Failed to upload compliance report to S3.'
         }
-
-"""
-# Local testing code (commented out for production)
-if __name__ == '__main__':
-    # Mock environment variables for local testing
-    os.environ['S3_BUCKET_NAME'] = 'your-test-bucket-name'
-    os.environ['REPORT_S3_PREFIX'] = 'test-compliance-reports/'
-    lambda_handler(None, None)
-"""
