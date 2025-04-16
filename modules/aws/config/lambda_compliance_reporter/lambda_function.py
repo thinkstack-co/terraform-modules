@@ -123,7 +123,7 @@ def lambda_handler(event, context):
     elements.append(Paragraph(f"Generated: <b>{now}</b>", small_style))
     elements.append(Spacer(1, 18))
 
-    # Compliance summary table
+    # Compliance summary table #
     summary_data = [[
         Paragraph("<b>Status</b>", table_header_style),
         Paragraph("<b>Count</b>", table_header_style)
