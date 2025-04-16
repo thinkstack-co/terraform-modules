@@ -499,11 +499,10 @@ resource "aws_lambda_function" "compliance_reporter" {
   description   = "Generates compliance reports from AWS Config rule evaluations"
   role          = aws_iam_role.reporter_lambda_role[0].arn
   handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.9"
+  runtime       = "python3.8"
   timeout       = var.reporter_lambda_timeout
   memory_size   = var.reporter_lambda_memory_size
 
-  # Use the pre-packaged Lambda function ZIP file
   filename         = "${path.module}/lambda_compliance_reporter/lambda_package.zip"
   source_code_hash = filebase64sha256("${path.module}/lambda_compliance_reporter/lambda_package.zip")
 
