@@ -508,8 +508,8 @@ resource "aws_lambda_function" "compliance_reporter" {
 
   environment {
     variables = {
-      S3_BUCKET_NAME   = aws_s3_bucket.config_bucket.id
-      REPORT_S3_PREFIX = var.reporter_output_s3_prefix
+      CONFIG_REPORT_BUCKET      = aws_s3_bucket.config_bucket.id
+      REPORTER_OUTPUT_S3_PREFIX = var.reporter_output_s3_prefix
     }
   }
 

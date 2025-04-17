@@ -6,6 +6,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.enums import TA_CENTER
 from datetime import datetime
 import io
+import os
 
 
 def get_account_info():
@@ -198,10 +199,19 @@ def lambda_handler(event, context):
     doc.build(elements)
     buffer.seek(0)
 
-    import base64
+    s3 = boto3.client('s3')
+    now_dt = datetime.utcnow()
+    bucket = os.environ.get('CONFIG_REPORT_BUCKET', 'liberty-prod-config-bucket-20250305204205543600000001')
+    prefix = os.environ.get('REPORTER_OUTPUT_S3_PREFIX', 'compliance-reports/weekly/')
+    key = f"{prefix}{now_dt.year}/{now_dt.strftime('%m')}/{now_dt.strftime('%d')}/compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
+    s3.put_object(
+        Bucket=bucket,
+        Key=key,
+        Body=buffer.getvalue(),
+        ContentType='application/pdf'
+    )
+
     return {
         'statusCode': 200,
-        'headers': {'Content-Type': 'application/pdf'},
-        'body': base64.b64encode(buffer.read()).decode('utf-8'),
-        'isBase64Encoded': True
+        'body': f'Successfully uploaded PDF to s3://{bucket}/{key}'
     }
