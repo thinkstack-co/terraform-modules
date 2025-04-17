@@ -407,11 +407,12 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
     resources = ["arn:aws:logs:*:*:*"] # Allow creating logs
     effect    = "Allow"
   }
-  statement { # Config read access
+  statement { # Config read access for compliance and rules
     actions = [
       "config:DescribeComplianceByConfigRule",
       "config:GetComplianceDetailsByConfigRule",
-      "config:GetResourceConfigHistory"
+      "config:GetResourceConfigHistory",
+      "config:DescribeConfigRules"
     ]
     resources = ["*"] # Config read actions often require * 
     effect    = "Allow"

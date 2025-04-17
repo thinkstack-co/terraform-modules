@@ -69,6 +69,15 @@ def get_resource_name_from_tag(arn_or_id):
     return arn_or_id
 
 
+def get_iam_user_name(user_id):
+    iam = boto3.client('iam')
+    try:
+        response = iam.get_user(UserName=user_id)
+        return response['User']['UserName']
+    except Exception:
+        return user_id
+
+
 def lambda_handler(event, context):
     alias, account_id = get_account_info()
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
@@ -98,6 +107,16 @@ def lambda_handler(event, context):
                 for res in non_compliant_resources:
                     arn = res.get('ResourceArn', res['ResourceId'])
                     resource_name = get_resource_name_from_tag(arn)
+                    # If it's an IAM user, try to get the friendly user name
+                    if res['ResourceType'] == 'AWS::IAM::User':
+                        # Try to extract username from ARN, fallback to user ID
+                        # ARN format: arn:aws:iam::<account_id>:user/<username>
+                        parts = arn.split(':user/')
+                        if len(parts) == 2:
+                            user_name = parts[1]
+                        else:
+                            user_name = res['ResourceId']
+                        resource_name = get_iam_user_name(user_name)
                     non_compliant_section.append([
                         resource_name,
                         res['ResourceType'],
