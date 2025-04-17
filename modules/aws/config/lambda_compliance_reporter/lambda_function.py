@@ -107,21 +107,27 @@ def lambda_handler(event, context):
                 for res in non_compliant_resources:
                     arn = res.get('ResourceArn', res['ResourceId'])
                     resource_name = get_resource_name_from_tag(arn)
-                    # If it's an IAM user, try to get the friendly user name
+                    # If it's an IAM user, try to extract the username from ARN and display both username and ARN
                     if res['ResourceType'] == 'AWS::IAM::User':
-                        # Try to extract username from ARN, fallback to user ID
-                        # ARN format: arn:aws:iam::<account_id>:user/<username>
-                        parts = arn.split(':user/')
-                        if len(parts) == 2:
-                            user_name = parts[1]
+                        user_name = None
+                        if arn and ':user/' in arn:
+                            user_name = arn.split(':user/')[1]
+                        if user_name:
+                            resource_name = get_iam_user_name(user_name)
                         else:
-                            user_name = res['ResourceId']
-                        resource_name = get_iam_user_name(user_name)
-                    non_compliant_section.append([
-                        resource_name,
-                        res['ResourceType'],
-                        arn
-                    ])
+                            resource_name = res.get('ResourceName', res['ResourceId'])
+                        # Show username and ARN
+                        non_compliant_section.append([
+                            f"{resource_name} (IAM Username)",
+                            res['ResourceType'],
+                            arn
+                        ])
+                    else:
+                        non_compliant_section.append([
+                            resource_name,
+                            res['ResourceType'],
+                            arn
+                        ])
 
     # Build PDF
     buffer = io.BytesIO()
