@@ -24,6 +24,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "customer_name" {
+  description = "Optional label for the customer/account, used for identification in reports and tags."
+  type        = string
+  default     = ""
+}
+
 # Password Policy Variables
 variable "password_min_length" {
   description = "Minimum length for IAM user passwords"
@@ -43,12 +49,6 @@ variable "password_max_age" {
   default     = 45
 }
 
-variable "enable_config_rules" {
-  description = "Enable or disable AWS Config Rules"
-  type        = bool
-  default     = true
-}
-
 variable "recording_frequency" {
   description = "The frequency with which AWS Config records information"
   type        = string
@@ -65,12 +65,6 @@ variable "snapshot_delivery_frequency" {
   description = "The frequency with which AWS Config delivers configuration snapshots (One_Hour, Three_Hours, Six_Hours, Twelve_Hours, TwentyFour_Hours)"
   type        = string
   default     = "TwentyFour_Hours"
-}
-
-variable "customer_name" {
-  description = "Name of the customer whose AWS account this is being deployed in, used to identify the source of compliance reports"
-  type        = string
-  default     = ""
 }
 
 # S3 Lifecycle Configuration
@@ -108,49 +102,55 @@ variable "glacier_retention_days" {
 variable "enable_encrypted_volumes_rule" {
   description = "Enable the Encrypted Volumes managed rule."
   type        = bool
-  default     = true
+  default     = false
+}
+
+variable "enable_ebs_encryption_rule" {
+  description = "Enable the EBS Encryption managed rule."
+  type        = bool
+  default     = false
 }
 
 variable "enable_iam_password_policy_rule" {
   description = "Enable the IAM Password Policy managed rule."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_s3_public_access_rules" {
-  description = "Enable S3_BUCKET_PUBLIC_READ_PROHIBITED and S3_BUCKET_PUBLIC_WRITE_PROHIBITED managed rules."
+  description = "Enable the S3 Public Access managed rules."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_iam_root_key_rule" {
-  description = "Enable the ROOT_ACCOUNT_MFA_ENABLED managed rule (checks root user MFA)."
+  description = "Enable the IAM Root Access Key Check managed rule."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_mfa_for_iam_console_rule" {
-  description = "Enable the MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS managed rule."
+  description = "Enable the MFA for IAM Console Access managed rule."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_ec2_volume_inuse_rule" {
-  description = "Enable the EC2_VOLUME_INUSE_CHECK managed rule."
+  description = "Enable the EC2 Volume In Use managed rule."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_eip_attached_rule" {
-  description = "Enable the EIP_ATTACHED managed rule."
+  description = "Enable the EIP Attached managed rule."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_rds_storage_encrypted_rule" {
-  description = "Enable the RDS_STORAGE_ENCRYPTED managed rule."
+  description = "Enable the RDS Storage Encrypted managed rule."
   type        = bool
-  default     = true
+  default     = false
 }
 
 # --- Compliance Reporter Variables (Optional) ---

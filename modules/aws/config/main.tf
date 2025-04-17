@@ -16,7 +16,7 @@ data "aws_region" "current" {}
  # IAM Role for AWS Config Service
 resource "aws_iam_role" "config_role" {
   name = var.config_iam_role_name
-  tags = var.tags
+  tags = merge(var.tags, { Customer = local.customer_identifier })
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -70,7 +70,7 @@ resource "aws_config_configuration_recorder" "config" {
 # Stores configuration snapshots and history files delivered by AWS Config.
 resource "aws_s3_bucket" "config_bucket" {
   bucket_prefix = var.config_bucket_prefix
-  tags          = var.tags
+  tags          = merge(var.tags, { Customer = local.customer_identifier })
 }
 
  # S3 Bucket Policy
@@ -136,11 +136,9 @@ resource "aws_iam_role_policy_attachment" "config" {
 }
 
 # --- Optional AWS Managed Config Rules --- 
- 
-# IAM Password Policy Rule
-# Checks whether the account password policy for IAM users meets the specified requirements.
+
 resource "aws_config_config_rule" "iam_password_policy" {
-  count       = var.enable_config_rules ? 1 : 0
+  count       = var.enable_iam_password_policy_rule ? 1 : 0
   name        = "iam-password-policy"
   description = "Ensures the account password policy for IAM users meets the specified requirements"
 
@@ -162,10 +160,21 @@ resource "aws_config_config_rule" "iam_password_policy" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
- # EBS Encryption Rule
-# Checks whether EBS volumes that are in an attached state are encrypted.
+resource "aws_config_config_rule" "encrypted_volumes" {
+  count = var.enable_encrypted_volumes_rule ? 1 : 0
+  name        = "encrypted-volumes"
+  description = "Checks whether EBS volumes that are in an attached state are encrypted."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "ENCRYPTED_VOLUMES"
+  }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
 resource "aws_config_config_rule" "ebs_encryption" {
-  count       = var.enable_config_rules ? 1 : 0
+  count       = var.enable_ebs_encryption_rule ? 1 : 0
   name        = "ebs-encryption-enabled"
   description = "Checks whether EBS volumes are encrypted"
 
@@ -181,25 +190,8 @@ resource "aws_config_config_rule" "ebs_encryption" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for Encrypted EBS Volumes
-resource "aws_config_config_rule" "encrypted_volumes" {
-  count = var.enable_encrypted_volumes_rule ? 1 : 0
-
-  name        = "encrypted-volumes"
-  description = "Checks whether EBS volumes that are in an attached state are encrypted."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "ENCRYPTED_VOLUMES"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
-# AWS Config Managed Rule for S3 Bucket Public Read Prohibited
 resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
-
   name        = "s3-bucket-public-read-prohibited"
   description = "Checks that your S3 buckets do not allow public read access."
 
@@ -211,10 +203,8 @@ resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for S3 Bucket Public Write Prohibited
 resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
-
   name        = "s3-bucket-public-write-prohibited"
   description = "Checks that your S3 buckets do not allow public write access."
 
@@ -226,27 +216,23 @@ resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for IAM Root Access Key Check
 resource "aws_config_config_rule" "iam_root_access_key_check" {
   count = var.enable_iam_root_key_rule ? 1 : 0
-
   name        = "iam-root-access-key-check"
-  description = "Checks whether the root user of your AWS account requires multi-factor authentication for console sign-in."
+  description = "Checks whether the root account access key exists."
 
   source {
     owner             = "AWS"
-    source_identifier = "ROOT_ACCOUNT_MFA_ENABLED" # Note: Changed to ROOT_ACCOUNT_MFA_ENABLED as IAM_ROOT_ACCESS_KEY_CHECK might be deprecated/less common
+    source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
   }
 
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for MFA Enabled for IAM Console Access
 resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
   count = var.enable_mfa_for_iam_console_rule ? 1 : 0
-
   name        = "mfa-enabled-for-iam-console-access"
-  description = "Checks whether AWS Multi-Factor Authentication (MFA) is enabled for all IAM users that use a console password."
+  description = "Checks whether MFA is enabled for all IAM users with a console password."
 
   source {
     owner             = "AWS"
@@ -256,10 +242,8 @@ resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for EC2 Volume In Use Check
 resource "aws_config_config_rule" "ec2_volume_inuse_check" {
   count = var.enable_ec2_volume_inuse_rule ? 1 : 0
-
   name        = "ec2-volume-inuse-check"
   description = "Checks whether EBS volumes are attached to EC2 instances."
 
@@ -271,12 +255,10 @@ resource "aws_config_config_rule" "ec2_volume_inuse_check" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for EIP Attached Check
 resource "aws_config_config_rule" "eip_attached" {
   count = var.enable_eip_attached_rule ? 1 : 0
-
   name        = "eip-attached"
-  description = "Checks whether Elastic IP addresses are attached to EC2 instances or in-use ENIs."
+  description = "Checks whether Elastic IP addresses are attached to EC2 instances."
 
   source {
     owner             = "AWS"
@@ -286,10 +268,8 @@ resource "aws_config_config_rule" "eip_attached" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-# AWS Config Managed Rule for RDS Storage Encrypted
 resource "aws_config_config_rule" "rds_storage_encrypted" {
   count = var.enable_rds_storage_encrypted_rule ? 1 : 0
-
   name        = "rds-storage-encrypted"
   description = "Checks whether storage encryption is enabled for your RDS DB instances."
 
@@ -480,7 +460,7 @@ resource "aws_iam_role" "reporter_lambda_role" {
 
   name               = "${var.config_recorder_name}-reporter-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.reporter_lambda_assume_role[count.index].json
-  tags               = var.tags
+  tags               = merge(var.tags, { Customer = local.customer_identifier })
 }
 
 # Attaches the inline policy (defined in the policy document) to the Lambda role.
@@ -508,15 +488,14 @@ resource "aws_lambda_function" "compliance_reporter" {
   source_code_hash = filebase64sha256("${path.module}/lambda_compliance_reporter/lambda_package.zip")
 
   environment {
-    variables = {
-      CONFIG_REPORT_BUCKET      = aws_s3_bucket.config_bucket.id
-      REPORTER_OUTPUT_S3_PREFIX = var.reporter_output_s3_prefix
-    }
+    variables = merge({
+      CONFIG_REPORT_BUCKET         = aws_s3_bucket.config_bucket.id,
+      REPORTER_OUTPUT_S3_PREFIX    = var.reporter_output_s3_prefix,
+      CUSTOMER_IDENTIFIER          = local.customer_identifier
+    })
   }
 
-  tags = merge(var.tags, {
-    Name = "${var.config_recorder_name}-compliance-reporter"
-  })
+  tags = merge(var.tags, { Name = "${var.config_recorder_name}-compliance-reporter", Customer = local.customer_identifier })
 }
 
 # 4. CloudWatch Event Schedule
@@ -527,7 +506,7 @@ resource "aws_cloudwatch_event_rule" "reporter_schedule" {
   name                = "${var.config_recorder_name}-reporter-schedule"
   description         = "Triggers the AWS Config compliance reporter Lambda function."
   schedule_expression = var.reporter_schedule_expression
-  tags                = var.tags
+  tags                = merge(var.tags, { Customer = local.customer_identifier })
 }
 
 # Creates a target for the CloudWatch Event Rule, specifying the Lambda function to invoke.

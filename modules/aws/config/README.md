@@ -55,6 +55,64 @@
   </ol>
 </details>
 
+## Complete Example Usage
+
+```hcl
+module "example_aws_config" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/config?ref=dev-config"
+
+  # Core settings
+  customer_name         = "Acme Corp" # Optional: label for easier identification in reports and tags
+  config_recorder_name  = "example-config-recorder"
+  config_bucket_prefix  = "example-config-bucket-"
+  config_iam_role_name  = "example-config-role"
+  recording_frequency   = "DAILY"
+
+  # --- Config Rules (opt-in for each rule) ---
+  enable_iam_password_policy_rule   = true
+  # IAM password policy arguments (only needed if the rule above is enabled)
+  password_min_length       = 16
+  password_reuse_prevention = 24
+  password_max_age          = 45
+
+  enable_encrypted_volumes_rule     = true
+  enable_ebs_encryption_rule        = true
+  enable_s3_public_access_rules     = true
+  enable_iam_root_key_rule          = true
+  enable_mfa_for_iam_console_rule   = true
+  enable_ec2_volume_inuse_rule      = true
+  enable_eip_attached_rule          = true
+  enable_rds_storage_encrypted_rule = true
+
+  # --- S3 Lifecycle and Retention ---
+  enable_s3_lifecycle_rules = true
+  report_retention_days     = 30
+  enable_glacier_transition = true
+  glacier_transition_days   = 90
+
+  snapshot_delivery_frequency = "TwentyFour_Hours"
+  s3_key_prefix               = "config"
+
+  # --- Compliance reporter Lambda (optional) ---
+  enable_compliance_reporter   = true
+  reporter_schedule_expression = "cron(0 8 ? * WED *)"
+  reporter_output_s3_prefix    = "compliance-reports/weekly/"
+
+  # --- Tags ---
+  tags = {
+    Environment = "prod"
+    Project     = "config"
+    Owner       = "security-team"
+  }
+}
+```
+
+- Each AWS Config managed rule is individually enabled/disabled via its own variable (all default to `false`).
+- `customer_name` is an optional label for easier identification in reports and tagging, especially for multi-account or MSP environments.
+- Arguments for rules (like IAM password policy) are grouped directly below their enable flag for clarity.
+- S3 lifecycle and Glacier transition settings are grouped together and use standard defaults.
+- The example is now fully generic and ready for copy-paste into any environment.
+
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
