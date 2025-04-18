@@ -392,7 +392,8 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
       "config:DescribeComplianceByConfigRule",
       "config:GetComplianceDetailsByConfigRule",
       "config:GetResourceConfigHistory",
-      "config:DescribeConfigRules"
+      "config:DescribeConfigRules",
+      "config:ListDiscoveredResources"
     ]
     resources = ["*"] # Config read actions often require * 
     effect    = "Allow"
