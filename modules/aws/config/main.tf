@@ -440,6 +440,7 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
     actions = [
       "iam:GetUser",
       "iam:ListUserTags",
+      "iam:ListUsers",
       "iam:ListAccountAliases"
     ]
     resources = ["*"] # Allow checking any IAM user

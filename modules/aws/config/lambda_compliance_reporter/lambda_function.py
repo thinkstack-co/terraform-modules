@@ -9,6 +9,21 @@ import io
 import os
 
 
+def lookup_iam_username_by_id(user_id):
+    """
+    Given the internal IAM UserId (AIDA…), return the console username
+    by paging through IAM ListUsers.
+    """
+    iam = boto3.client('iam')
+    paginator = iam.get_paginator('list_users')
+    for page in paginator.paginate():
+        for u in page.get('Users', []):
+            if u.get('UserId') == user_id:
+                return u.get('UserName')
+    # if we didn’t find it, just return the ID
+    return user_id
+
+
 def get_account_info():
     iam = boto3.client('iam')
     sts = boto3.client('sts')
@@ -44,15 +59,43 @@ def get_non_compliant_resources(rule_name):
     config = boto3.client('config')
     resources = []
     paginator = config.get_paginator('get_compliance_details_by_config_rule')
-    for page in paginator.paginate(ConfigRuleName=rule_name, ComplianceTypes=['NON_COMPLIANT']):
+
+    for page in paginator.paginate(
+        ConfigRuleName=rule_name,
+        ComplianceTypes=['NON_COMPLIANT']
+    ):
         for result in page['EvaluationResults']:
             res = result['EvaluationResultIdentifier']['EvaluationResultQualifier']
-            resources.append({
-                'ResourceType': res['ResourceType'],
-                'ResourceId': res['ResourceId'],
-                'ResourceName': res.get('ResourceName', res['ResourceId']),
-                'ResourceArn': res.get('ResourceArn', res['ResourceId'])
-            })
+
+            if res['ResourceType'] == 'AWS::IAM::User':
+                user_id = res['ResourceId']
+                # Turn the internal ID into the login name
+                user_name = lookup_iam_username_by_id(user_id)
+
+                # Fetch the real ARN
+                iam = boto3.client('iam')
+                try:
+                    arn = iam.get_user(UserName=user_name)['User']['Arn']
+                except iam.exceptions.NoSuchEntityException:
+                    # Fallback if the user no longer exists in IAM
+                    account_id = boto3.client('sts').get_caller_identity()['Account']
+                    arn = f"arn:aws:iam::{account_id}:user/{user_name}"
+
+                resources.append({
+                    'ResourceType': 'AWS::IAM::User',
+                    'ResourceId':   user_id,
+                    'ResourceName': user_name,
+                    'ResourceArn':  arn
+                })
+
+            else:
+                resources.append({
+                    'ResourceType':  res['ResourceType'],
+                    'ResourceId':    res['ResourceId'],
+                    'ResourceName':  res.get('ResourceName', res['ResourceId']),
+                    'ResourceArn':   res.get('ResourceArn', res['ResourceId']),
+                })
+
     return resources
 
 
@@ -96,7 +139,7 @@ def lambda_handler(event, context):
         status = compliance.get(name, 'UNKNOWN')
         rule_table_data.append([name, status])
 
-    # Non-compliant resources data
+    # Non-compliant resources section
     non_compliant_section = []
     for rule in rules:
         name = rule['ConfigRuleName']
@@ -105,33 +148,31 @@ def lambda_handler(event, context):
             if non_compliant_resources:
                 non_compliant_section.append([f"Rule: {name}", "", ""])
                 for res in non_compliant_resources:
-                    arn = res.get('ResourceArn', res['ResourceId'])
-                    resource_name = get_resource_name_from_tag(arn)
-                    # If it's an IAM user, try to extract the username from ARN and display both username and ARN
-                    if res['ResourceType'] == 'AWS::IAM::User':
-                        user_name = None
-                        if arn and ':user/' in arn:
-                            user_name = arn.split(':user/')[1]
-                        if user_name:
-                            resource_name = get_iam_user_name(user_name)
-                        else:
-                            resource_name = res.get('ResourceName', res['ResourceId'])
-                        # Show username and ARN
-                        non_compliant_section.append([
-                            f"{resource_name} (IAM Username)",
-                            res['ResourceType'],
-                            arn
-                        ])
-                    else:
-                        non_compliant_section.append([
-                            resource_name,
-                            res['ResourceType'],
-                            arn
-                        ])
+                    arn = res['ResourceArn']
 
-    # Build PDF
+                    if res['ResourceType'] == 'AWS::IAM::User':
+                        # Use the console username we looked up earlier
+                        display_name = f"{res['ResourceName']} (IAM Username)"
+                    else:
+                        # For other resources, try to use the Name tag if present
+                        display_name = get_resource_name_from_tag(arn)
+
+                    non_compliant_section.append([
+                        display_name,
+                        res['ResourceType'],
+                        arn
+                    ])
+
+    # ── DEBUG FINAL ROWS ──
+    print("DEBUG final non_compliant_section:", non_compliant_section)
+    # ── END DEBUG FINAL ROWS ──
+
+
+    # Build PDF (unchanged) …
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            rightMargin=40, leftMargin=40,
+                            topMargin=40, bottomMargin=40)
     elements = []
     styles = getSampleStyleSheet()
     title_style = styles['Heading1']
@@ -139,9 +180,11 @@ def lambda_handler(event, context):
     subtitle_style.alignment = TA_CENTER
     normal_style = styles['Normal']
     small_style = ParagraphStyle('small', fontSize=9, leading=12)
-    table_header_style = ParagraphStyle('table_header', fontSize=11, leading=14, alignment=TA_CENTER, fontName='Helvetica-Bold')
+    table_header_style = ParagraphStyle(
+        'table_header', fontSize=11, leading=14,
+        alignment=TA_CENTER, fontName='Helvetica-Bold'
+    )
 
-    # Title
     elements.append(Paragraph("AWS Config Compliance Report", title_style))
     elements.append(Spacer(1, 10))
     elements.append(Paragraph(f"Account Alias: <b>{alias}</b>", normal_style))
@@ -149,11 +192,10 @@ def lambda_handler(event, context):
     elements.append(Paragraph(f"Generated: <b>{now}</b>", small_style))
     elements.append(Spacer(1, 18))
 
-    # Compliance summary table #
-    summary_data = [[
-        Paragraph("<b>Status</b>", table_header_style),
-        Paragraph("<b>Count</b>", table_header_style)
-    ],
+    # Compliance summary table
+    summary_data = [
+        [Paragraph("<b>Status</b>", table_header_style),
+         Paragraph("<b>Count</b>", table_header_style)],
         ["Compliant Rules", compliant_count],
         ["Non-Compliant Rules", non_compliant_count],
         ["Insufficient Data", insufficient_data_count]
@@ -194,32 +236,40 @@ def lambda_handler(event, context):
     elements.append(rule_table)
     elements.append(Spacer(1, 24))
 
-    # Non-compliant resources section
+    # Non-compliant resources table
     elements.append(Paragraph("Non-Compliant Resources", subtitle_style))
     if non_compliant_section:
-        noncomp_table = Table(
-            [[Paragraph('<b>Resource Name</b>', table_header_style),
-              Paragraph('<b>Type</b>', table_header_style),
-              Paragraph('<b>ARN/ID</b>', table_header_style)]
-            ] + non_compliant_section,
-            colWidths=[180, 100, 240]
-        )
+        # Build a simple 2‑col table: Resource Name | Type
+        table_data = [
+            [
+                Paragraph("<b>Resource Name</b>", table_header_style),
+                Paragraph("<b>Type</b>", table_header_style)
+            ]
+        ]
+        for name, rtype, arn in non_compliant_section:
+            table_data.append([
+                Paragraph(name, normal_style),
+                Paragraph(rtype, normal_style)
+            ])
+
+        noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#b71c1c')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
             ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#ffeaea')]),
-            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
             ('BOX', (0, 0), (-1, -1), 1, colors.gray),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
         ]))
         elements.append(noncomp_table)
+
     else:
         elements.append(Paragraph("<i>No non-compliant resources found.</i>", normal_style))
+
 
     doc.build(elements)
     buffer.seek(0)
@@ -228,7 +278,12 @@ def lambda_handler(event, context):
     now_dt = datetime.utcnow()
     bucket = os.environ.get('CONFIG_REPORT_BUCKET', 'liberty-prod-config-bucket-20250305204205543600000001')
     prefix = os.environ.get('REPORTER_OUTPUT_S3_PREFIX', 'compliance-reports/weekly/')
-    key = f"{prefix}{now_dt.year}/{now_dt.strftime('%m')}/{now_dt.strftime('%d')}/compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
+    key = (
+        f"{prefix}{now_dt.year}/"
+        f"{now_dt.strftime('%m')}/"
+        f"{now_dt.strftime('%d')}/"
+        f"compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
+    )
     s3.put_object(
         Bucket=bucket,
         Key=key,
@@ -238,5 +293,5 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': f'Successfully uploaded PDF to s3://{bucket}/{key}'
+        'body': f"Successfully uploaded PDF to s3://{bucket}/{key}"
     }
