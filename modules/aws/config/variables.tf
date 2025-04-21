@@ -78,6 +78,15 @@ variable "report_retention_days" {
   description = "Number of days to retain config reports in S3 before deletion (set to 0 to disable deletion)"
   type        = number
   default     = 365
+
+  validation {
+    condition = (
+      var.report_retention_days == 0 ||
+      var.glacier_transition_days == 0 ||
+      var.report_retention_days > var.glacier_transition_days
+    )
+    error_message = "report_retention_days must be greater than glacier_transition_days if both are set (non-zero)."
+  }
 }
 
 variable "enable_glacier_transition" {
