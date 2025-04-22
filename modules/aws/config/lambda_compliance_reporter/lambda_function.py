@@ -25,16 +25,29 @@ def lookup_iam_username_by_id(user_id):
 
 
 def get_account_info():
+    import os
     sts = boto3.client('sts')
     org = boto3.client('organizations')
     account_id = sts.get_caller_identity()['Account']
+    # 1. Try Organizations API
     try:
         response = org.describe_account(AccountId=account_id)
         account_name = response['Account']['Name']
+        return account_name, account_id
     except Exception as e:
         print(f"ERROR: Failed to fetch Organizations account name: {e}")
-        account_name = 'N/A'
-    return account_name, account_id
+    # 2. Try environment variable
+    account_env = os.environ.get('ACCOUNT_DISPLAY_NAME')
+    if account_env:
+        return account_env, account_id
+    # 3. Fallback to IAM alias
+    iam = boto3.client('iam')
+    try:
+        aliases = iam.list_account_aliases().get('AccountAliases', [])
+        alias = aliases[0] if aliases else 'N/A'
+    except Exception:
+        alias = 'N/A'
+    return alias, account_id
 
 
 def get_config_rules():

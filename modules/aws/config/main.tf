@@ -491,9 +491,10 @@ resource "aws_lambda_function" "compliance_reporter" {
 
   environment {
     variables = merge({
-      CONFIG_REPORT_BUCKET         = aws_s3_bucket.config_bucket.id,
-      REPORTER_OUTPUT_S3_PREFIX    = var.reporter_output_s3_prefix,
+      CONFIG_REPORT_BUCKET         = aws_s3_bucket.config_bucket.bucket
+      REPORTER_OUTPUT_S3_PREFIX    = var.reporter_output_s3_prefix
       CUSTOMER_IDENTIFIER          = local.customer_identifier
+      ACCOUNT_DISPLAY_NAME         = var.account_display_name
     })
   }
 

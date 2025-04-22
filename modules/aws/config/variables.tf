@@ -30,6 +30,12 @@ variable "customer_name" {
   default     = ""
 }
 
+variable "account_display_name" {
+  description = "Optional: The IAM account alias or display name to use in compliance reports if Organizations API is unavailable."
+  type        = string
+  default     = ""
+}
+
 # Password Policy Variables
 variable "password_min_length" {
   description = "Minimum length for IAM user passwords"

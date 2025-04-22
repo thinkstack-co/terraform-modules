@@ -105,13 +105,38 @@ module "example_aws_config" {
     Owner       = "security-team"
   }
 }
-```
 
-- Each AWS Config managed rule is individually enabled/disabled via its own variable (all default to `false`).
-- `customer_name` is an optional label for easier identification in reports and tagging, especially for multi-account or MSP environments.
-- Arguments for rules (like IAM password policy) are grouped directly below their enable flag for clarity.
-- S3 lifecycle and Glacier transition settings are grouped together and use standard defaults.
-- The example is now fully generic and ready for copy-paste into any environment.
+## Compliance Reporter Account Name Logic
+
+By default, the compliance reporter Lambda will attempt to display the AWS account's display name at the top of each report. The logic for determining the account name is as follows:
+
+1. **AWS Organizations Account Name:**
+   - If the Lambda function has access to the Organizations API, it will use the display name from AWS Organizations (the friendly name you see in the AWS SSO/Access Portal).
+2. **Environment Variable Override:**
+   - If the Organizations API is not accessible (e.g., due to permissions or SCPs), you can set the `account_display_name` variable in this module. This value will be passed to the Lambda as the `ACCOUNT_DISPLAY_NAME` environment variable and used in the report.
+   - Example:
+     ```hcl
+     module "aws_config" {
+       # ...
+       account_display_name = "mycommunity_prod_infrastructure"
+     }
+     ```
+3. **IAM Account Alias Fallback:**
+   - If neither of the above is available, the Lambda will fall back to using the IAM account alias (if set).
+4. **N/A:**
+   - If none of the above are available, the report will show `N/A` for the account name.
+
+**This gives you full control and ensures the correct account name is always displayed in compliance reports, even in restricted environments.**
+
+### Example Usage with Display Name
+
+```hcl
+module "aws_config" {
+  # ...
+  enable_compliance_reporter = true
+  account_display_name       = "mycommunity_prod_infrastructure" # Optional, for environments without Organizations API access
+}
+```
 
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
