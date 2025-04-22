@@ -95,7 +95,7 @@ module "example_aws_config" {
 
   # --- Compliance reporter Lambda (optional) ---
   enable_compliance_reporter   = true
-  reporter_schedule_expression = "cron(0 8 ? * WED *)"
+  reporter_schedule_expression = "cron(0 8 ? * WED *)" # Run every Wednesday at 8 AM UTC
   reporter_output_s3_prefix    = "compliance-reports/weekly/"
 
   # --- Tags ---
@@ -105,7 +105,7 @@ module "example_aws_config" {
     Owner       = "security-team"
   }
 }
-
+```
 ## Compliance Reporter Account Name Logic
 
 By default, the compliance reporter Lambda will attempt to display the AWS account's display name at the top of each report. The logic for determining the account name is as follows:
@@ -115,10 +115,11 @@ By default, the compliance reporter Lambda will attempt to display the AWS accou
 2. **Environment Variable Override:**
    - If the Organizations API is not accessible (e.g., due to permissions or SCPs), you can set the `account_display_name` variable in this module. This value will be passed to the Lambda as the `ACCOUNT_DISPLAY_NAME` environment variable and used in the report.
    - Example:
+
      ```hcl
      module "aws_config" {
        # ...
-       account_display_name = "mycommunity_prod_infrastructure"
+       account_display_name = "example-account-display-name"
      }
      ```
 3. **IAM Account Alias Fallback:**
@@ -134,7 +135,7 @@ By default, the compliance reporter Lambda will attempt to display the AWS accou
 module "aws_config" {
   # ...
   enable_compliance_reporter = true
-  account_display_name       = "mycommunity_prod_infrastructure" # Optional, for environments without Organizations API access
+  account_display_name       = "example-account-display-name" # Optional, for environments without Organizations API access
 }
 ```
 
