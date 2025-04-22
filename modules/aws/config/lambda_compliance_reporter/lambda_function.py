@@ -25,15 +25,16 @@ def lookup_iam_username_by_id(user_id):
 
 
 def get_account_info():
-    iam = boto3.client('iam')
     sts = boto3.client('sts')
-    try:
-        aliases = iam.list_account_aliases().get('AccountAliases', [])
-        alias = aliases[0] if aliases else 'N/A'
-    except Exception:
-        alias = 'N/A'
+    org = boto3.client('organizations')
     account_id = sts.get_caller_identity()['Account']
-    return alias, account_id
+    try:
+        response = org.describe_account(AccountId=account_id)
+        account_name = response['Account']['Name']
+    except Exception as e:
+        print(f"ERROR: Failed to fetch Organizations account name: {e}")
+        account_name = 'N/A'
+    return account_name, account_id
 
 
 def get_config_rules():
@@ -122,7 +123,7 @@ def get_iam_user_name(user_id):
 
 
 def lambda_handler(event, context):
-    alias, account_id = get_account_info()
+    account_name, account_id = get_account_info()
     now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
     rules = get_config_rules()
     compliance = get_compliance_status()
@@ -187,7 +188,7 @@ def lambda_handler(event, context):
 
     elements.append(Paragraph("AWS Config Compliance Report", title_style))
     elements.append(Spacer(1, 10))
-    elements.append(Paragraph(f"Account Alias: <b>{alias}</b>", normal_style))
+    elements.append(Paragraph(f"Account Name: <b>{account_name}</b>", normal_style))
     elements.append(Paragraph(f"Account Number: <b>{account_id}</b>", normal_style))
     elements.append(Paragraph(f"Generated: <b>{now}</b>", small_style))
     elements.append(Spacer(1, 18))
