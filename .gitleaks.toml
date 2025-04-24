@@ -2,5 +2,5 @@
 id = "false-positive-s3_key_prefix"
 description = "Ignore s3_key_prefix variable assignment"
 regex = '''s3_key_prefix\s+=\s+var\.s3_key_prefix'''
-path = '''modules/aws/config/main.tf'''
+path = '''modules/aws'''
 tags = ["false-positive"]
