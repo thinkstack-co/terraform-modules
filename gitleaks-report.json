@@ -1,0 +1,71 @@
+[
+ {
+  "RuleID": "false-positive-s3_key_prefix",
+  "Description": "Ignore s3_key_prefix variable assignment",
+  "StartLine": 100,
+  "EndLine": 100,
+  "StartColumn": 4,
+  "EndColumn": 37,
+  "Match": "s3_key_prefix  = var.s3_key_prefix",
+  "Secret": "s3_key_prefix  = var.s3_key_prefix",
+  "File": "modules/aws/config/main.tf",
+  "SymlinkFile": "",
+  "Commit": "45069754165202f6b951829d36716d40867836fe",
+  "Link": "https://github.com/thinkstack-co/terraform-modules/blob/45069754165202f6b951829d36716d40867836fe/modules/aws/config/main.tf#L100",
+  "Entropy": 3.8665872,
+  "Author": "Wesley Bey",
+  "Email": "wbey@thinkstack.co",
+  "Date": "2025-04-01T17:53:43Z",
+  "Message": "lambda function for pdf",
+  "Tags": [
+   "false-positive"
+  ],
+  "Fingerprint": "45069754165202f6b951829d36716d40867836fe:modules/aws/config/main.tf:false-positive-s3_key_prefix:100"
+ },
+ {
+  "RuleID": "false-positive-s3_key_prefix",
+  "Description": "Ignore s3_key_prefix variable assignment",
+  "StartLine": 136,
+  "EndLine": 136,
+  "StartColumn": 3,
+  "EndColumn": 36,
+  "Match": "s3_key_prefix  = var.s3_key_prefix",
+  "Secret": "s3_key_prefix  = var.s3_key_prefix",
+  "File": "modules/aws/config/main.tf",
+  "SymlinkFile": "",
+  "Commit": "19a1e001f39d0b55bc9d5dff775bb6f13146c961",
+  "Link": "https://github.com/thinkstack-co/terraform-modules/blob/19a1e001f39d0b55bc9d5dff775bb6f13146c961/modules/aws/config/main.tf#L136",
+  "Entropy": 3.8665872,
+  "Author": "Wesley Bey",
+  "Email": "wbey@thinkstack.co",
+  "Date": "2025-03-31T15:25:09Z",
+  "Message": "removing variables",
+  "Tags": [
+   "false-positive"
+  ],
+  "Fingerprint": "19a1e001f39d0b55bc9d5dff775bb6f13146c961:modules/aws/config/main.tf:false-positive-s3_key_prefix:136"
+ },
+ {
+  "RuleID": "false-positive-s3_key_prefix",
+  "Description": "Ignore s3_key_prefix variable assignment",
+  "StartLine": 62,
+  "EndLine": 62,
+  "StartColumn": 4,
+  "EndColumn": 37,
+  "Match": "s3_key_prefix  = var.s3_key_prefix",
+  "Secret": "s3_key_prefix  = var.s3_key_prefix",
+  "File": "modules/aws/config/main.tf",
+  "SymlinkFile": "",
+  "Commit": "4a7902cf9ed49d7f5f39151e1792519b9647bd98",
+  "Link": "https://github.com/thinkstack-co/terraform-modules/blob/4a7902cf9ed49d7f5f39151e1792519b9647bd98/modules/aws/config/main.tf#L62",
+  "Entropy": 3.8665872,
+  "Author": "Wesley Bey",
+  "Email": "wbey@thinkstack.co",
+  "Date": "2025-03-05T23:42:54Z",
+  "Message": "more config updates",
+  "Tags": [
+   "false-positive"
+  ],
+  "Fingerprint": "4a7902cf9ed49d7f5f39151e1792519b9647bd98:modules/aws/config/main.tf:false-positive-s3_key_prefix:62"
+ }
+]

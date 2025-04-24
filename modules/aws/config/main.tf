@@ -6,9 +6,6 @@ locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
 }
 
-# Get current AWS account ID
-data "aws_caller_identity" "current" {}
-
 # Get current AWS region
 data "aws_region" "current" {}
 # --- Core AWS Config Resources --- 
@@ -534,6 +531,7 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
 }
 
 terraform {
+  required_version = ">= 1.3.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
