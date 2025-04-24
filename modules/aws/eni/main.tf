@@ -14,6 +14,7 @@ terraform {
 
 resource "aws_network_interface" "eni" {
 
+  description             = var.description
   private_ips             = var.private_ips
   private_ips_count       = var.private_ips_count
   private_ip_list_enabled = var.private_ip_list_enabled

@@ -1,14 +1,17 @@
 variable "description" {
+  type        = string
   description = "(Optional) The description of the key as viewed in AWS console."
   default     = ""
 }
 
 variable "deletion_window_in_days" {
+  type        = number
   description = "(Optional) Duration in days after which the key is deleted after destruction of the resource, must be between 7 and 30 days. Defaults to 30 days."
   default     = 30
 }
 
 variable "enable_key_rotation" {
+  type        = bool
   description = "(Optional) Specifies whether key rotation is enabled. Defaults to false."
   default     = true
 }
@@ -37,9 +40,9 @@ variable "policy" {
 }
 
 variable "tags" {
+  type        = map(string)
   description = "(Optional) A mapping of tags to assign to the object."
   default = {
     terraform  = "true"
-    created_by = "terraform"
   }
 }
