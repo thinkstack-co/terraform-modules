@@ -67,5 +67,51 @@
    "false-positive"
   ],
   "Fingerprint": "4a7902cf9ed49d7f5f39151e1792519b9647bd98:modules/aws/config/main.tf:false-positive-s3_key_prefix:62"
+ },
+ {
+  "RuleID": "false-positive-s3_key_prefix",
+  "Description": "Ignore s3_key_prefix variable assignment",
+  "StartLine": 12,
+  "EndLine": 12,
+  "StartColumn": 4,
+  "EndColumn": 52,
+  "Match": "s3_key_prefix                 = var.s3_key_prefix",
+  "Secret": "s3_key_prefix                 = var.s3_key_prefix",
+  "File": "modules/aws/cloudtrail/main.tf",
+  "SymlinkFile": "",
+  "Commit": "40cbb06be25f88ebeab4395c00350142c8d6a4d1",
+  "Link": "https://github.com/thinkstack-co/terraform-modules/blob/40cbb06be25f88ebeab4395c00350142c8d6a4d1/modules/aws/cloudtrail/main.tf#L12",
+  "Entropy": 3.3328009,
+  "Author": "TheJalpa",
+  "Email": "30740021+TheJalpa@users.noreply.github.com",
+  "Date": "2021-10-27T22:14:33Z",
+  "Message": "updating formatting",
+  "Tags": [
+   "false-positive"
+  ],
+  "Fingerprint": "40cbb06be25f88ebeab4395c00350142c8d6a4d1:modules/aws/cloudtrail/main.tf:false-positive-s3_key_prefix:12"
+ },
+ {
+  "RuleID": "false-positive-s3_key_prefix",
+  "Description": "Ignore s3_key_prefix variable assignment",
+  "StartLine": 12,
+  "EndLine": 12,
+  "StartColumn": 6,
+  "EndColumn": 58,
+  "Match": "s3_key_prefix                   =   var.s3_key_prefix",
+  "Secret": "s3_key_prefix                   =   var.s3_key_prefix",
+  "File": "modules/aws/cloudtrail/main.tf",
+  "SymlinkFile": "",
+  "Commit": "37ce143efe7aaba06f83bcb5415d8859136dcba4",
+  "Link": "https://github.com/thinkstack-co/terraform-modules/blob/37ce143efe7aaba06f83bcb5415d8859136dcba4/modules/aws/cloudtrail/main.tf#L12",
+  "Entropy": 3.1833472,
+  "Author": "Zachary Hill",
+  "Email": "zhill@thinkstack.co",
+  "Date": "2019-11-01T13:52:59Z",
+  "Message": "updated cloudtrail module to use first class expressions",
+  "Tags": [
+   "false-positive"
+  ],
+  "Fingerprint": "37ce143efe7aaba06f83bcb5415d8859136dcba4:modules/aws/cloudtrail/main.tf:false-positive-s3_key_prefix:12"
  }
 ]

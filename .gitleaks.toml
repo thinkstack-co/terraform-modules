@@ -4,3 +4,11 @@ description = "Ignore s3_key_prefix variable assignment"
 regex = '''s3_key_prefix\s+=\s+var\.s3_key_prefix'''
 path = '''modules/aws'''
 tags = ["false-positive"]
+
+[allowlist]
+regexes = [
+  '''s3_key_prefix\s+=\s+var\.s3_key_prefix'''
+]
+paths = [
+  "modules/aws"
+]
