@@ -1,4 +1,5 @@
 variable "mfa_self_serv_name" {
-  description = "Name of the policy"
+  type        = string
+  description = "Name for the MFA self-service policy"
   default     = "mfa_enforcement"
 }

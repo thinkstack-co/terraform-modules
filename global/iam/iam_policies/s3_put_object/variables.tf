@@ -1,4 +1,5 @@
 variable "s3_put_object_name" {
-  description = "Name of the policy"
+  type        = string
+  description = "Name for the S3 put object policy"
   default     = "s3_put_object"
 }

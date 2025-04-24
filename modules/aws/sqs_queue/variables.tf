@@ -69,7 +69,8 @@ variable "delay_seconds" {
   description = "(Optional) The time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds."
   default     = 0
   validation {
-    condition = can(regex("^[0-9]{1,3}|[1-8][0-9]{3}|900$", var.delay_seconds))
+    condition     = can(regex("^[0-9]{1,3}|[1-8][0-9]{3}|900$", var.delay_seconds))
+    error_message = "The value must be an integer between 0 and 900 (seconds)."
   }
 }
 
@@ -88,15 +89,18 @@ variable "kms_data_key_reuse_period_seconds" {
   description = "(Optional) The length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes)."
   default     = 300
   validation {
-    condition = can(regex("^[6-9][0-9]{1,4}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|86400$", var.kms_data_key_reuse_period_seconds))
+    condition     = can(regex("^[6-9][0-9]{1,4}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|86400$", var.kms_data_key_reuse_period_seconds))
+    error_message = "The value must be an integer between 60 and 86400 (seconds)."
   }
 }
 
 variable "message_retention_seconds" {
+  type        = number
   description = "(Optional) The number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days)."
   default     = 345600
   validation {
-    condition = can(regex("^[6-9][0-9]{1,4}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|1209600$", var.message_retention_seconds))
+    condition     = can(regex("^[6-9][0-9]{1,4}|[1-7][0-9]{4}|8[0-5][0-9]{3}|86[0-3][0-9]{2}|1209600$", var.message_retention_seconds))
+    error_message = "The value must be an integer between 60 and 1209600 (seconds)."
   }
 }
 
@@ -116,6 +120,7 @@ variable "visibility_timeout_seconds" {
   description = "(Optional) The visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see AWS docs."
   default     = 30
   validation {
-    condition = can(regex("^[0-9]{1,4}|1[0-9]{4}|2[0-9]{4}|3[0-1][0-9]{3}|32[0-7][0-9]{2}|328[0-8][0-9]|3289[0-6]$", var.visibility_timeout_seconds))
+    condition     = can(regex("^[0-9]{1,4}|1[0-9]{4}|2[0-9]{4}|3[0-1][0-9]{3}|32[0-7][0-9]{2}|328[0-8][0-9]|3289[0-6]$", var.visibility_timeout_seconds))
+    error_message = "The value must be an integer between 0 and 43200 (seconds)."
   }
 }

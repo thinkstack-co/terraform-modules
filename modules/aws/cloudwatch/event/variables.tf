@@ -1,20 +1,25 @@
 variable "name" {
-  description = "Name of the cloudwatch event"
+  type        = string
+  description = "Name of the CloudWatch event rule"
 }
 
 variable "description" {
-  description = "Description of the cloudwatch event"
+  type        = string
+  description = "Description of the CloudWatch event rule"
 }
 
 variable "schedule_expression" {
-  description = "cron expression of time or rate expression of time"
+  type        = string
+  description = "Schedule expression for the event rule"
 }
 
 variable "is_enabled" {
-  description = "Whether or not the event rule is enabled"
-  default     = "true"
+  type        = bool
+  description = "Whether the event rule is enabled"
+  default     = true
 }
 
 variable "event_target_arn" {
-  description = "arn of the target to invoke with this event"
+  type        = string
+  description = "ARN of the event target"
 }
