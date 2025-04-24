@@ -30,6 +30,7 @@ variable "ntp_servers" {
 }
 
 variable "tags" {
+  type        = map(any)
   description = "(Optional) A mapping of tags to assign to the object."
   default = {
     Name        = "prod_dhcp_options_set"

@@ -21,16 +21,6 @@ variable "associate_public_ip_address" {
   }
 }
 
-variable "auto_recovery" {
-  type        = string
-  description = "(Optional) Whether the instance is protected from auto recovery by Auto Recovery from User Space (ARU) feature. Can be 'default' or 'disabled'. Defaults to default. See Auto Recovery from User Space for more information. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-auto-recovery.html"
-  default     = "default"
-  validation {
-    condition     = can(regex("default|disabled", var.auto_recovery))
-    error_message = "The value must be either default or disabled."
-  }
-}
-
 variable "availability_zone" {
   type        = string
   description = "The AZ to start the instance in"

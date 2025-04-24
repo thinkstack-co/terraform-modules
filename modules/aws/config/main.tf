@@ -5,9 +5,6 @@
 locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
 }
-
-# Get current AWS region
-data "aws_region" "current" {}
 # --- Core AWS Config Resources --- 
  
  # IAM Role for AWS Config Service
