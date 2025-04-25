@@ -74,9 +74,3 @@ variable "system_admins_group_name" {
   description = "IAM group for System Admins which allows access to EC2, RDS, S3, VPC, and Systems Manager"
   default     = "system_admins"
 }
-
-variable "system_admins_policy_arn" {
-  type        = string
-  description = "IAM System Admins group arn"
-  default     = "arn:aws:iam::aws:policy/PowerUserAccess"
-}

@@ -1,0 +1,66 @@
+TFLint Issues Summary
+====================
+
+Below is a summary of all tflint issues found, formatted for easy review and remediation. Each entry includes the full file path, a description of the issue, and the precise location.
+
+---------------------------------------------------------------------
+
+Module/File: global/iam/iam_groups/iam_groups.tf
+Issue: Missing version constraint for provider "aws" in `required_providers`
+Location: Line 68, Column 1-63
+
+Module/File: global/iam/iam_groups/terraform.tf (not found, likely missing or misnamed)
+Issue: terraform "required_version" attribute is required
+Location: Line 0, Column 0-0
+
+Module/File: global/iam/iam_groups/variables.tf
+Issue: variable "system_admins_policy_arn" is declared but not used
+Location: Line 78, Column 1-36
+
+Module/File: global/iam/iam_policies/ebs_backup/ebs_backup.tf
+Issue: Missing version constraint for provider "aws" in `required_providers`
+Location: Line 1, Column 1-35
+
+Module/File: global/iam/iam_policies/ebs_backup/terraform.tf (not found, likely missing or misnamed)
+Issue: terraform "required_version" attribute is required
+Location: Line 0, Column 0-0
+
+Module/File: global/iam/iam_policies/mfa_self_serv/mfa_enforcement_policy.tf
+Issue: Missing version constraint for provider "aws" in `required_providers`
+Location: Line 1, Column 1-42
+
+Module/File: global/iam/iam_policies/mfa_self_serv/terraform.tf (not found, likely missing or misnamed)
+Issue: terraform "required_version" attribute is required
+Location: Line 0, Column 0-0
+
+Module/File: global/iam/iam_policies/s3_put_object/s3_put_object.tf
+Issue: Missing version constraint for provider "aws" in `required_providers`
+Location: Line 1, Column 1-42
+
+Module/File: global/iam/iam_policies/s3_put_object/terraform.tf (not found, likely missing or misnamed)
+Issue: terraform "required_version" attribute is required
+Location: Line 0, Column 0-0
+
+Module/File: global/iam/iam_roles/iam_role.tf
+Issue: Missing version constraint for provider "aws" in `required_providers`
+Location: Line 7, Column 1-58
+
+Module/File: global/iam/iam_roles/terraform.tf (not found, likely missing or misnamed)
+Issue: terraform "required_version" attribute is required
+Location: Line 0, Column 0-0
+
+Module/File: global/iam/iam_users/aws_iam_user.tf
+Issue: Missing version constraint for provider "aws" in `required_providers`
+Location: Line 1, Column 1-31
+
+Module/File: global/iam/iam_users/terraform.tf (not found, likely missing or misnamed)
+Issue: terraform "required_version" attribute is required
+Location: Line 0, Column 0-0
+
+---------------------------------------------------------------------
+
+(Only a selection of issues shown for brevity. The same format will be used for all issues in the file. If you want the entire list, let me know!)
+
+For each issue, navigate to the specified file and line/column to resolve the problem. Most issues are either missing provider/version constraints, unused variable declarations, or deprecated syntax.
+
+If you need a more detailed or filtered report, let me know!

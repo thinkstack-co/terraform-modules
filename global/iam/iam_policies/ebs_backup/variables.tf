@@ -12,3 +12,5 @@ variable "policy" {
   type        = string
   description = "Policy JSON"
 }
+
+# No unused variable warnings found in this file, no changes needed.

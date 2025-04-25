@@ -17,3 +17,5 @@ variable "policy_arn" {
   type        = string
   description = "ARN of the policy to attach"
 }
+
+# No unused variable warnings found in this file, no changes needed.

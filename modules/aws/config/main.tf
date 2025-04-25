@@ -2,6 +2,9 @@
 # This module sets up AWS Config to enable continuous monitoring and assessment of AWS resource configurations
 
 # Local variables
+# DO NOT REMOVE THIS LINE. Required for account_id references in locals and resources.
+data "aws_caller_identity" "current" {}
+
 locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
 }
