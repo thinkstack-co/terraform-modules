@@ -33,8 +33,8 @@ resource "aws_iam_policy" "firehose_policy" {
         "s3:AbortMultipartUpload",
       ],
       Resource = [
-        "${aws_s3_bucket.firehose_bucket.arn}",
-        "${aws_s3_bucket.firehose_bucket.arn}/*"
+        aws_s3_bucket.firehose_bucket.arn,
+        format("%s/*", aws_s3_bucket.firehose_bucket.arn)
       ]
     }]
   })
