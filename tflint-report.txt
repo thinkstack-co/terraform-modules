@@ -1,4 +1,4 @@
-67 issue(s) found:
+59 issue(s) found:
 
 Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
 
@@ -7,40 +7,12 @@ Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used
 
 Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
 
-Warning: Missing version constraint for provider "aws" in `required_providers` (terraform_required_providers)
-
-  on global/iam/iam_groups/iam_groups.tf line 71:
-  71: resource "aws_iam_group_policy_attachment" "system_admins_mfa" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_providers.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on global/iam/iam_groups/terraform.tf line 0:
-   (source code not available)
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
 Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
 
   on global/iam/iam_policies/ebs_backup/ebs_backup.tf line 2:
    2: data "aws_caller_identity" "current" {}
 
 Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: Missing version constraint for provider "aws" in `required_providers` (terraform_required_providers)
-
-  on global/iam/iam_policies/ebs_backup/ebs_backup.tf line 4:
-   4: resource "aws_iam_policy" "policy" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_providers.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on global/iam/iam_policies/ebs_backup/terraform.tf line 0:
-   (source code not available)
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
 
 Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
 
@@ -49,40 +21,12 @@ Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used
 
 Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
 
-Warning: Missing version constraint for provider "aws" in `required_providers` (terraform_required_providers)
-
-  on global/iam/iam_policies/mfa_self_serv/mfa_enforcement_policy.tf line 4:
-   4: resource "aws_iam_policy" "mfa_self_serv" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_providers.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on global/iam/iam_policies/mfa_self_serv/terraform.tf line 0:
-   (source code not available)
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
 Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
 
   on global/iam/iam_policies/s3_put_object/s3_put_object.tf line 2:
    2: data "aws_caller_identity" "current" {}
 
 Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: Missing version constraint for provider "aws" in `required_providers` (terraform_required_providers)
-
-  on global/iam/iam_policies/s3_put_object/s3_put_object.tf line 4:
-   4: resource "aws_iam_policy" "s3_put_object" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_providers.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on global/iam/iam_policies/s3_put_object/terraform.tf line 0:
-   (source code not available)
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
 
 Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
 
@@ -133,12 +77,12 @@ Warning: [Fixable] variable "tags" is declared but not used (terraform_unused_de
 
 Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
 
-Warning: [Fixable] Interpolation-only expressions are deprecated in Terraform v0.12.14 (terraform_deprecated_interpolation)
+Warning: [Fixable] variable "iam_for_cloudwatch" is declared but not used (terraform_unused_declarations)
 
-  on modules/aws/cloudwatch/log_destination/main.tf line 36:
-  36:         "${aws_s3_bucket.firehose_bucket.arn}",
+  on modules/aws/cloudwatch/log_destination/variables.tf line 66:
+  66: variable "iam_for_cloudwatch" {
 
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_interpolation.md
+Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
 
 Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
 

@@ -1,4 +1,5 @@
 rule "terraform_unused_declarations" {
+  enabled = true
   ignore_paths = [
     "global/iam/iam_groups/iam_groups.tf",
     "global/iam/iam_policies/ebs_backup/ebs_backup.tf",
