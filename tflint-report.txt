@@ -1,244 +1,54 @@
-34 issue(s) found:
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on global/iam/iam_groups/iam_groups.tf line 2:
-   2: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on global/iam/iam_policies/ebs_backup/ebs_backup.tf line 2:
-   2: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on global/iam/iam_policies/mfa_self_serv/mfa_enforcement_policy.tf line 2:
-   2: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on global/iam/iam_policies/s3_put_object/s3_put_object.tf line 2:
-   2: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on global/iam/iam_roles/iam_role.tf line 2:
-   2: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on global/iam/iam_users/aws_iam_user.tf line 2:
-   2: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "type" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/alb/alb_listener/variables.tf line 23:
-  23: variable "type" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "stickiness_type" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/alb/alb_listener/variables.tf line 29:
-  29: variable "stickiness_type" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "ssl_policy" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/alb/alb_listener/variables.tf line 44:
-  44: variable "ssl_policy" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "tags" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/alb/alb_listener_rule/variables.tf line 27:
-  27: variable "tags" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "tags" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/alb/alb_target_group/variables.tf line 22:
-  22: variable "tags" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "iam_for_cloudwatch" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/cloudwatch/log_destination/variables.tf line 66:
-  66: variable "iam_for_cloudwatch" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/ec2_instance/main.tf line 17:
-  17: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "tags" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/nlb/nlb_listener_rule/variables.tf line 27:
-  27: variable "tags" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "tags" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/nlb/nlb_target_group/variables.tf line 66:
-  66: variable "tags" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "kms_key_id" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/rds/cluster/variables.tf line 143:
- 143: variable "kms_key_id" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "scaling_configuration" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/rds/cluster/variables.tf line 174:
- 174: variable "scaling_configuration" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on modules/aws/s3/notification/main.tf line 1:
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
-Warning: Missing version constraint for provider "aws" in `required_providers` (terraform_required_providers)
-
-  on modules/aws/s3/notification/main.tf line 2:
-   2: resource "aws_s3_bucket_notification" "this" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_providers.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/vendor/cato_sdwan/main.tf line 15:
-  15: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "ebs_block_device" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/vendor/silverpeak/variables.tf line 29:
-  29: variable "ebs_block_device" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] variable "ephemeral_block_device" is declared but not used (terraform_unused_declarations)
-
-  on modules/aws/vendor/silverpeak/variables.tf line 41:
-  41: variable "ephemeral_block_device" {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on modules/module_template/main.tf line 1:
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on modules/terraform/oauth_client/main.tf line 1:
-   1: terraform {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on modules/terraform/team/main.tf line 1:
-   1: terraform {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
-Warning: terraform "required_version" attribute is required (terraform_required_version)
-
-  on modules/terraform/team_access/main.tf line 1:
-   1: terraform {
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_required_version.md
-
-Warning: [Fixable] data "aws_caller_identity" "current" is declared but not used (terraform_unused_declarations)
-
-  on modules/thinkstack/aws_backup_custom/main.tf line 15:
-  15: data "aws_caller_identity" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] data "aws_region" "current" is declared but not used (terraform_unused_declarations)
-
-  on modules/thinkstack/aws_backup_custom/main.tf line 16:
-  16: data "aws_region" "current" {}
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_unused_declarations.md
-
-Warning: [Fixable] Lookup with 2 arguments is deprecated (terraform_deprecated_lookup)
-
-  on modules/thinkstack/aws_backup_custom/main.tf line 557:
- 557:   plan_id = lookup({
- 558:     "hourly"  = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : null,
- 559:     "daily"   = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : null,
- 560:     "weekly"  = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : null,
- 561:     "monthly" = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : null,
- 562:     "yearly"  = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : null
- 563:   }, each.value.plan)
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_lookup.md
-
-Warning: [Fixable] Interpolation-only expressions are deprecated in Terraform v0.12.14 (terraform_deprecated_interpolation)
-
-  on modules/thinkstack/siem/main.tf line 644:
- 644:             "kms:CallerAccount" : "${data.aws_caller_identity.current.account_id}"
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_interpolation.md
-
-Warning: [Fixable] Interpolation-only expressions are deprecated in Terraform v0.12.14 (terraform_deprecated_interpolation)
-
-  on modules/thinkstack/siem/main.tf line 661:
- 661:             "kms:CallerAccount" : "${data.aws_caller_identity.current.account_id}",
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_interpolation.md
-
-Warning: [Fixable] Interpolation-only expressions are deprecated in Terraform v0.12.14 (terraform_deprecated_interpolation)
-
-  on modules/thinkstack/siem/main.tf line 679:
- 679:             "kms:CallerAccount" : "${data.aws_caller_identity.current.account_id}"
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_interpolation.md
-
-Warning: [Fixable] Interpolation-only expressions are deprecated in Terraform v0.12.14 (terraform_deprecated_interpolation)
-
-  on modules/thinkstack/siem/main.tf line 875:
- 875:           "${aws_sqs_queue.cloudtrail_queue[0].arn}",
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_interpolation.md
-
-Warning: [Fixable] Interpolation-only expressions are deprecated in Terraform v0.12.14 (terraform_deprecated_interpolation)
-
-  on modules/thinkstack/siem/main.tf line 877:
- 877:           "${aws_kms_key.cloudtrail_key[0].arn}"
-
-Reference: https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.11.0/docs/rules/terraform_deprecated_interpolation.md
-
+# TFLint Issues Report (Organized & Numbered)
+
+This report organizes all TFLint issues by rule, with each issue numbered for easier tracking and remediation.
+
+---
+
+## 1. terraform_unused_declarations
+
+1. [global/iam/iam_groups/iam_groups.tf:2] data "aws_caller_identity" "current" is declared but not used
+2. [global/iam/iam_policies/ebs_backup/ebs_backup.tf:2] data "aws_caller_identity" "current" is declared but not used
+3. [global/iam/iam_policies/mfa_self_serv/mfa_enforcement_policy.tf:2] data "aws_caller_identity" "current" is declared but not used
+4. [global/iam/iam_policies/s3_put_object/s3_put_object.tf:2] data "aws_caller_identity" "current" is declared but not used
+5. [global/iam/iam_roles/iam_role.tf:2] data "aws_caller_identity" "current" is declared but not used
+6. [global/iam/iam_users/aws_iam_user.tf:2] data "aws_caller_identity" "current" is declared but not used
+7. [modules/aws/alb/alb_listener/variables.tf:23] variable "type" is declared but not used
+8. [modules/aws/alb/alb_listener/variables.tf:29] variable "stickiness_type" is declared but not used
+9. [modules/aws/alb/alb_listener/variables.tf:44] variable "ssl_policy" is declared but not used
+10. [modules/aws/alb/alb_listener_rule/variables.tf:27] variable "tags" is declared but not used
+11. [modules/aws/alb/alb_target_group/variables.tf:22] variable "tags" is declared but not used
+12. [modules/aws/cloudwatch/log_destination/variables.tf:66] variable "iam_for_cloudwatch" is declared but not used
+13. [modules/aws/ec2_instance/main.tf:17] data "aws_caller_identity" "current" is declared but not used
+14. [modules/aws/nlb/nlb_listener_rule/variables.tf:27] variable "tags" is declared but not used
+15. [modules/aws/nlb/nlb_target_group/variables.tf:66] variable "tags" is declared but not used
+16. [modules/aws/rds/cluster/variables.tf:143] variable "kms_key_id" is declared but not used
+17. [modules/aws/rds/cluster/variables.tf:174] variable "scaling_configuration" is declared but not used
+18. [modules/aws/vendor/cato_sdwan/main.tf:15] data "aws_caller_identity" "current" is declared but not used
+19. [modules/aws/vendor/silverpeak/variables.tf:29] variable "ebs_block_device" is declared but not used
+20. [modules/aws/vendor/silverpeak/variables.tf:41] variable "ephemeral_block_device" is declared but not used
+21. [modules/thinkstack/aws_backup_custom/main.tf:15] data "aws_caller_identity" "current" is declared but not used
+22. [modules/thinkstack/aws_backup_custom/main.tf:16] data "aws_region" "current" is declared but not used
+
+## 2. terraform_required_version
+
+1. [modules/aws/s3/notification/main.tf:1] terraform "required_version" attribute is required
+2. [modules/module_template/main.tf:1] terraform "required_version" attribute is required
+3. [modules/terraform/oauth_client/main.tf:1] terraform "required_version" attribute is required
+4. [modules/terraform/team/main.tf:1] terraform "required_version" attribute is required
+5. [modules/terraform/team_access/main.tf:1] terraform "required_version" attribute is required
+
+## 3. terraform_required_providers
+
+1. [modules/aws/s3/notification/main.tf:2] Missing version constraint for provider "aws" in `required_providers`
+
+## 4. terraform_deprecated_lookup
+
+1. [modules/thinkstack/aws_backup_custom/main.tf:557-563] Lookup with 2 arguments is deprecated
+
+## 5. terraform_deprecated_interpolation
+
+1. [modules/thinkstack/siem/main.tf:644] Interpolation-only expressions are deprecated in Terraform v0.12.14
+2. [modules/thinkstack/siem/main.tf:661] Interpolation-only expressions are deprecated in Terraform v0.12.14
+3. [modules/thinkstack/siem/main.tf:679] Interpolation-only expressions are deprecated in Terraform v0.12.14
+4. [modules/thinkstack/siem/main.tf:875] Interpolation-only expressions are deprecated in Terraform v0.12.14
+5. [modules/thinkstack/siem/main.tf:877] Interpolation-only expressions are deprecated in Terraform v0.12.14
