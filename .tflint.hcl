@@ -7,12 +7,9 @@ rule "terraform_unused_declarations" {
     "global/iam/iam_policies/s3_put_object/s3_put_object.tf",
     "global/iam/iam_roles/iam_role.tf",
     "global/iam/iam_users/aws_iam_user.tf",
-    "modules/aws/config/main.tf",
-    "modules/aws/ec2_instance/main.tf",
-    "modules/aws/ec2_instance",
-    "modules/aws/vendor/cato_sdwan/main.tf",
-    "modules/aws/vendor/cato_sdwan",
-    "modules/thinkstack/aws_backup_custom/main.tf",
-    "modules/thinkstack/aws_backup_custom"
+    "modules/aws/config/*",
+    "modules/aws/ec2_instance/*",
+    "modules/aws/vendor/cato_sdwan/*",
+    "modules/thinkstack/aws_backup_custom/*"
   ]
 }

@@ -1,6 +1,6 @@
 # TFLint Issues Report (Organized by Directory & Rule)
 
-Generated on: Mon Apr 28 12:54:33 CDT 2025
+Generated on: Mon Apr 28 14:25:41 CDT 2025
 
 ## Directory: modules/terraform/oauth_client
 ERROR/INFO: 1 issue(s) found:
@@ -143,8 +143,9 @@ ERROR/INFO: 1 issue(s) found:
 ERROR/INFO: variables.tf:22:1: Warning - variable "tags" is declared but not used (terraform_unused_declarations)
 
 ## Directory: modules/aws/alb/alb_listener_rule
-ERROR/INFO: 1 issue(s) found:
-ERROR/INFO: variables.tf:27:1: Warning - variable "tags" is declared but not used (terraform_unused_declarations)
+ERROR/INFO: 2 issue(s) found:
+ERROR/INFO: variables.tf:17:1: Warning - variable "condition_field" is declared but not used (terraform_unused_declarations)
+ERROR/INFO: variables.tf:22:1: Warning - variable "condition_values" is declared but not used (terraform_unused_declarations)
 
 ## Directory: modules/aws/alb/alb_listener
 No issues found.
@@ -229,8 +230,8 @@ No issues found.
 
 ## Directory: modules/aws/rds/cluster
 ERROR/INFO: 2 issue(s) found:
-ERROR/INFO: variables.tf:174:1: Warning - variable "scaling_configuration" is declared but not used (terraform_unused_declarations)
 ERROR/INFO: variables.tf:143:1: Warning - variable "kms_key_id" is declared but not used (terraform_unused_declarations)
+ERROR/INFO: variables.tf:174:1: Warning - variable "scaling_configuration" is declared but not used (terraform_unused_declarations)
 
 ## Directory: modules/aws/rds/db_subnet_group
 No issues found.
@@ -255,8 +256,8 @@ No issues found.
 
 ## Directory: modules/aws/vendor/silverpeak
 ERROR/INFO: 2 issue(s) found:
-ERROR/INFO: variables.tf:41:1: Warning - variable "ephemeral_block_device" is declared but not used (terraform_unused_declarations)
 ERROR/INFO: variables.tf:29:1: Warning - variable "ebs_block_device" is declared but not used (terraform_unused_declarations)
+ERROR/INFO: variables.tf:41:1: Warning - variable "ephemeral_block_device" is declared but not used (terraform_unused_declarations)
 
 ## Directory: modules/aws/vendor/fortigate_firewall
 No issues found.

@@ -54,4 +54,10 @@ variable "conditions" {
     # Add more supported condition types as needed
   }))
   default = []
+  validation {
+    condition = alltrue([
+      for cond in var.conditions : length(keys(cond)) > 0
+    ])
+    error_message = "Each condition object must have at least one non-null property."
+  }
 }
