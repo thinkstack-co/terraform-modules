@@ -1,6 +1,6 @@
 # TFLint Issues Report (Organized by Directory & Rule)
 
-Generated on: Mon Apr 28 11:35:44 CDT 2025
+Generated on: Mon Apr 28 12:49:33 CDT 2025
 
 ## Directory: modules/terraform/oauth_client
 ERROR/INFO: 1 issue(s) found:
@@ -147,10 +147,7 @@ ERROR/INFO: 1 issue(s) found:
 ERROR/INFO: variables.tf:27:1: Warning - variable "tags" is declared but not used (terraform_unused_declarations)
 
 ## Directory: modules/aws/alb/alb_listener
-ERROR/INFO: 3 issue(s) found:
-ERROR/INFO: variables.tf:23:1: Warning - variable "type" is declared but not used (terraform_unused_declarations)
-ERROR/INFO: variables.tf:29:1: Warning - variable "stickiness_type" is declared but not used (terraform_unused_declarations)
-ERROR/INFO: variables.tf:44:1: Warning - variable "ssl_policy" is declared but not used (terraform_unused_declarations)
+No issues found.
 
 ## Directory: modules/aws/ssm_role
 No issues found.
@@ -232,8 +229,8 @@ No issues found.
 
 ## Directory: modules/aws/rds/cluster
 ERROR/INFO: 2 issue(s) found:
-ERROR/INFO: variables.tf:174:1: Warning - variable "scaling_configuration" is declared but not used (terraform_unused_declarations)
 ERROR/INFO: variables.tf:143:1: Warning - variable "kms_key_id" is declared but not used (terraform_unused_declarations)
+ERROR/INFO: variables.tf:174:1: Warning - variable "scaling_configuration" is declared but not used (terraform_unused_declarations)
 
 ## Directory: modules/aws/rds/db_subnet_group
 No issues found.
