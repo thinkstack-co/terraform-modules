@@ -14,6 +14,7 @@ resource "aws_alb_listener" "listener" {
   protocol          = var.protocol
   certificate_arn   = var.certificate_arn
   ssl_policy        = var.ssl_policy
+  tags              = var.tags
 
   # This dynamic block will be executed only when target_group_arn is provided
   dynamic "default_action" {
@@ -46,6 +47,4 @@ resource "aws_alb_listener" "listener" {
       }
     }
   }
-
-  tags = var.tags
 }

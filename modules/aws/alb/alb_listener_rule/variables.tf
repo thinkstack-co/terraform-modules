@@ -35,3 +35,23 @@ variable "type" {
   description = "(Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc."
   default     = "forward"
 }
+
+variable "conditions" {
+  description = "A list of listener rule conditions. Each item is an object with a single key (the condition type) and a value (the values for that condition). Example: [{ host_header = [\"example.com\"] }, { path_pattern = [\"/foo*\"] }]"
+  type = list(object({
+    host_header    = optional(list(string))
+    path_pattern   = optional(list(string))
+    http_header    = optional(object({
+      http_header_name = string
+      values           = list(string)
+    }))
+    http_request_method = optional(list(string))
+    query_string       = optional(list(object({
+      key   = optional(string)
+      value = string
+    })))
+    source_ip = optional(list(string))
+    # Add more supported condition types as needed
+  }))
+  default = []
+}
