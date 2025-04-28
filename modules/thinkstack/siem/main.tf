@@ -219,7 +219,7 @@ resource "aws_instance" "ec2" {
   subnet_id              = aws_subnet.private_subnets[count.index].id
   tags                   = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   tenancy                = var.tenancy
-  user_data              = file("${path.module}/snypr_centos_script.sh")
+  user_data              = file(join("/", [path.module, "snypr_centos_script.sh"]))
   volume_tags            = merge(var.tags, ({ "Name" = format("%s%d", var.name, count.index + 1) }))
   vpc_security_group_ids = [aws_security_group.sg.id]
 
@@ -872,9 +872,9 @@ resource "aws_iam_policy" "siem_cloudtrail_policy" {
           "sqs:ReceiveMessage"
         ],
         Resource = [
-          "${aws_sqs_queue.cloudtrail_queue[0].arn}",
-          "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
-          "${aws_kms_key.cloudtrail_key[0].arn}"
+          aws_sqs_queue.cloudtrail_queue[0].arn,
+          aws_s3_bucket.cloudtrail_s3_bucket[0].arn + "/*",
+          aws_kms_key.cloudtrail_key[0].arn
         ]
       },
       {
