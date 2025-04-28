@@ -13,12 +13,13 @@ resource "aws_alb_listener" "listener" {
   port              = var.port
   protocol          = var.protocol
   certificate_arn   = var.certificate_arn
+  ssl_policy        = var.ssl_policy
 
   # This dynamic block will be executed only when target_group_arn is provided
   dynamic "default_action" {
     for_each = var.target_group_arn != null ? [1] : []
     content {
-      type             = var.action_type
+      type             = var.type
       target_group_arn = var.target_group_arn
     }
   }
@@ -27,7 +28,7 @@ resource "aws_alb_listener" "listener" {
   dynamic "default_action" {
     for_each = var.target_group_arn == null && length(var.target_groups) > 0 ? [1] : []
     content {
-      type = "forward"
+      type = var.type
 
       # Forward block for multiple target groups
       forward {
