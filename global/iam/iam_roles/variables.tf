@@ -1,15 +1,21 @@
 variable "role_name" {
-  description = "Name of the role"
+  type        = string
+  description = "Name of the IAM role"
 }
 
 variable "role_description" {
-  description = "Description of the role"
+  type        = string
+  description = "Description of the IAM role"
 }
 
 variable "trust_policy" {
-  description = "Role trust policy"
+  type        = string
+  description = "Trust policy JSON"
 }
 
 variable "policy_arn" {
-  description = "arn of the policy document to attach to the role"
+  type        = string
+  description = "ARN of the policy to attach"
 }
+
+# No unused variable warnings found in this file, no changes needed.

@@ -172,3 +172,18 @@ output "multi_plan_selection_ids" {
   description = "Map of multi-plan backup selection names to their IDs."
   value       = { for k, v in aws_backup_selection.multi_plan_selections : k => v.id }
 }
+
+output "account_id" {
+  description = "The AWS account ID"
+  value       = data.aws_caller_identity.current.account_id
+}
+
+output "caller_arn" {
+  description = "The ARN of the current IAM identity"
+  value       = data.aws_caller_identity.current.arn
+}
+
+output "region" {
+  description = "The AWS region"
+  value       = data.aws_region.current.name
+}

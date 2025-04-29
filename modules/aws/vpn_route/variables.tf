@@ -1,4 +1,5 @@
 variable "vpn_route_cidr_block" {
+  type        = string
   description = "CIDR block of the VPN subnets"
 }
 

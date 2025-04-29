@@ -4,11 +4,13 @@
 
 variable "policy_name" {
   description = "Name of the policy"
+  type        = string
   default     = "azure_ad_sso_user_role_policy"
 }
 
 variable "policy_description" {
   description = "Description of the policy"
+  type = string
   default     = "This policy will allow to fetch the roles from AWS accounts."
 }
 

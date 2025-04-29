@@ -60,11 +60,18 @@ variable "key_name_prefix" {
   type        = string
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "A mapping of tags to assign to the resource."
+  default     = {}
+}
+
 ###########################
 # RDS Variables
 ###########################
 
 variable "apply_immediately" {
+  type        = bool
   description = "(Optional) Specifies whether any cluster modifications are applied immediately, or during the next maintenance window. Default is false. See Amazon RDS Documentation for more information."
   default     = false
 }
@@ -75,6 +82,7 @@ variable "availability_zones" {
 }
 
 variable "backup_retention_period" {
+  type        = number
   description = "(Optional) The days to retain backups for. Default 1"
   default     = 30
 }
@@ -127,6 +135,7 @@ variable "iam_roles" {
 }
 
 variable "iam_database_authentication_enabled" {
+  type        = bool
   description = "(Optional) Specifies whether or mappings of AWS Identity and Access Management (IAM) accounts to database accounts is enabled."
   default     = false
 }
@@ -163,13 +172,13 @@ variable "preferred_maintenance_window" {
 }
 
 variable "scaling_configuration" {
-  type        = list(any)
+  type        = any
   description = "(Optional) Nested attribute with scaling properties. Only valid when engine_mode is set to serverless. More details below."
   default     = []
 }
 
 variable "skip_final_snapshot" {
-  type        = string
+  type        = bool
   description = "(Optional) Determines whether a final DB snapshot is created before the DB cluster is deleted. If true is specified, no DB snapshot is created. If false is specified, a DB snapshot is created before the DB cluster is deleted, using the value from final_snapshot_identifier. Default is false."
   default     = false
 }
@@ -181,6 +190,7 @@ variable "snapshot_identifier" {
 }
 
 variable "storage_encrypted" {
+  type        = bool
   description = "(Optional) Specifies whether the DB cluster is encrypted. The default is false if not specified."
   default     = true
 }

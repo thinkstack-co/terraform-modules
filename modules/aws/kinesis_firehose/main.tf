@@ -27,8 +27,6 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     role_arn            = aws_iam_role.firehose_role.arn
     bucket_arn          = aws_s3_bucket.firehose_bucket.arn
     prefix              = var.firehose_prefix
-    buffer_size         = var.firehose_buffer_size
-    buffer_interval     = var.firehose_buffer_interval
     compression_format  = var.firehose_compression_format
     error_output_prefix = var.firehose_error_output_prefix
     kms_key_arn         = var.firehose_kms_key_arn
@@ -100,7 +98,7 @@ resource "aws_iam_policy" "firehose_policy" {
         "s3:PutObject"
       ],
       Resource = [
-        "${aws_s3_bucket.firehose_bucket.arn}",
+        aws_s3_bucket.firehose_bucket.arn,
         "${aws_s3_bucket.firehose_bucket.arn}/*"
       ]
     }]

@@ -1,3 +1,6 @@
+# DO NOT REMOVE THIS LINE. Required for account_id references in locals and resources.
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_policy" "mfa_self_serv" {
   name        = var.mfa_self_serv_name
   description = "Allows users to manage their own MFA settings"

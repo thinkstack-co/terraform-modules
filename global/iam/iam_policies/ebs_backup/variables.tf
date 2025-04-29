@@ -1,11 +1,16 @@
 variable "policy_name" {
-  description = "Name of the policy"
+  type        = string
+  description = "Name of the IAM policy"
 }
 
 variable "policy_description" {
-  description = "Description of the policy"
+  type        = string
+  description = "Description of the IAM policy"
 }
 
 variable "policy" {
-  description = "Policy document"
+  type        = string
+  description = "Policy JSON"
 }
+
+# No unused variable warnings found in this file, no changes needed.

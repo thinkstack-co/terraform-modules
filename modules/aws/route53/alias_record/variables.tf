@@ -47,38 +47,4 @@ variable "alias_evaluate_target_health" {
   default     = null
 }
 
-variable "weighted_routing_policy_weight" {
-  type        = number
-  description = "(Optional, Required for weighted routing) A numeric value indicating the relative weight of the record. See http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html#routing-policy-weighted."
-  default     = null
-}
-
-variable "latency_routing_policy_region" {
-  type        = string
-  description = "(Optional, Required for latency routing) An AWS region from which to measure latency. See http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html#routing-policy-latency"
-  default     = null
-}
-
-variable "geolocation_routing_policy_continent" {
-  type        = string
-  description = "(Optional) A two-letter continent code. See http://docs.aws.amazon.com/Route53/latest/APIReference/API_GetGeoLocation.html for code details. Either continent or country must be specified."
-  default     = null
-}
-
-variable "geolocation_routing_policy_country" {
-  type        = string
-  description = "(Optional) A two-character country code or * to indicate a default resource record set."
-  default     = null
-}
-
-variable "geolocation_routing_policy_subdivision" {
-  type        = string
-  description = "(Optional) A subdivision code for a country."
-  default     = null
-}
-
-variable "failover_routing_policy_type" {
-  type        = string
-  description = "(Optional, Required for failover routing) PRIMARY or SECONDARY. A PRIMARY record will be served if its healthcheck is passing, otherwise the SECONDARY will be served. See http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-configuring-options.html#dns-failover-failover-rrsets"
-  default     = null
-}
+# Removed unused variables flagged by tflint

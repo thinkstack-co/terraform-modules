@@ -13,7 +13,8 @@ terraform {
 # Data Sources
 ###########################
 # Fetching the current caller identity and region data
-# data "aws_caller_identity" "current" {}
+# DO NOT REMOVE THIS LINE. Required for account_id references in locals and resources.
+data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 #############################
@@ -118,4 +119,3 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   threshold                 = "1"
   treat_missing_data        = "missing"
 }
-

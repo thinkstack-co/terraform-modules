@@ -1,18 +1,22 @@
 variable "ami" {
+  type        = string
   description = "ID of AMI to use for the instance"
 }
 
 variable "availability_zone" {
+  type        = string
   description = "The AZ to start the instance in"
   default     = ""
 }
 
 variable "count" {
+  type        = number
   description = "The total number of resources to create"
   default     = 1
 }
 
 variable "disable_api_termination" {
+  type        = bool
   description = "If true, enables EC2 Instance Termination Protection"
   default     = false
 }
@@ -23,21 +27,25 @@ variable "dmz_subnet_id" {
 }
 
 variable "ebs_block_device" {
+  type        = any
   description = "Additional EBS block devices to attach to the instance"
   default     = []
 }
 
 variable "ebs_optimized" {
+  type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
   default     = false
 }
 
 variable "ephemeral_block_device" {
+  type        = any
   description = "Customize Ephemeral (also known as Instance Store) volumes on the instance"
   default     = []
 }
 
 variable "iam_instance_profile" {
+  type        = string
   description = "The IAM Instance Profile to launch the instance with. Specified as the name of the Instance Profile."
   default     = ""
 }
@@ -53,16 +61,19 @@ variable "instance_initiated_shutdown_behavior" {
 }
 
 variable "instance_type" {
+  type        = string
   description = "The type of instance to start"
   default     = "c4.large"
 }
 
 variable "key_name" {
+  type        = string
   description = "The key name to use for the instance"
   default     = ""
 }
 
 variable "lan0_description" {
+  type        = string
   description = "(Optional) A description for the network interface."
   default     = "Silverpeak lan0 nic"
 }
@@ -73,6 +84,7 @@ variable "lan0_private_ips" {
 }
 
 variable "mgmt0_description" {
+  type        = string
   description = "(Optional) A description for the network interface."
   default     = "Silverpeak mgmt0 nic"
 }
@@ -88,15 +100,18 @@ variable "mgmt_subnet_id" {
 }
 
 variable "monitoring" {
+  type        = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
   default     = true
 }
 
 variable "name" {
+  type        = string
   description = "Name to be used on all resources as prefix"
 }
 
 variable "placement_group" {
+  type        = string
   description = "The Placement Group to start the instance in"
   default     = ""
 }
@@ -169,6 +184,7 @@ variable "sg_description" {
 }
 
 variable "sg_name" {
+  type        = string
   description = "(Optional, Forces new resource) The name of the security group. If omitted, Terraform will assign a random, unique name"
   default     = "silverpeak_sg"
 }
@@ -180,6 +196,7 @@ variable "source_dest_check" {
 }
 
 variable "tags" {
+  type        = map(string)
   description = "(Optional) A mapping of tags to assign to the resource."
   default = {
     created_by  = "terraform"
@@ -191,16 +208,19 @@ variable "tags" {
 }
 
 variable "tenancy" {
+  type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
   default     = "default"
 }
 
 variable "user_data" {
+  type        = string
   description = "The user data to provide when launching the instance"
   default     = ""
 }
 
 variable "wan0_description" {
+  type        = string
   description = "(Optional) A description for the network interface."
   default     = "Silverpeak wan0 nic"
 }
@@ -211,5 +231,6 @@ variable "wan0_private_ips" {
 }
 
 variable "vpc_id" {
+  type        = string
   description = "(Optional, Forces new resource) The VPC ID."
 }

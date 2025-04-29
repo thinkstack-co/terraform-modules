@@ -1,8 +1,10 @@
 variable "statement_id" {
+  type        = string
   description = "A unique statement identifier"
 }
 
 variable "action" {
+  type        = string
   description = "The AWS lambda action you want to allow"
   default     = "lambda:InvokeFunction"
 }
@@ -13,6 +15,7 @@ variable "function_name" {
 }
 
 variable "principal" {
+  type        = string
   description = "The principal which is receiving this permission"
   default     = "events.amazonaws.com"
 }

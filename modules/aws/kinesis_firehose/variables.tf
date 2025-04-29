@@ -36,17 +36,6 @@ variable "firehose_prefix" {
   default     = ""
 }
 
-variable "firehose_buffer_size" {
-  description = "(Optional) Buffer incoming data to the specified size, in MBs, before delivering it to the destination. The default value is 5. We recommend setting SizeInMBs to a value greater than the amount of data you typically ingest into the delivery stream in 10 seconds. For example, if you typically ingest data at 1 MB/sec set SizeInMBs to be 10 MB or higher."
-  type        = number
-  default     = 5
-}
-
-variable "firehose_buffer_interval" {
-  description = "(Optional) Buffer incoming data for the specified period of time, in seconds, before delivering it to the destination. The default value is 300."
-  type        = number
-  default     = 300
-}
 
 variable "firehose_compression_format" {
   description = "(Optional) The compression format. If no value is specified, the default is UNCOMPRESSED. Other supported values are GZIP, ZIP, Snappy, & HADOOP_SNAPPY."

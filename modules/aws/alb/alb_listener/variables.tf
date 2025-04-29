@@ -26,12 +26,6 @@ variable "type" {
   default     = "forward"
 }
 
-variable "stickiness_type" {
-  type        = string
-  description = "(Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc."
-  default     = "forward"
-}
-
 variable "target_groups" {
   description = "List of target groups"
   type = list(object({
@@ -62,12 +56,6 @@ variable "tags" {
   type        = map(string)
   description = "A mapping of tags to assign to the resource"
   default     = {}
-}
-
-variable "action_type" {
-  type        = string
-  description = "(Required) Type of routing action. Valid values are forward, redirect, fixed-response, authenticate-cognito and authenticate-oidc."
-  default     = "forward"
 }
 
 variable "target_group_arn" {
