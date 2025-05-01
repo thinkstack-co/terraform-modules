@@ -86,12 +86,8 @@ variable "report_retention_days" {
   default     = 365
 
   validation {
-    condition = (
-      var.report_retention_days == 0 ||
-      var.glacier_transition_days == 0 ||
-      var.report_retention_days > var.glacier_transition_days
-    )
-    error_message = "report_retention_days must be greater than glacier_transition_days if both are set (non-zero)."
+    condition     = var.report_retention_days >= 0
+    error_message = "report_retention_days must be 0 (to disable) or a positive integer."
   }
 }
 
@@ -111,6 +107,11 @@ variable "glacier_retention_days" {
   description = "Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion from Glacier)"
   type        = number
   default     = 730
+}
+
+# Cross-variable validation for retention days
+locals {
+  valid_retention_days = var.report_retention_days == 0 || var.glacier_transition_days == 0 || var.report_retention_days > var.glacier_transition_days
 }
 
 # Variable to control the Encrypted Volumes rule (was missing)

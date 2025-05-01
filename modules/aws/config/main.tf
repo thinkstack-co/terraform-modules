@@ -7,6 +7,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
+  valid_retention_days = (var.report_retention_days == 0 || var.glacier_transition_days == 0) || var.report_retention_days > var.glacier_transition_days
 }
 # --- Core AWS Config Resources --- 
  
@@ -344,6 +345,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
         days = var.glacier_retention_days
       }
     }
+  }
+}
+
+# --- Cross-variable validation: report_retention_days vs glacier_transition_days ---
+resource "null_resource" "validate_retention_days" {
+  count = local.valid_retention_days ? 0 : 1
+
+  provisioner "local-exec" {
+    command = "echo 'ERROR: report_retention_days must be greater than glacier_transition_days if both are set (non-zero).' && exit 1"
   }
 }
 
