@@ -109,11 +109,6 @@ variable "glacier_retention_days" {
   default     = 730
 }
 
-# Cross-variable validation for retention days
-locals {
-  valid_retention_days = var.report_retention_days == 0 || var.glacier_transition_days == 0 || var.report_retention_days > var.glacier_transition_days
-}
-
 # Variable to control the Encrypted Volumes rule (was missing)
 variable "enable_encrypted_volumes_rule" {
   description = "Enable the Encrypted Volumes managed rule."
