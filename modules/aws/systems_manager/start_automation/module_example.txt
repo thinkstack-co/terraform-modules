@@ -1,0 +1,70 @@
+module "daily_stop_start" {
+  source = "path_to_your_module"
+
+  # Maintenance Window Variables
+  mw_name                       = "DailyMaintenanceWindow"
+  mw_schedule_stop              = "cron(0 2 ? * MON-SUN *)" # 10 PM EST every day
+  mw_schedule_start             = "cron(0 10 ? * MON-SUN *)" # 6 AM EST every day
+  mw_cutoff                     = 1
+  mw_duration                   = 8
+  mw_description_stop           = "Daily Maintenance Window to stop EC2 instances."
+  mw_allow_unassociated_targets_stop = true
+  mw_enabled_stop               = true
+  mw_description_start          = "Daily Maintenance Window to start EC2 instances."
+  mw_allow_unassociated_targets_start = true
+  mw_enabled_start              = true
+  mw_tags                       = {
+                                    "Purpose" = "Daily Stop/Start"
+                                  }
+
+  # Target Variables
+  target_name_stop              = "DailyStopTarget"
+  target_name_start             = "DailyStartTarget"
+  target_resource_type          = "INSTANCE"
+  target_details                = [...] # Fill in your target details here
+
+  # Stop Task Variables
+  stop_order                    = ["i-1234567890abcdef0", "i-abcdef1234567890"] # Example order, replace with your instance IDs
+  stop_max_concurrency          = "1"
+  stop_max_errors               = "1"
+
+  # Start Task Variables
+  start_order                   = ["i-1234567890abcdef0", "i-abcdef1234567890"] # Example order, replace with your instance IDs
+  start_max_concurrency         = "1"
+  start_max_errors              = "1"
+}
+
+module "monthly_maintenance" {
+  source = "path_to_your_module_folder"  # Replace this with the path to your module
+
+  # Maintenance Window for Stopping
+  mw_name                       = "MonthlyShutdown"
+  mw_schedule_stop              = "cron(0 2 8-14 * TUE)" # 10 PM EST every second Tuesday of the month converted to UTC
+  mw_cutoff                     = 1
+  mw_duration                   = 0.5  # Just a small duration as instances will be started immediately after stopping
+  mw_description_stop           = "Monthly shutdown of instances on second Tuesday at 10 PM EST"
+  mw_allow_unassociated_targets_stop = true
+  mw_enabled_stop               = true
+  mw_schedule_timezone          = "America/New_York"
+  mw_start_date_stop            = ""
+  mw_end_date_stop              = ""
+  mw_schedule_offset_stop       = 0
+  stop_max_concurrency          = "1"
+  stop_max_errors               = "1"
+  target_name_stop              = "MonthlyShutdownTarget"
+  stop_order                    = ["i-instance1", "i-instance2", "i-instance3"] # Replace with your instance IDs
+
+  # Maintenance Window for Starting
+  mw_schedule_start             = "cron(30 2 8-14 * TUE)" # 30 minutes past 10 PM EST every second Tuesday of the month converted to UTC
+  mw_description_start          = "Monthly startup of instances on second Tuesday immediately after shutdown"
+  mw_allow_unassociated_targets_start = true
+  mw_enabled_start              = true
+  mw_start_date_start           = ""
+  mw_end_date_start             = ""
+  mw_schedule_offset_start      = 0
+  start_max_concurrency         = "1"
+  start_max_errors              = "1"
+  target_name_start             = "MonthlyStartupTarget"
+  start_order                   = ["i-instance3", "i-instance2", "i-instance1"] # Reverse order for startup, replace with your instance IDs
+}
+
