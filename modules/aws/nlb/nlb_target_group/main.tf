@@ -9,12 +9,14 @@ terraform {
 }
 
 resource "aws_lb_target_group" "this" {
-  name              = var.name
-  target_type       = var.target_type
-  port              = var.port
-  protocol          = var.protocol
-  proxy_protocol_v2 = var.proxy_protocol_v2
-  vpc_id            = var.vpc_id
+  name                               = var.name
+  target_type                        = var.target_type
+  port                               = var.port
+  protocol                           = var.protocol
+  proxy_protocol_v2                  = var.proxy_protocol_v2
+  vpc_id                             = var.vpc_id
+  deregistration_delay               = var.deregistration_delay
+  lambda_multi_value_headers_enabled = var.lambda_multi_value_headers_enabled
 
   health_check {
     protocol            = var.health_check_protocol
