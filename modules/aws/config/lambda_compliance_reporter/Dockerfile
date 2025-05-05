@@ -1,3 +1,7 @@
+# NOTE: When building Lambda deployment packages with native dependencies, always use the x86_64 architecture for AWS Lambda compatibility unless you are explicitly deploying to arm64 Lambdas.
+# Example Docker build command for x86_64 Lambda compatibility:
+# docker run --platform linux/amd64 --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.12 pip install -r requirements.txt -t ./package
+
 FROM amazonlinux:2
 
 # Install Python 3.8, pip, and zip using amazon-linux-extras

@@ -141,6 +141,32 @@ def get_iam_user_name(user_id):
 
 
 def lambda_handler(event, context):
+    """
+    AWS Lambda entry point to generate a compliance report for AWS Config rules and upload the report as a PDF to S3.
+
+    Steps performed:
+    1. Fetch AWS account info (name and ID).
+    2. Get the current UTC timestamp for the report.
+    3. Retrieve all AWS Config rules and their compliance status.
+    4. Count compliant, non-compliant, and insufficient data rules for summary.
+    5. Build a table summarizing compliance status for each rule.
+    6. For each non-compliant rule, gather details of non-compliant resources, including IAM usernames and resource names/tags.
+    7. Build a detailed section listing all non-compliant resources.
+    8. Create a PDF report using ReportLab, including:
+       - Title and account info
+       - Compliance summary table
+       - Rule-by-rule compliance status
+       - Non-compliant resources
+    9. Upload the generated PDF to an S3 bucket, using environment variables for bucket and prefix if set.
+    10. Return a status message with the S3 location of the uploaded report.
+
+    Args:
+        event (dict): Lambda event input (not used).
+        context (LambdaContext): Lambda context object (not used).
+
+    Returns:
+        dict: Status code and S3 path of the uploaded compliance report PDF.
+    """
     account_name, account_id = get_account_info()
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     rules = get_config_rules()
