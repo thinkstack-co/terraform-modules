@@ -165,20 +165,20 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
 # S3 Bucket Data Source
 # This data source fetches information about the cost report bucket (not strictly necessary unless you need bucket metadata elsewhere).
 data "aws_s3_bucket" "cost_report" {
-  bucket = aws_s3_bucket.cost_report.bucket
+  bucket = aws_s3_bucket.cost_report.id
 }
 
 # (Optional) Output the latest uploaded PDF (key pattern matching)
 # S3 Bucket Objects Data Source
 # This data source lists all cost report PDFs in the bucket with the specified prefix.
 data "aws_s3_bucket_objects" "report_pdfs" {
-  bucket = aws_s3_bucket.cost_report.bucket
+  bucket = aws_s3_bucket.cost_report.id
   prefix = "cost-report-"
 }
 
 # S3 Object Resource (Latest PDF)
 # This resource references the latest uploaded PDF report in the bucket, for use in outputs or downstream automation.
 resource "aws_s3_object" "cost_report_pdf" {
-  bucket = aws_s3_bucket.cost_report.bucket
+  bucket = aws_s3_bucket.cost_report.id
   key    = length(data.aws_s3_bucket_objects.report_pdfs.keys) > 0 ? data.aws_s3_bucket_objects.report_pdfs.keys[0] : null
 }
