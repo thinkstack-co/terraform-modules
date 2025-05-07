@@ -9,9 +9,11 @@ REPORT_BUCKET = os.environ.get('REPORT_BUCKET')
 REPORT_TAG_KEY = os.environ.get('REPORT_TAG_KEY', 'Name')
 REPORT_TIME_PERIOD_START = os.environ.get('REPORT_TIME_PERIOD_START')
 REPORT_TIME_PERIOD_END = os.environ.get('REPORT_TIME_PERIOD_END')
+CUSTOMER_IDENTIFIER = os.environ.get('CUSTOMER_IDENTIFIER', '')
 
 ce = boto3.client('ce')
 s3 = boto3.client('s3')
+sts = boto3.client('sts')
 
 def get_time_period():
     if REPORT_TIME_PERIOD_START and REPORT_TIME_PERIOD_END:
@@ -63,6 +65,17 @@ def fetch_costs(service, tag_key, start, end):
 def generate_pdf(cost_data, start, end, outfile):
     pdf = FPDF()
     pdf.add_page()
+    # Customer Name (bold, large)
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(200, 12, txt=f"Customer: {CUSTOMER_IDENTIFIER}", ln=1, align="C")
+    # AWS Account Number (regular)
+    try:
+        account_id = sts.get_caller_identity()["Account"]
+    except Exception:
+        account_id = "Unknown"
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt=f"AWS Account ID: {account_id}", ln=1, align="C")
+    # Report Title
     pdf.set_font("Arial", size=14)
     pdf.cell(200, 10, txt=f"AWS Monthly Cost Report by '{REPORT_TAG_KEY}'", ln=1, align="C")
     pdf.set_font("Arial", size=10)

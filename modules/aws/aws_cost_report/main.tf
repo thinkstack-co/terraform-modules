@@ -9,11 +9,18 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
+}
+
+
 # S3 bucket for cost reports
 # This bucket stores the generated PDF cost reports. The bucket name is generated from the prefix to ensure uniqueness.
 resource "aws_s3_bucket" "cost_report" {
   bucket_prefix = var.bucket_prefix
-  tags          = var.tags
+  tags          = merge(var.tags, { Customer = local.customer_identifier })
 }
 
 # S3 Block Public Access
@@ -73,7 +80,7 @@ resource "aws_iam_role" "cost_reporter" {
       Action = "sts:AssumeRole"
     }]
   })
-  tags = var.tags
+  tags = merge(var.tags, { Customer = local.customer_identifier })
 }
 
 # IAM Policy for Lambda
@@ -125,12 +132,13 @@ resource "aws_lambda_function" "cost_reporter" {
   memory_size   = var.lambda_memory_size
   environment {
     variables = {
-      REPORT_BUCKET = var.bucket_prefix
-      REPORT_TAG_KEY = var.report_tag_key
-
+      REPORT_BUCKET        = aws_s3_bucket.cost_report.id
+      REPORT_TAG_KEY       = var.report_tag_key
+      SCHEDULE_EXPRESSION  = var.schedule_expression
+      CUSTOMER_IDENTIFIER  = local.customer_identifier
     }
   }
-  tags = var.tags
+  tags = merge(var.tags, { Customer = local.customer_identifier })
 }
 
 # CloudWatch Event Rule (Schedule)
@@ -139,7 +147,7 @@ resource "aws_cloudwatch_event_rule" "cost_report_schedule" {
   name                = "aws-cost-report-schedule"
   description         = "Triggers the AWS cost report Lambda function."
   schedule_expression = var.schedule_expression
-  tags                = var.tags
+  tags                = merge(var.tags, { Customer = local.customer_identifier })
 }
 
 # CloudWatch Event Target

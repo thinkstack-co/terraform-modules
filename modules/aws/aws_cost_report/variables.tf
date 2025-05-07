@@ -6,6 +6,12 @@ variable "bucket_prefix" {
   default     = "aws-cost-report-"
 }
 
+variable "customer_name" {
+  description = "Optional: Customer name or label for tagging and Lambda environment. If empty, uses AWS Account ID."
+  type        = string
+  default     = ""
+}
+
 variable "enable_s3_lifecycle_rules" {
   description = "Whether to enable S3 lifecycle rules for cost report PDFs."
   type        = bool
