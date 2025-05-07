@@ -112,14 +112,6 @@ resource "aws_iam_role_policy" "cost_reporter_policy" {
 }
 
 
-# Lambda Deployment Package
-# This resource packages the Lambda function code and dependencies into a ZIP file for deployment.
-resource "archive_file" "cost_reporter_zip" {
-  type        = "zip"
-  source_dir  = "${path.module}/cost_reporter"
-  output_path = "${path.module}/cost_reporter.zip"
-}
-
 # Lambda Function
 # This Lambda function generates the cost report PDF and uploads it to the S3 bucket.
 resource "aws_lambda_function" "cost_reporter" {
@@ -127,8 +119,8 @@ resource "aws_lambda_function" "cost_reporter" {
   role          = aws_iam_role.cost_reporter.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.12"
-  filename      = archive_file.cost_reporter_zip.output_path
-  source_code_hash = filebase64sha256(archive_file.cost_reporter_zip.output_path)
+  filename         = "${path.module}/cost_reporter/lambda_package.zip"
+  source_code_hash = filebase64sha256("${path.module}/cost_reporter/lambda_package.zip")
   timeout       = var.lambda_timeout
   memory_size   = var.lambda_memory_size
   environment {

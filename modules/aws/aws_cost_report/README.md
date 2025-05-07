@@ -63,13 +63,44 @@ Additional features:
 - S3 bucket lifecycle rules and Glacier transitions
 - Output: S3 URL of the latest PDF report
 
+## Build the Lambda Package
+
+Before running Terraform, you must build the Lambda deployment package (ZIP) in the `cost_reporter/` directory. Example using Docker:
+
+```sh
+cd modules/aws/aws_cost_report/cost_reporter
+# Build with Docker (recommended for Lambda compatibility)
+docker build -t cost-reporter-build .
+docker run --rm -v $(pwd):/out cost-reporter-build cp /build/lambda_package.zip /out/lambda_package.zip
+```
+
+Or manually (if you have Python 3.8+ and pip):
+```sh
+pip install --target . -r requirements.txt
+zip -r lambda_package.zip .
+```
+
+The file `lambda_package.zip` must exist in the `cost_reporter/` directory before you run `terraform apply`.
+
 ## Usage
 ```hcl
 module "aws_cost_report" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/aws_cost_report"
-  bucket_prefix = "my-cost-report-"
-  # Optionally override schedule or tag key
-  # report_tag_key = "Name"
+  source                   = "github.com/thinkstack-co/terraform-modules//modules/aws/aws_cost_report"
+  bucket_prefix            = "my-cost-report-"
+  report_tag_key           = "Name"                  # Cost allocation tag key for grouping (default: "Name")
+  schedule_expression      = "cron(0 1 1 * ? *)"     # Run at 1 AM UTC on the 1st of each month (default)
+
+  # S3 Lifecycle and Glacier options
+  enable_s3_lifecycle_rules = true                   # Enable S3 lifecycle rules (default: true)
+  report_retention_days     = 90                     # Number of days to retain reports in S3 (default: 90)
+  enable_glacier_transition = true                   # Enable transition to Glacier storage (default: false)
+  glacier_transition_days   = 30                     # Days before transitioning to Glacier (default: 30)
+  glacier_retention_days    = 365                    # Days to retain in Glacier before deletion (default: 365)
+
+  tags = {
+    Environment = "production"
+    Project     = "cost-reporting"
+  }
 }
 ```
 
