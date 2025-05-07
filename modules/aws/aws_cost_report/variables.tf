@@ -4,6 +4,18 @@ variable "bucket_prefix" {
   description = "Prefix for the S3 bucket to store PDF cost reports. A unique suffix will be appended."
   type        = string
   default     = "aws-cost-report-"
+
+validation {
+  condition = (
+    length(var.bucket_prefix) >= 3 &&
+    length(var.bucket_prefix) <= 63 &&
+    can(regex("^[a-z0-9][a-z0-9.-]*[a-z0-9]$", var.bucket_prefix)) &&
+    !can(regex("[A-Z_]", var.bucket_prefix)) &&
+    !contains(var.bucket_prefix, "..") &&
+    !can(regex("^\\d+\\.\\d+\\.\\d+\\.\\d+$", var.bucket_prefix))
+  )
+  error_message = "bucket_prefix must be 3-63 characters, only lowercase letters, numbers, hyphens, and periods, start/end with letter or number, no underscores, no consecutive periods, and not in IP address format."
+}
 }
 
 variable "customer_name" {
