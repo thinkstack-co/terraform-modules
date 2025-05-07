@@ -11,7 +11,7 @@ variable "bucket_prefix" {
       length(var.bucket_prefix) <= 63 &&
       can(regex("^[a-z0-9][a-z0-9.-]*[a-z0-9]$", var.bucket_prefix)) &&
       !can(regex("[A-Z_]", var.bucket_prefix)) &&
-      length(regexall("..", var.bucket_prefix)) == 0 &&
+      length(regexall("\\.\\.", var.bucket_prefix)) == 0 &&
       !can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$", var.bucket_prefix))
     )
     error_message = "bucket_prefix must be 3-63 characters, only lowercase letters, numbers, hyphens, and periods, start/end with letter or number, no underscores, no consecutive periods, and not in IP address format."
