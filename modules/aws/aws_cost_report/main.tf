@@ -1,7 +1,12 @@
 # AWS Cost Report Module - main.tf
-
-provider "aws" {
-  # Inherit configuration from root or parent module
+terraform {
+  required_version = ">= 1.3.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0.0"
+    }
+  }
 }
 
 # S3 bucket for cost reports

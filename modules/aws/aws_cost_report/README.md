@@ -78,7 +78,8 @@ module "aws_cost_report" {
 - Lambda execution role must have permissions for Cost Explorer and S3
 
 ## Providers
-- aws >= 4.0
+- terraform >= 1.3.0
+- aws >= 5.0.0
 
 ## Resources
 - AWS Lambda function (Python)
