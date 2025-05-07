@@ -13,15 +13,13 @@ data "aws_caller_identity" "current" {}
 
 locals {
   customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
-  sanitized_customer_name = length(trimspace(lower(var.customer_name))) > 0 ? replace(trimspace(lower(var.customer_name)), "[^a-z0-9-]", "-") : "cost-report"
-  bucket_prefix = "${local.sanitized_customer_name}-"
 }
 
 
 # S3 bucket for cost reports
 # This bucket stores the generated PDF cost reports. The bucket name is generated from the prefix to ensure uniqueness.
 resource "aws_s3_bucket" "cost_report" {
-  bucket_prefix = local.bucket_prefix
+  bucket_prefix = var.bucket_prefix
   tags          = merge(var.tags, { Customer = local.customer_identifier })
 }
 
