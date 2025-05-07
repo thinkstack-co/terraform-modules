@@ -3,7 +3,7 @@
 variable "bucket_prefix" {
   description = "Prefix for the S3 bucket to store PDF cost reports. A unique suffix will be appended."
   type        = string
-  default     = "${length(trimspace(lower(var.customer_name))) > 0 ? replace(trimspace(lower(var.customer_name)), "[^a-z0-9-]", "-") : "cost-report"}-"
+  default     = "cost-report-"
 
   validation {
     condition = (
