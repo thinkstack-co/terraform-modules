@@ -19,7 +19,7 @@ locals {
 # S3 bucket for cost reports
 # This bucket stores the generated PDF cost reports. The bucket name is generated from the prefix to ensure uniqueness.
 resource "aws_s3_bucket" "cost_report" {
-  bucket_prefix = var.bucket_prefix
+  bucket_prefix = var.s3_key_prefix
   tags          = merge(var.tags, { Customer = local.customer_identifier })
 }
 

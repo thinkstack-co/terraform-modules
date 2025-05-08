@@ -1,20 +1,20 @@
 # Variables for AWS Cost Report Module
 
-variable "bucket_prefix" {
+variable "s3_key_prefix" {
   description = "Prefix for the S3 bucket to store PDF cost reports. A unique suffix will be appended."
   type        = string
   default     = "cost-report-"
 
   validation {
     condition = (
-      length(var.bucket_prefix) >= 3 &&
-      length(var.bucket_prefix) <= 63 &&
-      can(regex("^[a-z0-9][a-z0-9.-]*[a-z0-9]$", var.bucket_prefix)) &&
-      !can(regex("[A-Z_]", var.bucket_prefix)) &&
-      length(regexall("\\.\\.", var.bucket_prefix)) == 0 &&
-      !can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$", var.bucket_prefix))
+      length(var.s3_key_prefix) >= 3 &&
+      length(var.s3_key_prefix) <= 63 &&
+      can(regex("^[a-z0-9][a-z0-9.-]*[a-z0-9]$", var.s3_key_prefix)) &&
+      !can(regex("[A-Z_]", var.s3_key_prefix)) &&
+      length(regexall("\\.\\.", var.s3_key_prefix)) == 0 &&
+      !can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$", var.s3_key_prefix))
     )
-    error_message = "bucket_prefix must be 3-63 characters, only lowercase letters, numbers, hyphens, and periods, start/end with letter or number, no underscores, no consecutive periods, and not in IP address format."
+    error_message = "s3_key_prefix must be 3-63 characters, only lowercase letters, numbers, hyphens, and periods, start/end with letter or number, no underscores, no consecutive periods, and not in IP address format."
   }
 }
 
