@@ -17,6 +17,8 @@ WORKDIR /build
 COPY requirements.txt .
 COPY lambda_function.py .
 
-RUN /usr/bin/python3.8 -m pip install -r requirements.txt -t . && \
+RUN /usr/bin/python3.8 -m pip install --no-cache-dir -r requirements.txt -t . && \
+    # remove pip metadata and caches to slim package
+    find . -type d -name '*.dist-info' -exec rm -rf {} + && \
+    find . -type d -name '__pycache__' -exec rm -rf {} + && \
     zip -r9 /build/lambda_package.zip .
-
