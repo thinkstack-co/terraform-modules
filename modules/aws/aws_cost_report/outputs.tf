@@ -8,7 +8,9 @@ output "customer_identifier" {
 
 output "cost_report_pdf_url" {
   description = "The S3 URL of the latest cost report PDF."
-  value       = aws_s3_object.cost_report_pdf.bucket != null && aws_s3_object.cost_report_pdf.key != null ? "https://${aws_s3_object.cost_report_pdf.bucket}.s3.amazonaws.com/${aws_s3_object.cost_report_pdf.key}" : null
+  value = length(aws_s3_object.cost_report_pdf) > 0 ?
+    "https://${aws_s3_object.cost_report_pdf[0].bucket}.s3.amazonaws.com/${aws_s3_object.cost_report_pdf[0].key}" :
+    null
 }
 
 output "lambda_function_arn" {
