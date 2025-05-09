@@ -192,9 +192,14 @@ def lambda_handler(event, context):
     start, end = get_time_period()
     detailed_costs = fetch_detailed_costs(start, end)
 
+    # Parse year and month from the start date
+    start_dt = datetime.datetime.strptime(start, "%Y-%m-%d")
+    year = start_dt.year
+    month = f"{start_dt.month:02d}"
+    key = f"{year}/{month}/cost-report-{year}-{month}.pdf"
+
     with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
         generate_pdf(detailed_costs, start, end, tmp.name)
-        key = f"cost-report-{start}-to-{end}.pdf"
         s3.upload_file(tmp.name, REPORT_BUCKET, key)
 
     return {"status": "ok", "s3_key": key}
