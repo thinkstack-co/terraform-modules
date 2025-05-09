@@ -1,24 +1,16 @@
-# Lambda build Dockerfile for cost_reporter
-# NOTE: Always build this image for x86_64 (amd64) architecture to ensure Lambda compatibility, even when running Docker on a Mac (which defaults to ARM64). Use the --platform flag as shown below.
+# NOTE: When building Lambda deployment packages with native dependencies, always use the x86_64 architecture for AWS Lambda compatibility unless you are explicitly deploying to arm64 Lambdas.
 # Example Docker build command for x86_64 Lambda compatibility:
-# docker build --platform linux/amd64 -t cost_reporter_lambda_build .
-# docker run --rm -v "$PWD":/out cost_reporter_lambda_build cp /build/lambda_package.zip /out/lambda_package.zip
+# docker run --platform linux/amd64 --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.12 pip install -r requirements.txt -t ./package
 
-FROM amazonlinux:2
-
-# Install Python 3.8, pip, and zip using amazon-linux-extras
-RUN yum -y update && \
-    amazon-linux-extras enable python3.8 && \
-    yum -y install python38 python38-pip zip && \
-    yum clean all
+FROM public.ecr.aws/sam/build-python3.12:latest
 
 WORKDIR /build
 
 COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt -t .
+
 COPY lambda_function.py .
 
-RUN /usr/bin/python3.8 -m pip install --no-cache-dir -r requirements.txt -t . && \
-    # remove pip metadata and caches to slim package
-    find . -type d -name '*.dist-info' -exec rm -rf {} + && \
+RUN find . -type d -name '*.dist-info' -exec rm -rf {} + && \
     find . -type d -name '__pycache__' -exec rm -rf {} + && \
     zip -r9 /build/lambda_package.zip .
