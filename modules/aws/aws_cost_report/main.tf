@@ -187,6 +187,7 @@ data "aws_s3_bucket_objects" "report_pdfs" {
 # S3 Object Resource (Latest PDF)
 # This resource references the latest uploaded PDF report in the bucket, for use in outputs or downstream automation.
 resource "aws_s3_object" "cost_report_pdf" {
+  count  = length(data.aws_s3_bucket_objects.report_pdfs.keys) > 0 ? 1 : 0
   bucket = aws_s3_bucket.cost_report.id
-  key    = length(data.aws_s3_bucket_objects.report_pdfs.keys) > 0 ? data.aws_s3_bucket_objects.report_pdfs.keys[0] : null
+  key    = data.aws_s3_bucket_objects.report_pdfs.keys[0]
 }
