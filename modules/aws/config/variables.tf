@@ -65,6 +65,18 @@ variable "s3_key_prefix" {
   description = "The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files. AWS Config will append its standard structure under this prefix (AWSLogs/[account_id]/Config/[region]/YYYY/M/D)."
   type        = string
   default     = "config"
+
+  validation {
+    condition = (
+      length(var.s3_key_prefix) >= 3 &&
+      length(var.s3_key_prefix) <= 63 &&
+      can(regex("^[a-z0-9][a-z0-9.-]*[a-z0-9]$", var.s3_key_prefix)) &&
+      !can(regex("[A-Z_]", var.s3_key_prefix)) &&
+      length(regexall("\\.\\.", var.s3_key_prefix)) == 0 &&
+      !can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$", var.s3_key_prefix))
+    )
+    error_message = "s3_key_prefix must be 3-63 characters, only lowercase letters, numbers, hyphens, and periods, start/end with letter or number, no underscores, no consecutive periods, and not in IP address format."
+  }
 }
 
 variable "snapshot_delivery_frequency" {
