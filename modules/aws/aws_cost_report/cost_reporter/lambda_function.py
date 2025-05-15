@@ -199,7 +199,14 @@ def lambda_handler(event, context):
     year = start_dt.year
     month = f"{start_dt.month:02d}"
     # Sanitize customer name for S3 key
-    safe_customer = CUSTOMER_IDENTIFIER.lower().replace(' ', '-').replace('_', '-').replace('.', '').replace('/', '').replace('\\', '')
+    safe_customer = (
+        CUSTOMER_IDENTIFIER.lower()
+        .replace(" ", "-")
+        .replace("_", "-")
+        .replace(".", "")
+        .replace("/", "")
+        .replace("\\", "")
+    )
     key = f"{year}/{month}/{safe_customer}-cost-report-{year}-{month}.pdf"
 
     with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
