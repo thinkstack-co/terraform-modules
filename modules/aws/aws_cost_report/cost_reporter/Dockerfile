@@ -2,7 +2,7 @@
 # Example Docker build command for x86_64 Lambda compatibility:
 # docker run --platform linux/amd64 --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.12 pip install -r requirements.txt -t ./package
 
-FROM public.ecr.aws/sam/build-python3.12:latest
+FROM public.ecr.aws/sam/build-python3.12:1.138.0
 
 WORKDIR /build
 
