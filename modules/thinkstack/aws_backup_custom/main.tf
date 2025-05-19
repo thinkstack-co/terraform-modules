@@ -10,8 +10,9 @@ terraform {
 
 provider "aws" {
   alias  = "dr"
+  access_key = var.access_id
+  secret_key = var.secret_key
   region = var.dr_region
-  # Optionally, add profile or assume_role if needed for cross-region
 }
 
 ###############################################################

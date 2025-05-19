@@ -69,10 +69,10 @@ The module supports:
 
 ### Complete Example: All Features
 
-This example demonstrates all features of the module, including hourly/daily/weekly/monthly/yearly/custom/DR plans, KMS key creation, Windows VSS, vault lock, tagging, and resource selection.
+This example demonstrates a complete, production-ready configuration including all standard backup plans, a Disaster Recovery (DR) plan, custom backup plans, KMS key creation, Vault Lock, Windows VSS, and proper tagging for resource selection.
 
 ```hcl
-module "aws_custom_backup" {
+module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
   # Enable all standard backup plans
@@ -82,142 +82,25 @@ module "aws_custom_backup" {
   create_monthly_plan = true
   create_yearly_plan  = true
 
-  # Enable Disaster Recovery (DR) region
+  # Enable Disaster Recovery (DR) region and plan
   enable_dr         = true
   dr_region         = "us-west-2"
   dr_vault_name     = "dr-backup-vault"
   dr_plan_name      = "dr-backup-plan"
   dr_schedule       = "cron(0 2 * * ? *)"
   dr_retention_days = 30
+  dr_selection_tag_key   = "backup_schedule"
+  dr_selection_tag_value = "dr"
   dr_tags = {
     environment = "dr"
     project     = "backup_dr"
   }
-  dr_selection_tag_key   = "backup_schedule"
-  dr_selection_tag_value = "dr"
 
-  # KMS key configuration
+  # KMS key configuration for encryption
   create_kms_key        = true
   kms_key_description   = "KMS key for AWS Backup encryption"
   key_enable_key_rotation = true
   key_deletion_window_in_days = 30
-
-  # Vault lock and Windows VSS
-  enable_vault_lock     = true
-  enable_windows_vss    = true
-
-  # Retention and schedule settings for each plan
-  hourly_schedule               = "cron(0 * * * ? *)"
-  hourly_retention_days         = 1
-  hourly_enable_continuous_backup = true
-
-  daily_schedule                = "cron(0 1 * * ? *)"
-  daily_retention_days          = 7
-  daily_enable_continuous_backup = true
-
-  weekly_schedule               = "cron(0 2 ? * 1 *)"
-  weekly_retention_days         = 30
-
-  monthly_schedule              = "cron(0 3 1 * ? *)"
-  monthly_retention_days        = 90
-
-  yearly_schedule               = "cron(0 4 1 1 ? *)"
-  yearly_retention_days         = 365
-
-  # Custom backup plans
-  custom_backup_plans = {
-    database_backups = {
-      schedule               = "cron(0 5 * * ? *)"
-      retention_days         = 14
-      enable_continuous_backup = true
-      vault                  = "daily"
-      tag_key                = "database_backup"
-      tag_value              = "db"
-    }
-    app_backups = {
-      schedule               = "cron(0 6 ? * 1 *)"
-      retention_days         = 60
-      enable_continuous_backup = false
-      vault                  = "weekly"
-      tag_key                = "app_backup"
-      tag_value              = "app"
-    }
-  }
-
-  # Tags for all resources
-  tags = {
-    terraform   = "true"
-    environment = "production"
-    project     = "backup_infrastructure"
-  }
-}
-
-# Example EC2 instance included in daily and weekly backup plans
-resource "aws_instance" "web_server" {
-  # ... other configuration ...
-  tags = {
-    Name            = "web-server"
-    environment     = "production"
-    project         = "server_infrastructure"
-    backup_schedule = "daily-weekly"
-  }
-}
-
-# Example RDS instance included in hourly and daily backup plans
-resource "aws_db_instance" "database" {
-  # ... other configuration ...
-  tags = {
-    Name            = "example-db"
-    backup_schedule = "hourly-daily"
-  }
-}
-
-# Example EFS file system included in all enabled backup plans
-resource "aws_efs_file_system" "efs" {
-  # ... other configuration ...
-  tags = {
-    Name            = "example-efs"
-    backup_schedule = "all"
-  }
-}
-
-# Example EC2 instance included in custom backup plans
-resource "aws_instance" "app" {
-  # ... other configuration ...
-  tags = {
-    Name                  = "app-server"
-    app_backup            = "app"
-    database_backup       = "db"
-  }
-}
-```
-
-#### Supported Tag Values
-
-The module supports all possible combinations of backup schedules. Here are some examples:
-
-| Tag Value | Included in Backup Plans |
-|-----------|--------------------------|
-| `"hourly"` | Hourly |
-| `"daily"` | Daily |
-| `"weekly"` | Weekly |
-| `"monthly"` | Monthly |
-| `"yearly"` | Yearly |
-| `"hourly-daily"` | Hourly, Daily |
-| `"daily-weekly"` | Daily, Weekly |
-| `"weekly-monthly"` | Weekly, Monthly |
-| `"monthly-yearly"` | Monthly, Yearly |
-| `"hourly-daily-weekly"` | Hourly, Daily, Weekly |
-| `"daily-weekly-monthly"` | Daily, Weekly, Monthly |
-| `"weekly-monthly-yearly"` | Weekly, Monthly, Yearly |
-| `"hourly-daily-weekly-monthly"` | Hourly, Daily, Weekly, Monthly |
-| `"daily-weekly-monthly-yearly"` | Daily, Weekly, Monthly, Yearly |
-| `"hourly-daily-weekly-monthly-yearly"` | All backup plans |
-| `"all"` | All enabled backup plans |
-
-> **Note:** Resources will only be included in backup plans that are enabled in the module configuration. For example, if a resource is tagged with `"daily-weekly"` but only the daily plan is enabled, the resource will only be backed up by the daily plan.
-
-  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
   # Enable Windows VSS for consistent backups of Windows instances
   enable_windows_vss = true
@@ -225,10 +108,6 @@ The module supports all possible combinations of backup schedules. Here are some
   # Enable vault lock to prevent configuration changes and deletions of backups
   enable_vault_lock = true
   
-  # Enable all standard backup plans
-  create_hourly_plan  = true
-  create_daily_plan   = true
-  create_weekly_plan  = true
   create_monthly_plan = true
   create_yearly_plan  = true
   
