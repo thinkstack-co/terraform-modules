@@ -415,16 +415,4 @@ variable "dr_selection_tag_value" {
   type        = string
   default     = "dr"
 }
-
-variable "access_id" {
-  description = "(Required if enable_dr) The AWS access key ID to use for DR backups."
-  type        = string
-  default     = null
-}
-
-variable "secret_key" {
-  description = "(Required if enable_dr) The AWS secret access key to use for DR backups."
-  type        = string
-  default     = null
-}
   

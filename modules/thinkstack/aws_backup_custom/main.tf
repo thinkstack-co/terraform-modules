@@ -8,13 +8,6 @@ terraform {
   }
 }
 
-provider "aws" {
-  alias  = "dr"
-  access_key = var.access_id
-  secret_key = var.secret_key
-  region = var.dr_region
-}
-
 ###############################################################
 # Data Sources
 ###############################################################
