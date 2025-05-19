@@ -8,6 +8,12 @@ terraform {
   }
 }
 
+provider "aws" {
+  alias  = "dr"
+  region = var.dr_region
+  # Optionally, add profile or assume_role if needed for cross-region
+}
+
 ###############################################################
 # Data Sources
 ###############################################################
@@ -319,6 +325,37 @@ resource "aws_backup_vault_lock_configuration" "hourly" {
 }
 
 # Weekly Backup Vault
+
+# DR Backup Vault
+resource "aws_kms_key" "dr_backup_key" {
+  count         = var.enable_dr && var.create_kms_key ? 1 : 0
+  provider      = aws.dr
+  description   = "DR region KMS key for AWS Backup (copied from prod)"
+  deletion_window_in_days = var.key_deletion_window_in_days
+  enable_key_rotation     = var.key_enable_key_rotation
+  is_enabled              = var.key_is_enabled
+  key_usage               = var.key_usage
+  customer_master_key_spec = var.key_customer_master_key_spec
+  policy                  = var.key_policy
+  tags                    = merge(var.tags, var.dr_tags, { Name = "dr-backup-key" })
+}
+
+resource "aws_kms_alias" "dr_backup_alias" {
+  count         = var.enable_dr && var.create_kms_key ? 1 : 0
+  provider      = aws.dr
+  name          = "alias/${var.kms_alias_name}-dr"
+  target_key_id = aws_kms_key.dr_backup_key[0].key_id
+}
+
+resource "aws_backup_vault" "dr" {
+  count         = var.enable_dr ? 1 : 0
+  provider      = aws.dr
+  name          = var.dr_vault_name
+  kms_key_arn   = var.create_kms_key ? aws_kms_key.dr_backup_key[0].arn : var.kms_key_arn
+  force_destroy = var.force_destroy
+  tags          = merge(var.tags, var.dr_tags, { Name = var.dr_vault_name })
+}
+
 resource "aws_backup_vault" "weekly" {
   count         = local.create_weekly_vault ? 1 : 0
   name          = "weekly"
@@ -707,6 +744,41 @@ resource "aws_backup_selection" "yearly_selection_all" {
 
 ###############################################################
 # Custom Backup Plans
+
+# DR Backup Plan
+resource "aws_backup_plan" "dr" {
+  count    = var.enable_dr ? 1 : 0
+  provider = aws.dr
+  name     = var.dr_plan_name
+  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_plan_name })
+
+  rule {
+    rule_name                = "dr_rule"
+    target_vault_name        = var.dr_vault_name
+    schedule                 = var.dr_schedule
+    enable_continuous_backup = false
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+    lifecycle {
+      delete_after = var.dr_retention_days
+    }
+  }
+}
+
+resource "aws_backup_selection" "dr" {
+  count        = var.enable_dr ? 1 : 0
+  provider     = aws.dr
+  name         = "dr-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.dr[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.dr_selection_tag_key
+    value = var.dr_selection_tag_value
+  }
+}
+
 ###############################################################
 
 resource "aws_backup_plan" "custom_backup_plans" {

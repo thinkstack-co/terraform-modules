@@ -60,66 +60,134 @@ The module supports:
 - Optional KMS key creation for encrypted backups
 - Vault lock capabilities for enhanced security
 - Windows VSS support for consistent backups of Windows instances
+- **Disaster Recovery (DR) region support:** Optionally create backup vaults, plans, and selections in a separate AWS region for DR purposes.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-### Basic Example
+### Complete Example: All Features
+
+This example demonstrates all features of the module, including hourly/daily/weekly/monthly/yearly/custom/DR plans, KMS key creation, Windows VSS, vault lock, tagging, and resource selection.
 
 ```hcl
 module "aws_custom_backup" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
-  enable_vault_lock = true
-  
-  # Enable standard backup plans
+  # Enable all standard backup plans
+  create_hourly_plan  = true
   create_daily_plan   = true
   create_weekly_plan  = true
   create_monthly_plan = true
   create_yearly_plan  = true
-  
-  # Optional: Configure retention periods
-  daily_retention_days   = 7
-  weekly_retention_days  = 30
-  monthly_retention_days = 90
-  yearly_retention_days  = 365
-}
-```
 
-### Resource Tagging for Backup Selection
+  # Enable Disaster Recovery (DR) region
+  enable_dr         = true
+  dr_region         = "us-west-2"
+  dr_vault_name     = "dr-backup-vault"
+  dr_plan_name      = "dr-backup-plan"
+  dr_schedule       = "cron(0 2 * * ? *)"
+  dr_retention_days = 30
+  dr_tags = {
+    environment = "dr"
+    project     = "backup_dr"
+  }
+  dr_selection_tag_key   = "backup_schedule"
+  dr_selection_tag_value = "dr"
 
-Resources are included in backup plans based on tags. The module supports including resources in multiple backup plans using a hyphen-separated string approach:
+  # KMS key configuration
+  create_kms_key        = true
+  kms_key_description   = "KMS key for AWS Backup encryption"
+  key_enable_key_rotation = true
+  key_deletion_window_in_days = 30
 
-```hcl
-# EC2 instance included in daily and weekly backup plans
-resource "aws_instance" "example" {
-  # ... other configuration ...
-  
+  # Vault lock and Windows VSS
+  enable_vault_lock     = true
+  enable_windows_vss    = true
+
+  # Retention and schedule settings for each plan
+  hourly_schedule               = "cron(0 * * * ? *)"
+  hourly_retention_days         = 1
+  hourly_enable_continuous_backup = true
+
+  daily_schedule                = "cron(0 1 * * ? *)"
+  daily_retention_days          = 7
+  daily_enable_continuous_backup = true
+
+  weekly_schedule               = "cron(0 2 ? * 1 *)"
+  weekly_retention_days         = 30
+
+  monthly_schedule              = "cron(0 3 1 * ? *)"
+  monthly_retention_days        = 90
+
+  yearly_schedule               = "cron(0 4 1 1 ? *)"
+  yearly_retention_days         = 365
+
+  # Custom backup plans
+  custom_backup_plans = {
+    database_backups = {
+      schedule               = "cron(0 5 * * ? *)"
+      retention_days         = 14
+      enable_continuous_backup = true
+      vault                  = "daily"
+      tag_key                = "database_backup"
+      tag_value              = "db"
+    }
+    app_backups = {
+      schedule               = "cron(0 6 ? * 1 *)"
+      retention_days         = 60
+      enable_continuous_backup = false
+      vault                  = "weekly"
+      tag_key                = "app_backup"
+      tag_value              = "app"
+    }
+  }
+
+  # Tags for all resources
   tags = {
-    Name            = "example-instance"
-    backup_schedule = "daily-weekly"  # Include in both daily and weekly backup plans
+    terraform   = "true"
+    environment = "production"
+    project     = "backup_infrastructure"
   }
 }
 
-# RDS instance included in only the monthly backup plan
-resource "aws_db_instance" "example" {
+# Example EC2 instance included in daily and weekly backup plans
+resource "aws_instance" "web_server" {
   # ... other configuration ...
-  
+  tags = {
+    Name            = "web-server"
+    environment     = "production"
+    project         = "server_infrastructure"
+    backup_schedule = "daily-weekly"
+  }
+}
+
+# Example RDS instance included in hourly and daily backup plans
+resource "aws_db_instance" "database" {
+  # ... other configuration ...
   tags = {
     Name            = "example-db"
-    backup_schedule = "monthly"  # Include in only the monthly backup plan
+    backup_schedule = "hourly-daily"
   }
 }
 
-# EFS file system included in all standard backup plans
-resource "aws_efs_file_system" "example" {
+# Example EFS file system included in all enabled backup plans
+resource "aws_efs_file_system" "efs" {
   # ... other configuration ...
-  
   tags = {
     Name            = "example-efs"
-    backup_schedule = "all"  # Include in all enabled backup plans
+    backup_schedule = "all"
+  }
+}
+
+# Example EC2 instance included in custom backup plans
+resource "aws_instance" "app" {
+  # ... other configuration ...
+  tags = {
+    Name                  = "app-server"
+    app_backup            = "app"
+    database_backup       = "db"
   }
 }
 ```
@@ -149,26 +217,6 @@ The module supports all possible combinations of backup schedules. Here are some
 
 > **Note:** Resources will only be included in backup plans that are enabled in the module configuration. For example, if a resource is tagged with `"daily-weekly"` but only the daily plan is enabled, the resource will only be backed up by the daily plan.
 
-### Custom Backup Plans
-
-For custom backup plans, you can use a different tag key:
-
-```hcl
-# EC2 instance included in custom backup plan
-resource "aws_instance" "example" {
-  # ... other configuration ...
-  
-  tags = {
-    Name            = "example-instance"
-    custom_backup_schedule = "custom-plan-1-custom-plan-2"  # Include in custom backup plans
-  }
-}
-```
-
-### Complete Example
-
-```hcl
-module "aws_custom_backup" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
   # Enable Windows VSS for consistent backups of Windows instances
@@ -347,6 +395,15 @@ resource "aws_db_instance" "database" {
 | default_custom_backup_tag_key | Default tag key to use for custom backup plans | `string` | `"backup_custom"` | no |
 | custom_backup_plans | Map of custom backup plans to create | `map(object)` | `{}` | no |
 | tags | Map of tags to apply to all resources created by this module | `map(any)` | `{}` | no |
+| enable_dr | Whether to enable DR (Disaster Recovery) backup in a separate AWS region | `bool` | `false` | no |
+| dr_region | The AWS region to use for DR backups | `string` | `null` | no |
+| dr_vault_name | The name of the backup vault to create in the DR region | `string` | `"dr-backup-vault"` | no |
+| dr_plan_name | The name of the backup plan to create in the DR region | `string` | `"dr-backup-plan"` | no |
+| dr_schedule | CRON expression for the DR backup plan schedule | `string` | `"cron(0 2 * * ? *)"` | no |
+| dr_retention_days | Number of days to retain DR backups | `number` | `30` | no |
+| dr_tags | Tags to apply to DR region resources | `map(any)` | `{}` | no |
+| dr_selection_tag_key | Tag key for selecting resources to back up in the DR plan | `string` | `"backup_schedule"` | no |
+| dr_selection_tag_value | Tag value for selecting resources to back up in the DR plan | `string` | `"dr"` | no |
 
 ## Outputs
 
