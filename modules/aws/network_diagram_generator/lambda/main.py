@@ -1,20 +1,25 @@
-import boto3
+import logging
 import os
-from diagrams import Diagram, Cluster
+import tempfile
+
+import boto3
+import botocore
+from diagrams import Cluster, Diagram
 from diagrams.aws.compute import EC2
 from diagrams.aws.network import VPC, Subnet
-import tempfile
-import botocore
-import logging
+
 
 def get_vpcs(ec2):
     return ec2.describe_vpcs()["Vpcs"]
 
+
 def get_subnets(ec2):
     return ec2.describe_subnets()["Subnets"]
 
+
 def get_instances(ec2):
     return ec2.describe_instances()["Reservations"]
+
 
 def lambda_handler(event, context):
     region = os.environ.get("AWS_REGION", "us-east-1")
