@@ -357,3 +357,62 @@ variable "tags" {
     aws_backup  = "true"
   }
 }
+
+###############################################################
+# Disaster Recovery (DR) Region Support
+###############################################################
+variable "enable_dr" {
+  description = "(Optional) Whether to enable DR (Disaster Recovery) backup in a separate AWS region."
+  type        = bool
+  default     = false
+}
+
+variable "dr_region" {
+  description = "(Required if enable_dr) The AWS region to use for DR backups."
+  type        = string
+  default     = null
+}
+
+variable "dr_vault_name" {
+  description = "(Optional) The name of the backup vault to create in the DR region."
+  type        = string
+  default     = "dr-backup-vault"
+}
+
+variable "dr_plan_name" {
+  description = "(Optional) The name of the backup plan to create in the DR region."
+  type        = string
+  default     = "dr-backup-plan"
+}
+
+variable "dr_schedule" {
+  description = "(Optional) CRON expression for the DR backup plan schedule."
+  type        = string
+  default     = "cron(0 2 * * ? *)" # Daily at 2:00 AM UTC
+}
+
+variable "dr_retention_days" {
+  description = "(Optional) Number of days to retain DR backups."
+  type        = number
+  default     = 30
+}
+
+
+variable "dr_tags" {
+  description = "(Optional) Tags to apply to DR region resources."
+  type        = map(any)
+  default     = {}
+}
+
+variable "dr_selection_tag_key" {
+  description = "(Optional) Tag key for selecting resources to back up in the DR plan."
+  type        = string
+  default     = "backup_schedule"
+}
+
+variable "dr_selection_tag_value" {
+  description = "(Optional) Tag value for selecting resources to back up in the DR plan."
+  type        = string
+  default     = "dr"
+}
+  

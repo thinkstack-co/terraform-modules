@@ -127,10 +127,12 @@ def generate_pdf(cost_data, start, end, outfile):
     pdf.ln(6)
 
     # For each tag
-    for tag, usages in sorted(cost_data.items()):
-        # skip empty tags
+    # Sort Name tags alphabetically (case-insensitive)
+    for tag_val in sorted(cost_data, key=lambda x: str(x).lower()):
+        tag = tag_val
         if not tag.strip():
             continue
+        usages = cost_data[tag_val]
 
         # Tag header
         pdf.set_font("Arial", "B", 14)
@@ -196,7 +198,16 @@ def lambda_handler(event, context):
     start_dt = datetime.datetime.strptime(start, "%Y-%m-%d")
     year = start_dt.year
     month = f"{start_dt.month:02d}"
-    key = f"{year}/{month}/cost-report-{year}-{month}.pdf"
+    # Sanitize customer name for S3 key
+    safe_customer = (
+        CUSTOMER_IDENTIFIER.lower()
+        .replace(" ", "-")
+        .replace("_", "-")
+        .replace(".", "")
+        .replace("/", "")
+        .replace("\\", "")
+    )
+    key = f"{year}/{month}/{safe_customer}-cost-report-{year}-{month}.pdf"
 
     with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
         generate_pdf(detailed_costs, start, end, tmp.name)
