@@ -119,7 +119,7 @@ resource "aws_lambda_function" "diagram" {
   
   environment {
     variables = {
-      S3_BUCKET = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
+      S3_BUCKET = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram.bucket
     }
   }
   
