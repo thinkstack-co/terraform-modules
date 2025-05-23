@@ -1,19 +1,29 @@
-/*
 variable "name" {
-  description = "Base name for resources."
+  description = "Base name for resources"
   type        = string
   default     = "network-diagram-generator"
 }
 
-variable "s3_bucket_name" {
-  description = "S3 bucket to store diagrams. If not set, one will be created."
+variable "s3_bucket_prefix" {
+  description = "Prefix for the S3 bucket name to store diagrams. A unique suffix will be appended."
   type        = string
-  default     = null
+  default     = "network-diagrams"
 }
 
 variable "schedule" {
-  description = "EventBridge cron schedule for Lambda (default: weekly on Sunday at 2am UTC)."
+  description = "EventBridge cron schedule for Lambda execution"
   type        = string
-  default     = "cron(0 2 ? * SUN *)"
+  default     = "cron(0 2 ? * SUN *)"  # Weekly on Sunday at 2 AM
 }
-*/
+
+variable "tags" {
+  description = "Tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "s3_bucket_name" {
+  description = "Optional existing S3 bucket name to use instead of creating a new one"
+  type        = string
+  default     = null
+}

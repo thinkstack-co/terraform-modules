@@ -1,5 +1,3 @@
-/*
-
 terraform {
   required_providers {
     aws = {
@@ -10,9 +8,8 @@ terraform {
 }
 
 resource "aws_s3_bucket" "diagram" {
-  bucket = var.s3_bucket_name != null ? var.s3_bucket_name : "${var.name}-network-diagrams-${random_id.suffix.hex}"
+  bucket = "${var.s3_bucket_prefix}-${random_id.suffix.hex}"
   force_destroy = true
-  count = var.s3_bucket_name == null ? 1 : 0
 }
 
 resource "random_id" "suffix" {
@@ -42,16 +39,69 @@ resource "aws_iam_role_policy" "lambda_policy" {
 
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
+    sid = "EC2ReadAccess"
     actions = [
-      "ec2:Describe*",
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:ListBucket"
+      "ec2:DescribeVpcs",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeInstances",
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeTags"
     ]
     resources = ["*"]
   }
+  
   statement {
-    actions = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+    sid = "ELBReadAccess"
+    actions = [
+      "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeTargetHealth",
+      "elasticloadbalancing:DescribeListeners",
+      "elasticloadbalancing:DescribeTags"
+    ]
+    resources = ["*"]
+  }
+  
+  statement {
+    sid = "WAFReadAccess"
+    actions = [
+      "wafv2:ListWebACLs",
+      "wafv2:ListResourcesForWebACL",
+      "wafv2:GetWebACL",
+      "waf:ListWebACLs",
+      "waf:GetWebACL"
+    ]
+    resources = ["*"]
+  }
+  
+  statement {
+    sid = "S3ReadAccess"
+    actions = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation",
+      "s3:ListAllMyBuckets"
+    ]
+    resources = ["*"]
+  }
+  
+  statement {
+    sid = "S3WriteAccess"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.diagram.id}/*"
+    ]
+  }
+  
+  statement {
+    sid = "CloudWatchLogsAccess"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
     resources = ["arn:aws:logs:*:*:*"]
   }
 }
@@ -62,14 +112,25 @@ resource "aws_lambda_function" "diagram" {
   handler       = "main.lambda_handler"
   runtime       = "python3.11"
   timeout       = 900
-  memory_size   = 512
-  filename      = data.archive_file.lambda_package.output_path
+  memory_size   = 1024  # Increased for larger diagrams
+  
+  filename         = data.archive_file.lambda_package.output_path
   source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  
   environment {
     variables = {
       S3_BUCKET = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
     }
   }
+  
+  depends_on = [
+    aws_iam_role_policy.lambda_policy
+  ]
+}
+
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/${aws_lambda_function.diagram.function_name}"
+  retention_in_days = 14
 }
 
 data "archive_file" "lambda_package" {
@@ -78,13 +139,14 @@ data "archive_file" "lambda_package" {
   output_path = "${path.module}/lambda.zip"
 }
 
-resource "aws_cloudwatch_event_rule" "weekly" {
-  name                = "${var.name}-diagram-weekly"
+resource "aws_cloudwatch_event_rule" "scheduled" {
+  name                = "${var.name}-diagram-schedule"
+  description         = "Trigger network diagram generation"
   schedule_expression = var.schedule
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {
-  rule      = aws_cloudwatch_event_rule.weekly.name
+  rule      = aws_cloudwatch_event_rule.scheduled.name
   target_id = "diagram-lambda"
   arn       = aws_lambda_function.diagram.arn
 }
@@ -94,6 +156,5 @@ resource "aws_lambda_permission" "allow_events" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.diagram.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.weekly.arn
+  source_arn    = aws_cloudwatch_event_rule.scheduled.arn
 }
-*/
