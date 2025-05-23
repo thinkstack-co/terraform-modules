@@ -7,7 +7,7 @@ from fpdf import FPDF
 
 # ENV VARS
 REPORT_BUCKET = os.environ["REPORT_BUCKET"]
-REPORT_TAG_KEY = os.environ.get("REPORT_TAG_KEY", "Name")
+REPORT_TAG_KEY = os.environ.get("REPORT_TAG_KEY", "Name", "name")
 REPORT_TIME_PERIOD_START = os.environ.get("REPORT_TIME_PERIOD_START")
 REPORT_TIME_PERIOD_END = os.environ.get("REPORT_TIME_PERIOD_END")
 CUSTOMER_IDENTIFIER = os.environ.get("CUSTOMER_IDENTIFIER", "")

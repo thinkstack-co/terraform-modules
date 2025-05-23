@@ -75,6 +75,11 @@ This example demonstrates a complete, production-ready configuration including a
 module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
+  providers = {
+    aws    = aws
+    aws.dr = aws.dr
+  }
+  
   # Enable all standard backup plans
   create_hourly_plan  = true
   create_daily_plan   = true
