@@ -8,8 +8,10 @@ from diagrams import Cluster, Diagram, Edge, Node  # type: ignore
 from diagrams.aws.compute import EC2  # type: ignore
 from diagrams.aws.network import ALB, ELB, NLB  # type: ignore
 from diagrams.aws.network import VPC as VPCIcon  # type: ignore
-from diagrams.aws.network import WAF, PrivateSubnet, PublicSubnet  # type: ignore
+from diagrams.aws.network import (WAF, PrivateSubnet,  # type: ignore
+                                  PublicSubnet)
 from diagrams.aws.storage import S3  # type: ignore
+
 # Removed unused imports: General, CloudFront, Custom
 
 
@@ -220,7 +222,7 @@ def get_s3_buckets(s3):
 
 def process_ec2_instances_in_subnet(instances, subnet_id, instance_nodes):
     """Process EC2 instances in a subnet and add them to the diagram.
-    
+
     Args:
         instances: List of EC2 instance reservations
         subnet_id: The subnet ID to filter instances by
