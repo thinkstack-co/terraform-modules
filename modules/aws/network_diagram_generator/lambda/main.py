@@ -1,6 +1,15 @@
 import os
+import sys
 import tempfile
 from datetime import datetime
+
+# Configure environment to use Graphviz from Lambda Layer
+# Lambda Layers are mounted to /opt
+os.environ['PATH'] = '/opt/bin:' + os.environ['PATH']
+os.environ['LD_LIBRARY_PATH'] = '/opt/lib:' + os.environ.get('LD_LIBRARY_PATH', '')
+
+# Force the diagrams library to use the Layer's Graphviz
+os.environ['GRAPHVIZ_DOT'] = '/opt/bin/dot'
 
 import boto3  # type: ignore
 import botocore  # type: ignore
@@ -8,8 +17,9 @@ from diagrams import Cluster, Diagram, Edge, Node  # type: ignore
 from diagrams.aws.compute import EC2  # type: ignore
 from diagrams.aws.network import ALB, ELB, NLB  # type: ignore
 from diagrams.aws.network import VPC as VPCIcon  # type: ignore
-from diagrams.aws.network import (WAF, PrivateSubnet,  # type: ignore
+from diagrams.aws.network import (PrivateSubnet,  # type: ignore
                                   PublicSubnet)
+from diagrams.aws.security import WAF  # type: ignore
 from diagrams.aws.storage import S3  # type: ignore
 
 # Removed unused imports: General, CloudFront, Custom
