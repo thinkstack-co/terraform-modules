@@ -7,24 +7,6 @@ terraform {
   }
 }
 
-variable "name" {
-  description = "A name prefix for all resources."
-  type        = string
-  default     = "network-diagram-generator"
-}
-
-variable "s3_bucket_prefix" {
-  description = "Prefix for the S3 bucket name."
-  type        = string
-  default     = "network-diagrams"
-}
-
-variable "schedule" {
-  description = "Cron expression for the CloudWatch event rule to trigger the Lambda."
-  type        = string
-  default     = "cron(0 2 * * ? *)" # Default: 2 AM UTC daily
-}
-
 resource "aws_s3_bucket" "diagram" {
   bucket        = "${var.s3_bucket_prefix}-${random_id.suffix.hex}"
   force_destroy = true # Consider changing for production
@@ -217,29 +199,4 @@ resource "aws_lambda_permission" "allow_events" {
   function_name = aws_lambda_function.diagram.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.scheduled.arn
-}
-
-output "s3_bucket_name" {
-  description = "Name of the S3 bucket where diagrams are stored."
-  value       = aws_s3_bucket.diagram.bucket
-}
-
-output "lambda_function_name" {
-  description = "Name of the Lambda function."
-  value       = aws_lambda_function.diagram.function_name
-}
-
-output "lambda_function_arn" {
-  description = "ARN of the Lambda function."
-  value       = aws_lambda_function.diagram.arn
-}
-
-output "iam_role_name" {
-  description = "Name of the IAM role created for the Lambda function."
-  value       = aws_iam_role.lambda.name
-}
-
-output "cloudwatch_event_rule_name" {
-  description = "Name of the CloudWatch Event Rule."
-  value       = aws_cloudwatch_event_rule.scheduled.name
 }
