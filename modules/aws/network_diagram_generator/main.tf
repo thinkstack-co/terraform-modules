@@ -95,61 +95,41 @@ data "aws_iam_policy_document" "lambda_policy" {
 data "aws_region" "current" {}
 
 locals {
-  graphviz_layer_arns = {
-    "us-east-1"      = "arn:aws:lambda:us-east-1:145266761615:layer:graphviz:4",
-    "us-east-2"      = "arn:aws:lambda:us-east-2:145266761615:layer:graphviz:4",
-    "us-west-1"      = "arn:aws:lambda:us-west-1:145266761615:layer:graphviz:4",
-    "us-west-2"      = "arn:aws:lambda:us-west-2:145266761615:layer:graphviz:4",
-    "eu-west-1"      = "arn:aws:lambda:eu-west-1:145266761615:layer:graphviz:4",
-    "eu-west-2"      = "arn:aws:lambda:eu-west-2:145266761615:layer:graphviz:4",
-    "eu-west-3"      = "arn:aws:lambda:eu-west-3:145266761615:layer:graphviz:4",
-    "eu-central-1"   = "arn:aws:lambda:eu-central-1:145266761615:layer:graphviz:4",
-    "eu-north-1"     = "arn:aws:lambda:eu-north-1:145266761615:layer:graphviz:4",
-    "ap-northeast-1" = "arn:aws:lambda:ap-northeast-1:145266761615:layer:graphviz:4",
-    "ap-northeast-2" = "arn:aws:lambda:ap-northeast-2:145266761615:layer:graphviz:4",
-    "ap-southeast-1" = "arn:aws:lambda:ap-southeast-1:145266761615:layer:graphviz:4",
-    "ap-southeast-2" = "arn:aws:lambda:ap-southeast-2:145266761615:layer:graphviz:4",
-    "ap-south-1"     = "arn:aws:lambda:ap-south-1:145266761615:layer:graphviz:4",
-    "ca-central-1"   = "arn:aws:lambda:ca-central-1:145266761615:layer:graphviz:4",
-    "sa-east-1"      = "arn:aws:lambda:sa-east-1:145266761615:layer:graphviz:4"
+  public_graphviz_layers = {
+    "us-east-1"      = "arn:aws:lambda:us-east-1:764866452798:layer:graphviz:12"
+    "us-east-2"      = "arn:aws:lambda:us-east-2:764866452798:layer:graphviz:12"
+    "us-west-1"      = "arn:aws:lambda:us-west-1:764866452798:layer:graphviz:12"
+    "us-west-2"      = "arn:aws:lambda:us-west-2:764866452798:layer:graphviz:12"
+    "af-south-1"     = "arn:aws:lambda:af-south-1:764866452798:layer:graphviz:12"
+    "ap-east-1"      = "arn:aws:lambda:ap-east-1:764866452798:layer:graphviz:12"
+    "ap-south-1"     = "arn:aws:lambda:ap-south-1:764866452798:layer:graphviz:12"
+    "ap-northeast-2" = "arn:aws:lambda:ap-northeast-2:764866452798:layer:graphviz:12"
+    "ap-southeast-1" = "arn:aws:lambda:ap-southeast-1:764866452798:layer:graphviz:12"
+    "ap-southeast-2" = "arn:aws:lambda:ap-southeast-2:764866452798:layer:graphviz:12"
+    "ap-northeast-1" = "arn:aws:lambda:ap-northeast-1:764866452798:layer:graphviz:12"
+    "ca-central-1"   = "arn:aws:lambda:ca-central-1:764866452798:layer:graphviz:12"
+    "eu-central-1"   = "arn:aws:lambda:eu-central-1:764866452798:layer:graphviz:12"
+    "eu-west-1"      = "arn:aws:lambda:eu-west-1:764866452798:layer:graphviz:12"
+    "eu-west-2"      = "arn:aws:lambda:eu-west-2:764866452798:layer:graphviz:12"
+    "eu-south-1"     = "arn:aws:lambda:eu-south-1:764866452798:layer:graphviz:12"
+    "eu-west-3"      = "arn:aws:lambda:eu-west-3:764866452798:layer:graphviz:12"
+    "eu-north-1"     = "arn:aws:lambda:eu-north-1:764866452798:layer:graphviz:12"
+    "me-south-1"     = "arn:aws:lambda:me-south-1:764866452798:layer:graphviz:12"
+    "sa-east-1"      = "arn:aws:lambda:sa-east-1:764866452798:layer:graphviz:12"
   }
-
-  use_public_graphviz_layer = contains(keys(local.graphviz_layer_arns), data.aws_region.current.name)
-  graphviz_layer_arn_final = local.use_public_graphviz_layer ? local.graphviz_layer_arns[data.aws_region.current.name] : aws_lambda_layer_version.graphviz_local[0].arn
-}
-
-resource "null_resource" "build_local_graphviz_layer" {
-  count = local.use_public_graphviz_layer ? 0 : 1
-  triggers = {
-    build_script_hash = filemd5("${path.module}/lambda/layer/build_graphviz_layer.sh")
-  }
-  provisioner "local-exec" {
-    command     = "bash ${path.module}/lambda/layer/build_graphviz_layer.sh"
-    working_dir = "${path.module}/lambda/layer"
-  }
+  current_region             = data.aws_region.current.name
+  use_public_graphviz_layer  = contains(keys(local.public_graphviz_layers), local.current_region)
+  public_graphviz_layer_arn  = local.use_public_graphviz_layer ? local.public_graphviz_layers[local.current_region] : null
+  graphviz_layer_arn_final   = local.use_public_graphviz_layer ? local.public_graphviz_layer_arn : aws_lambda_layer_version.graphviz_local[0].arn
 }
 
 resource "aws_lambda_layer_version" "graphviz_local" {
   count = local.use_public_graphviz_layer ? 0 : 1
-  layer_name          = "${var.name}-graphviz-layer-local"
-  description         = "Locally built Lambda Layer containing Graphviz binaries"
-  compatible_runtimes = ["python3.11"]
-  filename            = "${path.module}/lambda/layer/graphviz-layer.zip"
-  source_code_hash    = filebase64sha256(local.use_public_graphviz_layer ? "" : "${path.module}/lambda/layer/graphviz-layer.zip")
-  depends_on = [null_resource.build_local_graphviz_layer]
-}
 
-resource "null_resource" "build_lambda_function" {
-  triggers = {
-    source_code_hash  = filemd5("${path.module}/lambda/main.py"),
-    dockerfile_hash   = filemd5("${path.module}/lambda/Dockerfile"),
-    requirements_hash = filemd5("${path.module}/lambda/requirements.txt"),
-    build_script_hash = filemd5("${path.module}/lambda/build_function.sh")
-  }
-  provisioner "local-exec" {
-    command     = "bash ${path.module}/lambda/build_function.sh"
-    working_dir = path.module
-  }
+  filename            = "${path.module}/lambda/layer/graphviz_layer.zip"
+  layer_name          = "${var.name}-graphviz-layer-local"
+  compatible_runtimes = ["python3.11"]
+  source_code_hash    = filebase64sha256("${path.module}/lambda/layer/graphviz_layer.zip")
 }
 
 resource "aws_lambda_function" "diagram" {
@@ -157,10 +137,12 @@ resource "aws_lambda_function" "diagram" {
   role          = aws_iam_role.lambda.arn
   handler       = "main.lambda_handler"
   runtime       = "python3.11"
-  timeout       = 900
-  memory_size   = 1024
-  filename         = "${path.module}/lambda/function.zip"
+  timeout       = 300 # 5 minutes, adjust as needed
+  memory_size   = 512 # Adjust as needed
+
+  filename         = "${path.module}/lambda/function.zip" # Assumes function.zip is pre-built
   source_code_hash = filebase64sha256("${path.module}/lambda/function.zip")
+
   layers = [
     local.graphviz_layer_arn_final
   ]
@@ -169,11 +151,6 @@ resource "aws_lambda_function" "diagram" {
       S3_BUCKET = aws_s3_bucket.diagram.bucket
     }
   }
-  depends_on = [
-    aws_iam_role_policy.lambda_policy,
-    null_resource.build_lambda_function,
-    aws_lambda_layer_version.graphviz_local 
-  ]
 }
 
 resource "aws_cloudwatch_log_group" "lambda" {
