@@ -99,6 +99,76 @@ resource "aws_iam_role_policy_attachment" "tag_policy_attach" {
 }
 
 ###############################################################
+# DR IAM Role for AWS Backup
+###############################################################
+
+resource "aws_iam_role" "dr_backup_role" {
+  count              = var.enable_dr ? 1 : 0
+  provider           = aws.dr
+  name               = var.dr_backup_role_name
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": ["sts:AssumeRole"],
+      "Effect": "Allow",
+      "Principal": {
+        "Service": ["backup.amazonaws.com"]
+      }
+    }
+  ]
+}
+POLICY
+  tags               = merge(var.tags, var.dr_tags)
+}
+
+resource "aws_iam_role_policy_attachment" "dr_backup_policy_attach" {
+  count      = var.enable_dr ? 1 : 0
+  provider   = aws.dr
+  role       = aws_iam_role.dr_backup_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+}
+
+resource "aws_iam_role_policy_attachment" "dr_restore_policy_attach" {
+  count      = var.enable_dr ? 1 : 0
+  provider   = aws.dr
+  role       = aws_iam_role.dr_backup_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
+}
+
+# DR region tag-based selection policy
+resource "aws_iam_policy" "dr_tag_based_backup_policy" {
+  count       = var.enable_dr ? 1 : 0
+  provider    = aws.dr
+  name        = "DRTagBasedBackupPolicy"
+  description = "Policy to allow AWS Backup to select resources based on tags in DR region"
+  policy      = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "tag:GetResources",
+        "tag:GetTagKeys",
+        "tag:GetTagValues"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "dr_tag_policy_attach" {
+  count      = var.enable_dr ? 1 : 0
+  provider   = aws.dr
+  role       = aws_iam_role.dr_backup_role[0].name
+  policy_arn = aws_iam_policy.dr_tag_based_backup_policy[0].arn
+}
+
+###############################################################
 # Local variables for configuration logic
 ###############################################################
 
@@ -109,6 +179,13 @@ locals {
   create_monthly_vault = var.create_monthly_plan
   create_yearly_vault  = var.create_yearly_plan
   create_hourly_vault  = var.create_hourly_plan
+
+  # Determine which DR vaults should be created based on enabled DR backup plans
+  create_dr_daily_vault   = var.enable_dr && var.create_dr_daily_plan
+  create_dr_weekly_vault  = var.enable_dr && var.create_dr_weekly_plan
+  create_dr_monthly_vault = var.enable_dr && var.create_dr_monthly_plan
+  create_dr_yearly_vault  = var.enable_dr && var.create_dr_yearly_plan
+  create_dr_hourly_vault  = var.enable_dr && var.create_dr_hourly_plan
 
   # Map of vault names to their creation status
   vault_map = {
@@ -739,37 +816,240 @@ resource "aws_backup_selection" "yearly_selection_all" {
 ###############################################################
 # Custom Backup Plans
 
-# DR Backup Plan
-resource "aws_backup_plan" "dr" {
-  count    = var.enable_dr ? 1 : 0
+# DR Backup Plans
+###############################################################
+
+# DR Hourly Backup Plan
+resource "aws_backup_plan" "dr_hourly_backup_plan" {
+  count    = local.create_dr_hourly_vault ? 1 : 0
   provider = aws.dr
-  name     = var.dr_plan_name
-  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_plan_name })
+  name     = var.dr_hourly_plan_name
+  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_hourly_plan_name })
 
   rule {
-    rule_name                = "dr_rule"
-    target_vault_name        = var.dr_vault_name
-    schedule                 = var.dr_schedule
-    enable_continuous_backup = false
+    rule_name                = "dr-hourly-backup-rule"
+    target_vault_name        = aws_backup_vault.dr[0].name
+    schedule                 = var.dr_hourly_schedule
+    enable_continuous_backup = var.dr_hourly_enable_continuous_backup
     start_window             = var.backup_start_window
     completion_window        = var.backup_completion_window
+
     lifecycle {
-      delete_after = var.dr_retention_days
+      delete_after = var.dr_hourly_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.dr_hourly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
     }
   }
 }
 
-resource "aws_backup_selection" "dr" {
-  count        = var.enable_dr ? 1 : 0
+# DR Daily Backup Plan
+resource "aws_backup_plan" "dr_daily_backup_plan" {
+  count    = local.create_dr_daily_vault ? 1 : 0
+  provider = aws.dr
+  name     = var.dr_daily_plan_name
+  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_daily_plan_name })
+
+  rule {
+    rule_name                = "dr-daily-backup-rule"
+    target_vault_name        = aws_backup_vault.dr[0].name
+    schedule                 = var.dr_daily_schedule
+    enable_continuous_backup = var.dr_daily_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.dr_daily_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.dr_daily_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# DR Weekly Backup Plan
+resource "aws_backup_plan" "dr_weekly_backup_plan" {
+  count    = local.create_dr_weekly_vault ? 1 : 0
+  provider = aws.dr
+  name     = var.dr_weekly_plan_name
+  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_weekly_plan_name })
+
+  rule {
+    rule_name                = "dr-weekly-backup-rule"
+    target_vault_name        = aws_backup_vault.dr[0].name
+    schedule                 = var.dr_weekly_schedule
+    enable_continuous_backup = var.dr_weekly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.dr_weekly_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.dr_weekly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# DR Monthly Backup Plan
+resource "aws_backup_plan" "dr_monthly_backup_plan" {
+  count    = local.create_dr_monthly_vault ? 1 : 0
+  provider = aws.dr
+  name     = var.dr_monthly_plan_name
+  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_monthly_plan_name })
+
+  rule {
+    rule_name                = "dr-monthly-backup-rule"
+    target_vault_name        = aws_backup_vault.dr[0].name
+    schedule                 = var.dr_monthly_schedule
+    enable_continuous_backup = var.dr_monthly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.dr_monthly_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.dr_monthly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# DR Yearly Backup Plan
+resource "aws_backup_plan" "dr_yearly_backup_plan" {
+  count    = local.create_dr_yearly_vault ? 1 : 0
+  provider = aws.dr
+  name     = var.dr_yearly_plan_name
+  tags     = merge(var.tags, var.dr_tags, { Name = var.dr_yearly_plan_name })
+
+  rule {
+    rule_name                = "dr-yearly-backup-rule"
+    target_vault_name        = aws_backup_vault.dr[0].name
+    schedule                 = var.dr_yearly_schedule
+    enable_continuous_backup = var.dr_yearly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.dr_yearly_retention_days
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.dr_yearly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+###############################################################
+# DR Backup Selections
+###############################################################
+
+# DR Hourly Selection
+resource "aws_backup_selection" "dr_hourly_selection" {
+  count        = local.create_dr_hourly_vault ? 1 : 0
   provider     = aws.dr
-  name         = "dr-tag-selection"
-  iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.dr[0].id
+  name         = "dr-hourly-tag-selection"
+  iam_role_arn = aws_iam_role.dr_backup_role[0].arn
+  plan_id      = aws_backup_plan.dr_hourly_backup_plan[0].id
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.dr_selection_tag_key
-    value = var.dr_selection_tag_value
+    key   = var.dr_tag_key
+    value = var.dr_tag_value
+  }
+}
+
+# DR Daily Selection
+resource "aws_backup_selection" "dr_daily_selection" {
+  count        = local.create_dr_daily_vault ? 1 : 0
+  provider     = aws.dr
+  name         = "dr-daily-tag-selection"
+  iam_role_arn = aws_iam_role.dr_backup_role[0].arn
+  plan_id      = aws_backup_plan.dr_daily_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.dr_tag_key
+    value = var.dr_tag_value
+  }
+}
+
+# DR Weekly Selection
+resource "aws_backup_selection" "dr_weekly_selection" {
+  count        = local.create_dr_weekly_vault ? 1 : 0
+  provider     = aws.dr
+  name         = "dr-weekly-tag-selection"
+  iam_role_arn = aws_iam_role.dr_backup_role[0].arn
+  plan_id      = aws_backup_plan.dr_weekly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.dr_tag_key
+    value = var.dr_tag_value
+  }
+}
+
+# DR Monthly Selection
+resource "aws_backup_selection" "dr_monthly_selection" {
+  count        = local.create_dr_monthly_vault ? 1 : 0
+  provider     = aws.dr
+  name         = "dr-monthly-tag-selection"
+  iam_role_arn = aws_iam_role.dr_backup_role[0].arn
+  plan_id      = aws_backup_plan.dr_monthly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.dr_tag_key
+    value = var.dr_tag_value
+  }
+}
+
+# DR Yearly Selection
+resource "aws_backup_selection" "dr_yearly_selection" {
+  count        = local.create_dr_yearly_vault ? 1 : 0
+  provider     = aws.dr
+  name         = "dr-yearly-tag-selection"
+  iam_role_arn = aws_iam_role.dr_backup_role[0].arn
+  plan_id      = aws_backup_plan.dr_yearly_backup_plan[0].id
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = var.dr_tag_key
+    value = var.dr_tag_value
   }
 }
 

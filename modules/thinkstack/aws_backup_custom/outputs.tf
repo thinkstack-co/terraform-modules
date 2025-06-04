@@ -187,3 +187,92 @@ output "region" {
   description = "The AWS region"
   value       = data.aws_region.current.name
 }
+
+###############################################################
+# DR Outputs
+###############################################################
+
+# DR KMS Key Outputs
+output "dr_kms_key_arn" {
+  description = "The Amazon Resource Name (ARN) of the DR KMS key."
+  value       = var.enable_dr && var.create_kms_key ? aws_kms_key.dr_backup_key[0].arn : null
+}
+
+output "dr_kms_key_id" {
+  description = "The globally unique identifier for the DR KMS key."
+  value       = var.enable_dr && var.create_kms_key ? aws_kms_key.dr_backup_key[0].key_id : null
+}
+
+# DR IAM Role Outputs
+output "dr_backup_role_arn" {
+  description = "The Amazon Resource Name (ARN) of the IAM role used for AWS Backup in DR region."
+  value       = var.enable_dr ? aws_iam_role.dr_backup_role[0].arn : null
+}
+
+output "dr_backup_role_name" {
+  description = "The name of the IAM role used for AWS Backup in DR region."
+  value       = var.enable_dr ? aws_iam_role.dr_backup_role[0].name : null
+}
+
+# DR Backup Vault Output
+output "dr_backup_vault_arn" {
+  description = "The ARN of the DR backup vault."
+  value       = var.enable_dr ? aws_backup_vault.dr[0].arn : null
+}
+
+output "dr_backup_vault_id" {
+  description = "The ID of the DR backup vault."
+  value       = var.enable_dr ? aws_backup_vault.dr[0].id : null
+}
+
+# DR Backup Plan Outputs
+output "dr_hourly_backup_plan_id" {
+  description = "The ID of the DR hourly backup plan."
+  value       = local.create_dr_hourly_vault ? aws_backup_plan.dr_hourly_backup_plan[0].id : null
+}
+
+output "dr_daily_backup_plan_id" {
+  description = "The ID of the DR daily backup plan."
+  value       = local.create_dr_daily_vault ? aws_backup_plan.dr_daily_backup_plan[0].id : null
+}
+
+output "dr_weekly_backup_plan_id" {
+  description = "The ID of the DR weekly backup plan."
+  value       = local.create_dr_weekly_vault ? aws_backup_plan.dr_weekly_backup_plan[0].id : null
+}
+
+output "dr_monthly_backup_plan_id" {
+  description = "The ID of the DR monthly backup plan."
+  value       = local.create_dr_monthly_vault ? aws_backup_plan.dr_monthly_backup_plan[0].id : null
+}
+
+output "dr_yearly_backup_plan_id" {
+  description = "The ID of the DR yearly backup plan."
+  value       = local.create_dr_yearly_vault ? aws_backup_plan.dr_yearly_backup_plan[0].id : null
+}
+
+# DR Backup Selection Outputs
+output "dr_hourly_selection_id" {
+  description = "The ID of the DR hourly backup selection."
+  value       = local.create_dr_hourly_vault ? aws_backup_selection.dr_hourly_selection[0].id : null
+}
+
+output "dr_daily_selection_id" {
+  description = "The ID of the DR daily backup selection."
+  value       = local.create_dr_daily_vault ? aws_backup_selection.dr_daily_selection[0].id : null
+}
+
+output "dr_weekly_selection_id" {
+  description = "The ID of the DR weekly backup selection."
+  value       = local.create_dr_weekly_vault ? aws_backup_selection.dr_weekly_selection[0].id : null
+}
+
+output "dr_monthly_selection_id" {
+  description = "The ID of the DR monthly backup selection."
+  value       = local.create_dr_monthly_vault ? aws_backup_selection.dr_monthly_selection[0].id : null
+}
+
+output "dr_yearly_selection_id" {
+  description = "The ID of the DR yearly backup selection."
+  value       = local.create_dr_yearly_vault ? aws_backup_selection.dr_yearly_selection[0].id : null
+}

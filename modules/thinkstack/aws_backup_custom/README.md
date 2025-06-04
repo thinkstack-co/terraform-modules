@@ -60,130 +60,209 @@ The module supports:
 - Optional KMS key creation for encrypted backups
 - Vault lock capabilities for enhanced security
 - Windows VSS support for consistent backups of Windows instances
-- **Disaster Recovery (DR) region support:** Optionally create backup vaults, plans, and selections in a separate AWS region for DR purposes.
+- **Disaster Recovery (DR) region support:** Independent DR backup plans (hourly, daily, weekly, monthly, yearly) in a separate AWS region with tag-based resource selection
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-### Complete Example: All Features
+### Complete Example: Production and DR Backup Configuration
 
-This example demonstrates a complete, production-ready configuration including all standard backup plans, a Disaster Recovery (DR) plan, custom backup plans, KMS key creation, Vault Lock, Windows VSS, and proper tagging for resource selection.
+This example demonstrates a complete, production-ready configuration including all standard backup plans, comprehensive Disaster Recovery (DR) backup plans, custom backup plans, KMS key creation, Vault Lock, Windows VSS, and proper tagging for resource selection.
 
 ```hcl
+# Configure the providers
+provider "aws" {
+  region = "us-east-1"
+}
+
+provider "aws" {
+  alias  = "dr"
+  region = "us-west-2"
+}
+
 module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
-  # Enable all standard backup plans
+  providers = {
+    aws    = aws
+    aws.dr = aws.dr
+  }
+
+  # Enable production backup plans
   create_hourly_plan  = true
   create_daily_plan   = true
   create_weekly_plan  = true
   create_monthly_plan = true
   create_yearly_plan  = true
 
-  # Enable Disaster Recovery (DR) region and plan
-  enable_dr         = true
-  dr_region         = "us-west-2"
-  dr_vault_name     = "dr-backup-vault"
-  dr_plan_name      = "dr-backup-plan"
-  dr_schedule       = "cron(0 2 * * ? *)"
-  dr_retention_days = 30
-  dr_selection_tag_key   = "backup_schedule"
-  dr_selection_tag_value = "dr"
+  # Configure production hourly backup settings
+  hourly_schedule                 = "cron(0 * * * ? *)"  # Every hour
+  hourly_retention_days           = 2                    # Keep for 2 days
+  hourly_enable_continuous_backup = true                 # Enable point-in-time recovery
+  hourly_windows_vss              = true                 # Enable VSS for Windows
+
+  # Configure production daily backup settings
+  daily_schedule                 = "cron(0 3 * * ? *)"   # Daily at 3:00 AM UTC
+  daily_retention_days           = 7                     # Keep for 7 days
+  daily_enable_continuous_backup = true                  # Enable point-in-time recovery
+  daily_windows_vss              = true                  # Enable VSS for Windows
+
+  # Configure production weekly backup settings
+  weekly_schedule       = "cron(0 3 ? * SUN *)"          # Sundays at 3:00 AM UTC
+  weekly_retention_days = 30                             # Keep for 30 days
+  weekly_windows_vss    = true                           # Enable VSS for Windows
+
+  # Configure production monthly backup settings
+  monthly_schedule       = "cron(0 3 1 * ? *)"           # 1st of month at 3:00 AM UTC
+  monthly_retention_days = 365                           # Keep for 1 year
+  monthly_windows_vss    = true                          # Enable VSS for Windows
+
+  # Configure production yearly backup settings
+  yearly_schedule       = "cron(0 3 1 1 ? *)"            # January 1st at 3:00 AM UTC
+  yearly_retention_days = 2555                           # Keep for 7 years
+  yearly_windows_vss    = true                           # Enable VSS for Windows
+
+  # Enable Disaster Recovery (DR) with independent backup schedules
+  enable_dr = true
+  dr_region = "us-west-2"
+  
+  # DR backup vault configuration
+  dr_vault_name         = "dr-backup-vault"
+  dr_backup_role_name   = "aws-backup-dr-role"
+  
+  # Enable DR backup plans (can be different from production)
+  create_dr_hourly_plan  = false  # No hourly DR backups
+  create_dr_daily_plan   = true   # Daily DR backups
+  create_dr_weekly_plan  = true   # Weekly DR backups
+  create_dr_monthly_plan = true   # Monthly DR backups
+  create_dr_yearly_plan  = false  # No yearly DR backups
+
+  # Configure DR daily backup settings
+  dr_daily_schedule                 = "cron(0 5 * * ? *)"  # Daily at 5:00 AM UTC (offset from prod)
+  dr_daily_retention_days           = 14                   # Keep for 14 days
+  dr_daily_enable_continuous_backup = false                # No PITR in DR
+  dr_daily_windows_vss              = true                 # Enable VSS for Windows
+
+  # Configure DR weekly backup settings
+  dr_weekly_schedule       = "cron(0 5 ? * SUN *)"         # Sundays at 5:00 AM UTC
+  dr_weekly_retention_days = 60                            # Keep for 60 days
+  dr_weekly_windows_vss    = true                          # Enable VSS for Windows
+
+  # Configure DR monthly backup settings
+  dr_monthly_schedule       = "cron(0 5 1 * ? *)"          # 1st of month at 5:00 AM UTC
+  dr_monthly_retention_days = 730                          # Keep for 2 years
+  dr_monthly_windows_vss    = true                         # Enable VSS for Windows
+
+  # DR tag configuration - resources must have this tag to be included in DR backups
+  dr_tag_key   = "add_to_dr"
+  dr_tag_value = "true"
+  
+  # Tags for DR resources
   dr_tags = {
     environment = "dr"
-    project     = "backup_dr"
+    region      = "us-west-2"
+    purpose     = "disaster-recovery"
   }
 
   # KMS key configuration for encryption
-  create_kms_key        = true
-  kms_key_description   = "KMS key for AWS Backup encryption"
-  key_enable_key_rotation = true
-  key_deletion_window_in_days = 30
+  create_kms_key               = true
+  kms_alias_name               = "aws-backup"
+  key_description              = "KMS key for AWS Backup encryption"
+  key_enable_key_rotation      = true
+  key_deletion_window_in_days  = 30
 
-  # Enable Windows VSS for consistent backups of Windows instances
+  # Enable Windows VSS globally
   enable_windows_vss = true
   
-  # Enable vault lock to prevent configuration changes and deletions of backups
-  enable_vault_lock = true
-  
-  create_monthly_plan = true
-  create_yearly_plan  = true
-  
-  # Configure hourly backup settings
-  hourly_schedule               = "cron(0 * * * ? *)"  # Every hour at minute 0 (1:00 AM, 2:00 AM, etc. UTC / 8:00 PM, 9:00 PM, etc. EST)
-  hourly_retention_days         = 1                    # Keep hourly backups for 1 day
-  hourly_enable_continuous_backup = true               # Enable point-in-time recovery
-  
-  # Configure daily backup settings
-  daily_schedule                = "cron(0 1 * * ? *)"  # Daily at 1:00 AM UTC / 8:00 PM EST
-  daily_retention_days          = 7                    # Keep daily backups for 7 days
-  daily_enable_continuous_backup = true                # Enable point-in-time recovery
-  
-  # Configure weekly backup settings
-  weekly_schedule               = "cron(0 2 ? * 1 *)"  # Weekly on Sundays at 2:00 AM UTC / 9:00 PM EST
-  weekly_retention_days         = 30                   # Keep weekly backups for 30 days
-  
-  # Configure monthly backup settings
-  monthly_schedule              = "cron(0 3 1 * ? *)"  # 1st of each month at 3:00 AM UTC / 10:00 PM EST
-  monthly_retention_days        = 90                   # Keep monthly backups for 90 days
-  
-  # Configure yearly backup settings
-  yearly_schedule               = "cron(0 4 1 1 ? *)"  # January 1st at 4:00 AM UTC / 11:00 PM EST
-  yearly_retention_days         = 365                  # Keep yearly backups for 365 days
-  
-  # Create a KMS key for backup encryption
-  create_kms_key                = true
-  kms_key_description           = "KMS key for AWS Backup encryption"
-  
+  # Enable vault lock for compliance
+  enable_vault_lock                = true
+  vault_lock_changeable_for_days   = 3
+  vault_lock_max_retention_days    = 36500  # 100 years
+
   # Configure custom backup plans
   custom_backup_plans = {
-    database_backups = {
-      schedule               = "cron(0 5 * * ? *)"  # Daily at 5:00 AM UTC / 12:00 AM EST
-      retention_days         = 14                   # Keep backups for 14 days
-      enable_continuous_backup = true               # Enable point-in-time recovery
-      vault                  = "daily"              # Use the daily vault
-      tag_key                = "database_backup"    # Custom tag key
+    critical_databases = {
+      schedule                 = "cron(0 */4 * * ? *)"  # Every 4 hours
+      retention_days           = 30
+      enable_continuous_backup = true
+      vault_name               = "daily"
+      tag_key                  = "backup_custom"
+      tag_value                = "critical_db"
+      windows_vss              = true
+      tags = {
+        backup_type = "critical"
+        frequency   = "4-hourly"
+      }
     }
-    app_backups = {
-      schedule               = "cron(0 6 ? * 1 *)"  # Weekly on Sundays at 6:00 AM UTC / 1:00 AM EST
-      retention_days         = 60                   # Keep backups for 60 days
-      enable_continuous_backup = false              # Disable point-in-time recovery
-      vault                  = "weekly"             # Use the weekly vault
-      tag_key                = "app_backup"         # Custom tag key
+    compliance_archives = {
+      schedule                 = "cron(0 2 1 * ? *)"    # Monthly
+      retention_days           = 2555                   # 7 years
+      enable_continuous_backup = false
+      vault_name               = "monthly"
+      tag_key                  = "backup_custom"
+      tag_value                = "compliance"
+      windows_vss              = false
+      tags = {
+        backup_type = "compliance"
+        retention   = "7-years"
+      }
     }
   }
   
-  # Tag all resources created by this module
+  # Tag configuration for standard backups
+  standard_backup_tag_key       = "backup_schedule"
+  default_custom_backup_tag_key = "backup_custom"
+
+  # Global tags for all backup resources
   tags = {
-    terraform   = "true"
-    environment = "production"
-    project     = "backup_infrastructure"
+    terraform    = "true"
+    environment  = "production"
+    project      = "backup_infrastructure"
+    cost_center  = "operations"
   }
 }
 
-# Example EC2 instance with standard backup tag
-resource "aws_instance" "web_server" {
-  # ... other configuration ...
+# Example EC2 instance with production and DR backup tags
+resource "aws_instance" "critical_web_server" {
+  ami           = "ami-12345678"
+  instance_type = "t3.medium"
   
   tags = {
-    Name            = "web-server"
+    Name             = "critical-web-server"
+    environment      = "production"
+    backup_schedule  = "daily-weekly-monthly"  # Production backups
+    add_to_dr        = "true"                  # Include in DR backups
+    backup_custom    = "critical_db"           # Include in custom backup plan
+  }
+}
+
+# Example RDS instance with production backups only
+resource "aws_db_instance" "application_db" {
+  identifier     = "app-database"
+  engine         = "postgres"
+  instance_class = "db.t3.small"
+  
+  tags = {
+    Name            = "application-database"
     environment     = "production"
-    project         = "server_infrastructure"
-    service         = "ops"
-    backup          = "true"
-    backup_schedule = "daily-weekly"  # Include in daily and weekly backup plans
+    backup_schedule = "hourly-daily"  # Hourly and daily production backups
+    add_to_dr       = "false"         # Not critical for DR
   }
 }
 
-# Example RDS instance with standard backup tag
-resource "aws_db_instance" "database" {
-  # ... other configuration ...
+# Example EBS volume with compliance backup
+resource "aws_ebs_volume" "compliance_data" {
+  availability_zone = "us-east-1a"
+  size              = 100
   
   tags = {
-    Name            = "example-db"
-    backup_schedule = "hourly-daily"  # Include in hourly and daily backup plans
+    Name            = "compliance-data-volume"
+    environment     = "production"
+    backup_schedule = "monthly-yearly"  # Long-term retention
+    add_to_dr       = "true"            # Include in DR
+    backup_custom   = "compliance"      # Compliance archive backup
   }
 }
 ```
@@ -277,12 +356,40 @@ resource "aws_db_instance" "database" {
 | enable_dr | Whether to enable DR (Disaster Recovery) backup in a separate AWS region | `bool` | `false` | no |
 | dr_region | The AWS region to use for DR backups | `string` | `null` | no |
 | dr_vault_name | The name of the backup vault to create in the DR region | `string` | `"dr-backup-vault"` | no |
-| dr_plan_name | The name of the backup plan to create in the DR region | `string` | `"dr-backup-plan"` | no |
-| dr_schedule | CRON expression for the DR backup plan schedule | `string` | `"cron(0 2 * * ? *)"` | no |
-| dr_retention_days | Number of days to retain DR backups | `number` | `30` | no |
 | dr_tags | Tags to apply to DR region resources | `map(any)` | `{}` | no |
-| dr_selection_tag_key | Tag key for selecting resources to back up in the DR plan | `string` | `"backup_schedule"` | no |
-| dr_selection_tag_value | Tag value for selecting resources to back up in the DR plan | `string` | `"dr"` | no |
+| dr_tag_key | Tag key for selecting resources to back up in DR plans | `string` | `"add_to_dr"` | no |
+| dr_tag_value | Tag value for selecting resources to back up in DR plans | `string` | `"true"` | no |
+| dr_backup_role_name | Name of the IAM role for AWS Backup in DR region | `string` | `"aws-backup-dr-role"` | no |
+| create_dr_hourly_plan | Enable DR hourly backup plan | `bool` | `false` | no |
+| dr_hourly_plan_name | Name of the DR hourly backup plan | `string` | `"dr-hourly-backup-plan"` | no |
+| dr_hourly_schedule | DR hourly backup schedule | `string` | `"cron(0 * ? * * *)"` | no |
+| dr_hourly_retention_days | Retention period in days for DR hourly backups | `number` | `7` | no |
+| dr_hourly_enable_continuous_backup | Enable continuous backup for DR hourly plan | `bool` | `false` | no |
+| dr_hourly_windows_vss | Enable Windows VSS for DR hourly backups | `bool` | `false` | no |
+| create_dr_daily_plan | Enable DR daily backup plan | `bool` | `false` | no |
+| dr_daily_plan_name | Name of the DR daily backup plan | `string` | `"dr-daily-backup-plan"` | no |
+| dr_daily_schedule | DR daily backup schedule | `string` | `"cron(0 3 ? * * *)"` | no |
+| dr_daily_retention_days | Retention period in days for DR daily backups | `number` | `30` | no |
+| dr_daily_enable_continuous_backup | Enable continuous backup for DR daily plan | `bool` | `false` | no |
+| dr_daily_windows_vss | Enable Windows VSS for DR daily backups | `bool` | `false` | no |
+| create_dr_weekly_plan | Enable DR weekly backup plan | `bool` | `false` | no |
+| dr_weekly_plan_name | Name of the DR weekly backup plan | `string` | `"dr-weekly-backup-plan"` | no |
+| dr_weekly_schedule | DR weekly backup schedule | `string` | `"cron(0 3 ? * SUN *)"` | no |
+| dr_weekly_retention_days | Retention period in days for DR weekly backups | `number` | `90` | no |
+| dr_weekly_enable_continuous_backup | Enable continuous backup for DR weekly plan | `bool` | `false` | no |
+| dr_weekly_windows_vss | Enable Windows VSS for DR weekly backups | `bool` | `false` | no |
+| create_dr_monthly_plan | Enable DR monthly backup plan | `bool` | `false` | no |
+| dr_monthly_plan_name | Name of the DR monthly backup plan | `string` | `"dr-monthly-backup-plan"` | no |
+| dr_monthly_schedule | DR monthly backup schedule | `string` | `"cron(0 3 1 * ? *)"` | no |
+| dr_monthly_retention_days | Retention period in days for DR monthly backups | `number` | `365` | no |
+| dr_monthly_enable_continuous_backup | Enable continuous backup for DR monthly plan | `bool` | `false` | no |
+| dr_monthly_windows_vss | Enable Windows VSS for DR monthly backups | `bool` | `false` | no |
+| create_dr_yearly_plan | Enable DR yearly backup plan | `bool` | `false` | no |
+| dr_yearly_plan_name | Name of the DR yearly backup plan | `string` | `"dr-yearly-backup-plan"` | no |
+| dr_yearly_schedule | DR yearly backup schedule | `string` | `"cron(0 3 1 1 ? *)"` | no |
+| dr_yearly_retention_days | Retention period in days for DR yearly backups | `number` | `2555` | no |
+| dr_yearly_enable_continuous_backup | Enable continuous backup for DR yearly plan | `bool` | `false` | no |
+| dr_yearly_windows_vss | Enable Windows VSS for DR yearly backups | `bool` | `false` | no |
 
 ## Outputs
 
@@ -309,6 +416,22 @@ resource "aws_db_instance" "database" {
 | yearly_combinations_selection_ids | Map of yearly combination backup selection names to their IDs |
 | multi_plan_selection_ids | Map of multi-plan backup selection names to their IDs |
 | custom_selection_ids | Map of custom backup selection names to their IDs |
+| dr_kms_key_arn | The Amazon Resource Name (ARN) of the DR KMS key |
+| dr_kms_key_id | The globally unique identifier for the DR KMS key |
+| dr_backup_role_arn | The ARN of the IAM role used for AWS Backup in DR region |
+| dr_backup_role_name | The name of the IAM role used for AWS Backup in DR region |
+| dr_backup_vault_arn | The ARN of the DR backup vault |
+| dr_backup_vault_id | The ID of the DR backup vault |
+| dr_hourly_backup_plan_id | The ID of the DR hourly backup plan |
+| dr_daily_backup_plan_id | The ID of the DR daily backup plan |
+| dr_weekly_backup_plan_id | The ID of the DR weekly backup plan |
+| dr_monthly_backup_plan_id | The ID of the DR monthly backup plan |
+| dr_yearly_backup_plan_id | The ID of the DR yearly backup plan |
+| dr_hourly_selection_id | The ID of the DR hourly backup selection |
+| dr_daily_selection_id | The ID of the DR daily backup selection |
+| dr_weekly_selection_id | The ID of the DR weekly backup selection |
+| dr_monthly_selection_id | The ID of the DR monthly backup selection |
+| dr_yearly_selection_id | The ID of the DR yearly backup selection |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
