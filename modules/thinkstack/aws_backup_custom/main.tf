@@ -861,7 +861,7 @@ resource "aws_backup_selection" "multi_plan_selections" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.value.combo_name
   }
 }
@@ -875,7 +875,7 @@ resource "aws_backup_selection" "hourly_selection" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -889,7 +889,7 @@ resource "aws_backup_selection" "daily_selection" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -903,7 +903,7 @@ resource "aws_backup_selection" "weekly_selection" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -917,7 +917,7 @@ resource "aws_backup_selection" "monthly_selection" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -931,7 +931,7 @@ resource "aws_backup_selection" "yearly_selection" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -945,7 +945,7 @@ resource "aws_backup_selection" "hourly_selection_all" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -958,7 +958,7 @@ resource "aws_backup_selection" "daily_selection_all" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -971,7 +971,7 @@ resource "aws_backup_selection" "weekly_selection_all" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -984,7 +984,7 @@ resource "aws_backup_selection" "monthly_selection_all" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -997,7 +997,7 @@ resource "aws_backup_selection" "yearly_selection_all" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = var.standard_backup_tag_key
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
     value = each.key
   }
 }
@@ -1015,11 +1015,11 @@ resource "aws_backup_selection" "hourly_dr_selection" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = each.key
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1033,11 +1033,11 @@ resource "aws_backup_selection" "daily_dr_selection" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = each.key
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1051,11 +1051,11 @@ resource "aws_backup_selection" "weekly_dr_selection" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = each.key
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1069,11 +1069,11 @@ resource "aws_backup_selection" "monthly_dr_selection" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = each.key
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1087,11 +1087,11 @@ resource "aws_backup_selection" "yearly_dr_selection" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = each.key
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1126,11 +1126,11 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = each.value.combo_name
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1145,11 +1145,11 @@ resource "aws_backup_selection" "hourly_dr_selection_all" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = "all"
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1163,11 +1163,11 @@ resource "aws_backup_selection" "daily_dr_selection_all" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = "all"
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1181,11 +1181,11 @@ resource "aws_backup_selection" "weekly_dr_selection_all" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = "all"
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1199,11 +1199,11 @@ resource "aws_backup_selection" "monthly_dr_selection_all" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = "all"
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1217,11 +1217,11 @@ resource "aws_backup_selection" "yearly_dr_selection_all" {
 
   condition {
     string_equals {
-      key   = var.standard_backup_tag_key
+      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
       value = "all"
     }
     string_equals {
-      key   = var.dr_tag_key
+      key   = "aws:ResourceTag/${var.dr_tag_key}"
       value = var.dr_tag_value
     }
   }
@@ -1269,7 +1269,7 @@ resource "aws_backup_selection" "custom_selection" {
 
   selection_tag {
     type  = "STRINGEQUALS"
-    key   = each.value.tag_key != "" ? each.value.tag_key : var.default_custom_backup_tag_key
+    key   = "aws:ResourceTag/${lookup(each.value, "tag_key", var.default_custom_backup_tag_key)}"
     value = each.value.tag_value
   }
 }
