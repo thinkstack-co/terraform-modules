@@ -319,6 +319,70 @@ variable "yearly_windows_vss" {
 }
 
 ###############################################################
+# DR Copy Action Variables
+###############################################################
+
+variable "hourly_include_in_dr" {
+  description = "(Optional) Whether to copy hourly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "hourly_dr_retention_days" {
+  description = "(Optional) Retention period in days for hourly DR backup copies. If null, uses hourly_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "daily_include_in_dr" {
+  description = "(Optional) Whether to copy daily backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "daily_dr_retention_days" {
+  description = "(Optional) Retention period in days for daily DR backup copies. If null, uses daily_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "weekly_include_in_dr" {
+  description = "(Optional) Whether to copy weekly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "weekly_dr_retention_days" {
+  description = "(Optional) Retention period in days for weekly DR backup copies. If null, uses weekly_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "monthly_include_in_dr" {
+  description = "(Optional) Whether to copy monthly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "monthly_dr_retention_days" {
+  description = "(Optional) Retention period in days for monthly DR backup copies. If null, uses monthly_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "yearly_include_in_dr" {
+  description = "(Optional) Whether to copy yearly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "yearly_dr_retention_days" {
+  description = "(Optional) Retention period in days for yearly DR backup copies. If null, uses yearly_retention_days."
+  type        = number
+  default     = null
+}
+
+###############################################################
 # Custom Backup Plans
 ###############################################################
 variable "custom_backup_plans" {
@@ -385,206 +449,10 @@ variable "dr_tags" {
   default     = {}
 }
 
-variable "dr_tag_key" {
-  description = "(Optional) Tag key for selecting resources to back up in DR plans (e.g., 'add_to_dr')."
-  type        = string
-  default     = "add_to_dr"
-}
-
-variable "dr_tag_value" {
-  description = "(Optional) Tag value for selecting resources to back up in DR plans."
-  type        = string
-  default     = "true"
-}
-
 variable "dr_backup_role_name" {
   description = "(Optional) Name of the IAM role for AWS Backup in DR region."
   type        = string
   default     = "aws-backup-dr-role"
 }
 
-# DR Hourly Backup Plan Variables
-variable "create_dr_hourly_plan" {
-  description = "(Optional) Enable DR hourly backup plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_hourly_plan_name" {
-  description = "(Optional) Name of the DR hourly backup plan."
-  type        = string
-  default     = "dr-hourly-backup-plan"
-}
-
-variable "dr_hourly_schedule" {
-  description = "(Optional) DR hourly backup schedule."
-  type        = string
-  default     = "cron(0 * ? * * *)"
-}
-
-variable "dr_hourly_retention_days" {
-  description = "(Optional) Retention period in days for DR hourly backups."
-  type        = number
-  default     = 7
-}
-
-variable "dr_hourly_enable_continuous_backup" {
-  description = "(Optional) Enable continuous backup for DR hourly plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_hourly_windows_vss" {
-  description = "(Optional) Enable Windows VSS for DR hourly backups."
-  type        = bool
-  default     = false
-}
-
-# DR Daily Backup Plan Variables
-variable "create_dr_daily_plan" {
-  description = "(Optional) Enable DR daily backup plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_daily_plan_name" {
-  description = "(Optional) Name of the DR daily backup plan."
-  type        = string
-  default     = "dr-daily-backup-plan"
-}
-
-variable "dr_daily_schedule" {
-  description = "(Optional) DR daily backup schedule."
-  type        = string
-  default     = "cron(0 3 ? * * *)"
-}
-
-variable "dr_daily_retention_days" {
-  description = "(Optional) Retention period in days for DR daily backups."
-  type        = number
-  default     = 30
-}
-
-variable "dr_daily_enable_continuous_backup" {
-  description = "(Optional) Enable continuous backup for DR daily plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_daily_windows_vss" {
-  description = "(Optional) Enable Windows VSS for DR daily backups."
-  type        = bool
-  default     = false
-}
-
-# DR Weekly Backup Plan Variables
-variable "create_dr_weekly_plan" {
-  description = "(Optional) Enable DR weekly backup plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_weekly_plan_name" {
-  description = "(Optional) Name of the DR weekly backup plan."
-  type        = string
-  default     = "dr-weekly-backup-plan"
-}
-
-variable "dr_weekly_schedule" {
-  description = "(Optional) DR weekly backup schedule."
-  type        = string
-  default     = "cron(0 3 ? * SUN *)"
-}
-
-variable "dr_weekly_retention_days" {
-  description = "(Optional) Retention period in days for DR weekly backups."
-  type        = number
-  default     = 90
-}
-
-variable "dr_weekly_enable_continuous_backup" {
-  description = "(Optional) Enable continuous backup for DR weekly plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_weekly_windows_vss" {
-  description = "(Optional) Enable Windows VSS for DR weekly backups."
-  type        = bool
-  default     = false
-}
-
-# DR Monthly Backup Plan Variables
-variable "create_dr_monthly_plan" {
-  description = "(Optional) Enable DR monthly backup plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_monthly_plan_name" {
-  description = "(Optional) Name of the DR monthly backup plan."
-  type        = string
-  default     = "dr-monthly-backup-plan"
-}
-
-variable "dr_monthly_schedule" {
-  description = "(Optional) DR monthly backup schedule."
-  type        = string
-  default     = "cron(0 3 1 * ? *)"
-}
-
-variable "dr_monthly_retention_days" {
-  description = "(Optional) Retention period in days for DR monthly backups."
-  type        = number
-  default     = 365
-}
-
-variable "dr_monthly_enable_continuous_backup" {
-  description = "(Optional) Enable continuous backup for DR monthly plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_monthly_windows_vss" {
-  description = "(Optional) Enable Windows VSS for DR monthly backups."
-  type        = bool
-  default     = false
-}
-
-# DR Yearly Backup Plan Variables
-variable "create_dr_yearly_plan" {
-  description = "(Optional) Enable DR yearly backup plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_yearly_plan_name" {
-  description = "(Optional) Name of the DR yearly backup plan."
-  type        = string
-  default     = "dr-yearly-backup-plan"
-}
-
-variable "dr_yearly_schedule" {
-  description = "(Optional) DR yearly backup schedule."
-  type        = string
-  default     = "cron(0 3 1 1 ? *)"
-}
-
-variable "dr_yearly_retention_days" {
-  description = "(Optional) Retention period in days for DR yearly backups."
-  type        = number
-  default     = 2555
-}
-
-variable "dr_yearly_enable_continuous_backup" {
-  description = "(Optional) Enable continuous backup for DR yearly plan."
-  type        = bool
-  default     = false
-}
-
-variable "dr_yearly_windows_vss" {
-  description = "(Optional) Enable Windows VSS for DR yearly backups."
-  type        = bool
-  default     = false
-}
   
