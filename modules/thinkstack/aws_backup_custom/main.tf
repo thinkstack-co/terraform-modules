@@ -345,6 +345,15 @@ locals {
     for k, v in var.custom_backup_plans :
     k => v if lookup(local.vault_map, v.vault_name, false)
   }
+  
+  # Map of plan names to their DR inclusion status
+  plan_dr_include_map = {
+    "hourly"  = var.hourly_include_in_dr
+    "daily"   = var.daily_include_in_dr
+    "weekly"  = var.weekly_include_in_dr
+    "monthly" = var.monthly_include_in_dr
+    "yearly"  = var.yearly_include_in_dr
+  }
 }
 
 ###############################################################
@@ -1098,7 +1107,7 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
           combo      = combo
           plan       = plan
           key        = "${combo_name}-${plan}-dr"
-        } if lookup(local.plan_enabled_map, plan, false) && var.enable_dr && lookup(var, "${plan}_include_in_dr", false)
+        } if lookup(local.plan_enabled_map, plan, false) && var.enable_dr && lookup(local.plan_dr_include_map, plan, false)
       ]
     ]) : item.key => item
   }
