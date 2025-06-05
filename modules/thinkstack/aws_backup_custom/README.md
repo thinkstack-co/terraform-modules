@@ -144,6 +144,10 @@ module "aws_backup_custom" {
   weekly_dr_retention_days  = 60   # Keep DR copies for 60 days (vs 30 in prod)
   monthly_dr_retention_days = 730  # Keep DR copies for 2 years (vs 1 year in prod)
   
+  # DR tag configuration - resources must have BOTH backup schedule AND DR tags
+  dr_tag_key   = "add_to_dr"
+  dr_tag_value = "true"
+  
   # Tags for DR resources
   dr_tags = {
     environment = "dr"
@@ -209,8 +213,8 @@ module "aws_backup_custom" {
   }
 }
 
-# Example EC2 instance with production backups
-# DR copying is controlled at the plan level, not resource level
+# Example EC2 instance with production backups AND DR copying
+# This instance will have daily/weekly/monthly backups copied to DR
 resource "aws_instance" "critical_web_server" {
   ami           = "ami-12345678"
   instance_type = "t3.medium"
@@ -218,13 +222,14 @@ resource "aws_instance" "critical_web_server" {
   tags = {
     Name             = "critical-web-server"
     environment      = "production"
-    backup_schedule  = "daily-weekly-monthly"  # Will be copied to DR based on plan settings
+    backup_schedule  = "daily-weekly-monthly"  # Production backup schedule
+    add_to_dr        = "true"                  # Include in DR copies
     backup_custom    = "critical_db"           # Include in custom backup plan
   }
 }
 
-# Example RDS instance with hourly and daily backups
-# Hourly won't be copied to DR, but daily will (based on module config)
+# Example RDS instance with hourly and daily backups but NO DR
+# Even though daily backups have DR enabled, this resource won't be copied
 resource "aws_db_instance" "application_db" {
   identifier     = "app-database"
   engine         = "postgres"
@@ -233,11 +238,12 @@ resource "aws_db_instance" "application_db" {
   tags = {
     Name            = "application-database"
     environment     = "production"
-    backup_schedule = "hourly-daily"  # Hourly stays in prod, daily copies to DR
+    backup_schedule = "hourly-daily"  # Hourly and daily production backups
+    add_to_dr       = "false"         # Exclude from DR copies
   }
 }
 
-# Example EBS volume with long-term retention
+# Example EBS volume with DR copying for compliance
 # Monthly backups will be copied to DR with 2-year retention
 resource "aws_ebs_volume" "compliance_data" {
   availability_zone = "us-east-1a"
@@ -246,11 +252,105 @@ resource "aws_ebs_volume" "compliance_data" {
   tags = {
     Name            = "compliance-data-volume"
     environment     = "production"
-    backup_schedule = "monthly-yearly"  # Monthly copies to DR, yearly stays in prod
+    backup_schedule = "monthly-yearly"  # Monthly and yearly backups
+    add_to_dr       = "true"            # Copy to DR (only monthly since yearly DR is disabled)
     backup_custom   = "compliance"      # Compliance archive backup
   }
 }
+
+# Example instance that uses the "all" backup tag with DR
+resource "aws_instance" "important_server" {
+  ami           = "ami-12345678"
+  instance_type = "t3.large"
+  
+  tags = {
+    Name            = "important-server"
+    environment     = "production"
+    backup_schedule = "all"        # Include in ALL backup plans
+    add_to_dr       = "true"       # Copy ALL eligible backups to DR
+  }
+}
 ```
+
+### Simple Example: Basic Daily Backups with Optional DR
+
+This example shows a minimal configuration with daily backups and selective DR copying:
+
+```hcl
+# Configure providers if using DR
+provider "aws" {
+  region = "us-east-1"
+}
+
+provider "aws" {
+  alias  = "dr"
+  region = "us-west-2"
+}
+
+module "aws_backup_custom" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  providers = {
+    aws    = aws
+    aws.dr = aws.dr
+  }
+
+  # Enable only daily backups
+  create_daily_plan = true
+  daily_retention_days = 30
+
+  # Enable DR for daily backups
+  enable_dr = true
+  daily_include_in_dr = true
+  daily_dr_retention_days = 7  # Keep DR copies for only 7 days
+
+  # Create KMS key for encryption
+  create_kms_key = true
+
+  tags = {
+    terraform = "true"
+    project   = "my-project"
+  }
+}
+
+# Tag resources for backups
+resource "aws_instance" "app_server" {
+  # ... instance configuration ...
+  
+  tags = {
+    Name            = "app-server"
+    backup_schedule = "daily"      # Include in daily backups
+    add_to_dr       = "true"       # Also copy to DR
+  }
+}
+
+resource "aws_instance" "dev_server" {
+  # ... instance configuration ...
+  
+  tags = {
+    Name            = "dev-server"
+    backup_schedule = "daily"      # Include in daily backups
+    # No add_to_dr tag - won't be copied to DR
+  }
+}
+```
+
+### How DR Cross-Region Copying Works
+
+The module provides two-level control for DR backup copying:
+
+1. **Plan Level Control**: Enable/disable DR copying for each backup frequency
+   - Set `*_include_in_dr = true` to enable DR copying for that frequency
+   - Example: `daily_include_in_dr = true` enables DR copying for daily backups
+
+2. **Resource Level Control**: Tag resources to include/exclude from DR
+   - Resources must have the DR tag (default: `add_to_dr = "true"`)
+   - Only resources with BOTH the backup schedule tag AND the DR tag are copied
+
+This means:
+- If `daily_include_in_dr = false`, NO daily backups are copied to DR
+- If `daily_include_in_dr = true`, only daily backups from resources tagged with `add_to_dr = "true"` are copied to DR
+- Resources without the DR tag are never copied to DR, even if the plan has DR enabled
 
 ### Argument Reference
 
@@ -343,6 +443,8 @@ resource "aws_ebs_volume" "compliance_data" {
 | dr_vault_name | The name of the backup vault to create in the DR region | `string` | `"dr-backup-vault"` | no |
 | dr_tags | Tags to apply to DR region resources | `map(any)` | `{}` | no |
 | dr_backup_role_name | Name of the IAM role for AWS Backup in DR region | `string` | `"aws-backup-dr-role"` | no |
+| dr_tag_key | Tag key for selecting resources to include in DR copies | `string` | `"add_to_dr"` | no |
+| dr_tag_value | Tag value for selecting resources to include in DR copies | `string` | `"true"` | no |
 | hourly_include_in_dr | Whether to copy hourly backups to DR region | `bool` | `false` | no |
 | hourly_dr_retention_days | Retention period in days for hourly DR backup copies | `number` | `null` | no |
 | daily_include_in_dr | Whether to copy daily backups to DR region | `bool` | `false` | no |
@@ -385,6 +487,11 @@ resource "aws_ebs_volume" "compliance_data" {
 | dr_backup_role_name | The name of the IAM role used for AWS Backup in DR region |
 | dr_backup_vault_arn | The ARN of the DR backup vault |
 | dr_backup_vault_id | The ID of the DR backup vault |
+| hourly_backup_plan_dr_id | The ID of the hourly backup plan with DR copy |
+| daily_backup_plan_dr_id | The ID of the daily backup plan with DR copy |
+| weekly_backup_plan_dr_id | The ID of the weekly backup plan with DR copy |
+| monthly_backup_plan_dr_id | The ID of the monthly backup plan with DR copy |
+| yearly_backup_plan_dr_id | The ID of the yearly backup plan with DR copy |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

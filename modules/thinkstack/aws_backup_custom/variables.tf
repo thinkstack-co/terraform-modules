@@ -449,6 +449,18 @@ variable "dr_tags" {
   default     = {}
 }
 
+variable "dr_tag_key" {
+  description = "(Optional) Tag key for selecting resources to include in DR copies (e.g., 'add_to_dr')."
+  type        = string
+  default     = "add_to_dr"
+}
+
+variable "dr_tag_value" {
+  description = "(Optional) Tag value for selecting resources to include in DR copies."
+  type        = string
+  default     = "true"
+}
+
 variable "dr_backup_role_name" {
   description = "(Optional) Name of the IAM role for AWS Backup in DR region."
   type        = string

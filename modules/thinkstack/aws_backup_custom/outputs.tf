@@ -225,3 +225,29 @@ output "dr_backup_vault_id" {
   value       = var.enable_dr ? aws_backup_vault.dr[0].id : null
 }
 
+# DR Backup Plan Outputs
+output "hourly_backup_plan_dr_id" {
+  description = "The ID of the hourly backup plan with DR copy."
+  value       = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : null
+}
+
+output "daily_backup_plan_dr_id" {
+  description = "The ID of the daily backup plan with DR copy."
+  value       = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? aws_backup_plan.daily_backup_plan_dr[0].id : null
+}
+
+output "weekly_backup_plan_dr_id" {
+  description = "The ID of the weekly backup plan with DR copy."
+  value       = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? aws_backup_plan.weekly_backup_plan_dr[0].id : null
+}
+
+output "monthly_backup_plan_dr_id" {
+  description = "The ID of the monthly backup plan with DR copy."
+  value       = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? aws_backup_plan.monthly_backup_plan_dr[0].id : null
+}
+
+output "yearly_backup_plan_dr_id" {
+  description = "The ID of the yearly backup plan with DR copy."
+  value       = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? aws_backup_plan.yearly_backup_plan_dr[0].id : null
+}
+

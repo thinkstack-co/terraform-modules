@@ -481,7 +481,7 @@ resource "aws_backup_vault_lock_configuration" "yearly" {
 # Backup Plans
 ###############################################################
 
-# Hourly Backup Plan
+# Hourly Backup Plan (without DR copy)
 resource "aws_backup_plan" "hourly_backup_plan" {
   count = var.create_hourly_plan ? 1 : 0
   name  = var.hourly_plan_name
@@ -496,16 +496,6 @@ resource "aws_backup_plan" "hourly_backup_plan" {
 
     lifecycle {
       delete_after = var.hourly_retention_days
-    }
-
-    dynamic "copy_action" {
-      for_each = var.enable_dr && var.hourly_include_in_dr ? [1] : []
-      content {
-        destination_vault_arn = aws_backup_vault.dr[0].arn
-        lifecycle {
-          delete_after = var.hourly_dr_retention_days != null ? var.hourly_dr_retention_days : var.hourly_retention_days
-        }
-      }
     }
   }
 
@@ -522,7 +512,45 @@ resource "aws_backup_plan" "hourly_backup_plan" {
   tags = merge(var.tags, { Name = var.hourly_plan_name })
 }
 
-# Daily Backup Plan
+# Hourly Backup Plan with DR copy (for DR-tagged resources)
+resource "aws_backup_plan" "hourly_backup_plan_dr" {
+  count = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? 1 : 0
+  name  = "${var.hourly_plan_name}-dr"
+
+  rule {
+    rule_name                = "hourly-backup-rule-dr"
+    target_vault_name        = aws_backup_vault.hourly[0].name
+    schedule                 = var.hourly_schedule
+    enable_continuous_backup = var.hourly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.hourly_retention_days
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.dr[0].arn
+      lifecycle {
+        delete_after = var.hourly_dr_retention_days != null ? var.hourly_dr_retention_days : var.hourly_retention_days
+      }
+    }
+  }
+
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.hourly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+
+  tags = merge(var.tags, { Name = "${var.hourly_plan_name}-dr" })
+}
+
+# Daily Backup Plan (without DR copy)
 resource "aws_backup_plan" "daily_backup_plan" {
   count = var.create_daily_plan ? 1 : 0
   name  = var.daily_plan_name
@@ -539,14 +567,41 @@ resource "aws_backup_plan" "daily_backup_plan" {
     lifecycle {
       delete_after = var.daily_retention_days
     }
+  }
 
-    dynamic "copy_action" {
-      for_each = var.enable_dr && var.daily_include_in_dr ? [1] : []
-      content {
-        destination_vault_arn = aws_backup_vault.dr[0].arn
-        lifecycle {
-          delete_after = var.daily_dr_retention_days != null ? var.daily_dr_retention_days : var.daily_retention_days
-        }
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.daily_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# Daily Backup Plan with DR copy (for DR-tagged resources)
+resource "aws_backup_plan" "daily_backup_plan_dr" {
+  count = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? 1 : 0
+  name  = "${var.daily_plan_name}-dr"
+  tags  = merge(var.tags, { Name = "${var.daily_plan_name}-dr" })
+
+  rule {
+    rule_name                = "daily_backup_rule_dr"
+    target_vault_name        = aws_backup_vault.daily[0].name
+    schedule                 = var.daily_schedule
+    enable_continuous_backup = var.daily_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.daily_retention_days
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.dr[0].arn
+      lifecycle {
+        delete_after = var.daily_dr_retention_days != null ? var.daily_dr_retention_days : var.daily_retention_days
       }
     }
   }
@@ -562,7 +617,7 @@ resource "aws_backup_plan" "daily_backup_plan" {
   }
 }
 
-# Weekly Backup Plan
+# Weekly Backup Plan (without DR copy)
 resource "aws_backup_plan" "weekly_backup_plan" {
   count = var.create_weekly_plan ? 1 : 0
   name  = var.weekly_plan_name
@@ -579,14 +634,41 @@ resource "aws_backup_plan" "weekly_backup_plan" {
     lifecycle {
       delete_after = var.weekly_retention_days
     }
+  }
 
-    dynamic "copy_action" {
-      for_each = var.enable_dr && var.weekly_include_in_dr ? [1] : []
-      content {
-        destination_vault_arn = aws_backup_vault.dr[0].arn
-        lifecycle {
-          delete_after = var.weekly_dr_retention_days != null ? var.weekly_dr_retention_days : var.weekly_retention_days
-        }
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.weekly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# Weekly Backup Plan with DR copy (for DR-tagged resources)
+resource "aws_backup_plan" "weekly_backup_plan_dr" {
+  count = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? 1 : 0
+  name  = "${var.weekly_plan_name}-dr"
+  tags  = merge(var.tags, { Name = "${var.weekly_plan_name}-dr" })
+
+  rule {
+    rule_name                = "weekly_backup_rule_dr"
+    target_vault_name        = aws_backup_vault.weekly[0].name
+    schedule                 = var.weekly_schedule
+    enable_continuous_backup = var.weekly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.weekly_retention_days
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.dr[0].arn
+      lifecycle {
+        delete_after = var.weekly_dr_retention_days != null ? var.weekly_dr_retention_days : var.weekly_retention_days
       }
     }
   }
@@ -602,7 +684,7 @@ resource "aws_backup_plan" "weekly_backup_plan" {
   }
 }
 
-# Monthly Backup Plan
+# Monthly Backup Plan (without DR copy)
 resource "aws_backup_plan" "monthly_backup_plan" {
   count = var.create_monthly_plan ? 1 : 0
   name  = var.monthly_plan_name
@@ -619,14 +701,41 @@ resource "aws_backup_plan" "monthly_backup_plan" {
     lifecycle {
       delete_after = var.monthly_retention_days
     }
+  }
 
-    dynamic "copy_action" {
-      for_each = var.enable_dr && var.monthly_include_in_dr ? [1] : []
-      content {
-        destination_vault_arn = aws_backup_vault.dr[0].arn
-        lifecycle {
-          delete_after = var.monthly_dr_retention_days != null ? var.monthly_dr_retention_days : var.monthly_retention_days
-        }
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.monthly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# Monthly Backup Plan with DR copy (for DR-tagged resources)
+resource "aws_backup_plan" "monthly_backup_plan_dr" {
+  count = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? 1 : 0
+  name  = "${var.monthly_plan_name}-dr"
+  tags  = merge(var.tags, { Name = "${var.monthly_plan_name}-dr" })
+
+  rule {
+    rule_name                = "monthly_backup_rule_dr"
+    target_vault_name        = aws_backup_vault.monthly[0].name
+    schedule                 = var.monthly_schedule
+    enable_continuous_backup = var.monthly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.monthly_retention_days
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.dr[0].arn
+      lifecycle {
+        delete_after = var.monthly_dr_retention_days != null ? var.monthly_dr_retention_days : var.monthly_retention_days
       }
     }
   }
@@ -642,7 +751,7 @@ resource "aws_backup_plan" "monthly_backup_plan" {
   }
 }
 
-# Yearly Backup Plan
+# Yearly Backup Plan (without DR copy)
 resource "aws_backup_plan" "yearly_backup_plan" {
   count = var.create_yearly_plan ? 1 : 0
   name  = var.yearly_plan_name
@@ -659,14 +768,41 @@ resource "aws_backup_plan" "yearly_backup_plan" {
     lifecycle {
       delete_after = var.yearly_retention_days
     }
+  }
 
-    dynamic "copy_action" {
-      for_each = var.enable_dr && var.yearly_include_in_dr ? [1] : []
-      content {
-        destination_vault_arn = aws_backup_vault.dr[0].arn
-        lifecycle {
-          delete_after = var.yearly_dr_retention_days != null ? var.yearly_dr_retention_days : var.yearly_retention_days
-        }
+  dynamic "advanced_backup_setting" {
+    for_each = var.enable_windows_vss && var.yearly_windows_vss ? [1] : []
+    content {
+      backup_options = {
+        WindowsVSS = "enabled"
+      }
+      resource_type = "EC2"
+    }
+  }
+}
+
+# Yearly Backup Plan with DR copy (for DR-tagged resources)
+resource "aws_backup_plan" "yearly_backup_plan_dr" {
+  count = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? 1 : 0
+  name  = "${var.yearly_plan_name}-dr"
+  tags  = merge(var.tags, { Name = "${var.yearly_plan_name}-dr" })
+
+  rule {
+    rule_name                = "yearly_backup_rule_dr"
+    target_vault_name        = aws_backup_vault.yearly[0].name
+    schedule                 = var.yearly_schedule
+    enable_continuous_backup = var.yearly_enable_continuous_backup
+    start_window             = var.backup_start_window
+    completion_window        = var.backup_completion_window
+
+    lifecycle {
+      delete_after = var.yearly_retention_days
+    }
+
+    copy_action {
+      destination_vault_arn = aws_backup_vault.dr[0].arn
+      lifecycle {
+        delete_after = var.yearly_dr_retention_days != null ? var.yearly_dr_retention_days : var.yearly_retention_days
       }
     }
   }
@@ -854,6 +990,231 @@ resource "aws_backup_selection" "yearly_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+}
+
+###############################################################
+# DR Backup Selections (for resources with DR tag)
+###############################################################
+
+# DR selections for resources that have both backup schedule AND DR tags
+resource "aws_backup_selection" "hourly_dr_selection" {
+  for_each = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? toset(["hourly"]) : toset([])
+  name         = "hourly-dr-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.hourly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = each.key
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "daily_dr_selection" {
+  for_each = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? toset(["daily"]) : toset([])
+  name         = "daily-dr-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.daily_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = each.key
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "weekly_dr_selection" {
+  for_each = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? toset(["weekly"]) : toset([])
+  name         = "weekly-dr-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.weekly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = each.key
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "monthly_dr_selection" {
+  for_each = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? toset(["monthly"]) : toset([])
+  name         = "monthly-dr-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.monthly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = each.key
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "yearly_dr_selection" {
+  for_each = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? toset(["yearly"]) : toset([])
+  name         = "yearly-dr-tag-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.yearly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = each.key
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+# DR selections for multi-plan combinations
+resource "aws_backup_selection" "multi_plan_dr_selections" {
+  for_each = {
+    for item in flatten([
+      for combo_name, combo in local.valid_plan_combinations : [
+        for plan in combo.plans : {
+          combo_name = combo_name
+          combo      = combo
+          plan       = plan
+          key        = "${combo_name}-${plan}-dr"
+        } if lookup(local.plan_enabled_map, plan, false) && var.enable_dr && lookup(var, "${plan}_include_in_dr", false)
+      ]
+    ]) : item.key => item
+  }
+
+  name         = "multi-${each.value.combo.hash}-${each.value.plan}-dr"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  
+  # Use the appropriate DR plan ID based on the current plan
+  plan_id = lookup({
+    "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : null,
+    "daily"   = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? aws_backup_plan.daily_backup_plan_dr[0].id : null,
+    "weekly"  = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? aws_backup_plan.weekly_backup_plan_dr[0].id : null,
+    "monthly" = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? aws_backup_plan.monthly_backup_plan_dr[0].id : null,
+    "yearly"  = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? aws_backup_plan.yearly_backup_plan_dr[0].id : null
+  }, each.value.plan)
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = each.value.combo_name
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+# DR selections for "all" tag
+resource "aws_backup_selection" "hourly_dr_selection_all" {
+  count        = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? 1 : 0
+  name         = "hourly-all-dr-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.hourly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = "all"
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "daily_dr_selection_all" {
+  count        = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? 1 : 0
+  name         = "daily-all-dr-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.daily_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = "all"
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "weekly_dr_selection_all" {
+  count        = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? 1 : 0
+  name         = "weekly-all-dr-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.weekly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = "all"
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "monthly_dr_selection_all" {
+  count        = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? 1 : 0
+  name         = "monthly-all-dr-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.monthly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = "all"
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
+  }
+}
+
+resource "aws_backup_selection" "yearly_dr_selection_all" {
+  count        = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? 1 : 0
+  name         = "yearly-all-dr-selection"
+  iam_role_arn = aws_iam_role.backup_role.arn
+  plan_id      = aws_backup_plan.yearly_backup_plan_dr[0].id
+
+  condition {
+    string_equals {
+      key   = var.standard_backup_tag_key
+      value = "all"
+    }
+    string_equals {
+      key   = var.dr_tag_key
+      value = var.dr_tag_value
+    }
   }
 }
 
