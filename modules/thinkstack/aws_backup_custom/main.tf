@@ -539,7 +539,7 @@ resource "aws_backup_plan" "hourly_backup_plan_dr" {
     }
 
     copy_action {
-      destination_vault_arn = aws_backup_vault.dr[0].arn
+      destination_vault_arn = try(aws_backup_vault.dr[0].arn, "")
       lifecycle {
         delete_after = var.hourly_dr_retention_days != null ? var.hourly_dr_retention_days : var.hourly_retention_days
       }
@@ -608,7 +608,7 @@ resource "aws_backup_plan" "daily_backup_plan_dr" {
     }
 
     copy_action {
-      destination_vault_arn = aws_backup_vault.dr[0].arn
+      destination_vault_arn = try(aws_backup_vault.dr[0].arn, "")
       lifecycle {
         delete_after = var.daily_dr_retention_days != null ? var.daily_dr_retention_days : var.daily_retention_days
       }
@@ -675,7 +675,7 @@ resource "aws_backup_plan" "weekly_backup_plan_dr" {
     }
 
     copy_action {
-      destination_vault_arn = aws_backup_vault.dr[0].arn
+      destination_vault_arn = try(aws_backup_vault.dr[0].arn, "")
       lifecycle {
         delete_after = var.weekly_dr_retention_days != null ? var.weekly_dr_retention_days : var.weekly_retention_days
       }
@@ -742,7 +742,7 @@ resource "aws_backup_plan" "monthly_backup_plan_dr" {
     }
 
     copy_action {
-      destination_vault_arn = aws_backup_vault.dr[0].arn
+      destination_vault_arn = try(aws_backup_vault.dr[0].arn, "")
       lifecycle {
         delete_after = var.monthly_dr_retention_days != null ? var.monthly_dr_retention_days : var.monthly_retention_days
       }
@@ -809,7 +809,7 @@ resource "aws_backup_plan" "yearly_backup_plan_dr" {
     }
 
     copy_action {
-      destination_vault_arn = aws_backup_vault.dr[0].arn
+      destination_vault_arn = try(aws_backup_vault.dr[0].arn, "")
       lifecycle {
         delete_after = var.yearly_dr_retention_days != null ? var.yearly_dr_retention_days : var.yearly_retention_days
       }
@@ -1008,10 +1008,10 @@ resource "aws_backup_selection" "yearly_selection_all" {
 
 # DR selections for resources that have both backup schedule AND DR tags
 resource "aws_backup_selection" "hourly_dr_selection" {
-  for_each = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? toset(["hourly"]) : toset([])
+  for_each = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr && length(try(aws_backup_plan.hourly_backup_plan_dr, [])) > 0 ? toset(["hourly"]) : toset([])
   name         = "hourly-dr-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.hourly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.hourly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1027,10 +1027,10 @@ resource "aws_backup_selection" "hourly_dr_selection" {
 }
 
 resource "aws_backup_selection" "daily_dr_selection" {
-  for_each = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? toset(["daily"]) : toset([])
+  for_each = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr && length(try(aws_backup_plan.daily_backup_plan_dr, [])) > 0 ? toset(["daily"]) : toset([])
   name         = "daily-dr-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.daily_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.daily_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1046,10 +1046,10 @@ resource "aws_backup_selection" "daily_dr_selection" {
 }
 
 resource "aws_backup_selection" "weekly_dr_selection" {
-  for_each = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? toset(["weekly"]) : toset([])
+  for_each = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr && length(try(aws_backup_plan.weekly_backup_plan_dr, [])) > 0 ? toset(["weekly"]) : toset([])
   name         = "weekly-dr-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.weekly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.weekly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1065,10 +1065,10 @@ resource "aws_backup_selection" "weekly_dr_selection" {
 }
 
 resource "aws_backup_selection" "monthly_dr_selection" {
-  for_each = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? toset(["monthly"]) : toset([])
+  for_each = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr && length(try(aws_backup_plan.monthly_backup_plan_dr, [])) > 0 ? toset(["monthly"]) : toset([])
   name         = "monthly-dr-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.monthly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.monthly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1084,10 +1084,10 @@ resource "aws_backup_selection" "monthly_dr_selection" {
 }
 
 resource "aws_backup_selection" "yearly_dr_selection" {
-  for_each = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? toset(["yearly"]) : toset([])
+  for_each = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr && length(try(aws_backup_plan.yearly_backup_plan_dr, [])) > 0 ? toset(["yearly"]) : toset([])
   name         = "yearly-dr-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.yearly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.yearly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1143,10 +1143,10 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
 
 # DR selections for "all" tag
 resource "aws_backup_selection" "hourly_dr_selection_all" {
-  count        = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? 1 : 0
+  count        = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr && length(try(aws_backup_plan.hourly_backup_plan_dr, [])) > 0 ? 1 : 0
   name         = "hourly-all-dr-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.hourly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.hourly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1162,10 +1162,10 @@ resource "aws_backup_selection" "hourly_dr_selection_all" {
 }
 
 resource "aws_backup_selection" "daily_dr_selection_all" {
-  count        = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? 1 : 0
+  count        = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr && length(try(aws_backup_plan.daily_backup_plan_dr, [])) > 0 ? 1 : 0
   name         = "daily-all-dr-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.daily_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.daily_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1181,10 +1181,10 @@ resource "aws_backup_selection" "daily_dr_selection_all" {
 }
 
 resource "aws_backup_selection" "weekly_dr_selection_all" {
-  count        = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? 1 : 0
+  count        = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr && length(try(aws_backup_plan.weekly_backup_plan_dr, [])) > 0 ? 1 : 0
   name         = "weekly-all-dr-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.weekly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.weekly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1200,10 +1200,10 @@ resource "aws_backup_selection" "weekly_dr_selection_all" {
 }
 
 resource "aws_backup_selection" "monthly_dr_selection_all" {
-  count        = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? 1 : 0
+  count        = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr && length(try(aws_backup_plan.monthly_backup_plan_dr, [])) > 0 ? 1 : 0
   name         = "monthly-all-dr-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.monthly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.monthly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1219,10 +1219,10 @@ resource "aws_backup_selection" "monthly_dr_selection_all" {
 }
 
 resource "aws_backup_selection" "yearly_dr_selection_all" {
-  count        = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? 1 : 0
+  count        = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr && length(try(aws_backup_plan.yearly_backup_plan_dr, [])) > 0 ? 1 : 0
   name         = "yearly-all-dr-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = aws_backup_plan.yearly_backup_plan_dr[0].id
+  plan_id      = try(aws_backup_plan.yearly_backup_plan_dr[0].id, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
