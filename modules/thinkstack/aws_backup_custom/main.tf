@@ -1013,15 +1013,16 @@ resource "aws_backup_selection" "hourly_dr_selection" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = each.key
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = each.key
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1031,15 +1032,16 @@ resource "aws_backup_selection" "daily_dr_selection" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = each.key
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = each.key
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1049,15 +1051,16 @@ resource "aws_backup_selection" "weekly_dr_selection" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = each.key
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = each.key
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1067,15 +1070,16 @@ resource "aws_backup_selection" "monthly_dr_selection" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = each.key
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = each.key
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1085,15 +1089,16 @@ resource "aws_backup_selection" "yearly_dr_selection" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = each.key
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = each.key
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1107,32 +1112,32 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
           combo      = combo
           plan       = plan
           key        = "${combo_name}-${plan}-dr"
+          plan_id = lookup({
+            "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? try(aws_backup_plan.hourly_backup_plan_dr[0].id, "") : "",
+            "daily"   = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? try(aws_backup_plan.daily_backup_plan_dr[0].id, "") : "",
+            "weekly"  = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? try(aws_backup_plan.weekly_backup_plan_dr[0].id, "") : "",
+            "monthly" = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? try(aws_backup_plan.monthly_backup_plan_dr[0].id, "") : "",
+            "yearly"  = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? try(aws_backup_plan.yearly_backup_plan_dr[0].id, "") : ""
+          }, plan, "")
         } if lookup(local.plan_enabled_map, plan, false) && var.enable_dr && lookup(local.plan_dr_include_map, plan, false)
       ]
-    ]) : item.key => item
+    ]) : item.key => item if item.plan_id != ""
   }
 
   name         = "multi-${each.value.combo.hash}-${each.value.plan}-dr"
   iam_role_arn = aws_iam_role.backup_role.arn
-  
-  # Use the appropriate DR plan ID based on the current plan
-  plan_id = lookup({
-    "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : null,
-    "daily"   = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? aws_backup_plan.daily_backup_plan_dr[0].id : null,
-    "weekly"  = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? aws_backup_plan.weekly_backup_plan_dr[0].id : null,
-    "monthly" = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? aws_backup_plan.monthly_backup_plan_dr[0].id : null,
-    "yearly"  = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? aws_backup_plan.yearly_backup_plan_dr[0].id : null
-  }, each.value.plan)
+  plan_id      = each.value.plan_id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = each.value.combo_name
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = each.value.combo_name
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1143,15 +1148,16 @@ resource "aws_backup_selection" "hourly_dr_selection_all" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = "all"
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = "all"
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1161,15 +1167,16 @@ resource "aws_backup_selection" "daily_dr_selection_all" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = "all"
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = "all"
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1179,15 +1186,16 @@ resource "aws_backup_selection" "weekly_dr_selection_all" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = "all"
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = "all"
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1197,15 +1205,16 @@ resource "aws_backup_selection" "monthly_dr_selection_all" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = "all"
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = "all"
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
@@ -1215,15 +1224,16 @@ resource "aws_backup_selection" "yearly_dr_selection_all" {
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan_dr[0].id
 
-  condition {
-    string_equals {
-      key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
-      value = "all"
-    }
-    string_equals {
-      key   = "aws:ResourceTag/${var.dr_tag_key}"
-      value = var.dr_tag_value
-    }
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.standard_backup_tag_key}"
+    value = "all"
+  }
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "aws:ResourceTag/${var.dr_tag_key}"
+    value = var.dr_tag_value
   }
 }
 
