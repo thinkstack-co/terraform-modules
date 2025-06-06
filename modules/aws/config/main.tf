@@ -40,7 +40,8 @@ resource "aws_config_configuration_recorder" "config" {
               var.enable_mfa_for_iam_console_rule ||
               var.enable_ec2_volume_inuse_rule ||
               var.enable_eip_attached_rule ||
-              var.enable_rds_storage_encrypted_rule) ? 1 : 0
+              var.enable_rds_storage_encrypted_rule ||
+              var.enable_iam_user_access_key_age_rule) ? 1 : 0
 
   name     = var.config_recorder_name
   role_arn = aws_iam_role.config_role.arn
@@ -55,7 +56,8 @@ resource "aws_config_configuration_recorder" "config" {
       var.enable_mfa_for_iam_console_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
       var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [], # Volume type already potentially included
       var.enable_eip_attached_rule ? ["AWS::EC2::EIP"] : [],
-      var.enable_rds_storage_encrypted_rule ? ["AWS::RDS::DBInstance"] : []
+      var.enable_rds_storage_encrypted_rule ? ["AWS::RDS::DBInstance"] : [],
+      var.enable_iam_user_access_key_age_rule ? ["AWS::IAM::User"] : [] # User type already potentially included
     ))
   }
 
@@ -275,6 +277,23 @@ resource "aws_config_config_rule" "rds_storage_encrypted" {
     owner             = "AWS"
     source_identifier = "RDS_STORAGE_ENCRYPTED"
   }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
+resource "aws_config_config_rule" "iam_user_access_key_age" {
+  count = var.enable_iam_user_access_key_age_rule ? 1 : 0
+  name        = "iam-user-access-key-age"
+  description = "Checks whether the active access keys for your IAM users are older than the specified number of days."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "ACCESS_KEYS_ROTATED"
+  }
+
+  input_parameters = jsonencode({
+    maxAccessKeyAge = tostring(var.iam_access_key_max_age)
+  })
 
   depends_on = [aws_config_delivery_channel.config]
 }

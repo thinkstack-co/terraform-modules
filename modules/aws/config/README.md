@@ -83,6 +83,8 @@ module "example_aws_config" {
   enable_ec2_volume_inuse_rule      = true
   enable_eip_attached_rule          = true
   enable_rds_storage_encrypted_rule = true
+  enable_iam_user_access_key_age_rule = true
+  iam_access_key_max_age            = 90  # Days before access keys are non-compliant
 
   # --- S3 Lifecycle and Retention ---
   enable_s3_lifecycle_rules = true
@@ -161,6 +163,7 @@ This Terraform module configures AWS Config to record and evaluate the configura
     *   `EC2_VOLUME_INUSE_CHECK`: Checks whether EBS volumes are attached to EC2 instances.
     *   `EIP_ATTACHED`: Checks whether Elastic IP addresses are attached.
     *   `RDS_STORAGE_ENCRYPTED`: Checks whether storage encryption is enabled for RDS DB instances.
+    *   `ACCESS_KEYS_ROTATED`: Checks whether IAM user access keys are older than the specified number of days.
 *   Optionally deploys a Lambda function to generate scheduled PDF compliance reports summarizing the status of Config Rules and storing them in the Config S3 bucket.
 
 ## Architecture
@@ -273,6 +276,7 @@ module "aws_config_all_rules" {
   enable_ec2_volume_inuse_rule     = true
   enable_eip_attached_rule         = true
   enable_rds_storage_encrypted_rule= true
+  enable_iam_user_access_key_age_rule = true
 
   # Compliance reporter is disabled by default
   enable_compliance_reporter       = false

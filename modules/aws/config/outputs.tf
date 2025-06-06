@@ -51,6 +51,11 @@ output "ebs_encryption_rule_arn" {
   value       = var.enable_encrypted_volumes_rule ? aws_config_config_rule.ebs_encryption[0].arn : null
 }
 
+output "iam_user_access_key_age_rule_arn" {
+  description = "The ARN of the IAM user access key age Config rule"
+  value       = var.enable_iam_user_access_key_age_rule ? aws_config_config_rule.iam_user_access_key_age[0].arn : null
+}
+
 output "config_rules_arns" {
   description = "Map of all Config rules ARNs"
   value = {
@@ -63,5 +68,6 @@ output "config_rules_arns" {
     ec2_volume_inuse = var.enable_ec2_volume_inuse_rule ? aws_config_config_rule.ec2_volume_inuse_check[0].arn : null
     eip_attached = var.enable_eip_attached_rule ? aws_config_config_rule.eip_attached[0].arn : null
     rds_storage_encrypted = var.enable_rds_storage_encrypted_rule ? aws_config_config_rule.rds_storage_encrypted[0].arn : null
+    iam_user_access_key_age = var.enable_iam_user_access_key_age_rule ? aws_config_config_rule.iam_user_access_key_age[0].arn : null
   }
 }
