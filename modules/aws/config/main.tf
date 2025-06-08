@@ -160,19 +160,6 @@ resource "aws_config_config_rule" "iam_password_policy" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-resource "aws_config_config_rule" "encrypted_volumes" {
-  count = var.enable_encrypted_volumes_rule ? 1 : 0
-  name        = "encrypted-volumes"
-  description = "Checks whether EBS volumes that are in an attached state are encrypted."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "ENCRYPTED_VOLUMES"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
 resource "aws_config_config_rule" "ebs_encryption" {
   count       = var.enable_ebs_encryption_rule ? 1 : 0
   name        = "ebs-encryption-enabled"
@@ -238,6 +225,23 @@ resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
     owner             = "AWS"
     source_identifier = "MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS"
   }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
+resource "aws_config_config_rule" "access_keys_rotated" {
+  count = 1
+  name        = "access-keys-rotated"
+  description = "Checks whether the active IAM access keys are rotated within the specified number of days."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "ACCESS_KEYS_ROTATED"
+  }
+
+  input_parameters = jsonencode({
+    maxAccessKeyAge = 90
+  })
 
   depends_on = [aws_config_delivery_channel.config]
 }

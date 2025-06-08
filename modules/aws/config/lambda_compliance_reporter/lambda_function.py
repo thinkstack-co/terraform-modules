@@ -172,12 +172,34 @@ def lambda_handler(event, context):
     rules = get_config_rules()
     compliance = get_compliance_status()
 
+    # Define styles for PDF
+    styles = getSampleStyleSheet()
+    title_style = styles["Heading1"]
+    subtitle_style = styles["Heading2"]
+    subtitle_style.alignment = TA_CENTER
+    normal_style = styles["Normal"]
+    small_style = ParagraphStyle("small", fontSize=9, leading=12)
+    table_header_style = ParagraphStyle(
+        "table_header",
+        fontSize=11,
+        leading=14,
+        alignment=TA_CENTER,
+        fontName="Helvetica-Bold",
+    )
+
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
     insufficient_data_count = sum(
         1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
     )
+
+    # Rule descriptions table data
+    rule_descriptions_data = [[Paragraph("<b>Rule Name</b>", table_header_style), Paragraph("<b>Description</b>", table_header_style)]]
+    for rule in rules:
+        rule_name_paragraph = Paragraph(rule["ConfigRuleName"], normal_style)
+        description_paragraph = Paragraph(rule.get("Description", "N/A"), normal_style)
+        rule_descriptions_data.append([rule_name_paragraph, description_paragraph])
 
     # Rule compliance table data
     rule_table_data = [["Rule Name", "Status"]]
@@ -223,20 +245,6 @@ def lambda_handler(event, context):
         bottomMargin=40,
     )
     elements = []
-    styles = getSampleStyleSheet()
-    title_style = styles["Heading1"]
-    subtitle_style = styles["Heading2"]
-    subtitle_style.alignment = TA_CENTER
-    normal_style = styles["Normal"]
-    small_style = ParagraphStyle("small", fontSize=9, leading=12)
-    table_header_style = ParagraphStyle(
-        "table_header",
-        fontSize=11,
-        leading=14,
-        alignment=TA_CENTER,
-        fontName="Helvetica-Bold",
-    )
-
     elements.append(Paragraph("AWS Config Compliance Report", title_style))
     elements.append(Spacer(1, 10))
     elements.append(Paragraph(f"Account Name: <b>{account_name}</b>", normal_style))
@@ -278,6 +286,26 @@ def lambda_handler(event, context):
     )
     elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
     elements.append(summary_table)
+    elements.append(Spacer(1, 18))
+
+    # Rule Descriptions Table
+    elements.append(Paragraph("AWS Config Rule Descriptions", subtitle_style))
+    descriptions_table = Table(rule_descriptions_data, colWidths=[200, 280]) # Adjusted colWidths
+    descriptions_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4a5568")), # Header background
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor("#edf2f7")]),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'), # Ensure text starts at the top of the cell
+        ('BOX', (0, 0), (-1, -1), 1, colors.gray),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey)
+    ]))
+    elements.append(descriptions_table)
     elements.append(Spacer(1, 18))
 
     # Rule compliance status table

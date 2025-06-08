@@ -176,14 +176,24 @@ variable "enable_rds_storage_encrypted_rule" {
   default     = false
 }
 
+<<<<<<< Updated upstream
 variable "enable_iam_user_access_key_age_rule" {
   description = "Enable the IAM User Access Key Age managed rule."
+=======
+variable "enable_access_keys_rotated_rule" {
+  description = "Enable the Access Keys Rotated managed rule to check if IAM access keys are rotated within the specified number of days."
+>>>>>>> Stashed changes
   type        = bool
   default     = false
 }
 
+<<<<<<< Updated upstream
 variable "iam_access_key_max_age" {
   description = "Maximum age in days for IAM user access keys before they are marked as non-compliant"
+=======
+variable "access_keys_max_age_days" {
+  description = "Maximum number of days an IAM access key can remain active before requiring rotation."
+>>>>>>> Stashed changes
   type        = number
   default     = 90
 }

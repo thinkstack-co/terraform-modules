@@ -13,4 +13,5 @@ COPY requirements.txt .
 COPY lambda_function.py .
 
 RUN python3.12 -m pip install -r requirements.txt -t . && \
+    RUN python3.12 -m pip install -r requirements.txt -t . && \
     zip -r9 /build/lambda_package.zip .
