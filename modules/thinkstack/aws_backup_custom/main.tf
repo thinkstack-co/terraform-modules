@@ -668,12 +668,12 @@ resource "aws_backup_selection" "multi_plan_selections" {
 
   # Use the appropriate plan ID based on the current plan
   plan_id = lookup({
-    "hourly"  = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : null,
-    "daily"   = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : null,
-    "weekly"  = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : null,
-    "monthly" = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : null,
-    "yearly"  = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : null
-  }, each.value.plan)
+    "hourly"  = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : "",
+    "daily"   = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : "",
+    "weekly"  = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : "",
+    "monthly" = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : "",
+    "yearly"  = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : ""
+  }, each.value.plan, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
@@ -1180,21 +1180,22 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
           combo      = combo
           plan       = plan
           key        = "${combo_name}-${plan}-dr"
-          plan_id = lookup({
-            "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : null,
-            "daily"   = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? aws_backup_plan.daily_backup_plan_dr[0].id : null,
-            "weekly"  = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? aws_backup_plan.weekly_backup_plan_dr[0].id : null,
-            "monthly" = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? aws_backup_plan.monthly_backup_plan_dr[0].id : null,
-            "yearly"  = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? aws_backup_plan.yearly_backup_plan_dr[0].id : null
-          }, plan)
         } if lookup(local.plan_enabled_map, plan, false) && var.enable_dr && lookup(local.plan_dr_include_map, plan, false)
       ]
-    ]) : item.key => item if item.plan_id != null
+    ]) : item.key => item
   }
 
   name         = "multi-${each.value.combo.hash}-${each.value.plan}-dr"
   iam_role_arn = aws_iam_role.backup_role.arn
-  plan_id      = each.value.plan_id
+  
+  # Look up the appropriate DR plan ID based on the plan type
+  plan_id = lookup({
+    "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : "",
+    "daily"   = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? aws_backup_plan.daily_backup_plan_dr[0].id : "",
+    "weekly"  = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? aws_backup_plan.weekly_backup_plan_dr[0].id : "",
+    "monthly" = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? aws_backup_plan.monthly_backup_plan_dr[0].id : "",
+    "yearly"  = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? aws_backup_plan.yearly_backup_plan_dr[0].id : ""
+  }, each.value.plan, "")
 
   selection_tag {
     type  = "STRINGEQUALS"
