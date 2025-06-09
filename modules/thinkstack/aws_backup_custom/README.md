@@ -301,38 +301,39 @@ The module uses a **dual-tag selection mechanism** for DR backup copying:
 
 #### Important Note on AWS Backup Copy Actions
 
-AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To work around this limitation and prevent duplicate backups, the module implements the following behavior:
+AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To achieve granular control over which resources get cross-region copies, the module implements an additive DR approach:
 
-**When DR is enabled for a specific backup plan type:**
-- The regular backup plan is automatically disabled
-- Only the DR backup plan (with copy_action) is created
-- Resources tagged with BOTH `backup_schedule` AND `add_to_dr = "true"` are backed up and copied to DR
-- Resources with ONLY `backup_schedule` tag are NOT backed up when DR is enabled for that plan type
+**How the Additive DR Approach Works:**
+- Regular backup plans ALWAYS run for resources with the `backup_schedule` tag
+- DR backup plans run IN ADDITION for resources with BOTH `backup_schedule` AND `add_to_dr = "true"` tags
+- Resources without `add_to_dr = "true"` only get regular backups (no cross-region copies)
+- Resources with `add_to_dr = "true"` get backed up twice: once by the regular plan and once by the DR plan
 
 **Example:**
-- If `daily_include_in_dr = true`, the regular daily backup plan is disabled
-- Only resources with BOTH `backup_schedule = "daily"` AND `add_to_dr = "true"` will be backed up
-- Resources with only `backup_schedule = "daily"` (without `add_to_dr = "true"`) will NOT be backed up
-
+- If `daily_include_in_dr = true`:
+  - ALL resources with `backup_schedule = "daily"` get regular daily backups
+  - ONLY resources with BOTH `backup_schedule = "daily"` AND `add_to_dr = "true"` also get DR backups with cross-region copies
+  
 This ensures:
-- No duplicate backups are created
-- Clear behavior: when DR is enabled for a plan type, it becomes DR-only
-- Resources must be explicitly tagged for DR to be included in backups
+- No resources are left without backups
+- Granular control over which resources get DR copies
+- Clear separation between production backups and DR copies
+- Flexibility to add or remove DR copying without affecting regular backups
 
 #### DR Summary
 
 - **Module Level**: Enable DR with `enable_dr = true` and specify `dr_region`
 - **Plan Level**: Enable specific plans for DR (e.g., `daily_include_in_dr = true`)
-  - When enabled, the regular plan is disabled and ONLY the DR plan runs
+  - When enabled, BOTH regular and DR plans run (additive approach)
 - **Resource Level**: Tag resources appropriately:
-  - When DR is disabled for a plan: `backup_schedule = "daily"` → Regular backup (no DR copy)
-  - When DR is enabled for a plan: Resources MUST have BOTH tags to be backed up:
-    - `backup_schedule = "daily"` + `add_to_dr = "true"` → DR backup (with copy to DR region)
-    - `backup_schedule = "daily"` only → NOT backed up
+  - `backup_schedule = "daily"` only → Regular backup (no DR copy)
+  - `backup_schedule = "daily"` + `add_to_dr = "true"` → Regular backup AND DR backup (with copy to DR region)
+  - `backup_schedule = "daily"` + `add_to_dr = "false"` → Regular backup only (explicitly no DR)
 - **Result**: 
-  - No duplicate backups are created
-  - When DR is enabled for a plan type, it becomes DR-exclusive
-  - Resources must be explicitly tagged for DR inclusion
+  - All resources with `backup_schedule` tags get backed up
+  - Resources with `add_to_dr = "true"` get additional DR backups with cross-region copies
+  - Maximum flexibility: can have mix of DR and non-DR resources using the same backup schedule
+  - No resources are left without backups when DR is enabled
 
 #### Example DR Configuration
 
@@ -365,14 +366,25 @@ resource "aws_instance" "production_server" {
   }
 }
 
-# Resource WITHOUT DR - backups stay in primary region only
+# Resource WITHOUT DR - gets regular backups only
 resource "aws_instance" "development_server" {
   # ... instance configuration ...
   
   tags = {
     Name            = "development-server"
-    backup_schedule = "daily"      # Primary backup schedule
+    backup_schedule = "daily"      # Gets regular daily backups
     # No add_to_dr tag - won't be copied to DR
+  }
+}
+
+# Resource explicitly excluding DR - gets regular backups only
+resource "aws_instance" "test_server" {
+  # ... instance configuration ...
+  
+  tags = {
+    Name            = "test-server"
+    backup_schedule = "daily-weekly"  # Gets regular daily and weekly backups
+    add_to_dr       = "false"         # Explicitly exclude from DR copies
   }
 }
 ```
