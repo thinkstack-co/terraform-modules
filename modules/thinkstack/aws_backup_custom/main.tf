@@ -469,7 +469,7 @@ resource "aws_backup_vault" "dr" {
 # Backups are stored in the hourly vault with short retention (default 1 day)
 # Always created when hourly backups are enabled, regardless of DR settings
 resource "aws_backup_plan" "hourly_backup_plan" {
-  count = var.create_hourly_plan ? 1 : 0
+  count = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? 1 : 0
   name  = var.hourly_plan_name
 
   rule {
@@ -505,7 +505,7 @@ resource "aws_backup_plan" "hourly_backup_plan" {
 # Runs once per day at the specified time (default 1 AM UTC)
 # Always created when daily backups are enabled, regardless of DR settings
 resource "aws_backup_plan" "daily_backup_plan" {
-  count = var.create_daily_plan ? 1 : 0
+  count = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? 1 : 0
   name  = var.daily_plan_name
   tags  = var.tags
 
@@ -540,7 +540,7 @@ resource "aws_backup_plan" "daily_backup_plan" {
 # Used for resources that don't change frequently or need medium-term retention
 # Always created when weekly backups are enabled, regardless of DR settings
 resource "aws_backup_plan" "weekly_backup_plan" {
-  count = var.create_weekly_plan ? 1 : 0
+  count = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? 1 : 0
   name  = var.weekly_plan_name
   tags  = var.tags
 
@@ -575,7 +575,7 @@ resource "aws_backup_plan" "weekly_backup_plan" {
 # Often used for compliance or archival purposes
 # Always created when monthly backups are enabled, regardless of DR settings
 resource "aws_backup_plan" "monthly_backup_plan" {
-  count = var.create_monthly_plan ? 1 : 0
+  count = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? 1 : 0
   name  = var.monthly_plan_name
   tags  = var.tags
 
@@ -610,7 +610,7 @@ resource "aws_backup_plan" "monthly_backup_plan" {
 # Used for compliance, legal holds, or historical preservation
 # Always created when yearly backups are enabled, regardless of DR settings
 resource "aws_backup_plan" "yearly_backup_plan" {
-  count = var.create_yearly_plan ? 1 : 0
+  count = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? 1 : 0
   name  = var.yearly_plan_name
   tags  = var.tags
 
@@ -667,12 +667,13 @@ resource "aws_backup_selection" "multi_plan_selections" {
   iam_role_arn = aws_iam_role.backup_role.arn
 
   # Use the appropriate plan ID based on the current plan
+  # If DR is enabled for a plan type, it won't have a regular plan
   plan_id = lookup({
-    "hourly"  = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : "",
-    "daily"   = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : "",
-    "weekly"  = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : "",
-    "monthly" = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : "",
-    "yearly"  = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : ""
+    "hourly"  = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? aws_backup_plan.hourly_backup_plan[0].id : "",
+    "daily"   = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? aws_backup_plan.daily_backup_plan[0].id : "",
+    "weekly"  = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? aws_backup_plan.weekly_backup_plan[0].id : "",
+    "monthly" = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? aws_backup_plan.monthly_backup_plan[0].id : "",
+    "yearly"  = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? aws_backup_plan.yearly_backup_plan[0].id : ""
   }, each.value.plan, "")
 
   selection_tag {
@@ -687,7 +688,7 @@ resource "aws_backup_selection" "multi_plan_selections" {
 # Resources with this tag will be backed up every hour
 # Only created when the hourly backup plan is enabled
 resource "aws_backup_selection" "hourly_selection" {
-  for_each     = var.create_hourly_plan ? toset(["hourly"]) : toset([])
+  for_each     = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? toset(["hourly"]) : toset([])
   name         = "hourly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
@@ -704,7 +705,7 @@ resource "aws_backup_selection" "hourly_selection" {
 # Links daily-tagged resources to the daily backup plan
 # Only created when the daily backup plan is enabled
 resource "aws_backup_selection" "daily_selection" {
-  for_each     = var.create_daily_plan ? toset(["daily"]) : toset([])
+  for_each     = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? toset(["daily"]) : toset([])
   name         = "daily-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
@@ -721,7 +722,7 @@ resource "aws_backup_selection" "daily_selection" {
 # Links weekly-tagged resources to the weekly backup plan
 # Only created when the weekly backup plan is enabled
 resource "aws_backup_selection" "weekly_selection" {
-  for_each     = var.create_weekly_plan ? toset(["weekly"]) : toset([])
+  for_each     = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? toset(["weekly"]) : toset([])
   name         = "weekly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
@@ -738,7 +739,7 @@ resource "aws_backup_selection" "weekly_selection" {
 # Links monthly-tagged resources to the monthly backup plan
 # Only created when the monthly backup plan is enabled
 resource "aws_backup_selection" "monthly_selection" {
-  for_each     = var.create_monthly_plan ? toset(["monthly"]) : toset([])
+  for_each     = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? toset(["monthly"]) : toset([])
   name         = "monthly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
@@ -755,7 +756,7 @@ resource "aws_backup_selection" "monthly_selection" {
 # Links yearly-tagged resources to the yearly backup plan
 # Only created when the yearly backup plan is enabled
 resource "aws_backup_selection" "yearly_selection" {
-  for_each     = var.create_yearly_plan ? toset(["yearly"]) : toset([])
+  for_each     = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? toset(["yearly"]) : toset([])
   name         = "yearly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id
@@ -772,7 +773,7 @@ resource "aws_backup_selection" "yearly_selection" {
 # A resource tagged with "all" will be backed up hourly, daily, weekly, monthly, and yearly
 # Each selection below links "all"-tagged resources to their respective backup plan
 resource "aws_backup_selection" "hourly_selection_all" {
-  for_each     = var.create_hourly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "hourly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
@@ -785,7 +786,7 @@ resource "aws_backup_selection" "hourly_selection_all" {
 }
 
 resource "aws_backup_selection" "daily_selection_all" {
-  for_each     = var.create_daily_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? toset(["all"]) : toset([])
   name         = "daily-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
@@ -798,7 +799,7 @@ resource "aws_backup_selection" "daily_selection_all" {
 }
 
 resource "aws_backup_selection" "weekly_selection_all" {
-  for_each     = var.create_weekly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "weekly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
@@ -811,7 +812,7 @@ resource "aws_backup_selection" "weekly_selection_all" {
 }
 
 resource "aws_backup_selection" "monthly_selection_all" {
-  for_each     = var.create_monthly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "monthly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
@@ -824,7 +825,7 @@ resource "aws_backup_selection" "monthly_selection_all" {
 }
 
 resource "aws_backup_selection" "yearly_selection_all" {
-  for_each     = var.create_yearly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "yearly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id

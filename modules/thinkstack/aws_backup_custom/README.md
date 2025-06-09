@@ -301,39 +301,42 @@ The module uses a **dual-tag selection mechanism** for DR backup copying:
 
 #### Important Note on AWS Backup Copy Actions
 
-AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To achieve granular control over which resources get cross-region copies, the module implements an additive DR approach:
+AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To work around this limitation and prevent duplicate backups, the module implements the following behavior:
 
-**How the Additive DR Approach Works:**
-- Regular backup plans ALWAYS run for resources with the `backup_schedule` tag
-- DR backup plans run IN ADDITION for resources with BOTH `backup_schedule` AND `add_to_dr = "true"` tags
-- Resources without `add_to_dr = "true"` only get regular backups (no cross-region copies)
-- Resources with `add_to_dr = "true"` get backed up twice: once by the regular plan and once by the DR plan
+**When DR is enabled for a specific backup plan type:**
+- The regular backup plan is automatically disabled
+- Only the DR backup plan (with copy_action) is created
+- ALL resources with that backup schedule tag will use the DR plan
+- Resources with `add_to_dr = "true"` get cross-region copies
+- Resources without `add_to_dr = "true"` still get backed up but copies remain in the primary region only
 
 **Example:**
-- If `daily_include_in_dr = true`:
-  - ALL resources with `backup_schedule = "daily"` get regular daily backups
-  - ONLY resources with BOTH `backup_schedule = "daily"` AND `add_to_dr = "true"` also get DR backups with cross-region copies
-  
+- If `daily_include_in_dr = true`, the regular daily backup plan is disabled
+- ALL resources with `backup_schedule = "daily"` will use the DR plan
+- Only resources with BOTH `backup_schedule = "daily"` AND `add_to_dr = "true"` will have their backups copied to DR region
+- Resources with only `backup_schedule = "daily"` still get backed up but without cross-region copies
+
 This ensures:
-- No resources are left without backups
-- Granular control over which resources get DR copies
-- Clear separation between production backups and DR copies
-- Flexibility to add or remove DR copying without affecting regular backups
+- No duplicate backups are created
+- Clear behavior: when DR is enabled for a plan type, it replaces the regular plan
+- All resources continue to get backed up
+- Only explicitly tagged resources get cross-region copies
 
 #### DR Summary
 
 - **Module Level**: Enable DR with `enable_dr = true` and specify `dr_region`
 - **Plan Level**: Enable specific plans for DR (e.g., `daily_include_in_dr = true`)
-  - When enabled, BOTH regular and DR plans run (additive approach)
+  - When enabled, the regular plan is disabled and ONLY the DR plan runs
 - **Resource Level**: Tag resources appropriately:
-  - `backup_schedule = "daily"` only → Regular backup (no DR copy)
-  - `backup_schedule = "daily"` + `add_to_dr = "true"` → Regular backup AND DR backup (with copy to DR region)
-  - `backup_schedule = "daily"` + `add_to_dr = "false"` → Regular backup only (explicitly no DR)
+  - When DR is disabled for a plan: `backup_schedule = "daily"` → Regular backup (no DR copy)
+  - When DR is enabled for a plan: 
+    - `backup_schedule = "daily"` only → Backup stays in primary region
+    - `backup_schedule = "daily"` + `add_to_dr = "true"` → Backup with copy to DR region
 - **Result**: 
-  - All resources with `backup_schedule` tags get backed up
-  - Resources with `add_to_dr = "true"` get additional DR backups with cross-region copies
-  - Maximum flexibility: can have mix of DR and non-DR resources using the same backup schedule
-  - No resources are left without backups when DR is enabled
+  - No duplicate backups are created
+  - When DR is enabled for a plan type, it replaces the regular plan entirely
+  - All resources with the schedule tag continue to get backed up
+  - Only resources with `add_to_dr = "true"` get cross-region copies
 
 #### Example DR Configuration
 
