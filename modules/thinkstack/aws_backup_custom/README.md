@@ -55,36 +55,55 @@ This Terraform module creates and manages AWS Backup resources with a flexible, 
 
 The module supports:
 - Standard backup plans (hourly, daily, weekly, monthly, yearly)
-- Custom backup plans with configurable schedules and retention periods
-- Tag-based resource selection for both standard and custom backup plans
+- Tag-based resource selection for backup plans
 - Optional KMS key creation for encrypted backups
 - Vault lock capabilities for enhanced security
 - Windows VSS support for consistent backups of Windows instances
-- **Disaster Recovery (DR) cross-region copies:** Automatically copy backups to a DR region with configurable retention per backup frequency
+- **Disaster Recovery (DR) cross-region copies:** Selectively copy backups to a DR region based on dual-tag selection with configurable retention per backup frequency
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Provider Configuration
 
-### Complete Example: Production and DR Cross-Region Backup Configuration
+When using DR functionality, this module requires two AWS provider configurations:
 
-This example demonstrates a complete, production-ready configuration including standard backup plans with selective cross-region DR copies, custom backup plans, KMS key creation, Vault Lock, Windows VSS, and proper tagging for resource selection.
+1. **Primary provider** - For the main region where backups are created
+2. **DR provider** - For the disaster recovery region where backups are copied
 
 ```hcl
-# Configure the providers
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
+    }
+  }
+}
+
+# Primary region provider
 provider "aws" {
   region = "us-east-1"
 }
 
+# DR region provider (required when enable_dr = true)
 provider "aws" {
   alias  = "dr"
   region = "us-west-2"
 }
+```
 
+## Usage
+
+### Complete Example: Production and DR Cross-Region Backup Configuration
+
+This example demonstrates a complete, production-ready configuration including standard backup plans with selective cross-region DR copies, KMS key creation, Vault Lock, Windows VSS, and proper tagging for resource selection.
+
+```hcl
 module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
+  # Provider configuration (required when using DR)
   providers = {
     aws    = aws
     aws.dr = aws.dr
@@ -97,56 +116,22 @@ module "aws_backup_custom" {
   create_monthly_plan = true
   create_yearly_plan  = true
 
-  # Configure production hourly backup settings
-  hourly_schedule                 = "cron(0 * * * ? *)"  # Every hour
-  hourly_retention_days           = 2                    # Keep for 2 days
-  hourly_enable_continuous_backup = true                 # Enable point-in-time recovery
-  hourly_windows_vss              = true                 # Enable VSS for Windows
-
-  # Configure production daily backup settings
-  daily_schedule                 = "cron(0 3 * * ? *)"   # Daily at 3:00 AM UTC
-  daily_retention_days           = 7                     # Keep for 7 days
-  daily_enable_continuous_backup = true                  # Enable point-in-time recovery
-  daily_windows_vss              = true                  # Enable VSS for Windows
-
-  # Configure production weekly backup settings
-  weekly_schedule       = "cron(0 3 ? * SUN *)"          # Sundays at 3:00 AM UTC
-  weekly_retention_days = 30                             # Keep for 30 days
-  weekly_windows_vss    = true                           # Enable VSS for Windows
-
-  # Configure production monthly backup settings
-  monthly_schedule       = "cron(0 3 1 * ? *)"           # 1st of month at 3:00 AM UTC
-  monthly_retention_days = 365                           # Keep for 1 year
-  monthly_windows_vss    = true                          # Enable VSS for Windows
-
-  # Configure production yearly backup settings
-  yearly_schedule       = "cron(0 3 1 1 ? *)"            # January 1st at 3:00 AM UTC
-  yearly_retention_days = 2555                           # Keep for 7 years
-  yearly_windows_vss    = true                           # Enable VSS for Windows
-
   # Enable Disaster Recovery (DR) cross-region copying
-  enable_dr = true
-  dr_region = "us-west-2"
+  enable_dr         = true
+  dr_region         = "us-west-2"
+  dr_vault_name     = "dr-backup-vault"
   
-  # DR backup vault configuration
-  dr_vault_name       = "dr-backup-vault"
-  dr_backup_role_name = "aws-backup-dr-role"
-  
-  # Configure which backup plans should copy to DR (selective DR copying)
+  # Choose which backup plans support DR copying
   hourly_include_in_dr  = false  # Don't copy hourly backups to DR
-  daily_include_in_dr   = true   # Copy daily backups to DR
-  weekly_include_in_dr  = true   # Copy weekly backups to DR
-  monthly_include_in_dr = true   # Copy monthly backups to DR
+  daily_include_in_dr   = true   # Enable DR for daily backups
+  weekly_include_in_dr  = true   # Enable DR for weekly backups
+  monthly_include_in_dr = true   # Enable DR for monthly backups
   yearly_include_in_dr  = false  # Don't copy yearly backups to DR
-
-  # Configure DR retention (optional - defaults to source retention if not specified)
-  daily_dr_retention_days   = 14   # Keep DR copies for 14 days (vs 7 in prod)
-  weekly_dr_retention_days  = 60   # Keep DR copies for 60 days (vs 30 in prod)
-  monthly_dr_retention_days = 730  # Keep DR copies for 2 years (vs 1 year in prod)
   
-  # DR tag configuration - resources must have BOTH backup schedule AND DR tags
-  dr_tag_key   = "add_to_dr"
-  dr_tag_value = "true"
+  # Configure DR retention periods (optional - defaults to primary retention)
+  daily_dr_retention_days   = 7    # Keep daily DR copies for 7 days
+  weekly_dr_retention_days  = 14   # Keep weekly DR copies for 14 days  
+  monthly_dr_retention_days = 730  # Keep monthly DR copies for 2 years
   
   # Tags for DR resources
   dr_tags = {
@@ -170,39 +155,8 @@ module "aws_backup_custom" {
   vault_lock_changeable_for_days   = 3
   vault_lock_max_retention_days    = 36500  # 100 years
 
-  # Configure custom backup plans
-  custom_backup_plans = {
-    critical_databases = {
-      schedule                 = "cron(0 */4 * * ? *)"  # Every 4 hours
-      retention_days           = 30
-      enable_continuous_backup = true
-      vault_name               = "daily"
-      tag_key                  = "backup_custom"
-      tag_value                = "critical_db"
-      windows_vss              = true
-      tags = {
-        backup_type = "critical"
-        frequency   = "4-hourly"
-      }
-    }
-    compliance_archives = {
-      schedule                 = "cron(0 2 1 * ? *)"    # Monthly
-      retention_days           = 2555                   # 7 years
-      enable_continuous_backup = false
-      vault_name               = "monthly"
-      tag_key                  = "backup_custom"
-      tag_value                = "compliance"
-      windows_vss              = false
-      tags = {
-        backup_type = "compliance"
-        retention   = "7-years"
-      }
-    }
-  }
-  
   # Tag configuration for standard backups
-  standard_backup_tag_key       = "backup_schedule"
-  default_custom_backup_tag_key = "backup_custom"
+  standard_backup_tag_key = "backup_schedule"
 
   # Global tags for all backup resources
   tags = {
@@ -224,7 +178,6 @@ resource "aws_instance" "critical_web_server" {
     environment      = "production"
     backup_schedule  = "daily-weekly-monthly"  # Production backup schedule
     add_to_dr        = "true"                  # Include in DR copies
-    backup_custom    = "critical_db"           # Include in custom backup plan
   }
 }
 
@@ -254,7 +207,6 @@ resource "aws_ebs_volume" "compliance_data" {
     environment     = "production"
     backup_schedule = "monthly-yearly"  # Monthly and yearly backups
     add_to_dr       = "true"            # Copy to DR (only monthly since yearly DR is disabled)
-    backup_custom   = "compliance"      # Compliance archive backup
   }
 }
 
@@ -277,19 +229,10 @@ resource "aws_instance" "important_server" {
 This example shows a minimal configuration with daily backups and selective DR copying:
 
 ```hcl
-# Configure providers if using DR
-provider "aws" {
-  region = "us-east-1"
-}
-
-provider "aws" {
-  alias  = "dr"
-  region = "us-west-2"
-}
-
 module "aws_backup_custom" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
 
+  # Provider configuration (required when using DR)
   providers = {
     aws    = aws
     aws.dr = aws.dr
@@ -301,6 +244,7 @@ module "aws_backup_custom" {
 
   # Enable DR for daily backups
   enable_dr = true
+  dr_region = "us-west-2"  # Required when enable_dr is true
   daily_include_in_dr = true
   daily_dr_retention_days = 7  # Keep DR copies for only 7 days
 
@@ -335,22 +279,98 @@ resource "aws_instance" "dev_server" {
 }
 ```
 
-### How DR Cross-Region Copying Works
+### Disaster Recovery (DR) Implementation
 
-The module provides two-level control for DR backup copying:
+This module implements DR backup copying using AWS Backup's cross-region copy feature with a dual-tag selection mechanism. This provides granular control over which resources get their backups copied to the DR region.
 
-1. **Plan Level Control**: Enable/disable DR copying for each backup frequency
-   - Set `*_include_in_dr = true` to enable DR copying for that frequency
-   - Example: `daily_include_in_dr = true` enables DR copying for daily backups
+#### How DR Cross-Region Copying Works
 
-2. **Resource Level Control**: Tag resources to include/exclude from DR
-   - Resources must have the DR tag (default: `add_to_dr = "true"`)
-   - Only resources with BOTH the backup schedule tag AND the DR tag are copied
+The module uses a **dual-tag selection mechanism** for DR backup copying:
 
-This means:
-- If `daily_include_in_dr = false`, NO daily backups are copied to DR
-- If `daily_include_in_dr = true`, only daily backups from resources tagged with `add_to_dr = "true"` are copied to DR
-- Resources without the DR tag are never copied to DR, even if the plan has DR enabled
+1. **Enable DR at the Module Level**: Set `enable_dr = true` to enable DR functionality
+2. **Enable DR for Specific Backup Plans**: Choose which backup plans should support DR copying:
+   - `hourly_include_in_dr = true` - Enable DR capability for hourly backups
+   - `daily_include_in_dr = true` - Enable DR capability for daily backups  
+   - `weekly_include_in_dr = true` - Enable DR capability for weekly backups
+   - `monthly_include_in_dr = true` - Enable DR capability for monthly backups
+   - `yearly_include_in_dr = true` - Enable DR capability for yearly backups
+
+3. **Tag Resources for DR**: Resources must have BOTH tags to be included in DR:
+   - The standard backup schedule tag (e.g., `backup_schedule = "daily"`)
+   - The DR inclusion tag: `add_to_dr = "true"`
+
+#### Important Note on AWS Backup Copy Actions
+
+AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To work around this limitation, the module implements smart selection logic:
+
+- **Primary backup plans** (without copy_action): 
+  - Backup resources with ONLY the `backup_schedule` tag
+  - Automatically exclude resources that also have `add_to_dr = "true"` to prevent duplicate backups
+  
+- **Separate DR backup plans** (with copy_action):
+  - Only backup resources with BOTH `backup_schedule` AND `add_to_dr = "true"` tags
+  - Include cross-region copy to DR
+
+This ensures:
+- No duplicate backups are created
+- Only resources explicitly tagged for DR have their backups copied to the DR region
+- Resources are backed up by exactly one plan (either regular or DR, never both)
+
+#### DR Summary
+
+- **Module Level**: Enable DR with `enable_dr = true` and specify `dr_region`
+- **Plan Level**: Enable specific plans for DR (e.g., `daily_include_in_dr = true`)
+- **Resource Level**: Tag resources appropriately:
+  - `backup_schedule = "daily"` only → Regular backup (no DR copy)
+  - `backup_schedule = "daily"` + `add_to_dr = "true"` → DR backup (with copy to DR region)
+- **Result**: 
+  - Each resource is backed up by exactly one plan (no duplicates)
+  - Only resources with BOTH tags have backups copied to DR
+  - The module automatically routes resources to the correct plan based on their tags
+
+#### Example DR Configuration
+
+```hcl
+module "aws_backup_custom" {
+  # ... other configuration ...
+  
+  # Enable DR functionality
+  enable_dr = true
+  dr_region = "us-west-2"
+  
+  # Choose which backup plans support DR
+  daily_include_in_dr   = true
+  weekly_include_in_dr  = true
+  monthly_include_in_dr = false  # Monthly backups won't have DR option
+  
+  # Configure DR retention (optional - defaults to primary retention)
+  daily_dr_retention_days  = 7   # Keep DR copies for 7 days
+  weekly_dr_retention_days = 14  # Keep DR copies for 14 days
+}
+
+# Resource WITH DR - backups will be copied to DR region
+resource "aws_instance" "production_server" {
+  # ... instance configuration ...
+  
+  tags = {
+    Name            = "production-server"
+    backup_schedule = "daily"      # Primary backup schedule
+    add_to_dr       = "true"       # Include in DR copies
+  }
+}
+
+# Resource WITHOUT DR - backups stay in primary region only
+resource "aws_instance" "development_server" {
+  # ... instance configuration ...
+  
+  tags = {
+    Name            = "development-server"
+    backup_schedule = "daily"      # Primary backup schedule
+    # No add_to_dr tag - won't be copied to DR
+  }
+}
+```
+
 
 ### Argument Reference
 
@@ -374,8 +394,6 @@ This means:
 * `enable_vault_lock` - (Optional) Whether to enable vault lock for all backup vaults. Default is `false`.
 * `enable_windows_vss` - (Optional) Whether to enable Windows VSS for consistent backups of Windows instances. Default is `false`.
 * `standard_backup_tag_key` - (Optional) Tag key to use for standard backup plans. Default is `backup_schedule`.
-* `default_custom_backup_tag_key` - (Optional) Default tag key to use for custom backup plans. Default is `backup_custom`.
-* `custom_backup_plans` - (Optional) Map of custom backup plans to create. See example for structure.
 * `tags` - (Optional) Map of tags to apply to all resources created by this module.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -435,35 +453,39 @@ This means:
 | enable_vault_lock | Whether to enable vault lock for all backup vaults | `bool` | `false` | no |
 | enable_windows_vss | Whether to enable Windows VSS for consistent backups of Windows instances | `bool` | `false` | no |
 | standard_backup_tag_key | Tag key to use for standard backup plans | `string` | `"backup_schedule"` | no |
-| default_custom_backup_tag_key | Default tag key to use for custom backup plans | `string` | `"backup_custom"` | no |
-| custom_backup_plans | Map of custom backup plans to create | `map(object)` | `{}` | no |
 | tags | Map of tags to apply to all resources created by this module | `map(any)` | `{}` | no |
 | enable_dr | Whether to enable DR (Disaster Recovery) backup in a separate AWS region | `bool` | `false` | no |
 | dr_region | The AWS region to use for DR backups | `string` | `null` | no |
 | dr_vault_name | The name of the backup vault to create in the DR region | `string` | `"dr-backup-vault"` | no |
 | dr_tags | Tags to apply to DR region resources | `map(any)` | `{}` | no |
-| dr_backup_role_name | Name of the IAM role for AWS Backup in DR region | `string` | `"aws-backup-dr-role"` | no |
 | dr_tag_key | Tag key for selecting resources to include in DR copies | `string` | `"add_to_dr"` | no |
 | dr_tag_value | Tag value for selecting resources to include in DR copies | `string` | `"true"` | no |
 | hourly_include_in_dr | Whether to copy hourly backups to DR region | `bool` | `false` | no |
-| hourly_dr_retention_days | Retention period in days for hourly DR backup copies | `number` | `null` | no |
 | daily_include_in_dr | Whether to copy daily backups to DR region | `bool` | `false` | no |
-| daily_dr_retention_days | Retention period in days for daily DR backup copies | `number` | `null` | no |
 | weekly_include_in_dr | Whether to copy weekly backups to DR region | `bool` | `false` | no |
-| weekly_dr_retention_days | Retention period in days for weekly DR backup copies | `number` | `null` | no |
 | monthly_include_in_dr | Whether to copy monthly backups to DR region | `bool` | `false` | no |
-| monthly_dr_retention_days | Retention period in days for monthly DR backup copies | `number` | `null` | no |
 | yearly_include_in_dr | Whether to copy yearly backups to DR region | `bool` | `false` | no |
-| yearly_dr_retention_days | Retention period in days for yearly DR backup copies | `number` | `null` | no |
+| hourly_dr_retention_days | Retention period in days for hourly DR backup copies. If null, uses hourly_retention_days | `number` | `null` | no |
+| daily_dr_retention_days | Retention period in days for daily DR backup copies. If null, uses daily_retention_days | `number` | `null` | no |
+| weekly_dr_retention_days | Retention period in days for weekly DR backup copies. If null, uses weekly_retention_days | `number` | `null` | no |
+| monthly_dr_retention_days | Retention period in days for monthly DR backup copies. If null, uses monthly_retention_days | `number` | `null` | no |
+| yearly_dr_retention_days | Retention period in days for yearly DR backup copies. If null, uses yearly_retention_days | `number` | `null` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| backup_vaults | Map of backup vaults created by the module |
-| backup_plans | Map of backup plans created by the module |
+| backup_vault_arns | Map of backup vault names to their ARNs |
+| backup_vault_ids | Map of backup vault names to their IDs |
 | kms_key_arn | ARN of the KMS key used for backup encryption (if created) |
-| iam_role_arn | ARN of the IAM role used for AWS Backup |
+| kms_key_id | The globally unique identifier for the KMS key |
+| backup_role_arn | The Amazon Resource Name (ARN) of the IAM role used for AWS Backup |
+| backup_role_name | The name of the IAM role used for AWS Backup |
+| hourly_backup_plan_id | The ID of the hourly backup plan |
+| daily_backup_plan_id | The ID of the daily backup plan |
+| weekly_backup_plan_id | The ID of the weekly backup plan |
+| monthly_backup_plan_id | The ID of the monthly backup plan |
+| yearly_backup_plan_id | The ID of the yearly backup plan |
 | hourly_selection_id | The ID of the hourly backup selection (for resources tagged with "hourly") |
 | daily_selection_id | The ID of the daily backup selection (for resources tagged with "daily") |
 | weekly_selection_id | The ID of the weekly backup selection (for resources tagged with "weekly") |
@@ -480,11 +502,11 @@ This means:
 | monthly_combinations_selection_ids | Map of monthly combination backup selection names to their IDs |
 | yearly_combinations_selection_ids | Map of yearly combination backup selection names to their IDs |
 | multi_plan_selection_ids | Map of multi-plan backup selection names to their IDs |
-| custom_selection_ids | Map of custom backup selection names to their IDs |
+| account_id | The AWS account ID |
+| caller_arn | The ARN of the current IAM identity |
+| region | The AWS region |
 | dr_kms_key_arn | The Amazon Resource Name (ARN) of the DR KMS key |
 | dr_kms_key_id | The globally unique identifier for the DR KMS key |
-| dr_backup_role_arn | The ARN of the IAM role used for AWS Backup in DR region |
-| dr_backup_role_name | The name of the IAM role used for AWS Backup in DR region |
 | dr_backup_vault_arn | The ARN of the DR backup vault |
 | dr_backup_vault_id | The ID of the DR backup vault |
 | hourly_backup_plan_dr_id | The ID of the hourly backup plan with DR copy |

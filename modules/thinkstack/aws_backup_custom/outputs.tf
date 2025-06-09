@@ -77,10 +77,6 @@ output "yearly_backup_plan_id" {
   value       = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : null
 }
 
-output "custom_backup_plan_ids" {
-  description = "Map of custom backup plan names to their IDs."
-  value       = { for k, v in aws_backup_plan.custom_backup_plans : k => v.id }
-}
 
 ###############################################################
 # Backup Selection Outputs
@@ -110,10 +106,6 @@ output "yearly_selection_id" {
   value       = var.create_yearly_plan ? aws_backup_selection.yearly_selection["yearly"].id : null
 }
 
-output "custom_selection_ids" {
-  description = "Map of custom backup selection names to their IDs."
-  value       = { for k, v in aws_backup_selection.custom_selection : k => v.id }
-}
 
 ###############################################################
 # Backup Selection Combination Outputs
@@ -203,16 +195,6 @@ output "dr_kms_key_id" {
   value       = var.enable_dr && var.create_kms_key ? aws_kms_key.dr_backup_key[0].key_id : null
 }
 
-# DR IAM Role Outputs
-output "dr_backup_role_arn" {
-  description = "The Amazon Resource Name (ARN) of the IAM role used for AWS Backup in DR region."
-  value       = var.enable_dr ? aws_iam_role.dr_backup_role[0].arn : null
-}
-
-output "dr_backup_role_name" {
-  description = "The name of the IAM role used for AWS Backup in DR region."
-  value       = var.enable_dr ? aws_iam_role.dr_backup_role[0].name : null
-}
 
 # DR Backup Vault Output
 output "dr_backup_vault_arn" {

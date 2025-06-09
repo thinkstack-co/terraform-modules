@@ -382,30 +382,6 @@ variable "yearly_dr_retention_days" {
   default     = null
 }
 
-###############################################################
-# Custom Backup Plans
-###############################################################
-variable "custom_backup_plans" {
-  description = "Map of custom backup plans. Each key is the plan name, and the value is an object with schedule, retention, and tag details."
-  type = map(object({
-    vault_name               = string
-    schedule                 = string
-    enable_continuous_backup = bool
-    retention_days           = number
-    resource_type            = string
-    tag_key                  = string
-    tag_value                = string
-    tags                     = map(string)
-    windows_vss              = bool
-  }))
-  default = {}
-}
-
-variable "default_custom_backup_tag_key" {
-  description = "(Optional) The default tag key to use for custom backup plans if not specified in the custom_backup_plans map. This provides a consistent approach with standard backup plans."
-  default     = "backup_custom"
-  type        = string
-}
 
 ###############################################################
 # General Use Variables
@@ -460,11 +436,3 @@ variable "dr_tag_value" {
   type        = string
   default     = "true"
 }
-
-variable "dr_backup_role_name" {
-  description = "(Optional) Name of the IAM role for AWS Backup in DR region."
-  type        = string
-  default     = "aws-backup-dr-role"
-}
-
-  
