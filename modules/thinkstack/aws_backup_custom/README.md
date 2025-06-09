@@ -301,32 +301,38 @@ The module uses a **dual-tag selection mechanism** for DR backup copying:
 
 #### Important Note on AWS Backup Copy Actions
 
-AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To work around this limitation, the module implements smart selection logic:
+AWS Backup's `copy_action` feature copies **ALL** backups in a plan to the destination region. It cannot selectively copy backups based on resource tags. To work around this limitation and prevent duplicate backups, the module implements the following behavior:
 
-- **Primary backup plans** (without copy_action): 
-  - Backup resources with ONLY the `backup_schedule` tag
-  - Automatically exclude resources that also have `add_to_dr = "true"` to prevent duplicate backups
-  
-- **Separate DR backup plans** (with copy_action):
-  - Only backup resources with BOTH `backup_schedule` AND `add_to_dr = "true"` tags
-  - Include cross-region copy to DR
+**When DR is enabled for a specific backup plan type:**
+- The regular backup plan is automatically disabled
+- Only the DR backup plan (with copy_action) is created
+- Resources tagged with BOTH `backup_schedule` AND `add_to_dr = "true"` are backed up and copied to DR
+- Resources with ONLY `backup_schedule` tag are NOT backed up when DR is enabled for that plan type
+
+**Example:**
+- If `daily_include_in_dr = true`, the regular daily backup plan is disabled
+- Only resources with BOTH `backup_schedule = "daily"` AND `add_to_dr = "true"` will be backed up
+- Resources with only `backup_schedule = "daily"` (without `add_to_dr = "true"`) will NOT be backed up
 
 This ensures:
 - No duplicate backups are created
-- Only resources explicitly tagged for DR have their backups copied to the DR region
-- Resources are backed up by exactly one plan (either regular or DR, never both)
+- Clear behavior: when DR is enabled for a plan type, it becomes DR-only
+- Resources must be explicitly tagged for DR to be included in backups
 
 #### DR Summary
 
 - **Module Level**: Enable DR with `enable_dr = true` and specify `dr_region`
 - **Plan Level**: Enable specific plans for DR (e.g., `daily_include_in_dr = true`)
+  - When enabled, the regular plan is disabled and ONLY the DR plan runs
 - **Resource Level**: Tag resources appropriately:
-  - `backup_schedule = "daily"` only → Regular backup (no DR copy)
-  - `backup_schedule = "daily"` + `add_to_dr = "true"` → DR backup (with copy to DR region)
+  - When DR is disabled for a plan: `backup_schedule = "daily"` → Regular backup (no DR copy)
+  - When DR is enabled for a plan: Resources MUST have BOTH tags to be backed up:
+    - `backup_schedule = "daily"` + `add_to_dr = "true"` → DR backup (with copy to DR region)
+    - `backup_schedule = "daily"` only → NOT backed up
 - **Result**: 
-  - Each resource is backed up by exactly one plan (no duplicates)
-  - Only resources with BOTH tags have backups copied to DR
-  - The module automatically routes resources to the correct plan based on their tags
+  - No duplicate backups are created
+  - When DR is enabled for a plan type, it becomes DR-exclusive
+  - Resources must be explicitly tagged for DR inclusion
 
 #### Example DR Configuration
 

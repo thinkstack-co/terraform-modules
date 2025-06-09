@@ -416,9 +416,9 @@ resource "aws_backup_vault_lock_configuration" "yearly" {
 # Backup Plans
 ###############################################################
 
-# Hourly Backup Plan
+# Hourly Backup Plan (disabled when DR is enabled for hourly)
 resource "aws_backup_plan" "hourly_backup_plan" {
-  count = var.create_hourly_plan ? 1 : 0
+  count = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? 1 : 0
   name  = var.hourly_plan_name
 
   rule {
@@ -449,9 +449,9 @@ resource "aws_backup_plan" "hourly_backup_plan" {
 }
 
 
-# Daily Backup Plan
+# Daily Backup Plan (disabled when DR is enabled for daily)
 resource "aws_backup_plan" "daily_backup_plan" {
-  count = var.create_daily_plan ? 1 : 0
+  count = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? 1 : 0
   name  = var.daily_plan_name
   tags  = var.tags
 
@@ -481,9 +481,9 @@ resource "aws_backup_plan" "daily_backup_plan" {
 }
 
 
-# Weekly Backup Plan
+# Weekly Backup Plan (disabled when DR is enabled for weekly)
 resource "aws_backup_plan" "weekly_backup_plan" {
-  count = var.create_weekly_plan ? 1 : 0
+  count = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? 1 : 0
   name  = var.weekly_plan_name
   tags  = var.tags
 
@@ -513,9 +513,9 @@ resource "aws_backup_plan" "weekly_backup_plan" {
 }
 
 
-# Monthly Backup Plan
+# Monthly Backup Plan (disabled when DR is enabled for monthly)
 resource "aws_backup_plan" "monthly_backup_plan" {
-  count = var.create_monthly_plan ? 1 : 0
+  count = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? 1 : 0
   name  = var.monthly_plan_name
   tags  = var.tags
 
@@ -545,9 +545,9 @@ resource "aws_backup_plan" "monthly_backup_plan" {
 }
 
 
-# Yearly Backup Plan
+# Yearly Backup Plan (disabled when DR is enabled for yearly)
 resource "aws_backup_plan" "yearly_backup_plan" {
-  count = var.create_yearly_plan ? 1 : 0
+  count = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? 1 : 0
   name  = var.yearly_plan_name
   tags  = var.tags
 
@@ -602,11 +602,11 @@ resource "aws_backup_selection" "multi_plan_selections" {
 
   # Use the appropriate plan ID based on the current plan
   plan_id = lookup({
-    "hourly"  = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : null,
-    "daily"   = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : null,
-    "weekly"  = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : null,
-    "monthly" = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : null,
-    "yearly"  = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : null
+    "hourly"  = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? aws_backup_plan.hourly_backup_plan[0].id : null,
+    "daily"   = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? aws_backup_plan.daily_backup_plan[0].id : null,
+    "weekly"  = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? aws_backup_plan.weekly_backup_plan[0].id : null,
+    "monthly" = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? aws_backup_plan.monthly_backup_plan[0].id : null,
+    "yearly"  = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? aws_backup_plan.yearly_backup_plan[0].id : null
   }, each.value.plan)
 
   selection_tag {
@@ -614,21 +614,11 @@ resource "aws_backup_selection" "multi_plan_selections" {
     key   = var.standard_backup_tag_key
     value = each.value.combo_name
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && lookup(local.plan_dr_include_map, each.value.plan, false) ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 # Create individual plan selections for hourly plan
 resource "aws_backup_selection" "hourly_selection" {
-  for_each     = var.create_hourly_plan ? toset(["hourly"]) : toset([])
+  for_each     = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? toset(["hourly"]) : toset([])
   name         = "hourly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
@@ -638,21 +628,11 @@ resource "aws_backup_selection" "hourly_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.hourly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 # Create individual plan selections for daily plan
 resource "aws_backup_selection" "daily_selection" {
-  for_each     = var.create_daily_plan ? toset(["daily"]) : toset([])
+  for_each     = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? toset(["daily"]) : toset([])
   name         = "daily-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
@@ -662,21 +642,11 @@ resource "aws_backup_selection" "daily_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.daily_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 # Create individual plan selections for weekly plan
 resource "aws_backup_selection" "weekly_selection" {
-  for_each     = var.create_weekly_plan ? toset(["weekly"]) : toset([])
+  for_each     = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? toset(["weekly"]) : toset([])
   name         = "weekly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
@@ -686,21 +656,11 @@ resource "aws_backup_selection" "weekly_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.weekly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 # Create individual plan selections for monthly plan
 resource "aws_backup_selection" "monthly_selection" {
-  for_each     = var.create_monthly_plan ? toset(["monthly"]) : toset([])
+  for_each     = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? toset(["monthly"]) : toset([])
   name         = "monthly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
@@ -710,21 +670,11 @@ resource "aws_backup_selection" "monthly_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.monthly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 # Create individual plan selections for yearly plan
 resource "aws_backup_selection" "yearly_selection" {
-  for_each     = var.create_yearly_plan ? toset(["yearly"]) : toset([])
+  for_each     = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? toset(["yearly"]) : toset([])
   name         = "yearly-tag-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id
@@ -734,21 +684,11 @@ resource "aws_backup_selection" "yearly_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.yearly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 # "All" tag selection - only create if the corresponding plan is enabled
 resource "aws_backup_selection" "hourly_selection_all" {
-  for_each     = var.create_hourly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "hourly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.hourly_backup_plan[0].id
@@ -758,20 +698,10 @@ resource "aws_backup_selection" "hourly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.hourly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 resource "aws_backup_selection" "daily_selection_all" {
-  for_each     = var.create_daily_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? toset(["all"]) : toset([])
   name         = "daily-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.daily_backup_plan[0].id
@@ -781,20 +711,10 @@ resource "aws_backup_selection" "daily_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.daily_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 resource "aws_backup_selection" "weekly_selection_all" {
-  for_each     = var.create_weekly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "weekly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.weekly_backup_plan[0].id
@@ -804,20 +724,10 @@ resource "aws_backup_selection" "weekly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.weekly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 resource "aws_backup_selection" "monthly_selection_all" {
-  for_each     = var.create_monthly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "monthly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.monthly_backup_plan[0].id
@@ -827,20 +737,10 @@ resource "aws_backup_selection" "monthly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.monthly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
-  }
 }
 
 resource "aws_backup_selection" "yearly_selection_all" {
-  for_each     = var.create_yearly_plan ? toset(["all"]) : toset([])
+  for_each     = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? toset(["all"]) : toset([])
   name         = "yearly-all-selection"
   iam_role_arn = aws_iam_role.backup_role.arn
   plan_id      = aws_backup_plan.yearly_backup_plan[0].id
@@ -849,16 +749,6 @@ resource "aws_backup_selection" "yearly_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
-  }
-
-  # Exclude resources with DR tag if DR is enabled for this plan
-  dynamic "selection_tag" {
-    for_each = var.enable_dr && var.yearly_include_in_dr ? [1] : []
-    content {
-      type  = "NOT_EQUALS"
-      key   = var.dr_tag_key
-      value = var.dr_tag_value
-    }
   }
 }
 

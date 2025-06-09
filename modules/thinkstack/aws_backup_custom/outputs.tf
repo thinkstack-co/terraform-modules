@@ -54,27 +54,27 @@ output "backup_vault_ids" {
 ###############################################################
 output "hourly_backup_plan_id" {
   description = "The ID of the hourly backup plan."
-  value       = var.create_hourly_plan ? aws_backup_plan.hourly_backup_plan[0].id : null
+  value       = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? aws_backup_plan.hourly_backup_plan[0].id : null
 }
 
 output "daily_backup_plan_id" {
   description = "The ID of the daily backup plan."
-  value       = var.create_daily_plan ? aws_backup_plan.daily_backup_plan[0].id : null
+  value       = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? aws_backup_plan.daily_backup_plan[0].id : null
 }
 
 output "weekly_backup_plan_id" {
   description = "The ID of the weekly backup plan."
-  value       = var.create_weekly_plan ? aws_backup_plan.weekly_backup_plan[0].id : null
+  value       = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? aws_backup_plan.weekly_backup_plan[0].id : null
 }
 
 output "monthly_backup_plan_id" {
   description = "The ID of the monthly backup plan."
-  value       = var.create_monthly_plan ? aws_backup_plan.monthly_backup_plan[0].id : null
+  value       = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? aws_backup_plan.monthly_backup_plan[0].id : null
 }
 
 output "yearly_backup_plan_id" {
   description = "The ID of the yearly backup plan."
-  value       = var.create_yearly_plan ? aws_backup_plan.yearly_backup_plan[0].id : null
+  value       = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? aws_backup_plan.yearly_backup_plan[0].id : null
 }
 
 
@@ -83,27 +83,27 @@ output "yearly_backup_plan_id" {
 ###############################################################
 output "hourly_selection_id" {
   description = "The ID of the hourly backup selection."
-  value       = var.create_hourly_plan ? aws_backup_selection.hourly_selection["hourly"].id : null
+  value       = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? aws_backup_selection.hourly_selection["hourly"].id : null
 }
 
 output "daily_selection_id" {
   description = "The ID of the daily backup selection."
-  value       = var.create_daily_plan ? aws_backup_selection.daily_selection["daily"].id : null
+  value       = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? aws_backup_selection.daily_selection["daily"].id : null
 }
 
 output "weekly_selection_id" {
   description = "The ID of the weekly backup selection."
-  value       = var.create_weekly_plan ? aws_backup_selection.weekly_selection["weekly"].id : null
+  value       = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? aws_backup_selection.weekly_selection["weekly"].id : null
 }
 
 output "monthly_selection_id" {
   description = "The ID of the monthly backup selection."
-  value       = var.create_monthly_plan ? aws_backup_selection.monthly_selection["monthly"].id : null
+  value       = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? aws_backup_selection.monthly_selection["monthly"].id : null
 }
 
 output "yearly_selection_id" {
   description = "The ID of the yearly backup selection."
-  value       = var.create_yearly_plan ? aws_backup_selection.yearly_selection["yearly"].id : null
+  value       = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? aws_backup_selection.yearly_selection["yearly"].id : null
 }
 
 
@@ -112,52 +112,52 @@ output "yearly_selection_id" {
 ###############################################################
 output "hourly_combinations_selection_ids" {
   description = "Map of hourly combination backup selection names to their IDs."
-  value       = var.create_hourly_plan ? { for k, v in aws_backup_selection.hourly_selection : k => v.id } : {}
+  value       = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? { for k, v in aws_backup_selection.hourly_selection : k => v.id } : {}
 }
 
 output "daily_combinations_selection_ids" {
   description = "Map of daily combination backup selection names to their IDs."
-  value       = var.create_daily_plan ? { for k, v in aws_backup_selection.daily_selection : k => v.id } : {}
+  value       = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? { for k, v in aws_backup_selection.daily_selection : k => v.id } : {}
 }
 
 output "weekly_combinations_selection_ids" {
   description = "Map of weekly combination backup selection names to their IDs."
-  value       = var.create_weekly_plan ? { for k, v in aws_backup_selection.weekly_selection : k => v.id } : {}
+  value       = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? { for k, v in aws_backup_selection.weekly_selection : k => v.id } : {}
 }
 
 output "monthly_combinations_selection_ids" {
   description = "Map of monthly combination backup selection names to their IDs."
-  value       = var.create_monthly_plan ? { for k, v in aws_backup_selection.monthly_selection : k => v.id } : {}
+  value       = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? { for k, v in aws_backup_selection.monthly_selection : k => v.id } : {}
 }
 
 output "yearly_combinations_selection_ids" {
   description = "Map of yearly combination backup selection names to their IDs."
-  value       = var.create_yearly_plan ? { for k, v in aws_backup_selection.yearly_selection : k => v.id } : {}
+  value       = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? { for k, v in aws_backup_selection.yearly_selection : k => v.id } : {}
 }
 
 output "hourly_all_selection_ids" {
   description = "Map of hourly 'all' tag backup selection names to their IDs."
-  value       = var.create_hourly_plan ? { for k, v in aws_backup_selection.hourly_selection_all : k => v.id } : {}
+  value       = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr) ? { for k, v in aws_backup_selection.hourly_selection_all : k => v.id } : {}
 }
 
 output "daily_all_selection_ids" {
   description = "Map of daily 'all' tag backup selection names to their IDs."
-  value       = var.create_daily_plan ? { for k, v in aws_backup_selection.daily_selection_all : k => v.id } : {}
+  value       = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr) ? { for k, v in aws_backup_selection.daily_selection_all : k => v.id } : {}
 }
 
 output "weekly_all_selection_ids" {
   description = "Map of weekly 'all' tag backup selection names to their IDs."
-  value       = var.create_weekly_plan ? { for k, v in aws_backup_selection.weekly_selection_all : k => v.id } : {}
+  value       = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr) ? { for k, v in aws_backup_selection.weekly_selection_all : k => v.id } : {}
 }
 
 output "monthly_all_selection_ids" {
   description = "Map of monthly 'all' tag backup selection names to their IDs."
-  value       = var.create_monthly_plan ? { for k, v in aws_backup_selection.monthly_selection_all : k => v.id } : {}
+  value       = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr) ? { for k, v in aws_backup_selection.monthly_selection_all : k => v.id } : {}
 }
 
 output "yearly_all_selection_ids" {
   description = "Map of yearly 'all' tag backup selection names to their IDs."
-  value       = var.create_yearly_plan ? { for k, v in aws_backup_selection.yearly_selection_all : k => v.id } : {}
+  value       = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr) ? { for k, v in aws_backup_selection.yearly_selection_all : k => v.id } : {}
 }
 
 output "multi_plan_selection_ids" {
