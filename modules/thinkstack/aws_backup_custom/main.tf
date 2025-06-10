@@ -142,7 +142,18 @@ locals {
   }
 
   # Map of plan names to their enabled status
+  # Accounts for DR mode - if a plan is included in DR, the regular plan won't exist
   plan_enabled_map = {
+    "hourly"  = var.create_hourly_plan && !(var.enable_dr && var.hourly_include_in_dr)
+    "daily"   = var.create_daily_plan && !(var.enable_dr && var.daily_include_in_dr)
+    "weekly"  = var.create_weekly_plan && !(var.enable_dr && var.weekly_include_in_dr)
+    "monthly" = var.create_monthly_plan && !(var.enable_dr && var.monthly_include_in_dr)
+    "yearly"  = var.create_yearly_plan && !(var.enable_dr && var.yearly_include_in_dr)
+  }
+
+  # Original plan creation status (without DR consideration)
+  # Used for DR selections to check if a plan type is configured
+  plan_creation_map = {
     "hourly"  = var.create_hourly_plan
     "daily"   = var.create_daily_plan
     "weekly"  = var.create_weekly_plan
@@ -1181,7 +1192,7 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
           combo      = combo
           plan       = plan
           key        = "${combo_name}-${plan}-dr"
-        } if lookup(local.plan_enabled_map, plan, false) && var.enable_dr && lookup(local.plan_dr_include_map, plan, false)
+        } if lookup(local.plan_creation_map, plan, false) && var.enable_dr && lookup(local.plan_dr_include_map, plan, false)
       ]
     ]) : item.key => item
   }
