@@ -319,29 +319,69 @@ variable "yearly_windows_vss" {
 }
 
 ###############################################################
-# Custom Backup Plans
+# DR Copy Action Variables
 ###############################################################
-variable "custom_backup_plans" {
-  description = "Map of custom backup plans. Each key is the plan name, and the value is an object with schedule, retention, and tag details."
-  type = map(object({
-    vault_name               = string
-    schedule                 = string
-    enable_continuous_backup = bool
-    retention_days           = number
-    resource_type            = string
-    tag_key                  = string
-    tag_value                = string
-    tags                     = map(string)
-    windows_vss              = bool
-  }))
-  default = {}
+
+variable "hourly_include_in_dr" {
+  description = "(Optional) Whether to copy hourly backups to DR region."
+  type        = bool
+  default     = false
 }
 
-variable "default_custom_backup_tag_key" {
-  description = "(Optional) The default tag key to use for custom backup plans if not specified in the custom_backup_plans map. This provides a consistent approach with standard backup plans."
-  default     = "backup_custom"
-  type        = string
+variable "hourly_dr_retention_days" {
+  description = "(Optional) Retention period in days for hourly DR backup copies. If null, uses hourly_retention_days."
+  type        = number
+  default     = null
 }
+
+variable "daily_include_in_dr" {
+  description = "(Optional) Whether to copy daily backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "daily_dr_retention_days" {
+  description = "(Optional) Retention period in days for daily DR backup copies. If null, uses daily_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "weekly_include_in_dr" {
+  description = "(Optional) Whether to copy weekly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "weekly_dr_retention_days" {
+  description = "(Optional) Retention period in days for weekly DR backup copies. If null, uses weekly_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "monthly_include_in_dr" {
+  description = "(Optional) Whether to copy monthly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "monthly_dr_retention_days" {
+  description = "(Optional) Retention period in days for monthly DR backup copies. If null, uses monthly_retention_days."
+  type        = number
+  default     = null
+}
+
+variable "yearly_include_in_dr" {
+  description = "(Optional) Whether to copy yearly backups to DR region."
+  type        = bool
+  default     = false
+}
+
+variable "yearly_dr_retention_days" {
+  description = "(Optional) Retention period in days for yearly DR backup copies. If null, uses yearly_retention_days."
+  type        = number
+  default     = null
+}
+
 
 ###############################################################
 # General Use Variables
@@ -379,40 +419,26 @@ variable "dr_vault_name" {
   default     = "dr-backup-vault"
 }
 
-variable "dr_plan_name" {
-  description = "(Optional) The name of the backup plan to create in the DR region."
-  type        = string
-  default     = "dr-backup-plan"
-}
-
-variable "dr_schedule" {
-  description = "(Optional) CRON expression for the DR backup plan schedule."
-  type        = string
-  default     = "cron(0 2 * * ? *)" # Daily at 2:00 AM UTC
-}
-
-variable "dr_retention_days" {
-  description = "(Optional) Number of days to retain DR backups."
-  type        = number
-  default     = 30
-}
-
-
 variable "dr_tags" {
   description = "(Optional) Tags to apply to DR region resources."
   type        = map(any)
   default     = {}
 }
 
-variable "dr_selection_tag_key" {
-  description = "(Optional) Tag key for selecting resources to back up in the DR plan."
+variable "dr_tag_key" {
+  description = "(Optional) Tag key for selecting resources to include in DR copies (e.g., 'add_to_dr')."
   type        = string
-  default     = "backup_schedule"
+  default     = "add_to_dr"
 }
 
-variable "dr_selection_tag_value" {
-  description = "(Optional) Tag value for selecting resources to back up in the DR plan."
+variable "dr_tag_value" {
+  description = "(Optional) Tag value for selecting resources to include in DR copies."
   type        = string
-  default     = "dr"
+  default     = "true"
 }
-  
+
+variable "dr_tag_value_false" {
+  description = "(Optional) Tag value for explicitly excluding resources from DR copies. Resources with this value will only get regular backups when DR is enabled for a plan type."
+  type        = string
+  default     = "false"
+}
