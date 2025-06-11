@@ -36,7 +36,6 @@ resource "aws_config_configuration_recorder" "config" {
   count    = (var.enable_encrypted_volumes_rule ||
               var.enable_iam_password_policy_rule ||
               var.enable_s3_public_access_rules ||
-              var.enable_iam_root_key_rule ||
               var.enable_mfa_for_iam_console_rule ||
               var.enable_ec2_volume_inuse_rule ||
               var.enable_eip_attached_rule ||
@@ -52,7 +51,6 @@ resource "aws_config_configuration_recorder" "config" {
       var.enable_encrypted_volumes_rule ? ["AWS::EC2::Volume"] : [],
       var.enable_iam_password_policy_rule ? ["AWS::IAM::User"] : [],
       var.enable_s3_public_access_rules ? ["AWS::S3::Bucket"] : [],
-      var.enable_iam_root_key_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
       var.enable_mfa_for_iam_console_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
       var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [], # Volume type already potentially included
       var.enable_eip_attached_rule ? ["AWS::EC2::EIP"] : [],
@@ -140,7 +138,7 @@ resource "aws_iam_role_policy_attachment" "config" {
 resource "aws_config_config_rule" "iam_password_policy" {
   count       = var.enable_iam_password_policy_rule ? 1 : 0
   name        = "iam-password-policy"
-  description = "Ensures the account password policy for IAM users meets the specified requirements"
+  description = "Ensures the AWS account password policy for IAM users meets specified complexity requirements including minimum length, character types, and password reuse prevention"
 
   source {
     owner             = "AWS"
@@ -163,7 +161,7 @@ resource "aws_config_config_rule" "iam_password_policy" {
 resource "aws_config_config_rule" "ebs_encryption" {
   count       = var.enable_ebs_encryption_rule ? 1 : 0
   name        = "ebs-encryption-enabled"
-  description = "Checks whether EBS volumes are encrypted"
+  description = "Checks whether Amazon EBS volumes that are attached to EC2 instances are encrypted to ensure data at rest is protected"
 
   source {
     owner             = "AWS"
@@ -180,7 +178,7 @@ resource "aws_config_config_rule" "ebs_encryption" {
 resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
   name        = "s3-bucket-public-read-prohibited"
-  description = "Checks that your S3 buckets do not allow public read access."
+  description = "Checks that your Amazon S3 buckets do not allow public read access through bucket policies or ACLs to prevent unauthorized data exposure"
 
   source {
     owner             = "AWS"
@@ -193,7 +191,7 @@ resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
 resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
   count = var.enable_s3_public_access_rules ? 1 : 0
   name        = "s3-bucket-public-write-prohibited"
-  description = "Checks that your S3 buckets do not allow public write access."
+  description = "Checks that your Amazon S3 buckets do not allow public write access through bucket policies or ACLs to prevent unauthorized data modification"
 
   source {
     owner             = "AWS"
@@ -203,23 +201,11 @@ resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-resource "aws_config_config_rule" "iam_root_access_key_check" {
-  count = var.enable_iam_root_key_rule ? 1 : 0
-  name        = "iam-root-access-key-check"
-  description = "Checks whether the root account access key exists."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
 
 resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
   count = var.enable_mfa_for_iam_console_rule ? 1 : 0
   name        = "mfa-enabled-for-iam-console-access"
-  description = "Checks whether MFA is enabled for all IAM users with a console password."
+  description = "Checks whether Multi-Factor Authentication (MFA) is enabled for all IAM users that have a console password to enhance account security"
 
   source {
     owner             = "AWS"
@@ -230,65 +216,9 @@ resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
 }
 
 resource "aws_config_config_rule" "access_keys_rotated" {
-  count = 1
-  name        = "access-keys-rotated"
-  description = "Checks whether the active IAM access keys are rotated within the specified number of days."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "ACCESS_KEYS_ROTATED"
-  }
-
-  input_parameters = jsonencode({
-    maxAccessKeyAge = 90
-  })
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
-resource "aws_config_config_rule" "ec2_volume_inuse_check" {
-  count = var.enable_ec2_volume_inuse_rule ? 1 : 0
-  name        = "ec2-volume-inuse-check"
-  description = "Checks whether EBS volumes are attached to EC2 instances."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "EC2_VOLUME_INUSE_CHECK"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
-resource "aws_config_config_rule" "eip_attached" {
-  count = var.enable_eip_attached_rule ? 1 : 0
-  name        = "eip-attached"
-  description = "Checks whether Elastic IP addresses are attached to EC2 instances."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "EIP_ATTACHED"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
-resource "aws_config_config_rule" "rds_storage_encrypted" {
-  count = var.enable_rds_storage_encrypted_rule ? 1 : 0
-  name        = "rds-storage-encrypted"
-  description = "Checks whether storage encryption is enabled for your RDS DB instances."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "RDS_STORAGE_ENCRYPTED"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
-resource "aws_config_config_rule" "iam_user_access_key_age" {
   count = var.enable_iam_user_access_key_age_rule ? 1 : 0
-  name        = "iam-user-access-key-age"
-  description = "Checks whether the active access keys for your IAM users are older than the specified number of days."
+  name        = "access-keys-rotated"
+  description = "Checks whether all active IAM user access keys are rotated within the specified number of days (default 90) to reduce the risk of compromised credentials"
 
   source {
     owner             = "AWS"
@@ -301,6 +231,46 @@ resource "aws_config_config_rule" "iam_user_access_key_age" {
 
   depends_on = [aws_config_delivery_channel.config]
 }
+
+resource "aws_config_config_rule" "ec2_volume_inuse_check" {
+  count = var.enable_ec2_volume_inuse_rule ? 1 : 0
+  name        = "ec2-volume-inuse-check"
+  description = "Checks whether Amazon EBS volumes are attached to EC2 instances to identify unused volumes that may incur unnecessary costs"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "EC2_VOLUME_INUSE_CHECK"
+  }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
+resource "aws_config_config_rule" "eip_attached" {
+  count = var.enable_eip_attached_rule ? 1 : 0
+  name        = "eip-attached"
+  description = "Checks whether Elastic IP addresses allocated to your account are attached to EC2 instances or in-use network interfaces to avoid charges for unused EIPs"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "EIP_ATTACHED"
+  }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
+resource "aws_config_config_rule" "rds_storage_encrypted" {
+  count = var.enable_rds_storage_encrypted_rule ? 1 : 0
+  name        = "rds-storage-encrypted"
+  description = "Checks whether storage encryption is enabled for Amazon RDS DB instances to ensure database data at rest is encrypted and protected"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "RDS_STORAGE_ENCRYPTED"
+  }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
 
 # --- Optional S3 Bucket Lifecycle Configuration ---
  

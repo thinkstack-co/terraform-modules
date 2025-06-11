@@ -146,11 +146,6 @@ variable "enable_s3_public_access_rules" {
   default     = false
 }
 
-variable "enable_iam_root_key_rule" {
-  description = "Enable the IAM Root Access Key Check managed rule."
-  type        = bool
-  default     = false
-}
 
 variable "enable_mfa_for_iam_console_rule" {
   description = "Enable the MFA for IAM Console Access managed rule."
