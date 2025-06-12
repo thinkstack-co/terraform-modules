@@ -7,7 +7,8 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
+                                TableStyle)
 
 
 def lookup_iam_username_by_id(user_id):
@@ -150,7 +151,8 @@ def lambda_handler(event, context):
     3. Retrieve all AWS Config rules and their compliance status.
     4. Count compliant, non-compliant, and insufficient data rules for summary.
     5. Build a table summarizing compliance status for each rule.
-    6. For each non-compliant rule, gather details of non-compliant resources, including IAM usernames and resource names/tags.
+    6. For each non-compliant rule, gather details of non-compliant resources,
+       including IAM usernames and resource names/tags.
     7. Build a detailed section listing all non-compliant resources.
     8. Create a PDF report using ReportLab, including:
        - Title and account info
@@ -241,43 +243,58 @@ def lambda_handler(event, context):
     # Config Rules Summary Table - Show all configured rules
     elements.append(Paragraph("Configured AWS Config Rules", subtitle_style))
     if rules:
-        rules_summary_data = [[
-            Paragraph("<b>Rule Name</b>", table_header_style),
-            Paragraph("<b>Description</b>", table_header_style),
-            Paragraph("<b>Status</b>", table_header_style)
-        ]]
+        rules_summary_data = [
+            [
+                Paragraph("<b>Rule Name</b>", table_header_style),
+                Paragraph("<b>Description</b>", table_header_style),
+                Paragraph("<b>Status</b>", table_header_style),
+            ]
+        ]
         for rule in rules:
             rule_name = rule["ConfigRuleName"]
             description = rule.get("Description", "N/A")
             status = compliance.get(rule_name, "UNKNOWN")
-            
+
             # Use a smaller font for long descriptions to fit better
             desc_style = small_style if len(description) > 80 else normal_style
-            
-            rules_summary_data.append([
-                Paragraph(rule_name, small_style),
-                Paragraph(description, desc_style),
-                Paragraph(status, small_style)
-            ])
-        
+
+            rules_summary_data.append(
+                [
+                    Paragraph(rule_name, small_style),
+                    Paragraph(description, desc_style),
+                    Paragraph(status, small_style),
+                ]
+            )
+
         rules_summary_table = Table(rules_summary_data, colWidths=[140, 280, 60])
-        rules_summary_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4a5568")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor("#edf2f7")]),
-            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('BOX', (0, 0), (-1, -1), 1, colors.gray),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey)
-        ]))
+        rules_summary_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4a5568")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                    (
+                        "ROWBACKGROUNDS",
+                        (0, 1),
+                        (-1, -1),
+                        [colors.whitesmoke, colors.HexColor("#edf2f7")],
+                    ),
+                    ("ALIGN", (0, 1), (-1, -1), "LEFT"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("BOX", (0, 0), (-1, -1), 1, colors.gray),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+                ]
+            )
+        )
         elements.append(rules_summary_table)
     else:
-        elements.append(Paragraph("<i>No AWS Config rules configured.</i>", normal_style))
+        elements.append(
+            Paragraph("<i>No AWS Config rules configured.</i>", normal_style)
+        )
     elements.append(Spacer(1, 18))
 
     # Compliance summary table
@@ -315,7 +332,6 @@ def lambda_handler(event, context):
     elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
     elements.append(summary_table)
     elements.append(Spacer(1, 18))
-
 
     # Non-compliant resources table
     elements.append(Paragraph("Non-Compliant Resources", subtitle_style))
