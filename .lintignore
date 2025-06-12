@@ -1,0 +1,17 @@
+# Directories to exclude from linting
+**/package/**
+**/packages/**
+**/vendor/**
+**/node_modules/**
+**/.venv/**
+**/__pycache__/**
+**/.tox/**
+**/dist/**
+**/build/**
+**/.git/**
+**/.terraform/**
+**/lambda_package.zip
+**/*.pyc
+**/*.pyo
+**/.mypy_cache/**
+**/.pytest_cache/**

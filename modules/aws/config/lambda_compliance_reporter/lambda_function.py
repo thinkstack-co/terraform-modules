@@ -7,8 +7,7 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
-                                TableStyle)
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
 def lookup_iam_username_by_id(user_id):
@@ -77,9 +76,7 @@ def get_non_compliant_resources(rule_name):
     resources = []
     paginator = config.get_paginator("get_compliance_details_by_config_rule")
 
-    for page in paginator.paginate(
-        ConfigRuleName=rule_name, ComplianceTypes=["NON_COMPLIANT"]
-    ):
+    for page in paginator.paginate(ConfigRuleName=rule_name, ComplianceTypes=["NON_COMPLIANT"]):
         for result in page["EvaluationResults"]:
             res = result["EvaluationResultIdentifier"]["EvaluationResultQualifier"]
 
@@ -192,9 +189,7 @@ def lambda_handler(event, context):
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
-    insufficient_data_count = sum(
-        1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
-    )
+    insufficient_data_count = sum(1 for v in compliance.values() if v == "INSUFFICIENT_DATA")
 
     # Non-compliant resources section
     non_compliant_section = []
@@ -214,9 +209,7 @@ def lambda_handler(event, context):
                         # For other resources, try to use the Name tag if present
                         display_name = get_resource_name_from_tag(arn)
 
-                    non_compliant_section.append(
-                        [display_name, res["ResourceType"], arn]
-                    )
+                    non_compliant_section.append([display_name, res["ResourceType"], arn])
 
     # ── DEBUG FINAL ROWS ──
     print("DEBUG final non_compliant_section:", non_compliant_section)
@@ -292,9 +285,7 @@ def lambda_handler(event, context):
         )
         elements.append(rules_summary_table)
     else:
-        elements.append(
-            Paragraph("<i>No AWS Config rules configured.</i>", normal_style)
-        )
+        elements.append(Paragraph("<i>No AWS Config rules configured.</i>", normal_style))
     elements.append(Spacer(1, 18))
 
     # Compliance summary table
@@ -344,9 +335,7 @@ def lambda_handler(event, context):
             ]
         ]
         for name, rtype, arn in non_compliant_section:
-            table_data.append(
-                [Paragraph(name, normal_style), Paragraph(rtype, normal_style)]
-            )
+            table_data.append([Paragraph(name, normal_style), Paragraph(rtype, normal_style)])
 
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(
@@ -373,18 +362,16 @@ def lambda_handler(event, context):
         elements.append(noncomp_table)
 
     else:
-        elements.append(
-            Paragraph("<i>No non-compliant resources found.</i>", normal_style)
-        )
+        elements.append(Paragraph("<i>No non-compliant resources found.</i>", normal_style))
 
     doc.build(elements)
     buffer.seek(0)
 
     s3 = boto3.client("s3")
     now_dt = datetime.now(timezone.utc)
-    bucket = os.environ.get(
-        "CONFIG_REPORT_BUCKET", "liberty-prod-config-bucket-20250305204205543600000001"
-    )
+    bucket = os.environ.get("CONFIG_REPORT_BUCKET")
+    if not bucket:
+        raise ValueError("CONFIG_REPORT_BUCKET environment variable not set")
     prefix = os.environ.get("REPORTER_OUTPUT_S3_PREFIX", "compliance-reports/weekly/")
     key = (
         f"{prefix}{now_dt.year}/"
@@ -392,9 +379,7 @@ def lambda_handler(event, context):
         f"{now_dt.strftime('%d')}/"
         f"compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
     )
-    s3.put_object(
-        Bucket=bucket, Key=key, Body=buffer.getvalue(), ContentType="application/pdf"
-    )
+    s3.put_object(Bucket=bucket, Key=key, Body=buffer.getvalue(), ContentType="application/pdf")
 
     return {
         "statusCode": 200,
