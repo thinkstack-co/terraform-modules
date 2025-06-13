@@ -220,10 +220,11 @@ run_all_linters() {
                    -e OUTPUT_DETAILS=detailed \
                    -e CREATE_LOG_FILE=true \
                    -e LOG_LEVEL=INFO \
-                   -e FILTER_REGEX_EXCLUDE=".*vendor/.*|.*node_modules/.*|.*\.terraform/.*" \
-                   -e VALIDATE_ALL_CODEBASE=true \
+                   -e FILTER_REGEX_EXCLUDE=".*vendor/.*|.*node_modules/.*|.*\.terraform/.*|.*package/.*|.*\.mypy_cache/.*" \
+                   -e VALIDATE_ALL_CODEBASE=false \
                    -v "$ABSOLUTE_PATH:/tmp/lint" \
-                   github/super-linter:slim-v4 2>&1 | tee "$log_file"
+                   -v "$ABSOLUTE_PATH/.git:/tmp/lint/.git:ro" \
+                   github/super-linter:slim-latest 2>&1 | tee "$log_file"
                    
     local exit_code=${PIPESTATUS[0]}
     
