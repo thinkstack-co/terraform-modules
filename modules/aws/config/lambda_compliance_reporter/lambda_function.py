@@ -194,6 +194,11 @@ def lambda_handler(event, context):
     insufficient_data_count = sum(
         1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
     )
+    
+    # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
+    for rule_name, status in compliance.items():
+        if status == "INSUFFICIENT_DATA":
+            compliance[rule_name] = "N/A"
 
     # Non-compliant resources section
     non_compliant_section = []
@@ -238,9 +243,36 @@ def lambda_handler(event, context):
     elements.append(Paragraph(f"Account Number: <b>{account_id}</b>", normal_style))
     elements.append(Paragraph(f"Generated: <b>{now}</b>", small_style))
     elements.append(Spacer(1, 18))
+    
+    # Overall Compliance Summary - Moved to the top of the report
+    elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
+    
+    # Create the summary table
+    summary_data = [
+        ["Compliant", f"{compliant_count}"],
+        ["Non-Compliant", f"{non_compliant_count}"],
+        ["Insufficient Data", f"{insufficient_data_count}"],
+        ["Total Rules", f"{len(rules)}"],
+    ]
+    
+    summary_table = Table(summary_data, colWidths=[120, 60])
+    summary_table.setStyle(
+        TableStyle(
+            [
+                ("ALIGN", (0, 0), (0, -1), "LEFT"),
+                ("ALIGN", (1, 0), (1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ]
+        )
+    )
+    elements.append(summary_table)
+    elements.append(Spacer(1, 18))
 
-    # Config Rules Summary Table - Show all configured rules
-    elements.append(Paragraph("Configured AWS Config Rules", subtitle_style))
+    # Config Rules Table - Show all rules (renamed from "Configured AWS Config Rules")
+    elements.append(Paragraph("AWS Config Rules", subtitle_style))
     if rules:
         rules_summary_data = [
             [
@@ -252,7 +284,12 @@ def lambda_handler(event, context):
         for rule in rules:
             rule_name = rule["ConfigRuleName"]
             description = rule.get("Description", "N/A")
+            # Get the status from compliance data
             status = compliance.get(rule_name, "UNKNOWN")
+            
+            # Replace INSUFFICIENT_DATA with N/A when there are no resources for the rule
+            if status == "INSUFFICIENT_DATA":
+                status = "N/A"
 
             # Use a smaller font for long descriptions to fit better
             desc_style = small_style if len(description) > 80 else normal_style
@@ -261,11 +298,12 @@ def lambda_handler(event, context):
                 [
                     Paragraph(rule_name, small_style),
                     Paragraph(description, desc_style),
-                    Paragraph(status, small_style),
+                    Paragraph(status, small_style),  # Status will be styled separately below
                 ]
             )
 
-        rules_summary_table = Table(rules_summary_data, colWidths=[140, 280, 60])
+        # Increase status column width to accommodate 'NON_COMPLIANT' text
+        rules_summary_table = Table(rules_summary_data, colWidths=[140, 250, 120])
         rules_summary_table.setStyle(
             TableStyle(
                 [
@@ -282,7 +320,12 @@ def lambda_handler(event, context):
                         (-1, -1),
                         [colors.whitesmoke, colors.HexColor("#edf2f7")],
                     ),
-                    ("ALIGN", (0, 1), (-1, -1), "LEFT"),
+                    ("ALIGN", (0, 1), (1, -1), "LEFT"),
+                    ("ALIGN", (2, 1), (2, -1), "CENTER"),  # Center-align status column
+                    # Add special styling for status cells
+                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgreen) for i, row in enumerate(rules_summary_data[1:]) if row[2].text == "COMPLIANT"],
+                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightpink) for i, row in enumerate(rules_summary_data[1:]) if row[2].text == "NON_COMPLIANT"],
+                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgrey) for i, row in enumerate(rules_summary_data[1:]) if row[2].text == "N/A"],
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                     ("BOX", (0, 0), (-1, -1), 1, colors.gray),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
@@ -296,41 +339,7 @@ def lambda_handler(event, context):
         )
     elements.append(Spacer(1, 18))
 
-    # Compliance summary table
-    summary_data = [
-        [
-            Paragraph("<b>Status</b>", table_header_style),
-            Paragraph("<b>Count</b>", table_header_style),
-        ],
-        ["Compliant Rules", compliant_count],
-        ["Non-Compliant Rules", non_compliant_count],
-        ["Insufficient Data", insufficient_data_count],
-    ]
-    summary_table = Table(summary_data, colWidths=[180, 80])
-    summary_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#555555")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 11),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                (
-                    "ROWBACKGROUNDS",
-                    (0, 1),
-                    (-1, -1),
-                    [colors.whitesmoke, colors.HexColor("#f5f5f5")],
-                ),
-                ("BOX", (0, 0), (-1, -1), 1, colors.gray),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
-            ]
-        )
-    )
-    elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
-    elements.append(summary_table)
-    elements.append(Spacer(1, 18))
+    # Removed duplicate compliance summary table (already shown at the top of the report)
 
     # Non-compliant resources table
     elements.append(Paragraph("Non-Compliant Resources", subtitle_style))
