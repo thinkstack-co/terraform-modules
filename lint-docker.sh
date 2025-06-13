@@ -347,23 +347,53 @@ run_all_linters() {
 }
 
 # Parse command line arguments
-if [ "$#" -gt 1 ]; then
-    case "$2" in
-        --python)
-            run_linter "python" "Python Linting" "PYTHON_BLACK,PYTHON_FLAKE8,PYTHON_ISORT,PYTHON_MYPY,PYTHON_PYLINT" "python-lint" "python"
+TARGET_DIR="."
+LINTER_OPTION=""
+
+# Process arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --python|--gitleaks|--jscpd|--terraform|--dockerfile|--help)
+            LINTER_OPTION="$1"
             ;;
-        --gitleaks)
-            run_linter "gitleaks" "Secret Scanning" "GITLEAKS" "gitleaks" "secrets"
+        --linter=*)
+            LINTER_OPTION="--${1#*=}"
             ;;
-        --jscpd)
-            run_linter "jscpd" "Duplicate Code Detection" "JSCPD" "duplicate-code" "duplicates"
+        /*|./*)
+            # This is a directory path
+            TARGET_DIR="$1"
             ;;
-        --terraform)
-            run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"
+        *)
+            # Unknown option
+            if [[ "$1" != "-"* ]]; then
+                # If it doesn't start with a dash, assume it's a directory
+                TARGET_DIR="$1"
+            fi
             ;;
-        --dockerfile)
-            run_linter "dockerfile" "Dockerfile Linting" "DOCKERFILE_HADOLINT" "dockerfile-lint" "docker"
-            ;;
+    esac
+    shift
+done
+
+# Set absolute path
+ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd)
+
+# Process linter option
+case "$LINTER_OPTION" in
+    --python)
+        run_linter "python" "Python Linting" "PYTHON_BLACK,PYTHON_FLAKE8,PYTHON_ISORT,PYTHON_MYPY,PYTHON_PYLINT" "python-lint" "python"
+        ;;
+    --gitleaks)
+        run_linter "gitleaks" "Secret Scanning" "GITLEAKS" "gitleaks" "secrets"
+        ;;
+    --jscpd)
+        run_linter "jscpd" "Duplicate Code Detection" "JSCPD" "duplicate-code" "duplicates"
+        ;;
+    --terraform)
+        run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"
+        ;;
+    --dockerfile)
+        run_linter "dockerfile" "Dockerfile Linting" "DOCKERFILE_HADOLINT" "dockerfile-lint" "docker"
+        ;;
         --help)
             echo -e "Usage: $0 [directory] [option]"
             echo -e "Options:"
@@ -383,12 +413,13 @@ if [ "$#" -gt 1 ]; then
             echo -e "  └── configs/             # Lint configuration files"
             exit 0
             ;;
+        "")
+            # No linter option specified, run all linters
+            run_all_linters
+            ;;
         *)
-            echo -e "${RED}Unknown option: $2${NC}"
+            echo -e "${RED}Unknown option: $LINTER_OPTION${NC}"
             echo -e "Run '$0 --help' for usage information."
             exit 1
             ;;
-    esac
-else
-    run_all_linters
-fi
+esac

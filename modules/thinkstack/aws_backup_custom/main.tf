@@ -1199,7 +1199,7 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
 
   name         = "multi-${each.value.combo.hash}-${each.value.plan}-dr"
   iam_role_arn = aws_iam_role.backup_role.arn
-  
+
   # Look up the appropriate DR plan ID based on the plan type
   plan_id = lookup({
     "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : "",

@@ -9,7 +9,7 @@ variable "config_recorder_name" {
 variable "config_bucket_prefix" {
   description = "Name of the S3 bucket for AWS Config recordings"
   type        = string
-  default = "aws-config-recordings-"
+  default     = "aws-config-recordings-"
 }
 
 variable "config_iam_role_name" {

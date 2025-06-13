@@ -39,14 +39,14 @@ variable "type" {
 variable "conditions" {
   description = "A list of listener rule conditions. Each item is an object with a single key (the condition type) and a value (the values for that condition). Example: [{ host_header = [\"example.com\"] }, { path_pattern = [\"/foo*\"] }]"
   type = list(object({
-    host_header    = optional(list(string))
-    path_pattern   = optional(list(string))
-    http_header    = optional(object({
+    host_header  = optional(list(string))
+    path_pattern = optional(list(string))
+    http_header = optional(object({
       http_header_name = string
       values           = list(string)
     }))
     http_request_method = optional(list(string))
-    query_string       = optional(list(object({
+    query_string = optional(list(object({
       key   = optional(string)
       value = string
     })))

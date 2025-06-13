@@ -43,6 +43,6 @@ variable "tags" {
   type        = map(string)
   description = "(Optional) A mapping of tags to assign to the object."
   default = {
-    terraform  = "true"
+    terraform = "true"
   }
 }

@@ -42,7 +42,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "cost_report_lifecycle" {
   rule {
     id     = "cost-reports-lifecycle"
     status = "Enabled"
-    
+
     filter {}
 
     expiration {
@@ -75,9 +75,9 @@ resource "aws_iam_role" "cost_reporter" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
+      Effect    = "Allow"
       Principal = { Service = "lambda.amazonaws.com" }
-      Action = "sts:AssumeRole"
+      Action    = "sts:AssumeRole"
     }]
   })
   tags = merge(var.tags, { Customer = local.customer_identifier })
@@ -110,8 +110,8 @@ resource "aws_iam_role_policy" "cost_reporter_policy" {
         ]
       },
       {
-        Effect = "Allow",
-        Action = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
         Resource = "arn:aws:logs:*:*:*"
       }
     ]
@@ -122,20 +122,20 @@ resource "aws_iam_role_policy" "cost_reporter_policy" {
 # Lambda Function
 # This Lambda function generates the cost report PDF and uploads it to the S3 bucket.
 resource "aws_lambda_function" "cost_reporter" {
-  function_name = "aws-cost-reporter"
-  role          = aws_iam_role.cost_reporter.arn
-  handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.12"
+  function_name    = "aws-cost-reporter"
+  role             = aws_iam_role.cost_reporter.arn
+  handler          = "lambda_function.lambda_handler"
+  runtime          = "python3.12"
   filename         = "${path.module}/cost_reporter/lambda_package.zip"
   source_code_hash = filebase64sha256("${path.module}/cost_reporter/lambda_package.zip")
-  timeout       = var.lambda_timeout
-  memory_size   = var.lambda_memory_size
+  timeout          = var.lambda_timeout
+  memory_size      = var.lambda_memory_size
   environment {
     variables = {
-      REPORT_BUCKET        = aws_s3_bucket.cost_report.id
-      REPORT_TAG_KEY       = var.report_tag_key
-      SCHEDULE_EXPRESSION  = var.schedule_expression
-      CUSTOMER_IDENTIFIER  = local.customer_identifier
+      REPORT_BUCKET       = aws_s3_bucket.cost_report.id
+      REPORT_TAG_KEY      = var.report_tag_key
+      SCHEDULE_EXPRESSION = var.schedule_expression
+      CUSTOMER_IDENTIFIER = local.customer_identifier
     }
   }
   tags = merge(var.tags, { Customer = local.customer_identifier })

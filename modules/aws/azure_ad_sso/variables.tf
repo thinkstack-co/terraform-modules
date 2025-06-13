@@ -10,7 +10,7 @@ variable "policy_name" {
 
 variable "policy_description" {
   description = "Description of the policy"
-  type = string
+  type        = string
   default     = "This policy will allow to fetch the roles from AWS accounts."
 }
 
