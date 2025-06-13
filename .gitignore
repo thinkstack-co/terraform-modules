@@ -11,3 +11,9 @@ terraform.tfvars
 
 # macOS
 .DS_Store
+
+# Lint reports (keep local)
+lint_reports/
+
+# mypy cache
+.mypy_cache
