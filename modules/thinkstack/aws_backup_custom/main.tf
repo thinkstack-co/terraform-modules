@@ -133,14 +133,6 @@ locals {
 
 
   # Map of vault names to their creation status
-  vault_map = {
-    "daily"   = local.create_daily_vault
-    "weekly"  = local.create_weekly_vault
-    "monthly" = local.create_monthly_vault
-    "yearly"  = local.create_yearly_vault
-    "hourly"  = local.create_hourly_vault
-  }
-
   # Map of plan names to their enabled status
   # Accounts for DR mode - if a plan is included in DR, the regular plan won't exist
   plan_enabled_map = {

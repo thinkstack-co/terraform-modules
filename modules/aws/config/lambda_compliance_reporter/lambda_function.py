@@ -194,7 +194,7 @@ def lambda_handler(event, context):
     insufficient_data_count = sum(
         1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
     )
-    
+
     # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
     for rule_name, status in compliance.items():
         if status == "INSUFFICIENT_DATA":
@@ -238,15 +238,15 @@ def lambda_handler(event, context):
     )
     elements = []
     elements.append(Paragraph("AWS Config Compliance Report", title_style))
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 12))
     elements.append(Paragraph(f"Account Name: <b>{account_name}</b>", normal_style))
     elements.append(Paragraph(f"Account Number: <b>{account_id}</b>", normal_style))
     elements.append(Paragraph(f"Generated: <b>{now}</b>", small_style))
     elements.append(Spacer(1, 18))
-    
+
     # Overall Compliance Summary - Moved to the top of the report
     elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
-    
+
     # Create the summary table
     summary_data = [
         ["Compliant", f"{compliant_count}"],
@@ -254,7 +254,7 @@ def lambda_handler(event, context):
         ["Insufficient Data", f"{insufficient_data_count}"],
         ["Total Rules", f"{len(rules)}"],
     ]
-    
+
     summary_table = Table(summary_data, colWidths=[120, 60])
     summary_table.setStyle(
         TableStyle(
@@ -286,7 +286,7 @@ def lambda_handler(event, context):
             description = rule.get("Description", "N/A")
             # Get the status from compliance data
             status = compliance.get(rule_name, "UNKNOWN")
-            
+
             # Replace INSUFFICIENT_DATA with N/A when there are no resources for the rule
             if status == "INSUFFICIENT_DATA":
                 status = "N/A"
@@ -323,9 +323,15 @@ def lambda_handler(event, context):
                     ("ALIGN", (0, 1), (1, -1), "LEFT"),
                     ("ALIGN", (2, 1), (2, -1), "CENTER"),  # Center-align status column
                     # Add special styling for status cells
-                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgreen) for i, row in enumerate(rules_summary_data[1:]) if row[2].text == "COMPLIANT"],
-                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightpink) for i, row in enumerate(rules_summary_data[1:]) if row[2].text == "NON_COMPLIANT"],
-                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgrey) for i, row in enumerate(rules_summary_data[1:]) if row[2].text == "N/A"],
+                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgreen)
+                      for i, row in enumerate(rules_summary_data[1:])
+                      if row[2].text == "COMPLIANT"],
+                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightpink)
+                      for i, row in enumerate(rules_summary_data[1:])
+                      if row[2].text == "NON_COMPLIANT"],
+                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgrey)
+                      for i, row in enumerate(rules_summary_data[1:])
+                      if row[2].text == "N/A"],
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                     ("BOX", (0, 0), (-1, -1), 1, colors.gray),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),

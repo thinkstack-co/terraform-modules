@@ -15,6 +15,7 @@ resource "aws_lb_target_group" "this" {
   protocol          = var.protocol
   proxy_protocol_v2 = var.proxy_protocol_v2
   vpc_id            = var.vpc_id
+  tags              = var.tags
 
   health_check {
     protocol            = var.health_check_protocol

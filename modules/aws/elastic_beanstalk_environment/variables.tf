@@ -33,9 +33,9 @@ variable "poll_interval" {
 }
 
 variable "setting" {
-  type        = string
-  description = "(Optional) Option settings to configure the new Environment. These override specific values that are set as defaults. The format is detailed below in Option Settings"
-  default     = ""
+  type        = list(map(string))
+  description = "(Optional) Option settings to configure the new Environment. These override specific values that are set as defaults."
+  default     = []
 }
 
 variable "solution_stack_name" {

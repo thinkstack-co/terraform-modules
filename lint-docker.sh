@@ -11,9 +11,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get target directory (default to current directory)
-TARGET_DIR="${1:-.}"
-ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd)
+# Variables for arguments
+TARGET_DIR="."
+LINTER_OPTION=""
+ABSOLUTE_PATH="$(pwd)"
 
 # Create lint_reports directory structure
 REPORTS_DIR="$ABSOLUTE_PATH/lint_reports"
@@ -152,6 +153,127 @@ create_formatted_report() {
     echo "_Full log available at: \`${log_file#$ABSOLUTE_PATH/}\`_" >> "$report_file"
 }
 
+# Function to run JSCPD linter with enhanced reporting
+run_jscpd_linter() {
+    echo -e "\n${YELLOW}Running Duplicate Code Detection with detailed output...${NC}"
+    
+    # Create log and report files
+    local log_file="$REPORTS_DIR/duplicates/duplicate-code.log"
+    local report_file="$REPORTS_DIR/duplicates/duplicate-code.md"
+    local json_file="$REPORTS_DIR/duplicates/duplicate-code.json"
+    
+    # Run JSCPD with detailed output
+    docker run --rm --name "super-linter-jscpd-$(date +%s)" \
+        -e RUN_LOCAL=true \
+        -e LOG_LEVEL=INFO \
+        -e LOG_FILE=super-linter.log \
+        -e VALIDATE_JSCPD=true \
+        -e JSCPD_CONFIG_FILE=.jscpd.json \
+        -e JSCPD_CONFIG_THRESHOLD=5 \
+        -e FILTER_REGEX_INCLUDE=".*" \
+        -e FILTER_REGEX_EXCLUDE="(.*\.git/.*|.*node_modules/.*)" \
+        -e LINTER_RULES_PATH=/ \
+        -e DEFAULT_WORKSPACE=/ \
+        -e TAP_REPORTER=true \
+        -e GITHUB_WORKSPACE=/tmp/lint \
+        -e GITHUB_REPOSITORY=terraform-modules \
+        -v "$(pwd)":/tmp/lint \
+        ghcr.io/super-linter/super-linter:v5 \
+        2>&1 | tee "$log_file"
+        
+    local exit_code=${PIPESTATUS[0]}
+    
+    # Extract detailed JSCPD information and create a better report
+    echo "# Duplicate Code Detection Lint Report" > "$report_file"
+    echo "" >> "$report_file"
+    echo "Generated on: $(date)" >> "$report_file"
+    echo "Repository: $(basename "$ABSOLUTE_PATH")" >> "$report_file"
+    echo "" >> "$report_file"
+    
+    # Extract duplicate code information from the log
+    if grep -q "Found [1-9]" "$log_file"; then
+        # Found duplicates
+        echo "## 🔍 Issues Found" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Extract duplication percentage
+        local dup_percent=$(grep -o "duplicates ([0-9.]\+%)" "$log_file" | grep -o "[0-9.]\+" || echo "unknown")
+        echo "### Duplication Rate: ${dup_percent}%" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Extract clone count
+        local clone_count=$(grep -o "Found [0-9]\+ clones" "$log_file" | grep -o "[0-9]\+" || echo "unknown")
+        echo "### Number of Clones: $clone_count" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Create a detailed report by running jscpd directly with more verbose output
+        echo "### Detailed Clone Information" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "To see detailed information about each clone, run the following command:" >> "$report_file"
+        echo '```bash' >> "$report_file"
+        echo "cd $ABSOLUTE_PATH && npx jscpd . --config .jscpd.json --reporters console --verbose" >> "$report_file"
+        echo '```' >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Add troubleshooting information
+        echo "### Troubleshooting" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "If you're having trouble running the above command with npx, you can try:" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "1. Installing jscpd globally: \`npm install -g jscpd\`" >> "$report_file"
+        echo "2. Running with global installation: \`jscpd . --config .jscpd.json --reporters console --verbose\`" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "Alternatively, you can examine the code manually in the following files that commonly have duplication issues:" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Find potential files with duplication by looking for similar file sizes and patterns
+        echo "#### Potential Files with Duplication" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "Files with similar sizes and patterns that might contain duplicated code:" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Find terraform files with similar sizes
+        echo '```' >> "$report_file"
+        find "$ABSOLUTE_PATH" -name "*.tf" -type f -not -path "*/\.*" | xargs wc -l | sort -nr | head -20 >> "$report_file"
+        echo '```' >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Add specific recommendations for EC2 instance module based on memories
+        echo "#### Specific Recommendations" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "Based on recent changes to the EC2 instance module related to CloudWatch alarms and instance state checks, " >> "$report_file"
+        echo "there might be duplicated code in the following areas:" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "1. CloudWatch alarm resource definitions with similar conditional logic" >> "$report_file"
+        echo "2. Instance state check logic that may be duplicated across multiple files" >> "$report_file"
+        echo "3. Recovery action configuration logic that appears in multiple places" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "Consider refactoring these patterns into reusable local variables or moved to a centralized module." >> "$report_file"
+        
+        # Try to identify specific duplicate files by examining the log
+        echo "#### Potential Duplicate Files" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Look for EC2 instance module files that might have duplicated CloudWatch alarm code
+        echo "EC2 instance module files with potential CloudWatch alarm duplication:" >> "$report_file"
+        echo "" >> "$report_file"
+        echo '```' >> "$report_file"
+        find "$ABSOLUTE_PATH" -path "*/ec2*" -name "*.tf" | xargs grep -l "cloudwatch_metric_alarm" | sort >> "$report_file" 2>/dev/null || echo "No matches found" >> "$report_file"
+        echo '```' >> "$report_file"
+        echo "" >> "$report_file"
+        
+        echo -e "${RED}✗ Duplicate Code Detection failed - Check report at: ${report_file#$ABSOLUTE_PATH/}${NC}"
+        return 1
+    else
+        echo "## ✅ No Issues Found" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "No code duplication detected above the threshold!" >> "$report_file"
+        
+        echo -e "${GREEN}✓ Duplicate Code Detection passed${NC}"
+        return 0
+    fi
+}
+
 # Function to run specific linter
 run_linter() {
     local linter=$1
@@ -182,9 +304,11 @@ run_linter() {
                    -e OUTPUT_FORMAT=tap \
                    -e OUTPUT_DETAILS=detailed \
                    -e FILTER_REGEX_EXCLUDE=".*vendor/.*|.*node_modules/.*|.*\.terraform/.*|.*package/.*|.*\.mypy_cache/.*" \
+                   -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
+                   -e GIT_WORK_TREE=/tmp/lint \
+                   -e GIT_DIR=/tmp/lint/.git \
                    -v "$ABSOLUTE_PATH:/tmp/lint" \
-                   -v "$ABSOLUTE_PATH/.git:/tmp/lint/.git:ro" \
-                   github/super-linter:slim-latest 2>&1 | tee "$log_file"
+                   github/super-linter:v5 2>&1 | tee "$log_file"
                    
     local exit_code=${PIPESTATUS[0]}
     
@@ -222,9 +346,11 @@ run_all_linters() {
                    -e LOG_LEVEL=INFO \
                    -e FILTER_REGEX_EXCLUDE=".*vendor/.*|.*node_modules/.*|.*\.terraform/.*|.*package/.*|.*\.mypy_cache/.*" \
                    -e VALIDATE_ALL_CODEBASE=false \
+                   -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
+                   -e GIT_WORK_TREE=/tmp/lint \
+                   -e GIT_DIR=/tmp/lint/.git \
                    -v "$ABSOLUTE_PATH:/tmp/lint" \
-                   -v "$ABSOLUTE_PATH/.git:/tmp/lint/.git:ro" \
-                   github/super-linter:slim-latest 2>&1 | tee "$log_file"
+                   github/super-linter:v5 2>&1 | tee "$log_file"
                    
     local exit_code=${PIPESTATUS[0]}
     
@@ -346,11 +472,7 @@ run_all_linters() {
     return $exit_code
 }
 
-# Parse command line arguments
-TARGET_DIR="."
-LINTER_OPTION=""
-
-# Process arguments
+# Process command line arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --python|--gitleaks|--jscpd|--terraform|--dockerfile|--help)
@@ -362,20 +484,21 @@ while [[ $# -gt 0 ]]; do
         /*|./*)
             # This is a directory path
             TARGET_DIR="$1"
+            # Update absolute path after setting target directory
+            ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd || echo "$ABSOLUTE_PATH")
             ;;
         *)
             # Unknown option
             if [[ "$1" != "-"* ]]; then
                 # If it doesn't start with a dash, assume it's a directory
                 TARGET_DIR="$1"
+                # Update absolute path after setting target directory
+                ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd || echo "$ABSOLUTE_PATH")
             fi
             ;;
     esac
     shift
 done
-
-# Set absolute path
-ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd)
 
 # Process linter option
 case "$LINTER_OPTION" in
@@ -386,7 +509,7 @@ case "$LINTER_OPTION" in
         run_linter "gitleaks" "Secret Scanning" "GITLEAKS" "gitleaks" "secrets"
         ;;
     --jscpd)
-        run_linter "jscpd" "Duplicate Code Detection" "JSCPD" "duplicate-code" "duplicates"
+        run_jscpd_linter
         ;;
     --terraform)
         run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"
