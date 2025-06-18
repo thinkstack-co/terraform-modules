@@ -110,7 +110,7 @@ resource "aws_s3_bucket_policy" "config" {
 resource "aws_config_delivery_channel" "config" {
   name           = var.config_recorder_name # Often named the same as the recorder
   s3_bucket_name = aws_s3_bucket.config_bucket.id
-  s3_key_prefix  = var.s3_key_prefix
+  s3_key_prefix  = var.s3_key_prefix # gitleaks:allow
 
   snapshot_delivery_properties {
     delivery_frequency = var.snapshot_delivery_frequency

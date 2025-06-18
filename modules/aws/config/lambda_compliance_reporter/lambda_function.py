@@ -298,7 +298,9 @@ def lambda_handler(event, context):
                 [
                     Paragraph(rule_name, small_style),
                     Paragraph(description, desc_style),
-                    Paragraph(status, small_style),  # Status will be styled separately below
+                    Paragraph(
+                        status, small_style
+                    ),  # Status will be styled separately below
                 ]
             )
 
@@ -323,15 +325,21 @@ def lambda_handler(event, context):
                     ("ALIGN", (0, 1), (1, -1), "LEFT"),
                     ("ALIGN", (2, 1), (2, -1), "CENTER"),  # Center-align status column
                     # Add special styling for status cells
-                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgreen)
-                      for i, row in enumerate(rules_summary_data[1:])
-                      if row[2].text == "COMPLIANT"],
-                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightpink)
-                      for i, row in enumerate(rules_summary_data[1:])
-                      if row[2].text == "NON_COMPLIANT"],
-                    *[("BACKGROUND", (2, i+1), (2, i+1), colors.lightgrey)
-                      for i, row in enumerate(rules_summary_data[1:])
-                      if row[2].text == "N/A"],
+                    *[
+                        ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightgreen)
+                        for i, row in enumerate(rules_summary_data[1:])
+                        if row[2].text == "COMPLIANT"
+                    ],
+                    *[
+                        ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightpink)
+                        for i, row in enumerate(rules_summary_data[1:])
+                        if row[2].text == "NON_COMPLIANT"
+                    ],
+                    *[
+                        ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightgrey)
+                        for i, row in enumerate(rules_summary_data[1:])
+                        if row[2].text == "N/A"
+                    ],
                     ("VALIGN", (0, 0), (-1, -1), "TOP"),
                     ("BOX", (0, 0), (-1, -1), 1, colors.gray),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),

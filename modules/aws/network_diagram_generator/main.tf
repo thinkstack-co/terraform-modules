@@ -1,6 +1,5 @@
-/*
-
 terraform {
+  required_version = ">= 1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -96,4 +95,3 @@ resource "aws_lambda_permission" "allow_events" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.weekly.arn
 }
-*/

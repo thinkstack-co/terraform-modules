@@ -16,6 +16,21 @@ TARGET_DIR="."
 LINTER_OPTION=""
 ABSOLUTE_PATH="$(pwd)"
 
+# Define the Super-Linter image to use
+SUPER_LINTER_IMAGE="ghcr.io/super-linter/super-linter:latest"
+
+# Ensure reports directory exists
+mkdir -p reports
+
+# Create a temporary event file for GitHub Actions compatibility in the project directory
+# so it's accessible inside the Docker container
+GITHUB_EVENT_FILE="$(pwd)/.github_event.json"
+GITHUB_EVENT_PATH_IN_CONTAINER="/tmp/lint/.github_event.json"
+echo '{"repository": {"default_branch": "main"}}' > "$GITHUB_EVENT_FILE"
+
+# Get current git commit SHA
+GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo "HEAD")
+
 # Create lint_reports directory structure
 REPORTS_DIR="$ABSOLUTE_PATH/lint_reports"
 mkdir -p "$REPORTS_DIR"/{terraform,python,docker,secrets,duplicates,configs}
@@ -38,6 +53,124 @@ if ! docker info &> /dev/null; then
     exit 1
 fi
 
+# Function to extract Python Black linter errors
+extract_black_errors() {
+    local log_file=$1
+    local report_file=$2
+    local error_count=0
+    
+    # Find all instances of Black errors
+    local black_errors=$(grep -n "Found errors in \[black\]" "$log_file" | cut -d: -f1)
+    
+    if [ -n "$black_errors" ]; then
+        echo "## 🔍 Issues Found" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        for line_num in $black_errors; do
+            # Extract the file path from the previous line
+            local file_path=$(sed -n "$((line_num-2))p" "$log_file" | grep -o "File:\[.*\]" | sed 's/File:\[\(.*\)\]/\1/')
+            file_path="${file_path#/tmp/lint/}"
+            
+            # Extract the diff output
+            local start_diff=$((line_num+2))
+            local diff_output=$(sed -n "$start_diff,/^------$/p" "$log_file" | sed '/^------$/d')
+            
+            if [ -n "$file_path" ]; then
+                echo "### 📄 \`$file_path\`" >> "$report_file"
+                echo "" >> "$report_file"
+                echo "- **Formatting Error:** File needs black formatting" >> "$report_file"
+                echo "" >> "$report_file"
+                echo "\`\`\`diff" >> "$report_file"
+                echo "$diff_output" >> "$report_file"
+                echo "\`\`\`" >> "$report_file"
+                echo "" >> "$report_file"
+                ((error_count++))
+            fi
+        done
+    fi
+    
+    return $error_count
+}
+
+# Function to create a report header
+create_report_header() {
+    local linter_name=$1
+    local report_file=$2
+    
+    echo "# $linter_name Lint Report" > "$report_file"
+    echo "" >> "$report_file"
+    echo "Generated on: $(date)" >> "$report_file"
+    echo "Repository: terraform-modules" >> "$report_file"
+    echo "" >> "$report_file"
+}
+
+# Function to extract TFLint errors
+extract_tflint_errors() {
+    local log_file=$1
+    local report_file=$2
+    local error_count=0
+    local warning_count=0
+    
+    # Create report header
+    create_report_header "Terraform TFLint" "$report_file"
+    
+    if [ -f "$log_file" ]; then
+        echo "## 🔍 TFLint Results" >> "$report_file"
+        echo "" >> "$report_file"
+        
+        # Process the file line by line to organize errors by file
+        local current_file=""
+        local has_errors=false
+        
+        # Extract TFLint errors from the log file
+        local errors=$(grep -E "\[ERROR\]|\[WARNING\]|Error:|Warning:" "$log_file" | grep -v "Terraform TFLint" | sort -u)
+        
+        # If no errors found with the above pattern, try another common TFLint output pattern
+        if [ -z "$errors" ]; then
+            errors=$(grep -E "^[^:]+:[0-9]+:[0-9]+: \[\w+\]" "$log_file" | sort -u)
+        fi
+        
+        if [ -n "$errors" ]; then
+            echo "### TFLint Issues" >> "$report_file"
+            echo "" >> "$report_file"
+            echo '```' >> "$report_file"
+            echo "$errors" >> "$report_file"
+            echo '```' >> "$report_file"
+            echo "" >> "$report_file"
+            
+            # Count errors and warnings
+            error_count=$(echo "$errors" | grep -c -E "\[ERROR\]|Error:")
+            warning_count=$(echo "$errors" | grep -c -E "\[WARNING\]|Warning:")
+            
+            # If the above counting method returned 0, try another method
+            if [ $error_count -eq 0 ] && [ $warning_count -eq 0 ]; then
+                error_count=$(echo "$errors" | wc -l)
+            fi
+        else
+            echo "✅ No TFLint issues found." >> "$report_file"
+        fi
+    else
+        echo "## ⚠️ Warning: TFLint output file not found" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "Could not find TFLint output file at: $log_file" >> "$report_file"
+        echo "Please run with --debug flag for more information." >> "$report_file"
+        echo "" >> "$report_file"
+    fi
+    
+    # Add summary section
+    echo "## 📊 Summary" >> "$report_file"
+    echo "- **Errors:** $error_count" >> "$report_file"
+    echo "- **Warnings:** $warning_count" >> "$report_file"
+    echo "" >> "$report_file"
+    
+    # Return non-zero if we found any errors
+    if [ $error_count -gt 0 ]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 # Function to parse Super-Linter output and create formatted report
 create_formatted_report() {
     local log_file=$1
@@ -55,17 +188,45 @@ create_formatted_report() {
     local error_count=0
     local warning_count=0
     
+    # Special handling for Python Black linter
+    if [[ "$linter_name" == "Python Linting" ]] && grep -q "Found errors in \[black\]" "$log_file"; then
+        extract_black_errors "$log_file" "$report_file"
+        local black_errors=$?
+        error_count=$((error_count + black_errors))
+    fi
+    
+    # Special handling for TFLint
+    if [[ "$linter_name" == "Terraform TFLint" ]] && grep -q "TERRAFORM_TFLINT.*error" "$log_file"; then
+        extract_tflint_errors "$log_file" "$report_file"
+        local tflint_errors=$?
+        if [ $tflint_errors -ne 0 ]; then
+            error_count=$((error_count + 1))
+        fi
+        # Return early since we've already created the full report
+        return $error_count
+    fi
+    
     # Create temporary file for parsing
     local temp_file=$(mktemp)
     
-    # Extract relevant error lines - specifically look for file paths with line numbers
+    # Extract relevant error lines with improved pattern matching
     # For Python: look for .py: patterns (flake8, mypy errors)
     # For black: look for specific error patterns
-    grep -E "(\.py:[0-9]+:|\.tf:[0-9]+:|ERROR.*\.py|Found errors in \[)" "$log_file" 2>/dev/null | \
+    # For tflint: look for specific error patterns
+    grep -E "(\.py:[0-9]+:|\.tf:[0-9]+:|ERROR.*\.py|Found errors in \[|would be reformatted|would be left unchanged|WARNING:)" "$log_file" 2>/dev/null | \
     grep -v "ERROR SUMMARY" | \
     grep -v "not a git repository" | \
     grep -v "Validate ENV files" | \
     grep -v "was linted with.*successfully" > "$temp_file" || true
+    
+    # Also capture black formatting errors which have a different pattern
+    grep -A 2 "reformatting .*\.py" "$log_file" 2>/dev/null >> "$temp_file" || true
+    
+    # Capture black diff output which shows formatting issues
+    grep -A 50 "^--- .*\.py" "$log_file" 2>/dev/null | grep -B 50 "^Error code: 1" >> "$temp_file" || true
+    
+    # Capture tflint warnings and errors
+    grep -E "(\[ERROR\]|\[WARN\]).*\.tf" "$log_file" 2>/dev/null >> "$temp_file" || true
     
     if [ -s "$temp_file" ]; then
         echo "## 🔍 Issues Found" >> "$report_file"
@@ -87,6 +248,65 @@ create_formatted_report() {
             if [[ "$line" =~ "Found errors in \[black\]" ]] && [[ -n "$black_error_file" ]]; then
                 # We have a black error for the file stored in black_error_file
                 continue
+            fi
+            
+            # Check for black reformatting indicator
+            if [[ "$line" =~ "reformatting "(.+\.py) ]]; then
+                black_error_file="${BASH_REMATCH[1]}"
+                black_error_file="${black_error_file#/tmp/lint/}"
+                if [[ "$black_error_file" != "$current_file" ]]; then
+                    if [[ -n "$current_file" ]]; then
+                        echo "" >> "$report_file"
+                    fi
+                    echo "### 📄 \`$black_error_file\`" >> "$report_file"
+                    current_file="$black_error_file"
+                fi
+                echo "- **Formatting Error:** File needs black formatting" >> "$report_file"
+                ((error_count++))
+                continue
+            fi
+            
+            # Check for black diff output (--- file.py line indicates start of diff)
+            if [[ "$line" =~ ^---\ (.+\.py) ]]; then
+                black_error_file="${BASH_REMATCH[1]}"
+                black_error_file="${black_error_file#/tmp/lint/}"
+                if [[ "$black_error_file" != "$current_file" ]]; then
+                    if [[ -n "$current_file" ]]; then
+                        echo "" >> "$report_file"
+                    fi
+                    echo "### 📄 \`$black_error_file\`" >> "$report_file"
+                    current_file="$black_error_file"
+                fi
+                echo "- **Formatting Error:** File needs black formatting (see log for diff)" >> "$report_file"
+                ((error_count++))
+                continue
+            fi
+            
+            # Check for tflint error indicator
+            if [[ "$line" =~ "\[ERROR\]".*\.tf ]] || [[ "$line" =~ "\[WARN\]".*\.tf ]]; then
+                # Extract file and message for tflint
+                if [[ "$line" =~ \[(ERROR|WARN)\]\ ([^:]+\.tf):(.*) ]]; then
+                    local tf_file="${BASH_REMATCH[2]}"
+                    tf_file="${tf_file#/tmp/lint/}"
+                    local tf_message="${BASH_REMATCH[3]}"
+                    local severity="${BASH_REMATCH[1]}"
+                    
+                    if [[ "$tf_file" != "$current_file" ]]; then
+                        if [[ -n "$current_file" ]]; then
+                            echo "" >> "$report_file"
+                        fi
+                        echo "### 📄 \`$tf_file\`" >> "$report_file"
+                        current_file="$tf_file"
+                    fi
+                    
+                    echo "- **$severity:** $tf_message" >> "$report_file"
+                    if [[ "$severity" == "ERROR" ]]; then
+                        ((error_count++))
+                    else
+                        ((warning_count++))
+                    fi
+                    continue
+                fi
             fi
             
             # Try to extract file path with more flexible regex
@@ -164,23 +384,27 @@ run_jscpd_linter() {
     
     # Run JSCPD with detailed output
     docker run --rm --name "super-linter-jscpd-$(date +%s)" \
-        -e RUN_LOCAL=true \
-        -e LOG_LEVEL=INFO \
-        -e LOG_FILE=super-linter.log \
-        -e VALIDATE_JSCPD=true \
-        -e JSCPD_CONFIG_FILE=.jscpd.json \
-        -e JSCPD_CONFIG_THRESHOLD=5 \
-        -e FILTER_REGEX_INCLUDE=".*" \
-        -e FILTER_REGEX_EXCLUDE="(.*\.git/.*|.*node_modules/.*)" \
-        -e LINTER_RULES_PATH=/ \
-        -e DEFAULT_WORKSPACE=/ \
-        -e TAP_REPORTER=true \
-        -e GITHUB_WORKSPACE=/tmp/lint \
-        -e GITHUB_REPOSITORY=terraform-modules \
-        -v "$(pwd)":/tmp/lint \
-        ghcr.io/super-linter/super-linter:v5 \
-        2>&1 | tee "$log_file"
-        
+                   -e RUN_LOCAL=true \
+                   -e LOG_LEVEL=DEBUG \
+                   -e LOG_FILE=super-linter.log \
+                   -e CREATE_LOG_FILE=true \
+                   -e VALIDATE_JSCPD=true \
+                   -e JSCPD_CONFIG_FILE=.jscpd.json \
+                   -e JSCPD_CONFIG_THRESHOLD=5 \
+                   -e FILTER_REGEX_INCLUDE=".*" \
+                   -e FILTER_REGEX_EXCLUDE="(.*\.git/.*|.*node_modules/.*)" \
+                   -e LINTER_RULES_PATH=/ \
+                   -e DEFAULT_WORKSPACE=/ \
+                   -e TAP_REPORTER=true \
+                   -e REPORT_OUTPUT_FOLDER=/tmp/lint/lint_reports \
+                   -e GITHUB_WORKSPACE=/tmp/lint \
+                   -e GITHUB_REPOSITORY=terraform-modules \
+                   -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
+                   -e GIT_WORK_TREE=/tmp/lint \
+                   -e GIT_DIR=/tmp/lint/.git \
+                   -v "$ABSOLUTE_PATH:/tmp/lint" \
+                   github/super-linter:v5 2>&1 | tee "$log_file"
+                   
     local exit_code=${PIPESTATUS[0]}
     
     # Extract detailed JSCPD information and create a better report
@@ -276,118 +500,152 @@ run_jscpd_linter() {
 
 # Function to run specific linter
 run_linter() {
-    local linter=$1
-    local title=$2
-    local validate_vars=$3
-    local report_name=$4
-    local report_subdir=$5
+    local linter_type=$1
+    local linter_name=$2
+    local report_dir=$3
+    local validate_env_var=$4
+    local additional_env_vars=$5
     
-    echo -e "\n${YELLOW}Running $title...${NC}"
+    echo "Running $linter_name linter..."
     
-    # Create log and report files in appropriate subdirectory
-    local log_file="$REPORTS_DIR/$report_subdir/${report_name}.log"
-    local report_file="$REPORTS_DIR/$report_subdir/${report_name}.md"
+    # Create report directory if it doesn't exist
+    mkdir -p "$report_dir"
     
-    # Build validate flags - disable all first, then enable specific ones
-    local validate_flags="-e VALIDATE_ALL_CODEBASE=false"
-    IFS=',' read -ra VARS <<< "$validate_vars"
-    for var in "${VARS[@]}"; do
-        validate_flags="$validate_flags -e VALIDATE_$var=true"
-    done
+    # Create a unique report file name
+    local report_file="$report_dir/${linter_type}.md"
     
-    # Run Super-Linter with only the specified linter enabled
-    docker run --rm --name "super-linter-$linter-$(date +%s)" \
-                   -e RUN_LOCAL=true \
-                   $validate_flags \
-                   -e MULTI_STATUS=true \
-                   -e DEFAULT_BRANCH=main \
-                   -e OUTPUT_FORMAT=tap \
-                   -e OUTPUT_DETAILS=detailed \
-                   -e FILTER_REGEX_EXCLUDE=".*vendor/.*|.*node_modules/.*|.*\.terraform/.*|.*package/.*|.*\.mypy_cache/.*" \
-                   -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
-                   -e GIT_WORK_TREE=/tmp/lint \
-                   -e GIT_DIR=/tmp/lint/.git \
-                   -v "$ABSOLUTE_PATH:/tmp/lint" \
-                   github/super-linter:v5 2>&1 | tee "$log_file"
-                   
-    local exit_code=${PIPESTATUS[0]}
+    # Create the report header
+    create_report_header "$linter_name" "$report_file"
     
-    # Create formatted report
-    create_formatted_report "$log_file" "$report_file" "$title"
-    
-    if [ $exit_code -eq 0 ]; then
-        echo -e "${GREEN}✓ $title passed${NC}"
-        return 0
+    # Special handling for TFLint to capture its output separately
+    if [[ "$linter_name" == "Terraform TFLint" ]]; then
+        # Run TFLint and capture its output to a separate file
+        docker run --rm \
+            -v "$(pwd):/tmp/lint" \
+            -e "GITHUB_WORKSPACE=/tmp/lint" \
+            -e "GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH_IN_CONTAINER" \
+            -e "GITHUB_REPOSITORY=local/repo" \
+            -e "GITHUB_REPOSITORY_OWNER=local" \
+            -e "GITHUB_SHA=$GIT_SHA" \
+            -e "$validate_env_var=true" \
+            -e "LOG_LEVEL=DEBUG" \
+            -e "LOG_FILE=true" \
+            -e "LOG_FILE_PATH=/tmp/lint/super-linter.log" \
+            $additional_env_vars \
+            $SUPER_LINTER_IMAGE 2>&1 | tee /tmp/tflint_output.txt
     else
-        echo -e "${RED}✗ $title failed - Check report at: ${report_file#$ABSOLUTE_PATH/}${NC}"
-        return 1
+        # Run the linter normally
+        docker run --rm \
+            -v "$(pwd):/tmp/lint" \
+            -e "GITHUB_WORKSPACE=/tmp/lint" \
+            -e "GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH_IN_CONTAINER" \
+            -e "GITHUB_REPOSITORY=local/repo" \
+            -e "GITHUB_REPOSITORY_OWNER=local" \
+            -e "GITHUB_SHA=$GIT_SHA" \
+            -e "$validate_env_var=true" \
+            -e "LOG_LEVEL=DEBUG" \
+            -e "LOG_FILE=true" \
+            -e "LOG_FILE_PATH=/tmp/lint/super-linter.log" \
+            $additional_env_vars \
+            $SUPER_LINTER_IMAGE
+    fi
+    
+    # Check if the linter found any issues
+    local exit_code=$?
+    
+    # Special handling for TFLint output
+    if [[ "$linter_name" == "Terraform TFLint" ]] && [ -f "/tmp/tflint_output.txt" ]; then
+        # Parse TFLint output directly
+        extract_tflint_errors "/tmp/tflint_output.txt" "$report_file"
+        local report_exit_code=$?
+        
+        # Clean up the output file
+        rm -f "/tmp/tflint_output.txt"
+        
+        if [ $report_exit_code -ne 0 ] || [ $exit_code -ne 0 ]; then
+            echo "✗ $linter_name failed - Check report at: $report_file"
+            return 1
+        else
+            echo "✓ $linter_name passed"
+            return 0
+        fi
+    # For other linters, try to use the Super-Linter log file
+    elif [ -f "/tmp/lint/super-linter.log" ]; then
+        create_formatted_report "/tmp/lint/super-linter.log" "$report_file" "$linter_name"
+        local report_exit_code=$?
+        
+        # Clean up the log file
+        rm -f "/tmp/lint/super-linter.log"
+        
+        if [ $report_exit_code -ne 0 ] || [ $exit_code -ne 0 ]; then
+            echo "✗ $linter_name failed - Check report at: $report_file"
+            return 1
+        else
+            echo "✓ $linter_name passed"
+            return 0
+        fi
+    else
+        # If no log file is found, create a basic report
+        echo "## ⚠️ Warning: No log file found" >> "$report_file"
+        echo "" >> "$report_file"
+        echo "The linter was executed, but no log file was found to parse for detailed errors." >> "$report_file"
+        
+        if [ $exit_code -ne 0 ]; then
+            echo "✗ $linter_name failed - Check report at: $report_file"
+            return 1
+        else
+            echo "✓ $linter_name passed"
+            return 0
+        fi
     fi
 }
 
 # Function to run all linters
 run_all_linters() {
-    echo -e "\n${YELLOW}Running all linters...${NC}"
+    echo -e "\n${YELLOW}Running all linters sequentially...${NC}"
     
-    # Create main log file
-    local log_file="$REPORTS_DIR/all-linters.log"
     local summary_file="$REPORTS_DIR/lint-summary.md"
+    local all_linters_log="$REPORTS_DIR/all-linters.log"
+    > "$all_linters_log"  # Initialize empty log file
     
-    # Run Super-Linter with all default linters enabled
-    docker run --rm --name "super-linter-all-$(date +%s)" \
-                   -e RUN_LOCAL=true \
-                   -e VALIDATE_MARKDOWN=false \
-                   -e VALIDATE_NATURAL_LANGUAGE=false \
-                   -e VALIDATE_TERRAFORM_TERRASCAN=false \
-                   -e MULTI_STATUS=true \
-                   -e DEFAULT_BRANCH=main \
-                   -e OUTPUT_FORMAT=tap \
-                   -e OUTPUT_DETAILS=detailed \
-                   -e CREATE_LOG_FILE=true \
-                   -e LOG_LEVEL=INFO \
-                   -e FILTER_REGEX_EXCLUDE=".*vendor/.*|.*node_modules/.*|.*\.terraform/.*|.*package/.*|.*\.mypy_cache/.*" \
-                   -e VALIDATE_ALL_CODEBASE=false \
-                   -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
-                   -e GIT_WORK_TREE=/tmp/lint \
-                   -e GIT_DIR=/tmp/lint/.git \
-                   -v "$ABSOLUTE_PATH:/tmp/lint" \
-                   github/super-linter:v5 2>&1 | tee "$log_file"
-                   
-    local exit_code=${PIPESTATUS[0]}
+    # Track overall exit code
+    local overall_exit_code=0
     
-    # Parse log and create individual reports
-    echo -e "\n${BLUE}📊 Generating individual linter reports...${NC}"
-    
-    # Extract Python linting results
-    if grep -q "PYTHON" "$log_file"; then
-        # Create a clean Python log - extract errors with context
-        > "$REPORTS_DIR/python/python-lint.log"  # Clear the file first
-        
-        # Extract flake8/mypy/pylint errors (format: file.py:line:col: message)
-        grep -E "\.py:[0-9]+:[0-9]*:" "$log_file" >> "$REPORTS_DIR/python/python-lint.log" 2>/dev/null || true
-        
-        # Extract black errors with file context
-        grep -B5 -A2 "Found errors in \[black\]" "$log_file" | grep -E "(File:\[|Found errors in \[black\]|Error code:)" >> "$REPORTS_DIR/python/python-lint.log" 2>/dev/null || true
-        
-        create_formatted_report "$REPORTS_DIR/python/python-lint.log" "$REPORTS_DIR/python/python-lint.md" "Python"
+    # Run each linter category sequentially
+    echo -e "\n${BLUE}Running Python linters...${NC}"
+    run_linter "python" "Python Linting" "PYTHON_BLACK,PYTHON_FLAKE8,PYTHON_ISORT,PYTHON_MYPY,PYTHON_PYLINT" "python-lint" "python"
+    if [ $? -ne 0 ]; then
+        overall_exit_code=1
     fi
+    cat "$REPORTS_DIR/python/python-lint.log" >> "$all_linters_log" 2>/dev/null || true
     
-    # Extract Terraform linting results
-    if grep -q "TERRAFORM" "$log_file"; then
-        grep -E "(\.tf:|TERRAFORM|tflint)" "$log_file" > "$REPORTS_DIR/terraform/terraform-lint.log" 2>/dev/null || true
-        create_formatted_report "$REPORTS_DIR/terraform/terraform-lint.log" "$REPORTS_DIR/terraform/terraform-lint.md" "Terraform"
+    echo -e "\n${BLUE}Running Terraform linters...${NC}"
+    run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"
+    if [ $? -ne 0 ]; then
+        overall_exit_code=1
     fi
+    cat "$REPORTS_DIR/terraform/terraform-lint.log" >> "$all_linters_log" 2>/dev/null || true
     
-    # Extract Dockerfile linting results
-    if grep -q "DOCKERFILE" "$log_file"; then
-        grep -E "(Dockerfile|DOCKERFILE|hadolint)" "$log_file" > "$REPORTS_DIR/docker/dockerfile-lint.log" 2>/dev/null || true
-        create_formatted_report "$REPORTS_DIR/docker/dockerfile-lint.log" "$REPORTS_DIR/docker/dockerfile-lint.md" "Dockerfile"
+    echo -e "\n${BLUE}Running Dockerfile linters...${NC}"
+    run_linter "dockerfile" "Dockerfile Linting" "DOCKERFILE_HADOLINT" "dockerfile-lint" "docker"
+    if [ $? -ne 0 ]; then
+        overall_exit_code=1
     fi
+    cat "$REPORTS_DIR/docker/dockerfile-lint.log" >> "$all_linters_log" 2>/dev/null || true
     
-    # Extract secret scanning results
-    if grep -q "GITLEAKS" "$log_file"; then
-        grep -E "(GITLEAKS|secret|credential|key)" "$log_file" > "$REPORTS_DIR/secrets/gitleaks.log" 2>/dev/null || true
-        create_formatted_report "$REPORTS_DIR/secrets/gitleaks.log" "$REPORTS_DIR/secrets/gitleaks.md" "Secret Scanning"
+    echo -e "\n${BLUE}Running secret scanning...${NC}"
+    run_linter "gitleaks" "Secret Scanning" "GITLEAKS" "gitleaks" "secrets"
+    if [ $? -ne 0 ]; then
+        overall_exit_code=1
     fi
+    cat "$REPORTS_DIR/secrets/gitleaks.log" >> "$all_linters_log" 2>/dev/null || true
+    
+    echo -e "\n${BLUE}Running duplicate code detection...${NC}"
+    run_jscpd_linter
+    if [ $? -ne 0 ]; then
+        overall_exit_code=1
+    fi
+    cat "$REPORTS_DIR/duplicates/duplicate-code.log" >> "$all_linters_log" 2>/dev/null || true
     
     # Create summary report
     echo "# 📊 Lint Summary Report" > "$summary_file"
@@ -416,9 +674,11 @@ run_all_linters() {
         report_file="$REPORTS_DIR/$category/${category}-lint.md"
         if [ -f "$report_file" ]; then
             if grep -q "No Issues Found" "$report_file"; then
-                echo "| ${category^} | [View Report]($category/${category}-lint.md) | ✅ Passed |" >> "$summary_file"
+                category_cap=$(echo "$category" | tr '[:lower:]' '[:upper:]' | sed 's/_.*//')
+                echo "| $category_cap | [View Report]($category/${category}-lint.md) | ✅ Passed |" >> "$summary_file"
             else
-                echo "| ${category^} | [View Report]($category/${category}-lint.md) | ❌ Failed |" >> "$summary_file"
+                category_cap=$(echo "$category" | tr '[:lower:]' '[:upper:]' | sed 's/_.*//')
+                echo "| $category_cap | [View Report]($category/${category}-lint.md) | ❌ Failed |" >> "$summary_file"
             fi
         fi
     done
@@ -475,7 +735,7 @@ run_all_linters() {
 # Process command line arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --python|--gitleaks|--jscpd|--terraform|--dockerfile|--help)
+        --python|--gitleaks|--jscpd|--terraform|--dockerfile|--terraform-fmt|--terraform-tflint|--bash|--help)
             LINTER_OPTION="$1"
             ;;
         --linter=*)
@@ -487,14 +747,17 @@ while [[ $# -gt 0 ]]; do
             # Update absolute path after setting target directory
             ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd || echo "$ABSOLUTE_PATH")
             ;;
+        -*)
+            # Unknown option that starts with a dash
+            echo -e "${RED}Error: Unknown option '$1'${NC}"
+            echo -e "Run '$0 --help' for usage information."
+            exit 1
+            ;;
         *)
-            # Unknown option
-            if [[ "$1" != "-"* ]]; then
-                # If it doesn't start with a dash, assume it's a directory
-                TARGET_DIR="$1"
-                # Update absolute path after setting target directory
-                ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd || echo "$ABSOLUTE_PATH")
-            fi
+            # If it doesn't start with a dash, assume it's a directory
+            TARGET_DIR="$1"
+            # Update absolute path after setting target directory
+            ABSOLUTE_PATH=$(cd "$TARGET_DIR" && pwd || echo "$ABSOLUTE_PATH")
             ;;
     esac
     shift
@@ -514,24 +777,37 @@ case "$LINTER_OPTION" in
     --terraform)
         run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"
         ;;
+    --terraform-fmt)
+        run_linter "terraform-fmt" "Terraform Formatting" "TERRAFORM_FMT" "terraform-fmt" "terraform"
+        ;;
+    --terraform-tflint)
+        run_linter "terraform-tflint" "Terraform TFLint" "$REPORTS_DIR/terraform" "VALIDATE_TERRAFORM_TFLINT" ""
+        ;;
+    --bash)
+        run_linter "bash" "Bash Linting" "BASH,BASH_EXEC" "bash-lint" "bash"
+        ;;
     --dockerfile)
         run_linter "dockerfile" "Dockerfile Linting" "DOCKERFILE_HADOLINT" "dockerfile-lint" "docker"
         ;;
         --help)
             echo -e "Usage: $0 [directory] [option]"
             echo -e "Options:"
-            echo -e "  --python     Run Python linters only"
-            echo -e "  --gitleaks   Run secret scanning only"
-            echo -e "  --jscpd      Run duplicate code detection only"
-            echo -e "  --terraform  Run Terraform linters only"
-            echo -e "  --dockerfile Run Dockerfile linter only"
-            echo -e "  --help       Show this help message"
-            echo -e "\nIf no option is provided, all linters will be run."
+            echo -e "  --python          Run all Python linters (black, flake8, isort, mypy, pylint)"
+            echo -e "  --gitleaks        Run secret scanning only"
+            echo -e "  --jscpd           Run duplicate code detection only"
+            echo -e "  --terraform       Run all Terraform linters (fmt and tflint)"
+            echo -e "  --terraform-fmt   Run Terraform formatting check only"
+            echo -e "  --terraform-tflint Run Terraform tflint check only"
+            echo -e "  --bash            Run Bash linters only"
+            echo -e "  --dockerfile      Run Dockerfile linter only"
+            echo -e "  --help            Show this help message"
+            echo -e "\nIf no option is provided, all linters will be run sequentially."
             echo -e "\nReports will be saved to: ./lint_reports/"
             echo -e "  ├── lint-summary.md      # Overall summary"
             echo -e "  ├── python/              # Python linting results"
             echo -e "  ├── terraform/           # Terraform linting results"
             echo -e "  ├── docker/              # Dockerfile linting results"
+            echo -e "  ├── bash/                # Bash linting results"
             echo -e "  ├── secrets/             # Secret scanning results"
             echo -e "  └── configs/             # Lint configuration files"
             exit 0

@@ -1,4 +1,3 @@
-/*
 variable "name" {
   description = "Base name for resources."
   type        = string
@@ -16,4 +15,3 @@ variable "schedule" {
   type        = string
   default     = "cron(0 2 ? * SUN *)"
 }
-*/

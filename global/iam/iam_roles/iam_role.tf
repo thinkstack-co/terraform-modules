@@ -1,4 +1,4 @@
-# DO NOT REMOVE THIS LINE. Required for account_id references in locals and resources.
+# Retrieve account ID from AWS
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "role" {

@@ -21,7 +21,7 @@ resource "aws_elastic_beanstalk_environment" "this" {
   tier                   = var.tier
   version_label          = var.version_label
   wait_for_ready_timeout = var.wait_for_ready_timeout
-  
+
   dynamic "setting" {
     for_each = var.setting
     content {
