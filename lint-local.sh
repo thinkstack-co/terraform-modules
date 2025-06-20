@@ -27,9 +27,11 @@ run_tflint() {
 EOF
     
     if [ $tflint_exit_code -eq 0 ]; then
-        echo "✅ **Status**: PASSED - No TFLint issues found" >> reports/terraform-tflint-report.md
-        echo "" >> reports/terraform-tflint-report.md
-        echo "All Terraform files passed TFLint validation." >> reports/terraform-tflint-report.md
+        {
+            echo "✅ **Status**: PASSED - No TFLint issues found"
+            echo ""
+            echo "All Terraform files passed TFLint validation."
+        } >> reports/terraform-tflint-report.md
     else
         # Count issues
         issue_count=$(grep -c "issue(s) found:" /tmp/tflint_output.txt || echo "0")
@@ -39,10 +41,12 @@ EOF
             actual_count=$(wc -l < /tmp/tflint_output.txt | tr -d ' ')
         fi
         
-        echo "❌ **Status**: FAILED - $actual_count TFLint issues found" >> reports/terraform-tflint-report.md
-        echo "" >> reports/terraform-tflint-report.md
-        echo "## Issues Found" >> reports/terraform-tflint-report.md
-        echo "" >> reports/terraform-tflint-report.md
+        {
+            echo "❌ **Status**: FAILED - $actual_count TFLint issues found"
+            echo ""
+            echo "## Issues Found"
+            echo ""
+        } >> reports/terraform-tflint-report.md
         
         # Process each line and format as markdown
         while IFS= read -r line; do
@@ -56,17 +60,21 @@ EOF
                 message="${BASH_REMATCH[5]}"
                 rule="${BASH_REMATCH[6]}"
                 
-                echo "### $severity: $message" >> reports/terraform-tflint-report.md
-                echo "" >> reports/terraform-tflint-report.md
-                echo "- **File**: \`$file\`" >> reports/terraform-tflint-report.md
-                echo "- **Line**: $line_num:$col_num" >> reports/terraform-tflint-report.md
-                echo "- **Rule**: \`$rule\`" >> reports/terraform-tflint-report.md
-                echo "" >> reports/terraform-tflint-report.md
+                {
+                    echo "### $severity: $message"
+                    echo ""
+                    echo "- **File**: \`$file\`"
+                    echo "- **Line**: $line_num:$col_num"
+                    echo "- **Rule**: \`$rule\`"
+                    echo ""
+                } >> reports/terraform-tflint-report.md
             elif [[ -n "$line" ]]; then
-                echo "\`\`\`" >> reports/terraform-tflint-report.md
-                echo "$line" >> reports/terraform-tflint-report.md
-                echo "\`\`\`" >> reports/terraform-tflint-report.md
-                echo "" >> reports/terraform-tflint-report.md
+                {
+                    echo "\`\`\`"
+                    echo "$line"
+                    echo "\`\`\`"
+                    echo ""
+                } >> reports/terraform-tflint-report.md
             fi
         done < /tmp/tflint_output.txt
     fi
@@ -80,7 +88,7 @@ run_shellcheck() {
     echo "Running ShellCheck..."
     
     if command -v shellcheck >/dev/null 2>&1; then
-        find . -name "*.sh" -not -path "./.*" | xargs shellcheck -f gcc > /tmp/shellcheck_output.txt 2>&1 || true
+        find . -name "*.sh" -not -path "./.*" -print0 | xargs -0 shellcheck -f gcc > /tmp/shellcheck_output.txt 2>&1 || true
         
         cat > reports/bash-shellcheck-report.md << 'EOF'
 # ShellCheck Report
@@ -90,13 +98,15 @@ EOF
         
         if [ -s /tmp/shellcheck_output.txt ]; then
             issue_count=$(wc -l < /tmp/shellcheck_output.txt | tr -d ' ')
-            echo "❌ **Status**: FAILED - $issue_count ShellCheck issues found" >> reports/bash-shellcheck-report.md
-            echo "" >> reports/bash-shellcheck-report.md
-            echo "## Issues Found" >> reports/bash-shellcheck-report.md
-            echo "" >> reports/bash-shellcheck-report.md
-            echo "\`\`\`" >> reports/bash-shellcheck-report.md
-            cat /tmp/shellcheck_output.txt >> reports/bash-shellcheck-report.md
-            echo "\`\`\`" >> reports/bash-shellcheck-report.md
+            {
+                echo "❌ **Status**: FAILED - $issue_count ShellCheck issues found"
+                echo ""
+                echo "## Issues Found"
+                echo ""
+                echo "\`\`\`"
+                cat /tmp/shellcheck_output.txt
+                echo "\`\`\`"
+            } >> reports/bash-shellcheck-report.md
         else
             echo "✅ **Status**: PASSED - No ShellCheck issues found" >> reports/bash-shellcheck-report.md
         fi
@@ -127,13 +137,15 @@ EOF
         if [ $black_exit_code -eq 0 ]; then
             echo "✅ **Status**: PASSED - No Python Black formatting issues found" >> reports/python-black-report.md
         else
-            echo "❌ **Status**: FAILED - Python Black formatting issues found" >> reports/python-black-report.md
-            echo "" >> reports/python-black-report.md
-            echo "## Issues Found" >> reports/python-black-report.md
-            echo "" >> reports/python-black-report.md
-            echo "\`\`\`diff" >> reports/python-black-report.md
-            cat /tmp/black_output.txt >> reports/python-black-report.md
-            echo "\`\`\`" >> reports/python-black-report.md
+            {
+                echo "❌ **Status**: FAILED - Python Black formatting issues found"
+                echo ""
+                echo "## Issues Found"
+                echo ""
+                echo "\`\`\`diff"
+                cat /tmp/black_output.txt
+                echo "\`\`\`"
+            } >> reports/python-black-report.md
         fi
         
         echo "Python Black report generated: reports/python-black-report.md"

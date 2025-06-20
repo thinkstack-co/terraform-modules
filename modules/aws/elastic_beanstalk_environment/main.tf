@@ -25,10 +25,10 @@ resource "aws_elastic_beanstalk_environment" "this" {
   dynamic "setting" {
     for_each = var.setting
     content {
-      namespace = lookup(setting.value, "namespace")
-      name      = lookup(setting.value, "name")
-      value     = lookup(setting.value, "value")
-      resource  = lookup(setting.value, "resource", null)
+      namespace = setting.value["namespace"]
+      name      = setting.value["name"]
+      value     = setting.value["value"]
+      resource  = try(setting.value["resource"], null)
     }
   }
 }
