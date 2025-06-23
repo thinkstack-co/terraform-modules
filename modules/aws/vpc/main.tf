@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0"
+      version = ">= 3.0.0, < 4.0.0"
     }
   }
 }
@@ -211,8 +211,8 @@ resource "aws_route" "public_default_route" {
 }
 
 resource "aws_eip" "nateip" {
-  count  = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
-  domain = "vpc"
+  count = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
+  vpc   = true
 }
 
 resource "aws_nat_gateway" "natgw" {
