@@ -165,11 +165,6 @@ variable "root_volume_type" {
   }
 }
 
-/* variable "root_iops" {
-  type        = number
-  description = "(Optional) The amount of provisioned IOPS. This is only valid for volume_type of io1, and must be specified if using that type"
-  default     = null
-} */
 
 variable "source_dest_check" {
   type        = bool

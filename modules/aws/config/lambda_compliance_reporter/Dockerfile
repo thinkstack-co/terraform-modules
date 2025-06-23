@@ -1,19 +1,33 @@
-# NOTE: When building Lambda deployment packages with native dependencies, always use the x86_64 architecture for AWS Lambda compatibility unless you are explicitly deploying to arm64 Lambdas.
-# Example Docker build command for x86_64 Lambda compatibility:
-# docker run --platform linux/amd64 --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.12 pip install -r requirements.txt -t ./package
+# AWS Lambda Deployment Package Builder for Config Compliance Reporter
+#
+# IMPORTANT: This Dockerfile builds a Lambda deployment package compatible with AWS Lambda's x86_64 architecture.
+# Even if you're on an ARM-based machine (like M1/M2 Mac), you must build for x86_64 for Lambda compatibility.
+#
+# Build Instructions:
+# 1. Navigate to this directory in your terminal
+# 2. Build the Docker image:
+#    docker build --platform linux/amd64 -t lambda-builder .
+#
+# 3. Extract the Lambda package:
+#    docker run --rm -v $(pwd):/output lambda-builder cp /build/lambda_package.zip /output/
+#
+# 4. The lambda_package.zip will be available in the current directory
+#
+# NOTE: You will see a platform mismatch warning if building on ARM - this is normal and expected.
+# WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8)
 
-FROM amazonlinux:2
+FROM amazonlinux:2023
 
-# Install Python 3.8, pip, and zip using amazon-linux-extras
-RUN yum -y update && \
-    amazon-linux-extras enable python3.8 && \
-    yum -y install python38-3.8.16-1.amzn2 python38-pip-20.2.2-1.amzn2 zip-3.0-23.amzn2.0.2 && \
-    yum clean all
+# Install Python 3.12, pip, and zip
+# hadolint ignore=DL3041
+RUN dnf -y update && \
+    dnf -y install python3.12 python3.12-pip zip && \
+    dnf clean all
 
 WORKDIR /build
 
 COPY requirements.txt .
 COPY lambda_function.py .
 
-RUN /usr/bin/python3.8 -m pip install -r requirements.txt -t . && \
+RUN python3.12 -m pip install --no-cache-dir -r requirements.txt -t . && \
     zip -r9 /build/lambda_package.zip .

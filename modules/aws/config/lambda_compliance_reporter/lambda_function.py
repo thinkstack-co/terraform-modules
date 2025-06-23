@@ -1,6 +1,6 @@
 import io
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import boto3
 from reportlab.lib import colors
@@ -150,7 +150,8 @@ def lambda_handler(event, context):
     3. Retrieve all AWS Config rules and their compliance status.
     4. Count compliant, non-compliant, and insufficient data rules for summary.
     5. Build a table summarizing compliance status for each rule.
-    6. For each non-compliant rule, gather details of non-compliant resources, including IAM usernames and resource names/tags.
+    6. For each non-compliant rule, gather details of non-compliant resources,
+       including IAM usernames and resource names/tags.
     7. Build a detailed section listing all non-compliant resources.
     8. Create a PDF report using ReportLab, including:
        - Title and account info
@@ -168,9 +169,24 @@ def lambda_handler(event, context):
         dict: Status code and S3 path of the uploaded compliance report PDF.
     """
     account_name, account_id = get_account_info()
-    now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     rules = get_config_rules()
     compliance = get_compliance_status()
+
+    # Define styles for PDF
+    styles = getSampleStyleSheet()
+    title_style = styles["Heading1"]
+    subtitle_style = styles["Heading2"]
+    subtitle_style.alignment = TA_CENTER
+    normal_style = styles["Normal"]
+    small_style = ParagraphStyle("small", fontSize=9, leading=12)
+    table_header_style = ParagraphStyle(
+        "table_header",
+        fontSize=11,
+        leading=14,
+        alignment=TA_CENTER,
+        fontName="Helvetica-Bold",
+    )
 
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
@@ -179,12 +195,10 @@ def lambda_handler(event, context):
         1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
     )
 
-    # Rule compliance table data
-    rule_table_data = [["Rule Name", "Status"]]
-    for rule in rules:
-        name = rule["ConfigRuleName"]
-        status = compliance.get(name, "UNKNOWN")
-        rule_table_data.append([name, status])
+    # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
+    for rule_name, status in compliance.items():
+        if status == "INSUFFICIENT_DATA":
+            compliance[rule_name] = "N/A"
 
     # Non-compliant resources section
     non_compliant_section = []
@@ -223,90 +237,123 @@ def lambda_handler(event, context):
         bottomMargin=40,
     )
     elements = []
-    styles = getSampleStyleSheet()
-    title_style = styles["Heading1"]
-    subtitle_style = styles["Heading2"]
-    subtitle_style.alignment = TA_CENTER
-    normal_style = styles["Normal"]
-    small_style = ParagraphStyle("small", fontSize=9, leading=12)
-    table_header_style = ParagraphStyle(
-        "table_header",
-        fontSize=11,
-        leading=14,
-        alignment=TA_CENTER,
-        fontName="Helvetica-Bold",
-    )
-
     elements.append(Paragraph("AWS Config Compliance Report", title_style))
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 12))
     elements.append(Paragraph(f"Account Name: <b>{account_name}</b>", normal_style))
     elements.append(Paragraph(f"Account Number: <b>{account_id}</b>", normal_style))
     elements.append(Paragraph(f"Generated: <b>{now}</b>", small_style))
     elements.append(Spacer(1, 18))
 
-    # Compliance summary table
+    # Overall Compliance Summary - Moved to the top of the report
+    elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
+
+    # Create the summary table
     summary_data = [
-        [
-            Paragraph("<b>Status</b>", table_header_style),
-            Paragraph("<b>Count</b>", table_header_style),
-        ],
-        ["Compliant Rules", compliant_count],
-        ["Non-Compliant Rules", non_compliant_count],
-        ["Insufficient Data", insufficient_data_count],
+        ["Compliant", f"{compliant_count}"],
+        ["Non-Compliant", f"{non_compliant_count}"],
+        ["Insufficient Data", f"{insufficient_data_count}"],
+        ["Total Rules", f"{len(rules)}"],
     ]
-    summary_table = Table(summary_data, colWidths=[180, 80])
+
+    summary_table = Table(summary_data, colWidths=[120, 60])
     summary_table.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#555555")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 11),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                (
-                    "ROWBACKGROUNDS",
-                    (0, 1),
-                    (-1, -1),
-                    [colors.whitesmoke, colors.HexColor("#f5f5f5")],
-                ),
-                ("BOX", (0, 0), (-1, -1), 1, colors.gray),
+                ("ALIGN", (0, 0), (0, -1), "LEFT"),
+                ("ALIGN", (1, 0), (1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
             ]
         )
     )
-    elements.append(Paragraph("Overall Compliance Summary", subtitle_style))
     elements.append(summary_table)
     elements.append(Spacer(1, 18))
 
-    # Rule compliance status table
-    rule_table = Table(rule_table_data, colWidths=[300, 120])
-    rule_table.setStyle(
-        TableStyle(
+    # Config Rules Table - Show all rules (renamed from "Configured AWS Config Rules")
+    elements.append(Paragraph("AWS Config Rules", subtitle_style))
+    if rules:
+        rules_summary_data = [
             [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1a237e")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                (
-                    "ROWBACKGROUNDS",
-                    (0, 1),
-                    (-1, -1),
-                    [colors.whitesmoke, colors.HexColor("#e3e6f3")],
-                ),
-                ("ALIGN", (0, 1), (-1, -1), "LEFT"),
-                ("BOX", (0, 0), (-1, -1), 1, colors.gray),
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+                Paragraph("<b>Rule Name</b>", table_header_style),
+                Paragraph("<b>Description</b>", table_header_style),
+                Paragraph("<b>Status</b>", table_header_style),
             ]
+        ]
+        for rule in rules:
+            rule_name = rule["ConfigRuleName"]
+            description = rule.get("Description", "N/A")
+            # Get the status from compliance data
+            status = compliance.get(rule_name, "UNKNOWN")
+
+            # Replace INSUFFICIENT_DATA with N/A when there are no resources for the rule
+            if status == "INSUFFICIENT_DATA":
+                status = "N/A"
+
+            # Use a smaller font for long descriptions to fit better
+            desc_style = small_style if len(description) > 80 else normal_style
+
+            rules_summary_data.append(
+                [
+                    Paragraph(rule_name, small_style),
+                    Paragraph(description, desc_style),
+                    Paragraph(
+                        status, small_style
+                    ),  # Status will be styled separately below
+                ]
+            )
+
+        # Increase status column width to accommodate 'NON_COMPLIANT' text
+        rules_summary_table = Table(rules_summary_data, colWidths=[140, 250, 120])
+        rules_summary_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4a5568")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                    (
+                        "ROWBACKGROUNDS",
+                        (0, 1),
+                        (-1, -1),
+                        [colors.whitesmoke, colors.HexColor("#edf2f7")],
+                    ),
+                    ("ALIGN", (0, 1), (1, -1), "LEFT"),
+                    ("ALIGN", (2, 1), (2, -1), "CENTER"),  # Center-align status column
+                    # Add special styling for status cells
+                    *[
+                        ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightgreen)
+                        for i, row in enumerate(rules_summary_data[1:])
+                        if row[2].text == "COMPLIANT"
+                    ],
+                    *[
+                        ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightpink)
+                        for i, row in enumerate(rules_summary_data[1:])
+                        if row[2].text == "NON_COMPLIANT"
+                    ],
+                    *[
+                        ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightgrey)
+                        for i, row in enumerate(rules_summary_data[1:])
+                        if row[2].text == "N/A"
+                    ],
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("BOX", (0, 0), (-1, -1), 1, colors.gray),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+                ]
+            )
         )
-    )
-    elements.append(Paragraph("Rule Compliance Status", subtitle_style))
-    elements.append(rule_table)
-    elements.append(Spacer(1, 24))
+        elements.append(rules_summary_table)
+    else:
+        elements.append(
+            Paragraph("<i>No AWS Config rules configured.</i>", normal_style)
+        )
+    elements.append(Spacer(1, 18))
+
+    # Removed duplicate compliance summary table (already shown at the top of the report)
 
     # Non-compliant resources table
     elements.append(Paragraph("Non-Compliant Resources", subtitle_style))
@@ -356,10 +403,10 @@ def lambda_handler(event, context):
     buffer.seek(0)
 
     s3 = boto3.client("s3")
-    now_dt = datetime.utcnow()
-    bucket = os.environ.get(
-        "CONFIG_REPORT_BUCKET", "liberty-prod-config-bucket-20250305204205543600000001"
-    )
+    now_dt = datetime.now(timezone.utc)
+    bucket = os.environ.get("CONFIG_REPORT_BUCKET")
+    if not bucket:
+        raise ValueError("CONFIG_REPORT_BUCKET environment variable not set")
     prefix = os.environ.get("REPORTER_OUTPUT_S3_PREFIX", "compliance-reports/weekly/")
     key = (
         f"{prefix}{now_dt.year}/"

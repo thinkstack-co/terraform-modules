@@ -6,7 +6,6 @@ import boto3
 import botocore
 from diagrams import Cluster, Diagram
 from diagrams.aws.compute import EC2
-from diagrams.aws.network import VPC, Subnet
 
 
 def get_vpcs(ec2):

@@ -6,12 +6,12 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  customer_identifier = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
+  customer_identifier  = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
   valid_retention_days = (var.report_retention_days == 0 || var.glacier_transition_days == 0) || var.report_retention_days > var.glacier_transition_days
 }
 # --- Core AWS Config Resources --- 
- 
- # IAM Role for AWS Config Service
+
+# IAM Role for AWS Config Service
 resource "aws_iam_role" "config_role" {
   name = var.config_iam_role_name
   tags = merge(var.tags, { Customer = local.customer_identifier })
@@ -30,32 +30,32 @@ resource "aws_iam_role" "config_role" {
   })
 }
 
- # AWS Config Configuration Recorder
+# AWS Config Configuration Recorder
 # This resource enables AWS Config and defines what resources it records.
 resource "aws_config_configuration_recorder" "config" {
-  count    = (var.enable_encrypted_volumes_rule ||
-              var.enable_iam_password_policy_rule ||
-              var.enable_s3_public_access_rules ||
-              var.enable_iam_root_key_rule ||
-              var.enable_mfa_for_iam_console_rule ||
-              var.enable_ec2_volume_inuse_rule ||
-              var.enable_eip_attached_rule ||
-              var.enable_rds_storage_encrypted_rule) ? 1 : 0
+  count = (var.enable_encrypted_volumes_rule ||
+    var.enable_iam_password_policy_rule ||
+    var.enable_s3_public_access_rules ||
+    var.enable_mfa_for_iam_console_rule ||
+    var.enable_ec2_volume_inuse_rule ||
+    var.enable_eip_attached_rule ||
+    var.enable_rds_storage_encrypted_rule ||
+  var.enable_iam_user_access_key_age_rule) ? 1 : 0
 
   name     = var.config_recorder_name
   role_arn = aws_iam_role.config_role.arn
 
   recording_group {
-    all_supported                 = false
+    all_supported = false
     resource_types = distinct(concat(
       var.enable_encrypted_volumes_rule ? ["AWS::EC2::Volume"] : [],
       var.enable_iam_password_policy_rule ? ["AWS::IAM::User"] : [],
       var.enable_s3_public_access_rules ? ["AWS::S3::Bucket"] : [],
-      var.enable_iam_root_key_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
       var.enable_mfa_for_iam_console_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
-      var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [], # Volume type already potentially included
+      var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [],  # Volume type already potentially included
       var.enable_eip_attached_rule ? ["AWS::EC2::EIP"] : [],
-      var.enable_rds_storage_encrypted_rule ? ["AWS::RDS::DBInstance"] : []
+      var.enable_rds_storage_encrypted_rule ? ["AWS::RDS::DBInstance"] : [],
+      var.enable_iam_user_access_key_age_rule ? ["AWS::IAM::User"] : [] # User type already potentially included
     ))
   }
 
@@ -64,14 +64,14 @@ resource "aws_config_configuration_recorder" "config" {
   }
 }
 
- # S3 Bucket for AWS Config
+# S3 Bucket for AWS Config
 # Stores configuration snapshots and history files delivered by AWS Config.
 resource "aws_s3_bucket" "config_bucket" {
   bucket_prefix = var.config_bucket_prefix
   tags          = merge(var.tags, { Customer = local.customer_identifier })
 }
 
- # S3 Bucket Policy
+# S3 Bucket Policy
 # Grants AWS Config service permissions to write objects (delivery) and check bucket ACLs.
 resource "aws_s3_bucket_policy" "config" {
   bucket = aws_s3_bucket.config_bucket.id
@@ -105,12 +105,12 @@ resource "aws_s3_bucket_policy" "config" {
   })
 }
 
- # AWS Config Delivery Channel
+# AWS Config Delivery Channel
 # Specifies where AWS Config delivers configuration snapshots and history files (the S3 bucket).
 resource "aws_config_delivery_channel" "config" {
   name           = var.config_recorder_name # Often named the same as the recorder
   s3_bucket_name = aws_s3_bucket.config_bucket.id
-  s3_key_prefix  = var.s3_key_prefix
+  s3_key_prefix  = var.s3_key_prefix # gitleaks:allow
 
   snapshot_delivery_properties {
     delivery_frequency = var.snapshot_delivery_frequency
@@ -119,7 +119,7 @@ resource "aws_config_delivery_channel" "config" {
   depends_on = [aws_config_configuration_recorder.config, aws_s3_bucket_policy.config]
 }
 
- # AWS Config Recorder Status
+# AWS Config Recorder Status
 # Controls whether the configuration recorder is currently recording.
 resource "aws_config_configuration_recorder_status" "config" {
   name       = aws_config_configuration_recorder.config[0].name
@@ -138,7 +138,7 @@ resource "aws_iam_role_policy_attachment" "config" {
 resource "aws_config_config_rule" "iam_password_policy" {
   count       = var.enable_iam_password_policy_rule ? 1 : 0
   name        = "iam-password-policy"
-  description = "Ensures the account password policy for IAM users meets the specified requirements"
+  description = "Ensures the AWS account password policy for IAM users meets specified complexity requirements including minimum length, character types, and password reuse prevention"
 
   source {
     owner             = "AWS"
@@ -158,23 +158,10 @@ resource "aws_config_config_rule" "iam_password_policy" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-resource "aws_config_config_rule" "encrypted_volumes" {
-  count = var.enable_encrypted_volumes_rule ? 1 : 0
-  name        = "encrypted-volumes"
-  description = "Checks whether EBS volumes that are in an attached state are encrypted."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "ENCRYPTED_VOLUMES"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
-
 resource "aws_config_config_rule" "ebs_encryption" {
   count       = var.enable_ebs_encryption_rule ? 1 : 0
   name        = "ebs-encryption-enabled"
-  description = "Checks whether EBS volumes are encrypted"
+  description = "Checks whether Amazon EBS volumes that are attached to EC2 instances are encrypted to ensure data at rest is protected"
 
   source {
     owner             = "AWS"
@@ -189,9 +176,9 @@ resource "aws_config_config_rule" "ebs_encryption" {
 }
 
 resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
-  count = var.enable_s3_public_access_rules ? 1 : 0
+  count       = var.enable_s3_public_access_rules ? 1 : 0
   name        = "s3-bucket-public-read-prohibited"
-  description = "Checks that your S3 buckets do not allow public read access."
+  description = "Checks that your Amazon S3 buckets do not allow public read access through bucket policies or ACLs to prevent unauthorized data exposure"
 
   source {
     owner             = "AWS"
@@ -202,9 +189,9 @@ resource "aws_config_config_rule" "s3_bucket_public_read_prohibited" {
 }
 
 resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
-  count = var.enable_s3_public_access_rules ? 1 : 0
+  count       = var.enable_s3_public_access_rules ? 1 : 0
   name        = "s3-bucket-public-write-prohibited"
-  description = "Checks that your S3 buckets do not allow public write access."
+  description = "Checks that your Amazon S3 buckets do not allow public write access through bucket policies or ACLs to prevent unauthorized data modification"
 
   source {
     owner             = "AWS"
@@ -214,23 +201,11 @@ resource "aws_config_config_rule" "s3_bucket_public_write_prohibited" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
-resource "aws_config_config_rule" "iam_root_access_key_check" {
-  count = var.enable_iam_root_key_rule ? 1 : 0
-  name        = "iam-root-access-key-check"
-  description = "Checks whether the root account access key exists."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
-  }
-
-  depends_on = [aws_config_delivery_channel.config]
-}
 
 resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
-  count = var.enable_mfa_for_iam_console_rule ? 1 : 0
+  count       = var.enable_mfa_for_iam_console_rule ? 1 : 0
   name        = "mfa-enabled-for-iam-console-access"
-  description = "Checks whether MFA is enabled for all IAM users with a console password."
+  description = "Checks whether Multi-Factor Authentication (MFA) is enabled for all IAM users that have a console password to enhance account security"
 
   source {
     owner             = "AWS"
@@ -240,10 +215,27 @@ resource "aws_config_config_rule" "mfa_enabled_for_iam_console_access" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
+resource "aws_config_config_rule" "access_keys_rotated" {
+  count       = var.enable_iam_user_access_key_age_rule ? 1 : 0
+  name        = "access-keys-rotated"
+  description = "Checks whether all active IAM user access keys are rotated within the specified number of days (default 90) to reduce the risk of compromised credentials"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "ACCESS_KEYS_ROTATED"
+  }
+
+  input_parameters = jsonencode({
+    maxAccessKeyAge = tostring(var.iam_access_key_max_age)
+  })
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
 resource "aws_config_config_rule" "ec2_volume_inuse_check" {
-  count = var.enable_ec2_volume_inuse_rule ? 1 : 0
+  count       = var.enable_ec2_volume_inuse_rule ? 1 : 0
   name        = "ec2-volume-inuse-check"
-  description = "Checks whether EBS volumes are attached to EC2 instances."
+  description = "Checks whether Amazon EBS volumes are attached to EC2 instances to identify unused volumes that may incur unnecessary costs"
 
   source {
     owner             = "AWS"
@@ -254,9 +246,9 @@ resource "aws_config_config_rule" "ec2_volume_inuse_check" {
 }
 
 resource "aws_config_config_rule" "eip_attached" {
-  count = var.enable_eip_attached_rule ? 1 : 0
+  count       = var.enable_eip_attached_rule ? 1 : 0
   name        = "eip-attached"
-  description = "Checks whether Elastic IP addresses are attached to EC2 instances."
+  description = "Checks whether Elastic IP addresses allocated to your account are attached to EC2 instances or in-use network interfaces to avoid charges for unused EIPs"
 
   source {
     owner             = "AWS"
@@ -267,9 +259,9 @@ resource "aws_config_config_rule" "eip_attached" {
 }
 
 resource "aws_config_config_rule" "rds_storage_encrypted" {
-  count = var.enable_rds_storage_encrypted_rule ? 1 : 0
+  count       = var.enable_rds_storage_encrypted_rule ? 1 : 0
   name        = "rds-storage-encrypted"
-  description = "Checks whether storage encryption is enabled for your RDS DB instances."
+  description = "Checks whether storage encryption is enabled for Amazon RDS DB instances to ensure database data at rest is encrypted and protected"
 
   source {
     owner             = "AWS"
@@ -279,8 +271,9 @@ resource "aws_config_config_rule" "rds_storage_encrypted" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
+
 # --- Optional S3 Bucket Lifecycle Configuration ---
- 
+
 # Manages the lifecycle of objects within the Config S3 bucket.
 # Can be used for transitioning old data to cheaper storage (Glacier) or expiring it.
 resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
@@ -290,7 +283,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
   rule {
     id     = "config-reports-lifecycle"
     status = "Enabled"
-    
+
     filter {
       prefix = var.s3_key_prefix
     }
@@ -309,14 +302,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
         days = var.report_retention_days
       }
     }
-    
+
     dynamic "noncurrent_version_expiration" {
       for_each = var.report_retention_days > 0 ? [1] : []
       content {
         noncurrent_days = var.report_retention_days
       }
     }
-    
+
     dynamic "noncurrent_version_transition" {
       for_each = var.enable_glacier_transition && var.glacier_transition_days > 0 ? [1] : []
       content {
@@ -331,7 +324,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
     content {
       id     = "config-reports-glacier-expiration"
       status = "Enabled"
-      
+
       filter {
         and {
           prefix = var.s3_key_prefix
@@ -340,7 +333,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_lifecycle" {
           }
         }
       }
-      
+
       expiration {
         days = var.glacier_retention_days
       }
@@ -358,11 +351,11 @@ resource "null_resource" "validate_retention_days" {
 }
 
 # --- Optional Compliance Reporter Lambda --- 
- 
- # The Lambda function is pre-packaged with all dependencies in the repository
- # This eliminates the need for local Python/pip installation
- 
- # 2. IAM Role for Lambda
+
+# The Lambda function is pre-packaged with all dependencies in the repository
+# This eliminates the need for local Python/pip installation
+
+# 2. IAM Role for Lambda
 data "aws_iam_policy_document" "reporter_lambda_assume_role" {
   count = var.enable_compliance_reporter ? 1 : 0
 
@@ -417,7 +410,7 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
     resources = [
       "${aws_s3_bucket.config_bucket.arn}/${var.reporter_output_s3_prefix}*" # Restrict to the report prefix
     ]
-    effect    = "Allow"
+    effect = "Allow"
   }
   statement { # EC2 resource tag access
     actions = [
@@ -498,10 +491,10 @@ resource "aws_lambda_function" "compliance_reporter" {
 
   environment {
     variables = merge({
-      CONFIG_REPORT_BUCKET         = aws_s3_bucket.config_bucket.bucket
-      REPORTER_OUTPUT_S3_PREFIX    = var.reporter_output_s3_prefix
-      CUSTOMER_IDENTIFIER          = local.customer_identifier
-      ACCOUNT_DISPLAY_NAME         = var.account_display_name
+      CONFIG_REPORT_BUCKET      = aws_s3_bucket.config_bucket.bucket
+      REPORTER_OUTPUT_S3_PREFIX = var.reporter_output_s3_prefix
+      CUSTOMER_IDENTIFIER       = local.customer_identifier
+      ACCOUNT_DISPLAY_NAME      = var.account_display_name
     })
   }
 
@@ -550,6 +543,10 @@ terraform {
     archive = {
       source  = "hashicorp/archive"
       version = ">= 2.2.0" # For archive_file data source
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.0.0"
     }
   }
 }

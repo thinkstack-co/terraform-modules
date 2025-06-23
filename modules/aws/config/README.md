@@ -78,11 +78,12 @@ module "example_aws_config" {
   enable_encrypted_volumes_rule     = true
   enable_ebs_encryption_rule        = true
   enable_s3_public_access_rules     = true
-  enable_iam_root_key_rule          = true
   enable_mfa_for_iam_console_rule   = true
   enable_ec2_volume_inuse_rule      = true
   enable_eip_attached_rule          = true
   enable_rds_storage_encrypted_rule = true
+  enable_iam_user_access_key_age_rule = true
+  iam_access_key_max_age            = 90  # Days before access keys are non-compliant
 
   # --- S3 Lifecycle and Retention ---
   enable_s3_lifecycle_rules = true
@@ -152,15 +153,15 @@ This Terraform module configures AWS Config to record and evaluate the configura
 *   Creates an S3 bucket for storing configuration snapshots and history.
 *   Records specific resource types (`AWS::EC2::Volume`, `AWS::IAM::User`) required for the optional rules, including global IAM types.
 *   Optionally enables AWS Managed Config rules:
-    *   `IAM_PASSWORD_POLICY`: Checks account password policy.
-    *   `ENCRYPTED_VOLUMES`: Checks if attached EBS volumes are encrypted.
-    *   `S3_BUCKET_PUBLIC_READ_PROHIBITED`: Checks that your S3 buckets do not allow public read access.
-    *   `S3_BUCKET_PUBLIC_WRITE_PROHIBITED`: Checks that your S3 buckets do not allow public write access.
-    *   `ROOT_ACCOUNT_MFA_ENABLED`: Checks whether the root user requires MFA.
-    *   `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS`: Checks whether IAM users with console passwords have MFA enabled.
-    *   `EC2_VOLUME_INUSE_CHECK`: Checks whether EBS volumes are attached to EC2 instances.
-    *   `EIP_ATTACHED`: Checks whether Elastic IP addresses are attached.
-    *   `RDS_STORAGE_ENCRYPTED`: Checks whether storage encryption is enabled for RDS DB instances.
+    *   `IAM_PASSWORD_POLICY`: Ensures the AWS account password policy for IAM users meets specified complexity requirements including minimum length, character types, and password reuse prevention.
+    *   `ENCRYPTED_VOLUMES`: Checks whether Amazon EBS volumes that are attached to EC2 instances are encrypted to ensure data at rest is protected.
+    *   `S3_BUCKET_PUBLIC_READ_PROHIBITED`: Checks that your Amazon S3 buckets do not allow public read access through bucket policies or ACLs to prevent unauthorized data exposure.
+    *   `S3_BUCKET_PUBLIC_WRITE_PROHIBITED`: Checks that your Amazon S3 buckets do not allow public write access through bucket policies or ACLs to prevent unauthorized data modification.
+    *   `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS`: Checks whether Multi-Factor Authentication (MFA) is enabled for all IAM users that have a console password to enhance account security.
+    *   `EC2_VOLUME_INUSE_CHECK`: Checks whether Amazon EBS volumes are attached to EC2 instances to identify unused volumes that may incur unnecessary costs.
+    *   `EIP_ATTACHED`: Checks whether Elastic IP addresses allocated to your account are attached to EC2 instances or in-use network interfaces to avoid charges for unused EIPs.
+    *   `RDS_STORAGE_ENCRYPTED`: Checks whether storage encryption is enabled for Amazon RDS DB instances to ensure database data at rest is encrypted and protected.
+    *   `ACCESS_KEYS_ROTATED`: Checks whether all active IAM user access keys are rotated within the specified number of days (default 90) to reduce the risk of compromised credentials.
 *   Optionally deploys a Lambda function to generate scheduled PDF compliance reports summarizing the status of Config Rules and storing them in the Config S3 bucket.
 
 ## Architecture
@@ -268,11 +269,11 @@ module "aws_config_all_rules" {
   enable_encrypted_volumes_rule    = true
   enable_iam_password_policy_rule  = true
   enable_s3_public_access_rules    = true
-  enable_iam_root_key_rule         = true
   enable_mfa_for_iam_console_rule  = true
   enable_ec2_volume_inuse_rule     = true
   enable_eip_attached_rule         = true
   enable_rds_storage_encrypted_rule= true
+  enable_iam_user_access_key_age_rule = true
 
   # Compliance reporter is disabled by default
   enable_compliance_reporter       = false
@@ -359,7 +360,6 @@ _For detailed variable and output descriptions, please refer to the Inputs and O
 | <a name="input_enable_encrypted_volumes_rule"></a> [enable\_encrypted\_volumes\_rule](#input\_enable\_encrypted\_volumes\_rule) | Enable the `ENCRYPTED_VOLUMES` managed rule | `bool` | `true` | no |
 | <a name="input_enable_iam_password_policy_rule"></a> [enable\_iam\_password\_policy\_rule](#input\_enable\_iam\_password\_policy\_rule) | Enable the `IAM_PASSWORD_POLICY` managed rule | `bool` | `true` | no |
 | <a name="input_enable_s3_public_access_rules"></a> [enable\_s3\_public\_access\_rules](#input\_enable\_s3\_public\_access\_rules) | Enable `S3_BUCKET_PUBLIC_READ_PROHIBITED` and `S3_BUCKET_PUBLIC_WRITE_PROHIBITED` rules | `bool` | `true` | no |
-| <a name="input_enable_iam_root_key_rule"></a> [enable\_iam\_root\_key\_rule](#input\_enable\_iam\_root\_key\_rule) | Enable the `ROOT_ACCOUNT_MFA_ENABLED` rule (checks root user MFA) | `bool` | `true` | no |
 | <a name="input_enable_mfa_for_iam_console_rule"></a> [enable\_mfa\_for\_iam\_console\_rule](#input\_enable\_mfa\_for\_iam\_console\_rule) | Enable the `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS` rule | `bool` | `true` | no |
 | <a name="input_enable_ec2_volume_inuse_rule"></a> [enable\_ec2\_volume\_inuse\_rule](#input\_enable\_ec2\_volume\_inuse\_rule) | Enable the `EC2_VOLUME_INUSE_CHECK` rule | `bool` | `true` | no |
 | <a name="input_enable_eip_attached_rule"></a> [enable\_eip\_attached\_rule](#input\_enable\_eip\_attached\_rule) | Enable the `EIP_ATTACHED` rule | `bool` | `true` | no |

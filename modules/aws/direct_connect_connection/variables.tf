@@ -1,4 +1,4 @@
-    variable "name" {
+variable "name" {
   description = "Name of the Direct Connect connection"
   type        = string
   default     = "tf-dx-connection"

@@ -22,7 +22,7 @@ variable "private_ips_count" {
 variable "private_ip_list_enabled" {
   description = "(Optional) Whether private_ip_list is allowed and controls the IPs to assign to the ENI and private_ips and private_ips_count become read-only. Default false."
   default     = "false"
-  type = bool
+  type        = bool
 }
 
 variable "security_groups" {

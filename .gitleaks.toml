@@ -1,14 +1,36 @@
-[[rules]]
-id = "false-positive-s3_key_prefix"
-description = "Ignore s3_key_prefix variable assignment"
-regex = '''s3_key_prefix\s+=\s+var\.s3_key_prefix'''
-path = '''modules/aws'''
-tags = ["false-positive"]
+# Gitleaks configuration file
+# Format compatible with Gitleaks v8+ used in Super-Linter v5
 
+# Define the rule we want to disable for specific patterns
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+# Keep the original rule definition but add our allowlist
+
+# Global allowlist
 [allowlist]
+description = "Global allowlist for false positives"
 regexes = [
-  '''s3_key_prefix\s+=\s+var\.s3_key_prefix'''
+  # Match any s3_key_prefix variable assignments
+  '''s3_key_prefix\s*=\s*var\.s3_key_prefix''',
+  '''s3_key_prefix\s*=\s*var.s3_key_prefix'''
 ]
 paths = [
-  "modules/aws"
+  # Limit to AWS module directories
+  '''modules/aws/.*'''
 ]
+
+# Specific allowlist for the config module
+[[allowlist.files]]
+description = "Allowlist for AWS Config module"
+paths = [
+  '''modules/aws/config/main.tf'''
+]
+
+# Specific allowlist for the generic-api-key rule
+[[allowlist.rules]]
+id = "generic-api-key"
+description = "Allowlist for s3_key_prefix variable references"
+regexTarget = "match"
+regex = '''var\.s3_key_prefix'''
+

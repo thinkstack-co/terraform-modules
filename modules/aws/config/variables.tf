@@ -9,7 +9,7 @@ variable "config_recorder_name" {
 variable "config_bucket_prefix" {
   description = "Name of the S3 bucket for AWS Config recordings"
   type        = string
-  default = "aws-config-recordings-"
+  default     = "aws-config-recordings-"
 }
 
 variable "config_iam_role_name" {
@@ -146,11 +146,6 @@ variable "enable_s3_public_access_rules" {
   default     = false
 }
 
-variable "enable_iam_root_key_rule" {
-  description = "Enable the IAM Root Access Key Check managed rule."
-  type        = bool
-  default     = false
-}
 
 variable "enable_mfa_for_iam_console_rule" {
   description = "Enable the MFA for IAM Console Access managed rule."
@@ -174,6 +169,18 @@ variable "enable_rds_storage_encrypted_rule" {
   description = "Enable the RDS Storage Encrypted managed rule."
   type        = bool
   default     = false
+}
+
+variable "enable_iam_user_access_key_age_rule" {
+  description = "Enable the IAM User Access Key Age managed rule."
+  type        = bool
+  default     = false
+}
+
+variable "iam_access_key_max_age" {
+  description = "Maximum age in days for IAM user access keys before they are marked as non-compliant"
+  type        = number
+  default     = 90
 }
 
 # --- Compliance Reporter Variables (Optional) ---

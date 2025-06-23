@@ -133,14 +133,6 @@ locals {
 
 
   # Map of vault names to their creation status
-  vault_map = {
-    "daily"   = local.create_daily_vault
-    "weekly"  = local.create_weekly_vault
-    "monthly" = local.create_monthly_vault
-    "yearly"  = local.create_yearly_vault
-    "hourly"  = local.create_hourly_vault
-  }
-
   # Map of plan names to their enabled status
   # Accounts for DR mode - if a plan is included in DR, the regular plan won't exist
   plan_enabled_map = {
@@ -1199,7 +1191,7 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
 
   name         = "multi-${each.value.combo.hash}-${each.value.plan}-dr"
   iam_role_arn = aws_iam_role.backup_role.arn
-  
+
   # Look up the appropriate DR plan ID based on the plan type
   plan_id = lookup({
     "hourly"  = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? aws_backup_plan.hourly_backup_plan_dr[0].id : "",

@@ -12,10 +12,11 @@ terraform {
 ###########################
 # Data Sources
 ###########################
-# Fetching the current caller identity and region data
-# DO NOT REMOVE THIS LINE. Required for account_id references in locals and resources.
-data "aws_caller_identity" "current" {}
+# Fetching the current region data
 data "aws_region" "current" {}
+
+# Fetching the current AWS caller identity
+data "aws_caller_identity" "current" {}
 
 #############################
 # EC2 instance Module

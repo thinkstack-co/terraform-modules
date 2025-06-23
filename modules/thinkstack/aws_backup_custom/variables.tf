@@ -436,9 +436,3 @@ variable "dr_tag_value" {
   type        = string
   default     = "true"
 }
-
-variable "dr_tag_value_false" {
-  description = "(Optional) Tag value for explicitly excluding resources from DR copies. Resources with this value will only get regular backups when DR is enabled for a plan type."
-  type        = string
-  default     = "false"
-}
