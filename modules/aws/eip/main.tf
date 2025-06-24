@@ -17,5 +17,5 @@ resource "aws_eip" "eip" {
   instance                  = var.instance
   network_interface         = var.network_interface
   tags                      = var.tags
-  vpc                       = var.vpc
+  domain                    = var.vpc ? "vpc" : null
 }
