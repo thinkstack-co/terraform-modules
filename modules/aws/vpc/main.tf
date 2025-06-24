@@ -27,6 +27,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
   instance_tenancy     = var.instance_tenancy
+  region               = var.aws_vpc_region
   tags                 = merge(tomap({ Name = var.name }), var.tags)
 }
 
