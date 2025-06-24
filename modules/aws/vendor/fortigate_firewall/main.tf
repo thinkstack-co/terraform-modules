@@ -37,8 +37,8 @@ resource "aws_security_group" "fortigate_fw_sg" {
 }
 
 resource "aws_eip" "external_ip" {
-  vpc   = true
-  count = var.number
+  domain = "vpc"
+  count  = var.number
 
   lifecycle {
     prevent_destroy = true
