@@ -69,7 +69,7 @@ Key features:
 ### Hourly Backup Example
 
 ```hcl
-# Step 1: Create the backup vaults
+# Step 1: Create the backup vaults (uses AWS-managed keys by default)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
   
@@ -83,7 +83,8 @@ module "backup_vaults" {
   enable_monthly_vault = false
   enable_yearly_vault = false
   
-  kms_key_arn = aws_kms_key.backup.arn
+  # Uses AWS-managed keys (aws/backup) by default
+  # No need to create or manage KMS keys
   
   tags = {
     terraform   = "true"
@@ -146,7 +147,7 @@ resource "aws_instance" "example" {
 ### Daily Backup Example with DR
 
 ```hcl
-# Step 1: Create the backup vaults with DR
+# Step 1: Create the backup vaults with DR (uses AWS-managed keys)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
   
@@ -171,8 +172,8 @@ module "backup_vaults" {
   enable_daily_dr_vault = true
   dr_vault_name_prefix  = "prod-database-dr"
   
-  kms_key_arn    = aws_kms_key.backup.arn
-  dr_kms_key_arn = aws_kms_key.dr_backup.arn
+  # Uses AWS-managed keys (aws/backup) in both regions
+  # No need to create or manage KMS keys
   
   tags = {
     terraform   = "true"
@@ -239,7 +240,7 @@ resource "aws_db_instance" "database" {
 ### Weekly Backup Example
 
 ```hcl
-# Create the backup vaults
+# Step 1: Create the backup vaults (uses AWS-managed keys by default)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
   
@@ -252,7 +253,8 @@ module "backup_vaults" {
   enable_monthly_vault = false
   enable_yearly_vault  = false
   
-  kms_key_arn = aws_kms_key.backup.arn
+  # Uses AWS-managed keys (aws/backup) by default
+  # No need to create or manage KMS keys
   
   tags = {
     terraform   = "true"
@@ -305,7 +307,7 @@ module "weekly_backups" {
 ### Monthly Backup Example with DR
 
 ```hcl
-# Step 1: Create the backup vaults with DR
+# Step 1: Create the backup vaults with DR (uses AWS-managed keys)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
   
@@ -330,8 +332,8 @@ module "backup_vaults" {
   enable_monthly_dr_vault = true
   dr_vault_name_prefix    = "compliance-monthly-dr"
   
-  kms_key_arn    = aws_kms_key.backup.arn
-  dr_kms_key_arn = aws_kms_key.dr_backup.arn
+  # Uses AWS-managed keys (aws/backup) in both regions
+  # No need to create or manage KMS keys
   
   tags = {
     terraform   = "true"
@@ -399,7 +401,7 @@ resource "aws_s3_bucket" "compliance_data" {
 ### Yearly Backup Example with DR
 
 ```hcl
-# Step 1: Create the backup vaults with DR
+# Step 1: Create the backup vaults with DR (uses AWS-managed keys)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
   
@@ -424,8 +426,8 @@ module "backup_vaults" {
   enable_yearly_dr_vault = true
   dr_vault_name_prefix   = "long-term-retention-dr"
   
-  kms_key_arn    = aws_kms_key.backup.arn
-  dr_kms_key_arn = aws_kms_key.dr_backup.arn
+  # Uses AWS-managed keys (aws/backup) in both regions
+  # No need to create or manage KMS keys
   
   # Enable vault lock for compliance
   enable_vault_lock         = true
@@ -497,7 +499,7 @@ resource "aws_ebs_volume" "archives" {
 ### Comprehensive Multi-Schedule Example
 
 ```hcl
-# Step 1: Create all backup vaults with selective DR
+# Step 1: Create all backup vaults with selective DR and KMS keys
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
   
@@ -528,8 +530,8 @@ module "backup_vaults" {
   enable_monthly_dr_vault = true   # DR for monthly
   enable_yearly_dr_vault  = true   # DR for yearly
   
-  kms_key_arn    = aws_kms_key.backup.arn
-  dr_kms_key_arn = aws_kms_key.dr_backup.arn
+  # Uses AWS-managed keys (aws/backup) in both regions
+  # No need to create or manage KMS keys
   
   # Vault lock for compliance
   enable_vault_lock         = true
@@ -720,7 +722,6 @@ See the [Inputs](#inputs) section for a complete list of available arguments.
 | Name | Version |
 |------|---------|
 | aws | >= 4.0.0 |
-| aws.dr | >= 4.0.0 |
 
 ## Resources
 

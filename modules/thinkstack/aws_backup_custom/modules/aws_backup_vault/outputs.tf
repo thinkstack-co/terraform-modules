@@ -77,3 +77,34 @@ output "all_vault_arns" {
     var.create_single_vault && var.enable_dr ? { "dr-single" = aws_backup_vault.dr_single[0].arn } : {}
   )
 }
+
+# KMS Key outputs
+output "kms_key_id" {
+  description = "The ID of the created KMS key"
+  value       = var.create_kms_key ? aws_kms_key.backup[0].id : null
+}
+
+output "kms_key_arn" {
+  description = "The ARN of the created KMS key"
+  value       = var.create_kms_key ? aws_kms_key.backup[0].arn : null
+}
+
+output "kms_key_alias" {
+  description = "The alias of the created KMS key"
+  value       = var.create_kms_key ? aws_kms_alias.backup[0].name : null
+}
+
+output "dr_kms_key_id" {
+  description = "The ID of the created DR KMS key"
+  value       = var.enable_dr && var.create_dr_kms_key ? aws_kms_key.dr_backup[0].id : null
+}
+
+output "dr_kms_key_arn" {
+  description = "The ARN of the created DR KMS key"
+  value       = var.enable_dr && var.create_dr_kms_key ? aws_kms_key.dr_backup[0].arn : null
+}
+
+output "dr_kms_key_alias" {
+  description = "The alias of the created DR KMS key"
+  value       = var.enable_dr && var.create_dr_kms_key ? aws_kms_alias.dr_backup[0].name : null
+}

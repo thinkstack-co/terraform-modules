@@ -11,9 +11,34 @@ variable "name" {
   default     = ""
 }
 
+variable "create_kms_key" {
+  description = "Whether to create a new KMS key for the backup vault"
+  type        = bool
+  default     = false
+}
+
 variable "kms_key_arn" {
-  description = "The server-side encryption key that is used to protect your backups"
+  description = "The server-side encryption key that is used to protect your backups (ignored if create_kms_key is true)"
   type        = string
+  default     = null
+}
+
+variable "kms_key_description" {
+  description = "Description for the KMS key if creating one"
+  type        = string
+  default     = "KMS key for AWS Backup vault encryption"
+}
+
+variable "kms_key_deletion_window" {
+  description = "KMS key deletion window in days"
+  type        = number
+  default     = 30
+}
+
+variable "kms_key_enable_rotation" {
+  description = "Whether to enable automatic rotation for the KMS key"
+  type        = bool
+  default     = true
 }
 
 variable "force_destroy" {
@@ -165,10 +190,22 @@ variable "dr_vault_name_prefix" {
   default     = ""
 }
 
+variable "create_dr_kms_key" {
+  description = "Whether to create a new KMS key for the DR backup vault"
+  type        = bool
+  default     = false
+}
+
 variable "dr_kms_key_arn" {
-  description = "The KMS key ARN for the DR region (if different from primary)"
+  description = "The KMS key ARN for the DR region (ignored if create_dr_kms_key is true)"
   type        = string
   default     = null
+}
+
+variable "dr_kms_key_description" {
+  description = "Description for the DR KMS key if creating one"
+  type        = string
+  default     = "KMS key for AWS Backup DR vault encryption"
 }
 
 variable "dr_tags" {
