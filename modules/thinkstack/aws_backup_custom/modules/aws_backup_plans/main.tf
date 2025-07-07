@@ -2,9 +2,8 @@ terraform {
   required_version = ">= 1.0.0"
   required_providers {
     aws = {
-      source                = "hashicorp/aws"
-      version               = ">= 4.0.0"
-      configuration_aliases = [aws.dr]
+      source  = "hashicorp/aws"
+      version = ">= 4.0.0"
     }
   }
 }
@@ -64,11 +63,9 @@ locals {
     } : null
   }
   
-  # Get DR vault ARNs - if input is already an ARN use it, otherwise construct it
+  # Get DR vault ARNs - if input is already an ARN use it, otherwise it must be provided as full ARN
   dr_vault_arns = {
-    for k, v in local.dr_vault_configs : k => v != null ? (
-      v.is_arn ? v.vault_input : "arn:aws:backup:${data.aws_region.dr.name}:${data.aws_caller_identity.current.account_id}:backup-vault:${v.vault_input}"
-    ) : null
+    for k, v in local.dr_vault_configs : k => v != null ? v.vault_input : null
   }
 }
 
@@ -76,10 +73,6 @@ locals {
 data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
-
-data "aws_region" "dr" {
-  provider = aws.dr
-}
 
 locals {
   # Build plan configurations based on enabled flags
@@ -176,7 +169,7 @@ locals {
         delete_after       = config.retention_days
         cold_storage_after = config.cold_storage_after
       } : null
-      copy_actions = config.enable_dr_copy && config.dr_vault_arn != null && !var.create_separate_dr_plans ? [{
+      copy_actions = config.enable_dr_copy && config.dr_vault_arn != null ? [{
         destination_vault_arn = config.dr_vault_arn
         lifecycle = config.dr_retention_days != null || config.dr_cold_storage_after != null ? {
           delete_after       = config.dr_retention_days
@@ -218,9 +211,9 @@ resource "aws_backup_plan" "individual" {
     }
 
     dynamic "copy_action" {
-      for_each = each.value.enable_dr_copy && each.value.dr_vault_arn != null && !var.create_separate_dr_plans ? [1] : []
+      for_each = each.value.enable_dr_copy && each.value.dr_vault_arn != null ? [1] : []
       content {
-        destination_vault_arn = var.create_separate_dr_plans ? null : each.value.dr_vault_arn
+        destination_vault_arn = each.value.dr_vault_arn
         
         dynamic "lifecycle" {
           for_each = each.value.dr_retention_days != null || each.value.dr_cold_storage_after != null ? [1] : []
@@ -351,87 +344,6 @@ resource "aws_backup_plan" "custom" {
   }
 }
 
-# DR Plans - Create separate DR plans when create_separate_dr_plans is enabled
-locals {
-  # DR plan configurations
-  dr_plan_configs = {
-    hourly = var.create_separate_dr_plans && var.enable_hourly_dr_copy ? {
-      enabled           = true
-      schedule          = coalesce(lookup(var.dr_schedules, "hourly", null), local.backup_schedules.hourly)
-      retention_days    = var.hourly_dr_retention_days
-      vault_name        = coalesce(var.hourly_dr_vault_name, "dr-hourly")
-      cold_storage_after = var.hourly_dr_cold_storage_after
-    } : null
-
-    daily = var.create_separate_dr_plans && var.enable_daily_dr_copy ? {
-      enabled           = true
-      schedule          = coalesce(lookup(var.dr_schedules, "daily", null), local.backup_schedules.daily)
-      retention_days    = var.daily_dr_retention_days
-      vault_name        = coalesce(var.daily_dr_vault_name, "dr-daily")
-      cold_storage_after = var.daily_dr_cold_storage_after
-    } : null
-
-    weekly = var.create_separate_dr_plans && var.enable_weekly_dr_copy ? {
-      enabled           = true
-      schedule          = coalesce(lookup(var.dr_schedules, "weekly", null), local.backup_schedules.weekly)
-      retention_days    = var.weekly_dr_retention_days
-      vault_name        = coalesce(var.weekly_dr_vault_name, "dr-weekly")
-      cold_storage_after = var.weekly_dr_cold_storage_after
-    } : null
-
-    monthly = var.create_separate_dr_plans && var.enable_monthly_dr_copy ? {
-      enabled           = true
-      schedule          = coalesce(lookup(var.dr_schedules, "monthly", null), local.backup_schedules.monthly)
-      retention_days    = var.monthly_dr_retention_days
-      vault_name        = coalesce(var.monthly_dr_vault_name, "dr-monthly")
-      cold_storage_after = var.monthly_dr_cold_storage_after
-    } : null
-
-    yearly = var.create_separate_dr_plans && var.enable_yearly_dr_copy ? {
-      enabled           = true
-      schedule          = coalesce(lookup(var.dr_schedules, "yearly", null), local.backup_schedules.yearly)
-      retention_days    = var.yearly_dr_retention_days
-      vault_name        = coalesce(var.yearly_dr_vault_name, "dr-yearly")
-      cold_storage_after = var.yearly_dr_cold_storage_after
-    } : null
-  }
-
-  # Filter out null DR configs
-  enabled_dr_plans = { for k, v in local.dr_plan_configs : k => v if v != null }
-}
-
-# Create DR backup plans
-resource "aws_backup_plan" "dr" {
-  for_each = local.enabled_dr_plans
-  provider = aws.dr
-  
-  name = "${local.plan_name_base}-dr-${each.key}"
-  tags = merge(
-    var.tags,
-    {
-      Schedule = "dr-${each.key}"
-      Type     = "dr-backup-plan"
-    },
-    var.plan_prefix != "" ? { "${var.plan_prefix}" = "true" } : {}
-  )
-
-  rule {
-    rule_name                = "${local.plan_name_base}-dr-${each.key}-rule"
-    target_vault_name        = each.value.vault_name
-    schedule                 = each.value.schedule
-    enable_continuous_backup = false
-    start_window             = 60
-    completion_window        = 180
-
-    dynamic "lifecycle" {
-      for_each = each.value.retention_days != null || each.value.cold_storage_after != null ? [1] : []
-      content {
-        cold_storage_after = each.value.cold_storage_after
-        delete_after       = each.value.retention_days
-      }
-    }
-  }
-}
 
 # Backup Selection Resources
 # IAM role for backup selection

@@ -21,24 +21,6 @@ variable "server_selection_value" {
   default     = "true"
 }
 
-variable "create_separate_dr_plans" {
-  description = "Whether to create separate DR plans instead of using copy actions within the main plans"
-  type        = bool
-  default     = false
-}
-
-variable "dr_schedules" {
-  description = "Custom DR backup schedules"
-  type = object({
-    hourly  = optional(string)
-    daily   = optional(string)
-    weekly  = optional(string)
-    monthly = optional(string)
-    yearly  = optional(string)
-  })
-  default = {}
-}
-
 variable "use_individual_plans" {
   description = "Whether to create individual backup plans for each schedule type or a single combined plan"
   type        = bool

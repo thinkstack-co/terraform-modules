@@ -140,27 +140,6 @@ output "all_backup_selection_ids" {
   )
 }
 
-# DR Plan outputs
-output "dr_plan_ids" {
-  description = "Map of DR backup plan IDs by schedule type"
-  value       = { for k, v in aws_backup_plan.dr : k => v.id }
-}
-
-output "dr_plan_arns" {
-  description = "Map of DR backup plan ARNs by schedule type"
-  value       = { for k, v in aws_backup_plan.dr : k => v.arn }
-}
-
-output "dr_plan_names" {
-  description = "Map of DR backup plan names by schedule type"
-  value       = { for k, v in aws_backup_plan.dr : k => v.name }
-}
-
-output "enabled_dr_schedules" {
-  description = "List of enabled DR backup schedules"
-  value       = keys(local.enabled_dr_plans)
-}
-
 # Prefix information
 output "plan_prefix" {
   description = "The prefix used for all plan names"
@@ -170,4 +149,9 @@ output "plan_prefix" {
 output "plan_base_name" {
   description = "The base name used for all plans (includes prefix if set)"
   value       = local.plan_name_base
+}
+
+output "enabled_dr_copies" {
+  description = "List of schedules with DR copy enabled"
+  value       = [for k, v in local.enabled_plans : k if v.enable_dr_copy]
 }
