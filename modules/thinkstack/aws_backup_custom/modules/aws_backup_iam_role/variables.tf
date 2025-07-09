@@ -16,6 +16,18 @@ variable "additional_policy_arns" {
   default     = []
 }
 
+variable "enable_s3_backup" {
+  description = "Whether to attach the S3 backup policy to the role"
+  type        = bool
+  default     = false
+}
+
+variable "enable_resource_discovery" {
+  description = "Whether to create a policy for resource discovery (recommended for tag-based selection)"
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "A mapping of tags to assign to the IAM role"
   type        = map(string)

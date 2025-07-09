@@ -394,6 +394,57 @@ resource "aws_iam_role_policy_attachment" "backup_selection_restores" {
   role       = aws_iam_role.backup_selection[0].name
 }
 
+# Additional policy for resource discovery
+resource "aws_iam_role_policy" "backup_selection_resource_access" {
+  count = var.create_backup_selection ? 1 : 0
+  name  = "${local.plan_name_base}-resource-access"
+  role  = aws_iam_role.backup_selection[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "BackupResourceDiscovery"
+        Effect = "Allow"
+        Action = [
+          # Tag permissions for resource discovery
+          "tag:GetResources",
+          "tag:GetTagKeys",
+          "tag:GetTagValues",
+          
+          # EC2 permissions
+          "ec2:DescribeInstances",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeTags",
+          
+          # RDS permissions
+          "rds:DescribeDBInstances",
+          "rds:DescribeDBClusters",
+          "rds:ListTagsForResource",
+          
+          # EFS permissions
+          "elasticfilesystem:DescribeFileSystems",
+          
+          # DynamoDB permissions
+          "dynamodb:ListTables",
+          "dynamodb:DescribeTable",
+          "dynamodb:ListTagsOfResource",
+          
+          # S3 permissions
+          "s3:ListAllMyBuckets",
+          "s3:GetBucketTagging",
+          
+          # Backup permissions
+          "backup:ListBackupVaults",
+          "backup:DescribeBackupVault"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Backup selections for individual plans
 resource "aws_backup_selection" "individual" {
   for_each = var.create_backup_selection && var.use_individual_plans ? local.enabled_plans : {}
