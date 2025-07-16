@@ -157,6 +157,7 @@ resource "aws_lambda_function" "backup_reporter" {
       VAULT_NAME_PREFIX     = var.vault_name_prefix
       REPORT_DAYS           = tostring(var.report_days)
       VAULT_SORT_ORDER      = var.vault_sort_order
+      S3_KEY_PREFIX         = var.s3_key_prefix
       
       # Enable/disable specific vault reporting
       ENABLE_HOURLY_REPORT  = tostring(var.enable_hourly_report)

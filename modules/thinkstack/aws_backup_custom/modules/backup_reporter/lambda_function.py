@@ -17,6 +17,7 @@ from fpdf import FPDF  # type: ignore
 # ENV VARS
 REPORT_BUCKET = os.environ["REPORT_BUCKET"]
 CUSTOMER_IDENTIFIER = os.environ.get("CUSTOMER_IDENTIFIER", "")
+S3_KEY_PREFIX = os.environ.get("S3_KEY_PREFIX", "")
 # Report configuration
 REPORT_DAYS = int(os.environ.get("REPORT_DAYS", "1"))
 if REPORT_DAYS < 1 or REPORT_DAYS > 7:
@@ -425,9 +426,15 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
         else "backup"
     )
 
-    key = (
-        f"{year}/{month}/{safe_customer}-backup-status-report-{year}-{month}-{day}.pdf"
-    )
+    # Build S3 key with optional prefix
+    if S3_KEY_PREFIX:
+        key = (
+            f"{S3_KEY_PREFIX}/{year}/{month}/{safe_customer}-backup-status-report-{year}-{month}-{day}.pdf"
+        )
+    else:
+        key = (
+            f"{year}/{month}/{safe_customer}-backup-status-report-{year}-{month}-{day}.pdf"
+        )
 
     # Generate and upload PDF
     with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:

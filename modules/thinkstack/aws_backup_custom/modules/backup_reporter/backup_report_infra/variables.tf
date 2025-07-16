@@ -19,6 +19,26 @@ variable "s3_bucket_prefix" {
   }
 }
 
+variable "s3_key_prefix" {
+  description = "Optional prefix for S3 object keys where backup reports will be stored. If not set, reports will be stored in the format 'year/month/customer-backup-status-report-yyyy-mm-dd.pdf'. If set, reports will be stored in the format 'prefix/year/month/customer-backup-status-report-yyyy-mm-dd.pdf'."
+  type        = string
+  default     = ""
+
+  validation {
+    condition = (
+      var.s3_key_prefix == "" || 
+      (
+        length(var.s3_key_prefix) >= 1 &&
+        length(var.s3_key_prefix) <= 100 &&
+        can(regex("^[a-zA-Z0-9!_.*'()/-]+$", var.s3_key_prefix)) &&
+        !can(regex("^/", var.s3_key_prefix)) &&
+        !can(regex("/$", var.s3_key_prefix))
+      )
+    )
+    error_message = "s3_key_prefix must be empty or 1-100 characters, containing only letters, numbers, and !_.*'()/- characters, and must not start or end with a slash."
+  }
+}
+
 variable "customer_name" {
   description = "Optional: Customer name or label for tagging and report identification. If empty, uses AWS Account ID."
   type        = string

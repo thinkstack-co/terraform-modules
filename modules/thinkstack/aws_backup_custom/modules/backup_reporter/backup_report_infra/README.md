@@ -59,6 +59,9 @@ module "backup_reporter" {
   # Override specific vault names
   daily_vault_name = "custom-daily-vault"
   
+  # Custom S3 key prefix for organizing reports
+  s3_key_prefix = "backup-reports/production"
+  
   # Lambda configuration
   lambda_function_name = "acme-backup-reporter"
   lambda_memory_size   = 512
@@ -139,12 +142,20 @@ aws s3 ls s3://$BUCKET_NAME/ --recursive
 
 Reports are stored in S3 with the following structure:
 ```
+# Without prefix (default):
 s3://bucket-name/YYYY/MM/customer-backup-status-report-YYYY-MM-DD.pdf
+
+# With custom prefix:
+s3://bucket-name/prefix/YYYY/MM/customer-backup-status-report-YYYY-MM-DD.pdf
 ```
 
 For example:
 ```
+# Default location:
 s3://backup-status-report-12345/2024/01/acme-corp-backup-status-report-2024-01-15.pdf
+
+# With prefix "backup-reports/production":
+s3://backup-status-report-12345/backup-reports/production/2024/01/acme-corp-backup-status-report-2024-01-15.pdf
 ```
 
 ## Monitoring
@@ -187,6 +198,7 @@ Key variables:
 |------|-------------|---------|
 | `customer_name` | Customer identifier for reports | Uses AWS Account ID |
 | `vault_name_prefix` | Prefix for vault names | "" |
+| `s3_key_prefix` | Optional prefix for S3 object keys | "" |
 | `enable_hourly_report` | Monitor hourly vault | true |
 | `enable_daily_report` | Monitor daily vault | true |
 | `enable_weekly_report` | Monitor weekly vault | true |

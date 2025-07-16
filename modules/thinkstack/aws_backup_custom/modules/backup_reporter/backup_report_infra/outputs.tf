@@ -85,5 +85,10 @@ output "vault_reporting_status" {
 # Report Path
 output "report_path_pattern" {
   description = "S3 path pattern where reports will be stored"
-  value       = "s3://${aws_s3_bucket.backup_report.id}/YYYY/MM/${lower(replace(local.customer_identifier, " ", "-"))}-backup-status-report-YYYY-MM-DD.pdf"
+  value       = var.s3_key_prefix != "" ? "s3://${aws_s3_bucket.backup_report.id}/${var.s3_key_prefix}/YYYY/MM/${lower(replace(local.customer_identifier, " ", "-"))}-backup-status-report-YYYY-MM-DD.pdf" : "s3://${aws_s3_bucket.backup_report.id}/YYYY/MM/${lower(replace(local.customer_identifier, " ", "-"))}-backup-status-report-YYYY-MM-DD.pdf"
+}
+
+output "s3_key_prefix" {
+  description = "The S3 key prefix configured for backup reports"
+  value       = var.s3_key_prefix
 }
