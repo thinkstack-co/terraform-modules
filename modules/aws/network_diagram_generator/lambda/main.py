@@ -1,26 +1,66 @@
+"""AWS Network Diagram Generator Lambda Function.
+
+Generates network diagrams of AWS infrastructure and uploads them to S3.
+"""
+
 import logging
 import os
 import tempfile
+from typing import Any, Dict, List
 
-import boto3
-import botocore
-from diagrams import Cluster, Diagram
-from diagrams.aws.compute import EC2
+# Type ignore for boto3 and diagrams since we can't add stubs
+import boto3  # type: ignore
+import botocore  # type: ignore
+from diagrams import Cluster, Diagram  # type: ignore
+from diagrams.aws.compute import EC2  # type: ignore
 
 
-def get_vpcs(ec2):
+def get_vpcs(ec2: Any) -> List[Dict[str, Any]]:
+    """Get all VPCs in the AWS account.
+
+    Args:
+        ec2: Boto3 EC2 client
+
+    Returns:
+        List of VPC dictionaries
+    """
     return ec2.describe_vpcs()["Vpcs"]
 
 
-def get_subnets(ec2):
+def get_subnets(ec2: Any) -> List[Dict[str, Any]]:
+    """Get all subnets in the AWS account.
+
+    Args:
+        ec2: Boto3 EC2 client
+
+    Returns:
+        List of subnet dictionaries
+    """
     return ec2.describe_subnets()["Subnets"]
 
 
-def get_instances(ec2):
+def get_instances(ec2: Any) -> List[Dict[str, Any]]:
+    """Get all EC2 instances in the AWS account.
+
+    Args:
+        ec2: Boto3 EC2 client
+
+    Returns:
+        List of EC2 reservation dictionaries
+    """
     return ec2.describe_instances()["Reservations"]
 
 
-def lambda_handler(event, context):
+def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, str]:
+    """Main Lambda handler function.
+
+    Args:
+        _event: Lambda event data (not used, prefixed with underscore)
+        _context: Lambda context object (not used, prefixed with underscore)
+
+    Returns:
+        Dict with status information
+    """
     region = os.environ.get("AWS_REGION", "us-east-1")
     s3_bucket = os.environ["S3_BUCKET"]
     ec2 = boto3.client("ec2", region_name=region)
