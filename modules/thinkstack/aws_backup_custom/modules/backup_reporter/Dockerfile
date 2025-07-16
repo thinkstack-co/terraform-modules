@@ -6,9 +6,12 @@ FROM public.ecr.aws/sam/build-python3.12:1.138.0
 
 WORKDIR /build
 
+# Copy and install requirements
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt -t .
+RUN pip3 install --no-cache-dir -r requirements.txt -t . && \
+    pip3 list
 
+# Copy Lambda function code
 COPY lambda_function.py .
 
 RUN find . -type d -name '*.dist-info' -exec rm -rf {} + && \
