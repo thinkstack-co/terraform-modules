@@ -2,15 +2,35 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AllowViewAndManageOwnAccount",
+      "Sid": "AllowViewOwnUserInfo",
       "Effect": "Allow",
       "Action": [
-        "iam:GetAccountPasswordPolicy",
         "iam:GetUser",
+        "iam:GetLoginProfile",
+        "iam:GetAccountPasswordPolicy",
+        "iam:GetAccountSummary"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:user/${aws:username}",
+        "arn:aws:iam::*:account-summary"
+      ]
+    },
+    {
+      "Sid": "AllowManageOwnPassword",
+      "Effect": "Allow",
+      "Action": [
         "iam:ChangePassword",
-        "iam:ListVirtualMFADevices",
+        "iam:CreateLoginProfile",
+        "iam:UpdateLoginProfile"
+      ],
+      "Resource": "arn:aws:iam::*:user/${aws:username}"
+    },
+    {
+      "Sid": "AllowListMFADevices",
+      "Effect": "Allow",
+      "Action": [
         "iam:ListMFADevices",
-        "iam:ListUsers"
+        "iam:ListVirtualMFADevices"
       ],
       "Resource": "*"
     },
@@ -30,17 +50,29 @@
       ]
     },
     {
-      "Sid": "DenyAllExceptMFASetupIfNoMFA",
-      "Effect": "Deny",
-      "NotAction": [
-        "iam:GetUser",
-        "iam:ListMFADevices",
-        "iam:ListVirtualMFADevices",
-        "iam:CreateVirtualMFADevice",
-        "iam:EnableMFADevice",
-        "iam:ResyncMFADevice",
+      "Sid": "AllowAccessToIAMConsole",
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListUsers",
+        "iam:GetAccountPasswordPolicy"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowSTSActions",
+      "Effect": "Allow",
+      "Action": [
         "sts:GetSessionToken",
-        "iam:ChangePassword"
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RequireMFAForSensitiveActions",
+      "Effect": "Deny",
+      "Action": [
+        "iam:DeactivateMFADevice",
+        "iam:DeleteVirtualMFADevice"
       ],
       "Resource": "*",
       "Condition": {

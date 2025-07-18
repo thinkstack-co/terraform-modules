@@ -1,19 +1,32 @@
+"""AWS Config Compliance Reporter Lambda Function.
+
+Generates PDF reports of AWS Config compliance status and uploads them to S3.
+"""
+
 import io
 import os
 from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-import boto3
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+# Type ignore for boto3 and reportlab since we can't add stubs
+import boto3  # type: ignore
+from reportlab.lib import colors  # type: ignore
+from reportlab.lib.enums import TA_CENTER  # type: ignore
+from reportlab.lib.pagesizes import letter  # type: ignore
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet  # type: ignore
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle  # type: ignore
 
 
-def lookup_iam_username_by_id(user_id):
+def lookup_iam_username_by_id(user_id: str) -> str:
     """
     Given the internal IAM UserId (AIDA…), return the console username
     by paging through IAM ListUsers.
+
+    Args:
+        user_id: The IAM user ID to look up
+
+    Returns:
+        The IAM username corresponding to the user ID, or the user ID if not found
     """
     iam = boto3.client("iam")
     paginator = iam.get_paginator("list_users")
@@ -25,8 +38,13 @@ def lookup_iam_username_by_id(user_id):
     return user_id
 
 
-def get_account_info():
-    import os
+def get_account_info() -> Tuple[str, str]:
+    """
+    Get AWS account information (name and ID).
+
+    Returns:
+        Tuple containing account name (or alias) and account ID
+    """
 
     sts = boto3.client("sts")
     org = boto3.client("organizations")
@@ -52,7 +70,13 @@ def get_account_info():
     return alias, account_id
 
 
-def get_config_rules():
+def get_config_rules() -> List[Dict[str, Any]]:
+    """
+    Get all AWS Config rules in the account.
+
+    Returns:
+        List of Config rule dictionaries
+    """
     config = boto3.client("config")
     rules = []
     paginator = config.get_paginator("describe_config_rules")
@@ -61,7 +85,13 @@ def get_config_rules():
     return rules
 
 
-def get_compliance_status():
+def get_compliance_status() -> Dict[str, str]:
+    """
+    Get compliance status for all AWS Config rules.
+
+    Returns:
+        Dictionary mapping rule names to compliance status
+    """
     config = boto3.client("config")
     status = {}
     paginator = config.get_paginator("describe_compliance_by_config_rule")
@@ -71,7 +101,7 @@ def get_compliance_status():
     return status
 
 
-def get_non_compliant_resources(rule_name):
+def get_non_compliant_resources(rule_name: str) -> List[Dict[str, str]]:
     config = boto3.client("config")
     resources = []
     paginator = config.get_paginator("get_compliance_details_by_config_rule")
@@ -118,7 +148,7 @@ def get_non_compliant_resources(rule_name):
     return resources
 
 
-def get_resource_name_from_tag(arn_or_id):
+def get_resource_name_from_tag(arn_or_id: str) -> str:
     client = boto3.client("resourcegroupstaggingapi")
     try:
         response = client.get_resources(ResourceARNList=[arn_or_id])
@@ -131,7 +161,7 @@ def get_resource_name_from_tag(arn_or_id):
     return arn_or_id
 
 
-def get_iam_user_name(user_id):
+def get_iam_user_name(user_id: str) -> str:
     iam = boto3.client("iam")
     try:
         response = iam.get_user(UserName=user_id)
@@ -140,7 +170,7 @@ def get_iam_user_name(user_id):
         return user_id
 
 
-def lambda_handler(event, context):
+def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
     """
     AWS Lambda entry point to generate a compliance report for AWS Config rules and upload the report as a PDF to S3.
 
