@@ -110,7 +110,10 @@ resource "aws_iam_role_policy" "backup_reporter_policy" {
           "backup:ListTags",
           "backup:DescribeBackupJob",
           "backup:ListBackupVaults",
-          "backup:DescribeBackupVault"
+          "backup:DescribeBackupVault",
+          "backup:ListRecoveryPointsByBackupVault",
+          "backup:DescribeRecoveryPoint",
+          "backup:GetRecoveryPointRestoreMetadata"
         ],
         Resource = "*"
       },

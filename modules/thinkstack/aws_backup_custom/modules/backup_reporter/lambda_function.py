@@ -428,8 +428,8 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
     resource_data = {}
     for vault_name in vault_names:
         resources = process_recovery_points_by_resource(vault_name)
-        if resources:
-            resource_data[vault_name] = resources
+        # Always add the vault to resource_data, even if empty
+        resource_data[vault_name] = resources
 
     # Generate report filename
     now = datetime.datetime.now()
