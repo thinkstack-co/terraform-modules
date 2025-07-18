@@ -117,35 +117,101 @@ def get_resource_details(resource_arn: str) -> Tuple[str, str]:
     return "Unknown", "Unknown"
 
 
-def fetch_backup_jobs(
-    vault_name: str, start_time: datetime.datetime, end_time: datetime.datetime
-) -> List[Dict[str, Any]]:
-    """Fetch backup jobs for a specific vault within the time period."""
-    jobs: List[Dict[str, Any]] = []
+def fetch_recovery_points(vault_name: str) -> List[Dict[str, Any]]:
+    """Fetch recovery points for a specific vault."""
+    recovery_points: List[Dict[str, Any]] = []
     next_token: Optional[str] = None
 
     while True:
         params: Dict[str, Any] = {
-            "ByBackupVaultName": vault_name,
-            "ByCreatedAfter": start_time,
-            "ByCreatedBefore": end_time,
+            "BackupVaultName": vault_name,
             "MaxResults": 100,
         }
         if next_token:
             params["NextToken"] = next_token
 
         try:
-            response = backup.list_backup_jobs(**params)
-            jobs.extend(response.get("BackupJobs", []))
+            response = backup.list_recovery_points_by_backup_vault(**params)
+            recovery_points.extend(response.get("RecoveryPoints", []))
             next_token = response.get("NextToken")
             if not next_token:
                 break
         except Exception as e:
             # Log the specific exception for troubleshooting
-            print(f"Error fetching backup jobs for vault {vault_name}: {str(e)}")
+            print(f"Error fetching recovery points for vault {vault_name}: {str(e)}")
             break
 
-    return jobs
+    return recovery_points
+
+
+def get_recovery_point_details(recovery_point_arn: str) -> Dict[str, Any]:
+    """Get detailed information about a recovery point."""
+    try:
+        response = backup.describe_recovery_point(
+            BackupVaultName=recovery_point_arn.split("/")[-2],
+            RecoveryPointArn=recovery_point_arn
+        )
+        return response
+    except Exception as e:
+        print(f"Error getting recovery point details for {recovery_point_arn}: {str(e)}")
+        return {}
+
+
+def process_recovery_points_by_resource(vault_name: str) -> Dict[str, Dict[str, Any]]:
+    """Process recovery points and group them by resource."""
+    recovery_points = fetch_recovery_points(vault_name)
+    resources: Dict[str, Dict[str, Any]] = {}
+    
+    for rp in recovery_points:
+        resource_arn = rp.get("ResourceArn", "")
+        if not resource_arn:
+            continue
+            
+        resource_id, resource_type = get_resource_details(resource_arn)
+        resource_name = get_resource_name(resource_arn)
+        creation_date = rp.get("CreationDate")
+        status = rp.get("Status", "UNKNOWN")
+        
+        # Use resource ARN as the key to group recovery points by resource
+        if resource_arn not in resources:
+            resources[resource_arn] = {
+                "resource_name": resource_name,
+                "resource_id": resource_id,
+                "resource_type": resource_type,
+                "resource_arn": resource_arn,
+                "vault_name": vault_name,
+                "backup_type": determine_backup_type(vault_name),
+                "recovery_points": [],
+                "successful_count": 0,
+                "failed_count": 0,
+                "oldest_backup": None,
+                "newest_backup": None,
+            }
+        
+        # Add this recovery point to the resource
+        resources[resource_arn]["recovery_points"].append({
+            "creation_date": creation_date,
+            "status": status,
+            "recovery_point_arn": rp.get("RecoveryPointArn", "")
+        })
+        
+        # Update counts
+        if status == "COMPLETED":
+            resources[resource_arn]["successful_count"] += 1
+        else:
+            resources[resource_arn]["failed_count"] += 1
+        
+        # Update oldest/newest backup times
+        if creation_date:
+            if (resources[resource_arn]["oldest_backup"] is None or 
+                creation_date < resources[resource_arn]["oldest_backup"]):
+                resources[resource_arn]["oldest_backup"] = creation_date
+            
+            if (resources[resource_arn]["newest_backup"] is None or 
+                creation_date > resources[resource_arn]["newest_backup"]):
+                resources[resource_arn]["newest_backup"] = creation_date
+    
+    return resources
 
 
 def get_resource_name(resource_arn: str) -> str:
@@ -191,87 +257,52 @@ def generate_pdf(
 
     # Header
     pdf.set_font("Arial", "B", 16)
-    pdf.cell(0, 10, f"Customer: {CUSTOMER_IDENTIFIER}", ln=1, align="C")
-    try:
-        acct = sts.get_caller_identity()["Account"]
-    except Exception as e:
-        # This might happen if the Lambda role doesn't have STS permissions
-        print(f"Error getting account ID: {str(e)}")
-        acct = "Unknown"
-    pdf.set_font("Arial", size=12)
-    pdf.cell(0, 8, f"AWS Account ID: {acct}", ln=1, align="C")
 
-    pdf.set_font("Arial", "B", 14)
+    # Title
+    pdf.cell(0, 10, f"Customer: {CUSTOMER_IDENTIFIER}", ln=1, align="C")
+    pdf.ln(5)
+    pdf.cell(0, 10, f"AWS Backup Status Report - Recovery Points Summary", ln=1, align="C")
+    pdf.set_font("Arial", "I", 10)
     pdf.cell(
         0,
-        8,
-        f"AWS Backup Status Report - Last {REPORT_DAYS} Day{'s' if REPORT_DAYS > 1 else ''}",
+        10,
+        f"Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')} UTC",
         ln=1,
         align="C",
     )
-    pdf.set_font("Arial", size=10, style="I")
-    start_str = start_time.strftime('%Y-%m-%d %H:%M')
-    end_str = end_time.strftime('%Y-%m-%d %H:%M')
-    pdf.cell(
-        0,
-        6,
-        f"Period: {start_str} to {end_str} UTC",
-        ln=1,
-        align="C",
-    )
-    pdf.ln(6)
+    pdf.ln(5)
 
     # Summary statistics
-    total_jobs = sum(len(jobs) for jobs in backup_data.values())
-    successful_jobs = sum(
-        len([j for j in jobs if j["State"] == "COMPLETED"])
-        for jobs in backup_data.values()
+    total_resources = sum(len(resources) for resources in resource_data.values())
+    total_successful = sum(
+        resource["successful_count"]
+        for resources in resource_data.values()
+        for resource in resources.values()
     )
-    failed_jobs = sum(
-        len([j for j in jobs if j["State"] == "FAILED"])
-        for jobs in backup_data.values()
+    total_failed = sum(
+        resource["failed_count"]
+        for resources in resource_data.values()
+        for resource in resources.values()
     )
-    running_jobs = sum(
-        len([j for j in jobs if j["State"] in ["RUNNING", "PENDING", "CREATED"]])
-        for jobs in backup_data.values()
-    )
+    total_recovery_points = total_successful + total_failed
 
     pdf.set_font("Arial", "B", 12)
-    summary_text = f"Total Backup Jobs: {total_jobs} | Successful: {successful_jobs}"
-    summary_text += f" | Failed: {failed_jobs} | Running/Pending: {running_jobs}"
     pdf.cell(
         0,
-        7,
-        summary_text,
+        10,
+        f"Total Resources: {total_resources} | Recovery Points: {total_recovery_points} | Successful: {total_successful} | Failed: {total_failed}",
         ln=1,
         align="C",
     )
-    pdf.ln(4)
+    pdf.ln(5)
 
-    # Table header
-    # Resource Name, Resource ID, Resource Type, Backup Type, Creation Time, Vault, Status
-    col_widths = [35, 25, 30, 25, 30, 35, 20]
-    headers = [
-        "Resource Name",
-        "Resource ID",
-        "Resource Type",
-        "Backup Type",
-        "Creation Time",
-        "Vault",
-        "Status",
-    ]
-    h = 7
-
-    pdf.set_font("Arial", "B", 9)
-    pdf.set_fill_color(200, 200, 200)
-    # Print table headers
-    for i, header in enumerate(headers):
-        pdf.cell(col_widths[i], h, header, border=1, fill=True, align="C")
-    pdf.ln(h)
+    # Generate report organized by Vault -> Server -> Summary
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Backup Summary by Vault and Resource", ln=1, align="C")
+    pdf.ln(5)
 
     # Sort vaults based on VAULT_SORT_ORDER
-    def get_vault_priority(vault_item: Tuple[str, List[Dict[str, Any]]]) -> int:
-        vault_name = vault_item[0]
+    def get_vault_priority(vault_name: str) -> int:
         # Extract vault type from name
         vault_type = None
         for vtype in VAULT_SORT_ORDER:
@@ -282,100 +313,94 @@ def generate_pdf(
             return VAULT_SORT_ORDER.index(vault_type)
         return len(VAULT_SORT_ORDER)  # Put unknown vaults at the end
 
-    # Rows grouped by vault
-    pdf.set_font("Arial", size=8)
-    for vault_name, jobs in sorted(backup_data.items(), key=get_vault_priority):
-        if not jobs:
+    # Process each vault
+    for vault_name in sorted(resource_data.keys(), key=get_vault_priority):
+        resources = resource_data[vault_name]
+        if not resources:
             continue
 
-        # Sort jobs by creation time (newest first)
-        sorted_jobs = sorted(
-            jobs,
-            key=lambda x: x.get("CreationDate", datetime.datetime.now()),
-            reverse=True,
+        # Vault header
+        pdf.set_font("Arial", "B", 14)
+        pdf.set_fill_color(220, 220, 220)
+        pdf.cell(0, 10, f"Vault: {vault_name}", ln=1, fill=True, border=1)
+        pdf.ln(3)
+
+        # Sort resources by name within this vault
+        sorted_resources = sorted(
+            resources.items(),
+            key=lambda x: x[1].get("resource_name", "").lower()
         )
 
-        for job in sorted_jobs:
-            resource_arn = job.get("ResourceArn", "Unknown")
-            resource_id, resource_type = get_resource_details(resource_arn)
-            resource_name = get_resource_name(resource_arn)
-            backup_type = determine_backup_type(vault_name)
-            creation_time = job.get("CreationDate", datetime.datetime.now())
-            status = job.get("State", "Unknown")
+        # Process each resource in this vault
+        pdf.set_font("Arial", size=10)
+        for resource_arn, resource_info in sorted_resources:
+            resource_name = resource_info.get("resource_name", "Unknown")
+            resource_type = resource_info.get("resource_type", "Unknown")
+            successful_count = resource_info.get("successful_count", 0)
+            failed_count = resource_info.get("failed_count", 0)
+            total_count = successful_count + failed_count
+            oldest_backup = resource_info.get("oldest_backup")
+            newest_backup = resource_info.get("newest_backup")
 
-            # Truncate long values
-            resource_name = (
-                resource_name[:30] + "..." if len(resource_name) > 30 else resource_name
-            )
-            resource_id = (
-                resource_id[:20] + "..." if len(resource_id) > 20 else resource_id
-            )
-            vault_display = vault_name.replace(VAULT_NAME_PREFIX, "")[:30]
+            # Format dates
+            oldest_str = oldest_backup.strftime("%Y-%m-%d %H:%M") if oldest_backup else "N/A"
+            newest_str = newest_backup.strftime("%Y-%m-%d %H:%M") if newest_backup else "N/A"
 
-            # Color code based on status
-            if status == "COMPLETED":
+            # Resource header
+            pdf.set_font("Arial", "B", 11)
+            pdf.cell(0, 8, f"Server: {resource_name} ({resource_type})", ln=1)
+            
+            # Summary statistics
+            pdf.set_font("Arial", size=9)
+            pdf.cell(0, 6, f"  Total Recovery Points: {total_count}", ln=1)
+            
+            # Color code the success/failure counts
+            if successful_count > 0:
                 pdf.set_text_color(0, 128, 0)  # Green
-            elif status == "FAILED":
-                pdf.set_text_color(255, 0, 0)  # Red
-            elif status in ["RUNNING", "PENDING", "CREATED"]:
-                pdf.set_text_color(255, 165, 0)  # Orange
+                pdf.cell(0, 6, f"  Successful: {successful_count}", ln=1)
+                pdf.set_text_color(0, 0, 0)  # Reset to black
             else:
-                pdf.set_text_color(0, 0, 0)  # Black
-
-            pdf.cell(col_widths[0], h, resource_name, border=1)
-            pdf.cell(col_widths[1], h, resource_id, border=1)
-            pdf.cell(col_widths[2], h, resource_type, border=1)
-            pdf.cell(col_widths[3], h, backup_type, border=1)
-            pdf.cell(
-                col_widths[4],
-                h,
-                creation_time.strftime("%Y-%m-%d %H:%M"),
-                border=1,
-                align="C",
-            )
-            pdf.cell(col_widths[5], h, vault_display, border=1)
-            pdf.cell(col_widths[6], h, status, border=1, align="C")
-            pdf.ln(h)
-
-            # Reset text color
-            pdf.set_text_color(0, 0, 0)
+                pdf.cell(0, 6, f"  Successful: {successful_count}", ln=1)
+            
+            if failed_count > 0:
+                pdf.set_text_color(255, 0, 0)  # Red
+                pdf.cell(0, 6, f"  Unsuccessful: {failed_count}", ln=1)
+                pdf.set_text_color(0, 0, 0)  # Reset to black
+            else:
+                pdf.cell(0, 6, f"  Unsuccessful: {failed_count}", ln=1)
+            
+            pdf.cell(0, 6, f"  Oldest Snapshot: {oldest_str}", ln=1)
+            pdf.cell(0, 6, f"  Most Recent: {newest_str}", ln=1)
+            pdf.ln(4)  # Space between resources
 
             # Page break guard
-            if pdf.get_y() > 260:
+            if pdf.get_y() > 250:
                 pdf.add_page()
-                # Reprint headers
-                pdf.set_font("Arial", "B", 9)
-                pdf.set_fill_color(200, 200, 200)
-                for i, header in enumerate(headers):
-                    pdf.cell(col_widths[i], h, header, border=1, fill=True, align="C")
-                pdf.ln(h)
-                pdf.set_font("Arial", size=8)
 
-    # Failed jobs detail section if any
-    if failed_jobs > 0:
+        pdf.ln(6)  # Space between vaults
+
+    # Add summary section for failed recovery points if any
+    if total_failed > 0:
         pdf.add_page()
         pdf.set_font("Arial", "B", 14)
-        pdf.cell(0, 10, "Failed Backup Jobs Details", ln=1, align="C")
+        pdf.cell(0, 10, "Resources with Failed Recovery Points", ln=1, align="C")
         pdf.ln(4)
 
         pdf.set_font("Arial", size=9)
-        for vault_name, jobs in backup_data.items():
-            failed = [j for j in jobs if j["State"] == "FAILED"]
-            for job in failed:
-                resource_arn = job.get("ResourceArn", "Unknown")
-                resource_id, resource_type = get_resource_details(resource_arn)
-                resource_name = get_resource_name(resource_arn)
+        for vault_name, resources in resource_data.items():
+            for resource_arn, resource_info in resources.items():
+                if resource_info.get("failed_count", 0) > 0:
+                    resource_name = resource_info.get("resource_name", "Unknown")
+                    resource_id = resource_info.get("resource_id", "Unknown")
+                    resource_type = resource_info.get("resource_type", "Unknown")
+                    failed_count = resource_info.get("failed_count", 0)
 
-                pdf.set_font("Arial", "B", 10)
-                pdf.cell(0, 7, f"Resource: {resource_name} ({resource_id})", ln=1)
-                pdf.set_font("Arial", size=9)
-                pdf.cell(0, 6, f"Type: {resource_type} | Vault: {vault_name}", ln=1)
-                pdf.cell(0, 6, f"Failed at: {job.get('CreationDate', 'Unknown')}", ln=1)
-                if job.get("StatusMessage"):
-                    pdf.multi_cell(
-                        0, 5, f"Error: {job.get('StatusMessage', 'No error message')}"
-                    )
-                pdf.ln(4)
+                    pdf.set_font("Arial", "B", 10)
+                    pdf.cell(0, 7, f"Resource: {resource_name} ({resource_id})", ln=1)
+                    pdf.set_font("Arial", size=9)
+                    pdf.cell(0, 6, f"Type: {resource_type} | Vault: {vault_name}", ln=1)
+                    pdf.cell(0, 6, f"Failed Recovery Points: {failed_count}", ln=1)
+                    pdf.ln(4)
 
     pdf.output(outfile)
 
@@ -399,12 +424,12 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
             "body": json.dumps({"error": "No vaults enabled for reporting"}),
         }
 
-    # Fetch backup jobs for each enabled vault
-    backup_data = {}
+    # Fetch recovery points for each enabled vault
+    resource_data = {}
     for vault_name in vault_names:
-        jobs = fetch_backup_jobs(vault_name, start_time, end_time)
-        if jobs:
-            backup_data[vault_name] = jobs
+        resources = process_recovery_points_by_resource(vault_name)
+        if resources:
+            resource_data[vault_name] = resources
 
     # Generate report filename
     now = datetime.datetime.now()
@@ -438,8 +463,16 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
 
     # Generate and upload PDF
     with tempfile.NamedTemporaryFile(suffix=".pdf") as tmp:
-        generate_pdf(backup_data, start_time, end_time, tmp.name)
+        generate_pdf(resource_data, start_time, end_time, tmp.name)
         s3.upload_file(tmp.name, REPORT_BUCKET, key)
+
+    # Calculate totals for response
+    total_resources = sum(len(resources) for resources in resource_data.values())
+    total_recovery_points = sum(
+        resource["successful_count"] + resource["failed_count"]
+        for resources in resource_data.values()
+        for resource in resources.values()
+    )
 
     return {
         "statusCode": 200,
@@ -448,7 +481,8 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
                 "status": "ok",
                 "s3_key": key,
                 "vaults_checked": vault_names,
-                "total_jobs": sum(len(jobs) for jobs in backup_data.values()),
+                "total_resources": total_resources,
+                "total_recovery_points": total_recovery_points,
             }
         ),
     }
