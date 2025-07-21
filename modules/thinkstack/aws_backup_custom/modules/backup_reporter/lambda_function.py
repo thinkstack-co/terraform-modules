@@ -272,17 +272,22 @@ def generate_pdf(
     )
     pdf.ln(5)
 
-    # Summary statistics
-    total_resources = sum(len(resources) for resources in resource_data.values())
-    total_successful = sum(
-        resource["successful_count"]
-        for resources in resource_data.values()
-        for resource in resources.values()
-    )
-    total_failed = sum(
-        resource["failed_count"]
-        for resources in resource_data.values()
-        for resource in resources.values()
+    # Summary statistics - handle empty resource_data gracefully
+    if not resource_data:
+        total_resources = 0
+        total_successful = 0
+        total_failed = 0
+    else:
+        total_resources = sum(len(resources) for resources in resource_data.values())
+        total_successful = sum(
+            resource["successful_count"]
+            for resources in resource_data.values()
+            for resource in resources.values()
+        )
+        total_failed = sum(
+            resource["failed_count"]
+            for resources in resource_data.values()
+            for resource in resources.values()
     )
     total_recovery_points = total_successful + total_failed
 
@@ -426,10 +431,20 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
 
     # Fetch recovery points for each enabled vault
     resource_data = {}
-    for vault_name in vault_names:
-        resources = process_recovery_points_by_resource(vault_name)
-        # Always add the vault to resource_data, even if empty
-        resource_data[vault_name] = resources
+    try:
+        for vault_name in vault_names:
+            try:
+                resources = process_recovery_points_by_resource(vault_name)
+                # Always add the vault to resource_data, even if empty
+                resource_data[vault_name] = resources if resources is not None else {}
+            except Exception as e:
+                print(f"Error processing vault {vault_name}: {str(e)}")
+                # Ensure we still add an empty entry for this vault
+                resource_data[vault_name] = {}
+    except Exception as e:
+        print(f"Error in resource data collection: {str(e)}")
+        # Ensure resource_data is always defined, even if empty
+        resource_data = {vault: {} for vault in vault_names}
 
     # Generate report filename
     now = datetime.datetime.now()
@@ -466,13 +481,17 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
         generate_pdf(resource_data, start_time, end_time, tmp.name)
         s3.upload_file(tmp.name, REPORT_BUCKET, key)
 
-    # Calculate totals for response
-    total_resources = sum(len(resources) for resources in resource_data.values())
-    total_recovery_points = sum(
-        resource["successful_count"] + resource["failed_count"]
-        for resources in resource_data.values()
-        for resource in resources.values()
-    )
+    # Calculate totals for response - handle empty resource_data gracefully
+    if not resource_data:
+        total_resources = 0
+        total_recovery_points = 0
+    else:
+        total_resources = sum(len(resources) for resources in resource_data.values())
+        total_recovery_points = sum(
+            resource["successful_count"] + resource["failed_count"]
+            for resources in resource_data.values()
+            for resource in resources.values()
+        )
 
     return {
         "statusCode": 200,
