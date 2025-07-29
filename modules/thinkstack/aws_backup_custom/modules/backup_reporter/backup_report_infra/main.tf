@@ -120,6 +120,13 @@ resource "aws_iam_role_policy" "backup_reporter_policy" {
       {
         Effect = "Allow",
         Action = [
+          "ec2:DescribeRegions"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
           "s3:PutObject",
           "s3:PutObjectAcl"
         ],
