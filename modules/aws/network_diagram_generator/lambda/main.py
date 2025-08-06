@@ -16,51 +16,22 @@ from diagrams.aws.compute import EC2  # type: ignore
 
 
 def get_vpcs(ec2: Any) -> List[Dict[str, Any]]:
-    """Get all VPCs in the AWS account.
-
-    Args:
-        ec2: Boto3 EC2 client
-
-    Returns:
-        List of VPC dictionaries
-    """
+    # Get all VPCs in the AWS account
     return ec2.describe_vpcs()["Vpcs"]
 
 
 def get_subnets(ec2: Any) -> List[Dict[str, Any]]:
-    """Get all subnets in the AWS account.
-
-    Args:
-        ec2: Boto3 EC2 client
-
-    Returns:
-        List of subnet dictionaries
-    """
+    # Get all subnets in the AWS account
     return ec2.describe_subnets()["Subnets"]
 
 
 def get_instances(ec2: Any) -> List[Dict[str, Any]]:
-    """Get all EC2 instances in the AWS account.
-
-    Args:
-        ec2: Boto3 EC2 client
-
-    Returns:
-        List of EC2 reservation dictionaries
-    """
+    # Get all EC2 instances in the AWS account
     return ec2.describe_instances()["Reservations"]
 
 
 def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, str]:
-    """Main Lambda handler function.
-
-    Args:
-        _event: Lambda event data (not used, prefixed with underscore)
-        _context: Lambda context object (not used, prefixed with underscore)
-
-    Returns:
-        Dict with status information
-    """
+    # Main Lambda handler function
     region = os.environ.get("AWS_REGION", "us-east-1")
     s3_bucket = os.environ["S3_BUCKET"]
     ec2 = boto3.client("ec2", region_name=region)

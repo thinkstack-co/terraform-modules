@@ -1,4 +1,3 @@
-/*
 output "lambda_function_arn" {
   description = "ARN of the Lambda function."
   value       = aws_lambda_function.diagram.arn
@@ -13,4 +12,3 @@ output "event_rule_arn" {
   description = "ARN of the EventBridge rule."
   value       = aws_cloudwatch_event_rule.weekly.arn
 }
-*/

@@ -55,26 +55,35 @@ data "aws_iam_policy_document" "lambda_policy" {
   }
 }
 
+resource "null_resource" "build_lambda_package" {
+  triggers = {
+    main_py_hash         = filemd5("${path.module}/lambda/main.py")
+    requirements_hash    = filemd5("${path.module}/lambda/requirements.txt")
+    dockerfile_hash      = filemd5("${path.module}/lambda/Dockerfile")
+  }
+
+  provisioner "local-exec" {
+    command = "cd ${path.module}/lambda && docker build --platform linux/amd64 -t network-diagram-lambda . && docker run --platform linux/amd64 --rm -v ${path.module}/lambda:/output network-diagram-lambda cp /build/lambda_package.zip /output/"
+  }
+}
+
 resource "aws_lambda_function" "diagram" {
+  depends_on = [null_resource.build_lambda_package]
+  
   function_name = "${var.name}-network-diagram"
   role          = aws_iam_role.lambda.arn
   handler       = "main.lambda_handler"
   runtime       = "python3.11"
   timeout       = 900
   memory_size   = 512
-  filename      = data.archive_file.lambda_package.output_path
-  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  filename      = "${path.module}/lambda/lambda_package.zip"
+  source_code_hash = null_resource.build_lambda_package.triggers.main_py_hash
+  
   environment {
     variables = {
       S3_BUCKET = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
     }
   }
-}
-
-data "archive_file" "lambda_package" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda"
-  output_path = "${path.module}/lambda.zip"
 }
 
 resource "aws_cloudwatch_event_rule" "weekly" {
