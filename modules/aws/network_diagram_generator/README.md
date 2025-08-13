@@ -13,8 +13,8 @@ This module deploys a scheduled Lambda function that scans your AWS account, gen
 module "network_diagram_generator" {
   source = "./modules/aws/network_diagram_generator"
   name   = "my-diagram-generator"
-  # s3_bucket_name = "my-existing-bucket" # Optional
   # schedule = "cron(0 2 ? * SUN *)"      # Optional
+  # s3_key_prefix = "my-diagrams"         # Optional
 }
 ```
 
@@ -22,8 +22,9 @@ module "network_diagram_generator" {
 | Name           | Description                                 | Type   | Default     |
 |----------------|---------------------------------------------|--------|-------------|
 | name           | Base name for resources                     | string | network-diagram-generator |
-| s3_bucket_name | S3 bucket to store diagrams (optional)      | string | null        |
 | schedule       | EventBridge cron schedule for Lambda        | string | cron(0 2 ? * SUN *) |
+| s3_key_prefix  | Prefix for auto-created S3 bucket name     | string | null        |
+| tags           | Map of tags to apply to resources           | map(string) | {} |
 
 ## Outputs
 | Name                | Description                      |
