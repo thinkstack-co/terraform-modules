@@ -9,18 +9,27 @@ terraform {
 }
 
 resource "aws_s3_bucket" "diagram" {
-  bucket = var.s3_bucket_name != null ? var.s3_bucket_name : "${var.name}-network-diagrams-${random_id.suffix.hex}"
+  bucket = var.s3_bucket_name != null ? var.s3_bucket_name : "${local.bucket_prefix}-${random_id.suffix.hex}"
   force_destroy = true
   count = var.s3_bucket_name == null ? 1 : 0
+
+  tags = var.tags
 }
 
 resource "random_id" "suffix" {
   byte_length = 4
 }
 
+locals {
+  # Determine the bucket name prefix when auto-creating the bucket
+  bucket_prefix = var.s3_key_prefix != null && var.s3_key_prefix != "" ? var.s3_key_prefix : "${var.name}-network-diagrams"
+}
+
 resource "aws_iam_role" "lambda" {
   name = "${var.name}-diagram-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+
+  tags = var.tags
 }
 
 
@@ -98,11 +107,15 @@ resource "aws_lambda_function" "diagram" {
       LD_LIBRARY_PATH  = "/opt/lib64:/opt/lib:/lib64:/usr/lib64"
     }
   }
+
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_event_rule" "weekly" {
   name                = "${var.name}-diagram-weekly"
   schedule_expression = var.schedule
+
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {
