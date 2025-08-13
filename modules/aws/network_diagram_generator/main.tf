@@ -23,11 +23,6 @@ resource "aws_iam_role" "lambda" {
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
-locals {
-  # If a public Graphviz layer ARN is provided, use it; otherwise build and use a local layer
-  use_public_graphviz_layer = var.graphviz_layer_arn != null && var.graphviz_layer_arn != ""
-  graphviz_layer_arn_final = local.use_public_graphviz_layer ? var.graphviz_layer_arn : aws_lambda_layer_version.graphviz[0].arn
-}
 
 data "aws_iam_policy_document" "lambda_assume_role" {
   statement {
@@ -61,27 +56,11 @@ data "aws_iam_policy_document" "lambda_policy" {
   }
 }
 
-## Build a local Graphviz Lambda layer when a public ARN isn't supplied
-resource "null_resource" "build_graphviz_layer" {
-  count = local.use_public_graphviz_layer ? 0 : 1
-
-  triggers = {
-    build_script_hash = filemd5("${path.module}/lambda/layer/build_graphviz_layer.sh")
-  }
-
-  provisioner "local-exec" {
-    command = "chmod +x ${path.module}/lambda/layer/build_graphviz_layer.sh && ${path.module}/lambda/layer/build_graphviz_layer.sh"
-  }
-}
-
+## Always use a locally prebuilt Graphviz layer (self-contained)
 resource "aws_lambda_layer_version" "graphviz" {
-  count = local.use_public_graphviz_layer ? 0 : 1
-
   layer_name          = "${var.name}-graphviz"
-  filename            = "${path.module}/lambda/layer/out/graphviz-layer.zip"
+  filename            = "${path.module}/lambda/layer/prebuilt/graphviz-layer.zip"
   compatible_runtimes = ["python3.11"]
-
-  depends_on = [null_resource.build_graphviz_layer]
 }
 
 resource "null_resource" "build_lambda_package" {
@@ -110,7 +89,7 @@ resource "aws_lambda_function" "diagram" {
   source_code_hash = filebase64sha256("${path.module}/lambda/lambda_package.zip")
 
   # Attach the Graphviz layer (public ARN or locally built)
-  layers = [local.graphviz_layer_arn_final]
+  layers = [aws_lambda_layer_version.graphviz.arn]
   
   environment {
     variables = {
