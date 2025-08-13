@@ -37,59 +37,83 @@ resource "aws_iam_role_policy" "lambda_policy" {
   name = "${var.name}-diagram-lambda-policy"
   role = aws_iam_role.lambda.id
   policy = data.aws_iam_policy_document.lambda_policy.json
-
-  # Ensure bucket (if we create it) exists before resolving policy ARNs
-  depends_on = [aws_s3_bucket.diagram]
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
-  # EC2 discovery (VPCs, Subnets, IGWs, NAT GWs, TGWs, Instances, Volumes, etc.)
+  # EC2 discovery - specific permissions to match existing policy
   statement {
-    actions   = ["ec2:Describe*"]
-    resources = ["*"]
-  }
-
-  # Load balancers (ALB/NLB/CLB)
-  statement {
-    actions   = ["elasticloadbalancing:Describe*"]
-    resources = ["*"]
-  }
-
-  # WAFv2 (regional and global)
-  statement {
+    sid = "EC2ReadAccess"
+    effect = "Allow"
     actions = [
-      "wafv2:Get*",
-      "wafv2:List*",
-      "wafv2:ListResourcesForWebACL"
+      "ec2:DescribeVpcs",
+      "ec2:DescribeTags",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeInstances",
+      "ec2:DescribeAvailabilityZones"
     ]
     resources = ["*"]
   }
 
-  # WAF Classic
+  # Load balancers - specific permissions to match existing policy
   statement {
-    actions   = ["waf:Get*", "waf:List*"]
+    sid = "ELBReadAccess"
+    effect = "Allow"
+    actions = [
+      "elasticloadbalancing:DescribeTargetHealth",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeTags",
+      "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:DescribeListeners"
+    ]
     resources = ["*"]
   }
 
-  # WAF Classic (regional endpoint)
+  # WAF permissions - specific permissions to match existing policy
   statement {
-    actions   = ["waf-regional:Get*", "waf-regional:List*"]
+    sid = "WAFReadAccess"
+    effect = "Allow"
+    actions = [
+      "wafv2:ListWebACLs",
+      "wafv2:ListResourcesForWebACL",
+      "wafv2:GetWebACL",
+      "waf:ListWebACLs",
+      "waf:GetWebACL"
+    ]
+    resources = ["*"]
+  }
+
+  # S3 general read access - to match existing policy
+  statement {
+    sid = "S3ReadAccess"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:ListAllMyBuckets",
+      "s3:GetBucketLocation"
+    ]
     resources = ["*"]
   }
 
   # S3 access scoped to the diagram bucket
   statement {
-    actions   = ["s3:ListBucket"]
-    resources = [aws_s3_bucket.diagram.arn]
-  }
-  statement {
-    actions   = ["s3:PutObject", "s3:GetObject"]
+    sid = "S3WriteAccessToDiagramBucket"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject"
+    ]
     resources = ["${aws_s3_bucket.diagram.arn}/*"]
   }
 
   # CloudWatch Logs
   statement {
-    actions   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+    sid = "CloudWatchLogsAccess"
+    effect = "Allow"
+    actions = [
+      "logs:PutLogEvents",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup"
+    ]
     resources = ["arn:aws:logs:*:*:*"]
   }
 }
