@@ -10,6 +10,7 @@ terraform {
 
 resource "aws_security_group" "fortigate_fw_sg" {
   name        = var.sg_name
+  
   description = "Security group applied to all fortigate firewalls"
   vpc_id      = var.vpc_id
 

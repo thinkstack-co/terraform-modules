@@ -16,22 +16,35 @@ from diagrams.aws.compute import EC2  # type: ignore
 
 
 def get_vpcs(ec2: Any) -> List[Dict[str, Any]]:
-    # Get all VPCs in the AWS account
-    return ec2.describe_vpcs()["Vpcs"]
+    # Get all VPCs in the AWS account (handle pagination)
+    paginator = ec2.get_paginator("describe_vpcs")
+    vpcs: List[Dict[str, Any]] = []
+    for page in paginator.paginate():
+        vpcs.extend(page.get("Vpcs", []))
+    return vpcs
 
 
 def get_subnets(ec2: Any) -> List[Dict[str, Any]]:
-    # Get all subnets in the AWS account
-    return ec2.describe_subnets()["Subnets"]
+    # Get all subnets in the AWS account (handle pagination)
+    paginator = ec2.get_paginator("describe_subnets")
+    subnets: List[Dict[str, Any]] = []
+    for page in paginator.paginate():
+        subnets.extend(page.get("Subnets", []))
+    return subnets
 
 
 def get_instances(ec2: Any) -> List[Dict[str, Any]]:
-    # Get all EC2 instances in the AWS account
-    return ec2.describe_instances()["Reservations"]
+    # Get all EC2 instances in the AWS account (handle pagination)
+    paginator = ec2.get_paginator("describe_instances")
+    reservations: List[Dict[str, Any]] = []
+    for page in paginator.paginate():
+        reservations.extend(page.get("Reservations", []))
+    return reservations
 
 
 def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, str]:
     # Main Lambda handler function
+    logging.basicConfig(level=logging.INFO)
     region = os.environ.get("AWS_REGION", "us-east-1")
     s3_bucket = os.environ["S3_BUCKET"]
     ec2 = boto3.client("ec2", region_name=region)
@@ -40,8 +53,13 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, str]:
     instances = get_instances(ec2)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        diagram_path = os.path.join(tmpdir, "network_diagram.png")
-        with Diagram("AWS Network Diagram", filename=diagram_path, show=False):
+        with Diagram(
+            "AWS Network Diagram",
+            filename="network_diagram",  # diagrams adds extension automatically
+            outformat="png",
+            outpath=tmpdir,
+            show=False,
+        ):
             for vpc in vpcs:
                 vpc_id = vpc["VpcId"]
                 with Cluster(f"VPC {vpc_id}"):
@@ -55,7 +73,8 @@ def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, str]:
         # Upload to S3
         s3 = boto3.client("s3")
         try:
-            s3.upload_file(diagram_path, s3_bucket, "network_diagram.png")
+            out_file = os.path.join(tmpdir, "network_diagram.png")
+            s3.upload_file(out_file, s3_bucket, "network_diagram.png", ExtraArgs={"ContentType": "image/png"})
         except botocore.exceptions.ClientError as e:
             logging.error(e)
             raise e

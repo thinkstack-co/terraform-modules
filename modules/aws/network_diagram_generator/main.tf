@@ -23,6 +23,12 @@ resource "aws_iam_role" "lambda" {
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
+locals {
+  # If a public Graphviz layer ARN is provided, use it; otherwise build and use a local layer
+  use_public_graphviz_layer = var.graphviz_layer_arn != null && var.graphviz_layer_arn != ""
+  graphviz_layer_arn_final = local.use_public_graphviz_layer ? var.graphviz_layer_arn : aws_lambda_layer_version.graphviz[0].arn
+}
+
 data "aws_iam_policy_document" "lambda_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -55,6 +61,29 @@ data "aws_iam_policy_document" "lambda_policy" {
   }
 }
 
+## Build a local Graphviz Lambda layer when a public ARN isn't supplied
+resource "null_resource" "build_graphviz_layer" {
+  count = local.use_public_graphviz_layer ? 0 : 1
+
+  triggers = {
+    build_script_hash = filemd5("${path.module}/lambda/layer/build_graphviz_layer.sh")
+  }
+
+  provisioner "local-exec" {
+    command = "chmod +x ${path.module}/lambda/layer/build_graphviz_layer.sh && ${path.module}/lambda/layer/build_graphviz_layer.sh"
+  }
+}
+
+resource "aws_lambda_layer_version" "graphviz" {
+  count = local.use_public_graphviz_layer ? 0 : 1
+
+  layer_name          = "${var.name}-graphviz"
+  filename            = "${path.module}/lambda/layer/out/graphviz-layer.zip"
+  compatible_runtimes = ["python3.11"]
+
+  depends_on = [null_resource.build_graphviz_layer]
+}
+
 resource "null_resource" "build_lambda_package" {
   triggers = {
     main_py_hash         = filemd5("${path.module}/lambda/main.py")
@@ -77,11 +106,17 @@ resource "aws_lambda_function" "diagram" {
   timeout       = 900
   memory_size   = 512
   filename      = "${path.module}/lambda/lambda_package.zip"
-  source_code_hash = null_resource.build_lambda_package.triggers.main_py_hash
+  # Hash the final ZIP so dependency changes also trigger a deploy
+  source_code_hash = filebase64sha256("${path.module}/lambda/lambda_package.zip")
+
+  # Attach the Graphviz layer (public ARN or locally built)
+  layers = [local.graphviz_layer_arn_final]
   
   environment {
     variables = {
-      S3_BUCKET = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
+      S3_BUCKET        = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
+      PATH             = "/opt/bin:/usr/local/bin:/usr/bin:/bin"
+      LD_LIBRARY_PATH  = "/opt/lib64:/opt/lib:/lib64:/usr/lib64"
     }
   }
 }
