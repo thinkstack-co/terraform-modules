@@ -40,6 +40,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
+  version = "2012-10-17"
   # EC2 discovery - specific permissions to match existing policy
   statement {
     sid = "EC2ReadAccess"
@@ -125,20 +126,13 @@ resource "aws_lambda_layer_version" "graphviz" {
   compatible_runtimes = ["python3.11"]
 }
 
-resource "null_resource" "build_lambda_package" {
-  triggers = {
-    main_py_hash         = filemd5("${path.module}/lambda/main.py")
-    requirements_hash    = filemd5("${path.module}/lambda/requirements.txt")
-    dockerfile_hash      = filemd5("${path.module}/lambda/Dockerfile")
-  }
-
-  provisioner "local-exec" {
-    command = "cd ${path.module}/lambda && docker build --platform linux/amd64 -t network-diagram-lambda . && docker run --platform linux/amd64 --rm -v ${path.module}/lambda:/output network-diagram-lambda cp /build/lambda_package.zip /output/"
-  }
-}
+# Note: Lambda package is pre-built and committed to the repository
+# To rebuild: Run the Docker build command locally before committing
+# docker build --platform linux/amd64 -t network-diagram-lambda ./lambda
+# docker run --platform linux/amd64 --rm -v $(pwd)/lambda:/output network-diagram-lambda cp /build/lambda_package.zip /output/
 
 resource "aws_lambda_function" "diagram" {
-  depends_on = [null_resource.build_lambda_package]
+  # Removed depends_on since we're using pre-built packages
   
   function_name = "${var.name}-network-diagram"
   role          = aws_iam_role.lambda.arn
