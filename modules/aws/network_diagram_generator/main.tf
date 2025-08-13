@@ -9,20 +9,10 @@ terraform {
 }
 
 resource "aws_s3_bucket" "diagram" {
-  bucket = var.s3_bucket_name != null ? var.s3_bucket_name : "${local.bucket_prefix}-${random_id.suffix.hex}"
+  bucket_prefix = var.s3_key_prefix
   force_destroy = true
-  count = var.s3_bucket_name == null ? 1 : 0
 
   tags = var.tags
-}
-
-resource "random_id" "suffix" {
-  byte_length = 4
-}
-
-locals {
-  # Determine the bucket name prefix when auto-creating the bucket
-  bucket_prefix = var.s3_key_prefix != null && var.s3_key_prefix != "" ? var.s3_key_prefix : "${var.name}-network-diagrams"
 }
 
 resource "aws_iam_role" "lambda" {
@@ -47,20 +37,59 @@ resource "aws_iam_role_policy" "lambda_policy" {
   name = "${var.name}-diagram-lambda-policy"
   role = aws_iam_role.lambda.id
   policy = data.aws_iam_policy_document.lambda_policy.json
+
+  # Ensure bucket (if we create it) exists before resolving policy ARNs
+  depends_on = [aws_s3_bucket.diagram]
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
+  # EC2 discovery (VPCs, Subnets, IGWs, NAT GWs, TGWs, Instances, Volumes, etc.)
+  statement {
+    actions   = ["ec2:Describe*"]
+    resources = ["*"]
+  }
+
+  # Load balancers (ALB/NLB/CLB)
+  statement {
+    actions   = ["elasticloadbalancing:Describe*"]
+    resources = ["*"]
+  }
+
+  # WAFv2 (regional and global)
   statement {
     actions = [
-      "ec2:Describe*",
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:ListBucket"
+      "wafv2:Get*",
+      "wafv2:List*",
+      "wafv2:ListResourcesForWebACL"
     ]
     resources = ["*"]
   }
+
+  # WAF Classic
   statement {
-    actions = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+    actions   = ["waf:Get*", "waf:List*"]
+    resources = ["*"]
+  }
+
+  # WAF Classic (regional endpoint)
+  statement {
+    actions   = ["waf-regional:Get*", "waf-regional:List*"]
+    resources = ["*"]
+  }
+
+  # S3 access scoped to the diagram bucket
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.diagram.arn]
+  }
+  statement {
+    actions   = ["s3:PutObject", "s3:GetObject"]
+    resources = ["${aws_s3_bucket.diagram.arn}/*"]
+  }
+
+  # CloudWatch Logs
+  statement {
+    actions   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
     resources = ["arn:aws:logs:*:*:*"]
   }
 }
@@ -102,7 +131,7 @@ resource "aws_lambda_function" "diagram" {
   
   environment {
     variables = {
-      S3_BUCKET        = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
+      S3_BUCKET        = aws_s3_bucket.diagram.bucket
       PATH             = "/opt/bin:/usr/local/bin:/usr/bin:/bin"
       LD_LIBRARY_PATH  = "/opt/lib64:/opt/lib:/lib64:/usr/lib64"
     }
