@@ -75,7 +75,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
+  subnet_ids          = aws_subnet.private_subnets[*].id
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -86,7 +86,7 @@ resource "aws_vpc_endpoint" "kms" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
+  subnet_ids          = aws_subnet.private_subnets[*].id
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -97,7 +97,7 @@ resource "aws_vpc_endpoint" "ssm" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
+  subnet_ids          = aws_subnet.private_subnets[*].id
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -108,7 +108,7 @@ resource "aws_vpc_endpoint" "ssm-contacts" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
+  subnet_ids          = aws_subnet.private_subnets[*].id
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -119,7 +119,7 @@ resource "aws_vpc_endpoint" "ssm-incidents" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
+  subnet_ids          = aws_subnet.private_subnets[*].id
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
@@ -130,7 +130,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.private_subnets[*].id[0]]
+  subnet_ids          = aws_subnet.private_subnets[*].id
   tags                = merge(tomap({ Name = var.name }), var.tags)
 }
 
