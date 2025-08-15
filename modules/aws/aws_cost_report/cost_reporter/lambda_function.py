@@ -1,9 +1,16 @@
+"""AWS Cost Reporter Lambda Function.
+
+Generates PDF reports of AWS costs by tag and usage type, and uploads them to S3.
+"""
+
 import datetime
 import os
 import tempfile
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-import boto3
-from fpdf import FPDF
+# Type ignore for boto3 since we can't add stubs
+import boto3  # type: ignore
+from fpdf import FPDF  # type: ignore
 
 # ENV VARS
 REPORT_BUCKET = os.environ["REPORT_BUCKET"]
@@ -19,7 +26,12 @@ s3 = boto3.client("s3")
 sts = boto3.client("sts")
 
 
-def get_time_period():
+def get_time_period() -> Tuple[str, str]:
+    """Get the time period for the cost report.
+
+    Returns:
+        Tuple containing start and end dates as strings in YYYY-MM-DD format.
+    """
     if REPORT_TIME_PERIOD_START and REPORT_TIME_PERIOD_END:
         return REPORT_TIME_PERIOD_START, REPORT_TIME_PERIOD_END
     today = datetime.date.today()
@@ -29,17 +41,24 @@ def get_time_period():
     return str(first_prev), str(last_prev)
 
 
-def fetch_detailed_costs(start, end):
+def fetch_detailed_costs(start: str, end: str) -> Dict[str, Dict[str, float]]:
     """
+    Fetch detailed cost data from AWS Cost Explorer.
+
+    Args:
+        start: Start date string in YYYY-MM-DD format
+        end: End date string in YYYY-MM-DD format
+
     Returns:
-      {
-        tag_value: {
-          usage_type: total_cost,
+        Dictionary mapping tag values to usage types and costs:
+        {
+          tag_value: {
+            usage_type: total_cost,
+            ...
+          },
           ...
-        },
-        ...
-      }
-    Skips any entries with no tag.
+        }
+        Skips any entries with no tag.
     """
     group_by = [
         {"Type": "TAG", "Key": REPORT_TAG_KEY},
@@ -97,14 +116,32 @@ USAGE_TYPE_TO_RESOURCE_TYPE = {
 }
 
 
-def get_resource_type(usage_type):
+def get_resource_type(usage_type: str) -> str:
+    """Map AWS usage type to a friendly resource type name.
+
+    Args:
+        usage_type: The AWS usage type string
+
+    Returns:
+        A friendly resource type name
+    """
     for prefix, resource in USAGE_TYPE_TO_RESOURCE_TYPE.items():
         if usage_type.startswith(prefix) or prefix in usage_type:
             return resource
     return "Other"
 
 
-def generate_pdf(cost_data, start, end, outfile):
+def generate_pdf(
+    cost_data: Dict[str, Dict[str, float]], start: str, end: str, outfile: str
+) -> None:
+    """Generate a PDF report of AWS costs.
+
+    Args:
+        cost_data: Dictionary of cost data by tag and usage type
+        start: Start date string in YYYY-MM-DD format
+        end: End date string in YYYY-MM-DD format
+        outfile: Output file path for the PDF
+    """
     pdf = FPDF()
     # patch missing attribute
     pdf.unifontsubset = False
@@ -115,7 +152,8 @@ def generate_pdf(cost_data, start, end, outfile):
     pdf.cell(0, 10, f"Customer: {CUSTOMER_IDENTIFIER}", ln=1, align="C")
     try:
         acct = sts.get_caller_identity()["Account"]
-    except Exception:
+    except Exception as e:
+        print(f"Error getting account ID: {str(e)}")
         acct = "Unknown"
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 8, f"AWS Account ID: {acct}", ln=1, align="C")
@@ -190,7 +228,16 @@ def generate_pdf(cost_data, start, end, outfile):
     pdf.output(outfile)
 
 
-def lambda_handler(event, context):
+def lambda_handler(_event: Dict[str, Any], _context: Any) -> Dict[str, str]:
+    """Main Lambda handler function.
+
+    Args:
+        _event: Lambda event data (not used, prefixed with underscore)
+        _context: Lambda context object (not used, prefixed with underscore)
+
+    Returns:
+        Dict with status information and S3 key of generated report
+    """
     start, end = get_time_period()
     detailed_costs = fetch_detailed_costs(start, end)
 

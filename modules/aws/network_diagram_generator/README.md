@@ -13,8 +13,8 @@ This module deploys a scheduled Lambda function that scans your AWS account, gen
 module "network_diagram_generator" {
   source = "./modules/aws/network_diagram_generator"
   name   = "my-diagram-generator"
-  # s3_bucket_name = "my-existing-bucket" # Optional
   # schedule = "cron(0 2 ? * SUN *)"      # Optional
+  # s3_key_prefix = "my-diagrams"         # Optional
 }
 ```
 
@@ -22,8 +22,9 @@ module "network_diagram_generator" {
 | Name           | Description                                 | Type   | Default     |
 |----------------|---------------------------------------------|--------|-------------|
 | name           | Base name for resources                     | string | network-diagram-generator |
-| s3_bucket_name | S3 bucket to store diagrams (optional)      | string | null        |
 | schedule       | EventBridge cron schedule for Lambda        | string | cron(0 2 ? * SUN *) |
+| s3_key_prefix  | Prefix for auto-created S3 bucket name     | string | null        |
+| tags           | Map of tags to apply to resources           | map(string) | {} |
 
 ## Outputs
 | Name                | Description                      |
@@ -37,7 +38,25 @@ module "network_diagram_generator" {
 - Uses `boto3` and `diagrams` libraries
 - Uploads PNG diagram to S3 as `network_diagram.png`
 
+## Pre-Built Lambda Package
+This module uses **pre-built Lambda packages** that are committed to the repository:
+- `lambda/lambda_package.zip` - Main Lambda function with dependencies
+- `lambda/layer/prebuilt/graphviz-layer.zip` - Graphviz Lambda layer
+
+### Rebuilding the Lambda Package
+If you need to update the Lambda code or dependencies:
+
+1. **Prerequisites**: Docker must be installed on your local machine
+2. **Run the build script**:
+   ```bash
+   cd modules/aws/network_diagram_generator
+   ./build-lambda.sh
+   ```
+3. **Commit the updated package** to the repository
+
+**Note**: The build process must be done locally before committing. Terraform will use the pre-built packages and does not require Docker at apply time.
+
 ## Notes
 - The Lambda function is a basic example. Extend it to include more AWS resources, relationships, and improved visualizations as needed.
-- Ensure the Lambda deployment package includes all dependencies (`boto3`, `diagrams`, `graphviz`).
-- You may need to build the Lambda package in a compatible environment (e.g., Docker with Amazon Linux) due to native dependencies.
+- The Lambda packages are pre-built to avoid Docker dependencies during Terraform runs
+- Native dependencies like Graphviz are handled via the Lambda layer

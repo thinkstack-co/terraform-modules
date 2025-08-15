@@ -9,19 +9,19 @@ terraform {
 }
 
 resource "aws_s3_bucket" "diagram" {
-  bucket = var.s3_bucket_name != null ? var.s3_bucket_name : "${var.name}-network-diagrams-${random_id.suffix.hex}"
+  bucket_prefix = var.s3_key_prefix
   force_destroy = true
-  count = var.s3_bucket_name == null ? 1 : 0
-}
 
-resource "random_id" "suffix" {
-  byte_length = 4
+  tags = var.tags
 }
 
 resource "aws_iam_role" "lambda" {
   name = "${var.name}-diagram-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+
+  tags = var.tags
 }
+
 
 data "aws_iam_policy_document" "lambda_assume_role" {
   statement {
@@ -40,46 +40,129 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
+  version = "2012-10-17"
+  # EC2 discovery - specific permissions to match existing policy
   statement {
+    sid = "EC2ReadAccess"
+    effect = "Allow"
     actions = [
-      "ec2:Describe*",
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:ListBucket"
+      "ec2:DescribeVpcs",
+      "ec2:DescribeTags",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeInstances",
+      "ec2:DescribeAvailabilityZones"
     ]
     resources = ["*"]
   }
+
+  # Load balancers - specific permissions to match existing policy
   statement {
-    actions = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+    sid = "ELBReadAccess"
+    effect = "Allow"
+    actions = [
+      "elasticloadbalancing:DescribeTargetHealth",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeTags",
+      "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:DescribeListeners"
+    ]
+    resources = ["*"]
+  }
+
+  # WAF permissions - specific permissions to match existing policy
+  statement {
+    sid = "WAFReadAccess"
+    effect = "Allow"
+    actions = [
+      "wafv2:ListWebACLs",
+      "wafv2:ListResourcesForWebACL",
+      "wafv2:GetWebACL",
+      "waf:ListWebACLs",
+      "waf:GetWebACL"
+    ]
+    resources = ["*"]
+  }
+
+  # S3 general read access - to match existing policy
+  statement {
+    sid = "S3ReadAccess"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:ListAllMyBuckets",
+      "s3:GetBucketLocation"
+    ]
+    resources = ["*"]
+  }
+
+  # S3 access scoped to the diagram bucket
+  statement {
+    sid = "S3WriteAccessToDiagramBucket"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject"
+    ]
+    resources = ["${aws_s3_bucket.diagram.arn}/*"]
+  }
+
+  # CloudWatch Logs
+  statement {
+    sid = "CloudWatchLogsAccess"
+    effect = "Allow"
+    actions = [
+      "logs:PutLogEvents",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup"
+    ]
     resources = ["arn:aws:logs:*:*:*"]
   }
 }
 
+## Always use a locally prebuilt Graphviz layer (self-contained)
+resource "aws_lambda_layer_version" "graphviz" {
+  layer_name          = "${var.name}-graphviz"
+  filename            = "${path.module}/lambda/layer/prebuilt/graphviz-layer.zip"
+  compatible_runtimes = ["python3.11"]
+}
+
+# Note: Lambda package is pre-built and committed to the repository
+# To rebuild: Run the Docker build command locally before committing
+# docker build --platform linux/amd64 -t network-diagram-lambda ./lambda
+# docker run --platform linux/amd64 --rm -v $(pwd)/lambda:/output network-diagram-lambda cp /build/lambda_package.zip /output/
+
 resource "aws_lambda_function" "diagram" {
+  # Removed depends_on since we're using pre-built packages
+  
   function_name = "${var.name}-network-diagram"
   role          = aws_iam_role.lambda.arn
   handler       = "main.lambda_handler"
   runtime       = "python3.11"
   timeout       = 900
   memory_size   = 512
-  filename      = data.archive_file.lambda_package.output_path
-  source_code_hash = data.archive_file.lambda_package.output_base64sha256
+  filename      = "${path.module}/lambda/lambda_package.zip"
+  # Hash the final ZIP so dependency changes also trigger a deploy
+  source_code_hash = filebase64sha256("${path.module}/lambda/lambda_package.zip")
+
+  # Attach the Graphviz layer (public ARN or locally built)
+  layers = [aws_lambda_layer_version.graphviz.arn]
+  
   environment {
     variables = {
-      S3_BUCKET = var.s3_bucket_name != null ? var.s3_bucket_name : aws_s3_bucket.diagram[0].bucket
+      S3_BUCKET        = aws_s3_bucket.diagram.bucket
+      PATH             = "/opt/bin:/usr/local/bin:/usr/bin:/bin"
+      LD_LIBRARY_PATH  = "/opt/lib64:/opt/lib:/lib64:/usr/lib64"
     }
   }
-}
 
-data "archive_file" "lambda_package" {
-  type        = "zip"
-  source_dir  = "${path.module}/lambda"
-  output_path = "${path.module}/lambda.zip"
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_event_rule" "weekly" {
   name                = "${var.name}-diagram-weekly"
   schedule_expression = var.schedule
+
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {
