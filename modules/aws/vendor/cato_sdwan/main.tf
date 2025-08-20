@@ -78,8 +78,8 @@ resource "aws_security_group" "cato_lan_sg" {
 ############################################
 
 resource "aws_eip" "wan_external_ip" {
-  vpc   = true
-  count = var.number
+  domain = "vpc"
+  count  = var.number
 }
 
 resource "aws_eip_association" "wan_external_ip" {
