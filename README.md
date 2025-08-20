@@ -147,6 +147,34 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 
 
 
+### Local linting and validation
+
+Run local checks to find deprecated Terraform syntax and validation issues.
+
+1. Install tools (macOS):
+   ```sh
+   brew tap hashicorp/tap
+   brew install hashicorp/tap/terraform tflint shellcheck
+   # Python Black (choose one)
+   brew install black
+   # or: pipx install black
+   ```
+
+2. Generate reports:
+   ```sh
+   bash lint-local.sh all
+   ```
+   - TFLint runs with plugin init on first run (network required)
+   - Terraform validate runs with `-backend=false` to avoid touching remote state
+
+3. View results in `reports/`:
+   - `reports/terraform-tflint-report.md`
+   - `reports/terraform-tflint-deprecations.md`
+   - `reports/terraform-validate-report.md`
+   - `reports/bash-shellcheck-report.md`
+   - `reports/python-black-report.md`
+
+
 <!-- ROADMAP -->
 ## Roadmap
 

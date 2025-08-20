@@ -1,3 +1,6 @@
+# Outputs are intentionally disabled to keep this module minimal.
+# To enable, remove the surrounding block comment (/* ... */) and reference these outputs in your root module.
+
 /*
 output "lambda_function_arn" {
   description = "ARN of the Lambda function."

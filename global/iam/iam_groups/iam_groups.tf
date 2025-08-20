@@ -1,6 +1,3 @@
-# Retrieve account ID from AWS
-data "aws_caller_identity" "current" {}
-
 resource "aws_iam_group" "powerusers" {
   name = var.powerusers_group_name
 }

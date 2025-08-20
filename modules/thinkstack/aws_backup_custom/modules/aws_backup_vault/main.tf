@@ -15,7 +15,7 @@ resource "aws_kms_key" "backup" {
   description             = var.kms_key_description
   deletion_window_in_days = var.kms_key_deletion_window
   enable_key_rotation     = var.kms_key_enable_rotation
-  
+
   tags = merge(
     var.tags,
     {
@@ -38,7 +38,7 @@ resource "aws_kms_key" "dr_backup" {
   description             = var.dr_kms_key_description
   deletion_window_in_days = var.kms_key_deletion_window
   enable_key_rotation     = var.kms_key_enable_rotation
-  
+
   tags = merge(
     var.tags,
     var.dr_tags,
@@ -60,7 +60,7 @@ locals {
   # Determine which KMS key ARN to use (null means use AWS-managed key)
   kms_key_arn    = var.create_kms_key ? aws_kms_key.backup[0].arn : var.kms_key_arn
   dr_kms_key_arn = var.enable_dr ? (var.create_dr_kms_key ? aws_kms_key.dr_backup[0].arn : var.dr_kms_key_arn) : null
-  
+
   vault_configs = {
     hourly = {
       enabled       = var.enable_hourly_vault
@@ -96,10 +96,10 @@ locals {
 
   # Filter to only enabled vaults
   enabled_vaults = { for k, v in local.vault_configs : k => v if v.enabled }
-  
+
   # Filter to vaults that should have DR
   dr_enabled_vaults = { for k, v in local.enabled_vaults : k => v if var.enable_dr && v.enable_dr }
-  
+
   # Validation: Check for DR vaults without corresponding primary vaults
   dr_without_primary = {
     hourly  = var.enable_dr && var.enable_hourly_dr_vault && !var.enable_hourly_vault
@@ -108,7 +108,7 @@ locals {
     monthly = var.enable_dr && var.enable_monthly_dr_vault && !var.enable_monthly_vault
     yearly  = var.enable_dr && var.enable_yearly_dr_vault && !var.enable_yearly_vault
   }
-  
+
   # Create error messages for validation
   dr_validation_errors = compact([
     local.dr_without_primary.hourly ? "Cannot enable hourly DR vault without primary hourly vault. Set enable_hourly_vault = true or enable_hourly_dr_vault = false." : "",
@@ -119,15 +119,16 @@ locals {
   ])
 }
 
-# Validation check - This will fail during terraform plan if DR vaults are enabled without primary vaults
+# Validation check - Terraform 1.0-compatible. Fails apply with a clear message if misconfigured.
 resource "null_resource" "dr_vault_validation" {
   count = length(local.dr_validation_errors) > 0 ? 1 : 0
 
-  lifecycle {
-    precondition {
-      condition     = length(local.dr_validation_errors) == 0
-      error_message = join("\n", local.dr_validation_errors)
-    }
+  provisioner "local-exec" {
+    when    = create
+    command = <<EOT
+echo "${join("\n", local.dr_validation_errors)}" 1>&2
+exit 1
+EOT
   }
 }
 
@@ -135,7 +136,7 @@ resource "null_resource" "dr_vault_validation" {
 resource "aws_backup_vault" "this" {
   count         = var.create_single_vault ? 1 : 0
   name          = var.name
-  kms_key_arn   = local.kms_key_arn  # null will use AWS-managed key
+  kms_key_arn   = local.kms_key_arn # null will use AWS-managed key
   force_destroy = var.force_destroy
   tags          = merge(var.tags, { Name = var.name })
 }
@@ -152,14 +153,14 @@ resource "aws_backup_vault_lock_configuration" "this" {
 # Scheduled vaults (hourly, daily, weekly, monthly, yearly)
 resource "aws_backup_vault" "scheduled" {
   for_each = local.enabled_vaults
-  
+
   name          = each.value.name
-  kms_key_arn   = local.kms_key_arn  # null will use AWS-managed key
+  kms_key_arn   = local.kms_key_arn # null will use AWS-managed key
   force_destroy = var.force_destroy
-  tags          = merge(
-    var.tags, 
-    { 
-      Name = each.value.name,
+  tags = merge(
+    var.tags,
+    {
+      Name     = each.value.name,
       Schedule = each.key
     }
   )
@@ -167,7 +168,7 @@ resource "aws_backup_vault" "scheduled" {
 
 resource "aws_backup_vault_lock_configuration" "scheduled" {
   for_each = var.enable_vault_lock ? local.enabled_vaults : {}
-  
+
   backup_vault_name = aws_backup_vault.scheduled[each.key].name
 
   changeable_for_days = var.vault_lock_changeable_for_days
@@ -179,17 +180,17 @@ resource "aws_backup_vault_lock_configuration" "scheduled" {
 resource "aws_backup_vault" "dr" {
   for_each = local.dr_enabled_vaults
   provider = aws.dr
-  
+
   name          = var.dr_vault_name_prefix != "" ? "${var.dr_vault_name_prefix}-${each.key}" : "dr-${each.key}"
-  kms_key_arn   = local.dr_kms_key_arn  # null will use AWS-managed key
+  kms_key_arn   = local.dr_kms_key_arn # null will use AWS-managed key
   force_destroy = var.force_destroy
-  tags          = merge(
+  tags = merge(
     var.tags,
     var.dr_tags,
-    { 
-      Name = var.dr_vault_name_prefix != "" ? "${var.dr_vault_name_prefix}-${each.key}" : "dr-${each.key}",
+    {
+      Name     = var.dr_vault_name_prefix != "" ? "${var.dr_vault_name_prefix}-${each.key}" : "dr-${each.key}",
       Schedule = each.key,
-      Type = "DR"
+      Type     = "DR"
     }
   )
 }
@@ -197,7 +198,7 @@ resource "aws_backup_vault" "dr" {
 resource "aws_backup_vault_lock_configuration" "dr" {
   for_each = var.enable_vault_lock ? local.dr_enabled_vaults : {}
   provider = aws.dr
-  
+
   backup_vault_name = aws_backup_vault.dr[each.key].name
 
   changeable_for_days = var.vault_lock_changeable_for_days
@@ -209,14 +210,14 @@ resource "aws_backup_vault_lock_configuration" "dr" {
 resource "aws_backup_vault" "dr_single" {
   count    = var.create_single_vault && var.enable_dr ? 1 : 0
   provider = aws.dr
-  
+
   name          = var.dr_vault_name != "" ? var.dr_vault_name : "dr-${var.name}"
-  kms_key_arn   = local.dr_kms_key_arn  # null will use AWS-managed key
+  kms_key_arn   = local.dr_kms_key_arn # null will use AWS-managed key
   force_destroy = var.force_destroy
-  tags          = merge(
+  tags = merge(
     var.tags,
     var.dr_tags,
-    { 
+    {
       Name = var.dr_vault_name != "" ? var.dr_vault_name : "dr-${var.name}",
       Type = "DR"
     }
@@ -226,7 +227,7 @@ resource "aws_backup_vault" "dr_single" {
 resource "aws_backup_vault_lock_configuration" "dr_single" {
   count    = var.create_single_vault && var.enable_dr && var.enable_vault_lock ? 1 : 0
   provider = aws.dr
-  
+
   backup_vault_name = aws_backup_vault.dr_single[0].name
 
   changeable_for_days = var.vault_lock_changeable_for_days

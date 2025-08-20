@@ -359,7 +359,7 @@ variable "yearly_schedule" {
 variable "yearly_retention_days" {
   description = "Number of days to retain yearly backups"
   type        = number
-  default     = 2555  # 7 years
+  default     = 2555 # 7 years
 }
 
 variable "yearly_vault_name" {
