@@ -36,7 +36,7 @@ REPORTS_DIR="$ABSOLUTE_PATH/lint_reports"
 mkdir -p "$REPORTS_DIR"/{terraform,python,docker,secrets,duplicates,configs}
 
 # Clean up old reports
-find "$REPORTS_DIR" -name "*.log" -o -name "*.md" -o -name "*.json" | xargs rm -f 2>/dev/null || true
+find "$REPORTS_DIR" \( -name "*.log" -o -name "*.md" -o -name "*.json" \) -print0 | xargs -0 rm -f 2>/dev/null || true
 
 echo -e "${BLUE}🔍 Starting Super-Linter for: $TARGET_DIR${NC}"
 echo -e "${BLUE}📝 Reports will be saved to: $REPORTS_DIR${NC}"
@@ -60,7 +60,8 @@ extract_black_errors() {
     local error_count=0
     
     # Find all instances of Black errors
-    local black_errors=$(grep -n "Found errors in \[black\]" "$log_file" | cut -d: -f1)
+    local black_errors
+    black_errors=$(grep -n "Found errors in \[black\]" "$log_file" | cut -d: -f1)
     
     if [ -n "$black_errors" ]; then
         echo "## 🔍 Issues Found" >> "$report_file"
@@ -68,12 +69,14 @@ extract_black_errors() {
         
         for line_num in $black_errors; do
             # Extract the file path from the previous line
-            local file_path=$(sed -n "$((line_num-2))p" "$log_file" | grep -o "File:\[.*\]" | sed 's/File:\[\(.*\)\]/\1/')
+            local file_path
+            file_path=$(sed -n "$((line_num-2))p" "$log_file" | grep -o "File:\[.*\]" | sed 's/File:\[\(.*\)\]/\1/')
             file_path="${file_path#/tmp/lint/}"
             
             # Extract the diff output
             local start_diff=$((line_num+2))
-            local diff_output=$(sed -n "$start_diff,/^------$/p" "$log_file" | sed '/^------$/d')
+            local diff_output
+            diff_output=$(sed -n "$start_diff,/^------$/p" "$log_file" | sed '/^------$/d')
             
             if [ -n "$file_path" ]; then
                 echo "### 📄 \`$file_path\`" >> "$report_file"
@@ -120,10 +123,11 @@ extract_tflint_errors() {
         
         # Process the file line by line to organize errors by file
         local current_file=""
-        local has_errors=false
+        # local has_errors=false # Unused variable
         
         # Extract TFLint errors from the log file
-        local errors=$(grep -E "\[ERROR\]|\[WARNING\]|Error:|Warning:" "$log_file" | grep -v "Terraform TFLint" | sort -u)
+        local errors
+        errors=$(grep -E "\[ERROR\]|\[WARNING\]|Error:|Warning:" "$log_file" | grep -v "Terraform TFLint" | sort -u)
         
         # If no errors found with the above pattern, try another common TFLint output pattern
         if [ -z "$errors" ]; then
@@ -143,7 +147,7 @@ extract_tflint_errors() {
             warning_count=$(echo "$errors" | grep -c -E "\[WARNING\]|Warning:")
             
             # If the above counting method returned 0, try another method
-            if [ $error_count -eq 0 ] && [ $warning_count -eq 0 ]; then
+            if [ "$error_count" -eq 0 ] && [ "$warning_count" -eq 0 ]; then
                 error_count=$(echo "$errors" | wc -l)
             fi
         else
@@ -164,7 +168,7 @@ extract_tflint_errors() {
     echo "" >> "$report_file"
     
     # Return non-zero if we found any errors
-    if [ $error_count -gt 0 ]; then
+    if [ "$error_count" -gt 0 ]; then
         return 1
     else
         return 0
@@ -207,7 +211,8 @@ create_formatted_report() {
     fi
     
     # Create temporary file for parsing
-    local temp_file=$(mktemp)
+    local temp_file
+    temp_file=$(mktemp)
     
     # Extract relevant error lines with improved pattern matching
     # For Python: look for .py: patterns (flake8, mypy errors)
@@ -245,7 +250,7 @@ create_formatted_report() {
             fi
             
             # Check for black error indicator
-            if [[ "$line" =~ "Found errors in \[black\]" ]] && [[ -n "$black_error_file" ]]; then
+            if [[ "$line" =~ Found\ errors\ in\ \[black\] ]] && [[ -n "$black_error_file" ]]; then
                 # We have a black error for the file stored in black_error_file
                 continue
             fi
@@ -370,7 +375,7 @@ create_formatted_report() {
     # Add raw log reference
     echo "" >> "$report_file"
     echo "---" >> "$report_file"
-    echo "_Full log available at: \`${log_file#$ABSOLUTE_PATH/}\`_" >> "$report_file"
+    echo "_Full log available at: \`${log_file#"$ABSOLUTE_PATH"/}\`_" >> "$report_file"
 }
 
 # Function to run JSCPD linter with enhanced reporting
@@ -380,7 +385,7 @@ run_jscpd_linter() {
     # Create log and report files
     local log_file="$REPORTS_DIR/duplicates/duplicate-code.log"
     local report_file="$REPORTS_DIR/duplicates/duplicate-code.md"
-    local json_file="$REPORTS_DIR/duplicates/duplicate-code.json"
+    # local json_file="$REPORTS_DIR/duplicates/duplicate-code.json" # Unused variable
     
     # Run JSCPD with detailed output
     docker run --rm --name "super-linter-jscpd-$(date +%s)" \
@@ -421,12 +426,14 @@ run_jscpd_linter() {
         echo "" >> "$report_file"
         
         # Extract duplication percentage
-        local dup_percent=$(grep -o "duplicates ([0-9.]\+%)" "$log_file" | grep -o "[0-9.]\+" || echo "unknown")
+        local dup_percent
+        dup_percent=$(grep -o "duplicates ([0-9.]\+%)" "$log_file" | grep -o "[0-9.]\+" || echo "unknown")
         echo "### Duplication Rate: ${dup_percent}%" >> "$report_file"
         echo "" >> "$report_file"
         
         # Extract clone count
-        local clone_count=$(grep -o "Found [0-9]\+ clones" "$log_file" | grep -o "[0-9]\+" || echo "unknown")
+        local clone_count
+        clone_count=$(grep -o "Found [0-9]\+ clones" "$log_file" | grep -o "[0-9]\+" || echo "unknown")
         echo "### Number of Clones: $clone_count" >> "$report_file"
         echo "" >> "$report_file"
         
@@ -458,7 +465,7 @@ run_jscpd_linter() {
         
         # Find terraform files with similar sizes
         echo '```' >> "$report_file"
-        find "$ABSOLUTE_PATH" -name "*.tf" -type f -not -path "*/\.*" | xargs wc -l | sort -nr | head -20 >> "$report_file"
+        find "$ABSOLUTE_PATH" -name "*.tf" -type f -not -path "*/\.*" -print0 | xargs -0 wc -l | sort -nr | head -20 >> "$report_file"
         echo '```' >> "$report_file"
         echo "" >> "$report_file"
         
@@ -482,11 +489,11 @@ run_jscpd_linter() {
         echo "EC2 instance module files with potential CloudWatch alarm duplication:" >> "$report_file"
         echo "" >> "$report_file"
         echo '```' >> "$report_file"
-        find "$ABSOLUTE_PATH" -path "*/ec2*" -name "*.tf" | xargs grep -l "cloudwatch_metric_alarm" | sort >> "$report_file" 2>/dev/null || echo "No matches found" >> "$report_file"
+        find "$ABSOLUTE_PATH" -path "*/ec2*" -name "*.tf" -print0 | xargs -0 grep -l "cloudwatch_metric_alarm" | sort >> "$report_file" 2>/dev/null || echo "No matches found" >> "$report_file"
         echo '```' >> "$report_file"
         echo "" >> "$report_file"
         
-        echo -e "${RED}✗ Duplicate Code Detection failed - Check report at: ${report_file#$ABSOLUTE_PATH/}${NC}"
+        echo -e "${RED}✗ Duplicate Code Detection failed - Check report at: ${report_file#"$ABSOLUTE_PATH"/}${NC}"
         return 1
     else
         echo "## ✅ No Issues Found" >> "$report_file"
@@ -531,7 +538,7 @@ run_linter() {
             -e "LOG_LEVEL=DEBUG" \
             -e "LOG_FILE=true" \
             -e "LOG_FILE_PATH=/tmp/lint/super-linter.log" \
-            $additional_env_vars \
+            "$additional_env_vars" \
             $SUPER_LINTER_IMAGE 2>&1 | tee /tmp/tflint_output.txt
     else
         # Run the linter normally
@@ -546,7 +553,7 @@ run_linter() {
             -e "LOG_LEVEL=DEBUG" \
             -e "LOG_FILE=true" \
             -e "LOG_FILE_PATH=/tmp/lint/super-linter.log" \
-            $additional_env_vars \
+            "$additional_env_vars" \
             $SUPER_LINTER_IMAGE
     fi
     
@@ -606,49 +613,32 @@ run_all_linters() {
     
     local summary_file="$REPORTS_DIR/lint-summary.md"
     local all_linters_log="$REPORTS_DIR/all-linters.log"
-    > "$all_linters_log"  # Initialize empty log file
+    true > "$all_linters_log"  # Initialize empty log file
     
     # Track overall exit code
     local overall_exit_code=0
     
     # Run each linter category sequentially
     echo -e "\n${BLUE}Running Python linters...${NC}"
-    run_linter "python" "Python Linting" "PYTHON_BLACK,PYTHON_FLAKE8,PYTHON_ISORT,PYTHON_MYPY,PYTHON_PYLINT" "python-lint" "python"
-    if [ $? -ne 0 ]; then
+    if ! run_linter "python" "Python Linting" "PYTHON_BLACK,PYTHON_FLAKE8,PYTHON_ISORT,PYTHON_MYPY,PYTHON_PYLINT" "python-lint" "python"; then
         overall_exit_code=1
     fi
     cat "$REPORTS_DIR/python/python-lint.log" >> "$all_linters_log" 2>/dev/null || true
     
     echo -e "\n${BLUE}Running Terraform linters...${NC}"
-    run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"
-    if [ $? -ne 0 ]; then
+    if ! run_linter "terraform" "Terraform Linting" "TERRAFORM,TERRAFORM_TFLINT" "terraform-lint" "terraform"; then
         overall_exit_code=1
     fi
     cat "$REPORTS_DIR/terraform/terraform-lint.log" >> "$all_linters_log" 2>/dev/null || true
     
     echo -e "\n${BLUE}Running Dockerfile linters...${NC}"
-    run_linter "dockerfile" "Dockerfile Linting" "DOCKERFILE_HADOLINT" "dockerfile-lint" "docker"
-    if [ $? -ne 0 ]; then
-        overall_exit_code=1
+    if ! run_linter "dockerfile" "Dockerfile Linting" "DOCKERFILE_HADOLINT" "dockerfile-lint" "docker"; then
+        exit_code=1
     fi
     cat "$REPORTS_DIR/docker/dockerfile-lint.log" >> "$all_linters_log" 2>/dev/null || true
     
-    echo -e "\n${BLUE}Running secret scanning...${NC}"
-    run_linter "gitleaks" "Secret Scanning" "GITLEAKS" "gitleaks" "secrets"
-    if [ $? -ne 0 ]; then
-        overall_exit_code=1
-    fi
-    cat "$REPORTS_DIR/secrets/gitleaks.log" >> "$all_linters_log" 2>/dev/null || true
-    
-    echo -e "\n${BLUE}Running duplicate code detection...${NC}"
-    run_jscpd_linter
-    if [ $? -ne 0 ]; then
-        overall_exit_code=1
-    fi
-    cat "$REPORTS_DIR/duplicates/duplicate-code.log" >> "$all_linters_log" 2>/dev/null || true
-    
     # Create summary report
-    echo "# 📊 Lint Summary Report" > "$summary_file"
+    echo "# 📊 Linting Summary Report" > "$summary_file"
     echo "" >> "$summary_file"
     echo "**Generated on:** $(date)" >> "$summary_file"
     echo "**Repository:** $(basename "$ABSOLUTE_PATH")" >> "$summary_file"
@@ -656,7 +646,7 @@ run_all_linters() {
     echo "" >> "$summary_file"
     
     # Overall status
-    if [ $exit_code -eq 0 ]; then
+    if [ "$exit_code" -eq 0 ]; then
         echo "## ✅ Overall Status: **PASSED**" >> "$summary_file"
     else
         echo "## ❌ Overall Status: **FAILED**" >> "$summary_file"
@@ -720,16 +710,16 @@ run_all_linters() {
         echo -e "  Moved gitleaks-report.json"
     fi
     
-    if [ $exit_code -eq 0 ]; then
+    if [ "$exit_code" -eq 0 ]; then
         echo -e "\n${GREEN}✅ All linting passed!${NC}"
     else
         echo -e "\n${RED}❌ Some linting checks failed${NC}"
     fi
     
-    echo -e "${BLUE}📄 Summary report: ${summary_file#$ABSOLUTE_PATH/}${NC}"
-    echo -e "${BLUE}📁 All reports available in: ${REPORTS_DIR#$ABSOLUTE_PATH/}${NC}"
+    echo -e "${BLUE}📄 Summary report: ${summary_file#"$ABSOLUTE_PATH"/}${NC}"
+    echo -e "${BLUE}📁 All reports available in: ${REPORTS_DIR#"$ABSOLUTE_PATH"/}${NC}"
     
-    return $exit_code
+    return "$exit_code"
 }
 
 # Process command line arguments

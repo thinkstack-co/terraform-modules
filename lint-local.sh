@@ -213,7 +213,7 @@ EOF
             if [ $init_exit_code -eq 0 ]; then
                 # Run terraform validate and capture output
                 validate_output=$(terraform validate 2>&1)
-                validate_exit_code=$?
+                # validate_exit_code=$? # Unused variable removed
                 
                 # Check if there are warnings (even if exit code is 0)
                 if echo "$validate_output" | grep -q "Warning:"; then
@@ -406,7 +406,7 @@ EOF
             if [ $init_exit_code -eq 0 ]; then
                 # Run terraform validate and capture output
                 validate_output=$(terraform validate 2>&1)
-                validate_exit_code=$?
+                # validate_exit_code=$? # Unused variable removed
                 
                 # Check if there are warnings (even if exit code is 0)
                 if echo "$validate_output" | grep -q "Warning:"; then

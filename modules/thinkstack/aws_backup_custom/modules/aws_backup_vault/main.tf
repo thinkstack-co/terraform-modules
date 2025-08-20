@@ -6,6 +6,10 @@ terraform {
       version               = ">= 4.0.0"
       configuration_aliases = [aws.dr]
     }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.0"
+    }
   }
 }
 
