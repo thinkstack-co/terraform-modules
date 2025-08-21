@@ -73,7 +73,7 @@ resource "aws_vpc_dhcp_options" "dc_dns" {
   count               = var.enable_dhcp_options ? 1 : 0
   domain_name         = var.domain_name
   domain_name_servers = aws_instance.ec2_instance[*].private_ip
-  ntp_servers         = aws_instance.ec2_instance[*].private_ip
+  ntp_servers         = var.ntp_servers #!= null ? var.ntp_servers : aws_default_vpc_dhcp_options.default.ntp_servers
   tags                = merge(var.tags, ({ "Name" = format("%s-dhcp-options", var.name) }))
 }
 
@@ -82,7 +82,6 @@ resource "aws_vpc_dhcp_options_association" "dc_dns" {
   dhcp_options_id = aws_vpc_dhcp_options.dc_dns[0].id
   vpc_id          = var.vpc_id
 }
-
 
 ###################################################
 # CloudWatch Alarms
