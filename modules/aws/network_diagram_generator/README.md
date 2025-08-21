@@ -26,7 +26,7 @@ module "network_diagram_generator" {
 |----------------|---------------------------------------------|--------|-------------|
 | name           | Base name for resources                     | string | network-diagram-generator |
 | s3_bucket_name | S3 bucket to store diagrams (optional)      | string | null        |
-| schedule       | EventBridge cron schedule for Lambda        | string | cron(0 2 ? * SUN *) |
+| schedule       | EventBridge cron schedule for Lambda        | string | `cron(0 2 ? * SUN *)` |
 
 ## Outputs
 
