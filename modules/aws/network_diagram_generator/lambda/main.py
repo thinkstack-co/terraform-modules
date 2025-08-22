@@ -1,7 +1,8 @@
 """
 AWS Network Diagram Generator (AWS Lambda)
 
-Renders a simple AWS network diagram using the `diagrams` library (Graphviz under the hood):
+Renders a simple AWS network diagram using the `diagrams` library (Graphviz under
+the hood):
 - Discovers VPCs, Subnets, and EC2 instances in a single region
 - Draws a VPC -> Subnet -> EC2 hierarchy
 - Uploads the generated PNG to S3
@@ -83,17 +84,17 @@ def lambda_handler(event, context):  # AWS Lambda entry point
     Returns:
       dict: Status message indicating success.
     """
-    region = os.environ.get("AWS_REGION", "us-east-1")  # Default to us-east-1 if not set
-    s3_bucket = os.environ["S3_BUCKET"]  # Required: destination bucket for the diagram
-    ec2 = boto3.client("ec2", region_name=region)  # EC2 client scoped to the target region
+    region = os.environ.get("AWS_REGION", "us-east-1")  # Default to us-east-1
+    s3_bucket = os.environ["S3_BUCKET"]  # Required: destination bucket
+    ec2 = boto3.client("ec2", region_name=region)  # EC2 client scoped to region
 
     vpcs = get_vpcs(ec2)  # Discover VPCs
     subnets = get_subnets(ec2)  # Discover Subnets
     instances = get_instances(ec2)  # Discover EC2 instances (via Reservations)
 
-    with tempfile.TemporaryDirectory() as tmpdir:  # Ephemeral workspace in Lambda (/tmp)
-        diagram_path = os.path.join(tmpdir, "network_diagram.png")  # Local output path
-        # Build the diagram; show=False avoids attempting to open a window in headless Lambda.
+    with tempfile.TemporaryDirectory() as tmpdir:  # Ephemeral workspace (/tmp)
+        diagram_path = os.path.join(tmpdir, "network_diagram.png")  # Local path
+        # Build the diagram; show=False avoids opening window in headless Lambda.
         with Diagram("AWS Network Diagram", filename=diagram_path, show=False):
             # For each VPC, nest its subnets and then EC2 instances within those subnets
             for vpc in vpcs:  # Iterate discovered VPCs
@@ -102,16 +103,16 @@ def lambda_handler(event, context):  # AWS Lambda entry point
                     # Filter subnets that belong to the current VPC
                     for subnet in [s for s in subnets if s["VpcId"] == vpc_id]:
                         subnet_id = subnet["SubnetId"]
-                        with Cluster(f"Subnet {subnet_id}"):  # Visual grouping for the Subnet
-                            # Instances are returned in Reservations; traverse to individual instances
+                        with Cluster(f"Subnet {subnet_id}"):  # Visual grouping
+                            # Instances returned in Reservations; traverse to individual
                             for r in instances:
                                 for inst in r["Instances"]:
-                                    if inst["SubnetId"] == subnet_id:  # Place instance in matching subnet
-                                        EC2(inst["InstanceId"])  # Render an EC2 node labeled with InstanceId
+                                    if inst["SubnetId"] == subnet_id:  # Place in subnet
+                                        EC2(inst["InstanceId"])  # Render EC2 node
         # Upload to S3
         s3 = boto3.client("s3")  # S3 client for uploading the generated PNG
         try:
-            s3.upload_file(diagram_path, s3_bucket, "network_diagram.png")  # key: network_diagram.png
+            s3.upload_file(diagram_path, s3_bucket, "network_diagram.png")  # key
         except botocore.exceptions.ClientError as e:
             logging.error(e)  # Log the error to CloudWatch Logs
             raise e  # Re-raise to fail the invocation for visibility
