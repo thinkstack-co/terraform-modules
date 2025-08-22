@@ -29,6 +29,8 @@ mkdir -p "$REPORTS_DIR/shellcheck"
 mkdir -p "$REPORTS_DIR/python-flake8"
 mkdir -p "$REPORTS_DIR/python-black"
 mkdir -p "$REPORTS_DIR/hadolint"
+mkdir -p "$REPORTS_DIR/bash"
+mkdir -p "$REPORTS_DIR/jscpd"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 MAIN_REPORT="$REPORTS_DIR/linting_summary_$TIMESTAMP.txt"
 
@@ -213,6 +215,60 @@ if [ -n "$dockerfile_files" ]; then
 else
     echo -e "${BLUE}No Dockerfiles found, skipping Hadolint${NC}"
     echo "No Dockerfiles found - SKIPPED" >> "$hadolint_report"
+fi
+total_linters=$((total_linters + 1))
+
+# Run Bash linting (using shellcheck on bash files)
+echo -e "${YELLOW}Running Bash linting...${NC}"
+bash_report="$REPORTS_DIR/bash/bash_report_$TIMESTAMP.txt"
+{
+    echo "Bash Linting Report - $(date)"
+    echo "=================================="
+    echo ""
+} > "$bash_report"
+
+bash_files=$(find . -name "*.bash" -o -name "*.sh" -not -path "*/.terraform/*" -not -path "./reports/*")
+if [ -n "$bash_files" ]; then
+    bash_failed=0
+    echo "$bash_files" | while read -r bash_file; do
+        echo "Checking: $bash_file" >> "$bash_report"
+        if ! docker run --rm -v "$(pwd)":/mnt koalaman/shellcheck:stable "/mnt/$bash_file" >> "$bash_report" 2>&1; then
+            bash_failed=1
+        fi
+        echo "" >> "$bash_report"
+    done
+    
+    if [ $bash_failed -eq 0 ]; then
+        echo -e "${GREEN}✓ Bash linting passed${NC}"
+        echo "✓ PASSED" >> "$bash_report"
+    else
+        echo -e "${RED}✗ Bash linting failed${NC}"
+        echo "✗ FAILED" >> "$bash_report"
+        failed_linters=$((failed_linters + 1))
+    fi
+else
+    echo -e "${BLUE}No bash files found, skipping Bash linting${NC}"
+    echo "No bash files found - SKIPPED" >> "$bash_report"
+fi
+total_linters=$((total_linters + 1))
+
+# Run JSCPD (Copy-Paste Detection)
+echo -e "${YELLOW}Running JSCPD (Copy-Paste Detection)...${NC}"
+jscpd_report="$REPORTS_DIR/jscpd/jscpd_report_$TIMESTAMP.txt"
+{
+    echo "JSCPD Report - $(date)"
+    echo "=================================="
+    echo ""
+} > "$jscpd_report"
+
+# Use jscpd via npx in node Docker image with git
+if docker run --rm -v "$(pwd)":/app -w /app node:18-alpine sh -c "apk add --no-cache git && git config --global --add safe.directory /app && npx jscpd --config .jscpd.json" >> "$jscpd_report" 2>&1; then
+    echo -e "${GREEN}✓ JSCPD passed${NC}"
+    echo "✓ PASSED" >> "$jscpd_report"
+else
+    echo -e "${RED}✗ JSCPD failed${NC}"
+    echo "✗ FAILED" >> "$jscpd_report"
+    failed_linters=$((failed_linters + 1))
 fi
 total_linters=$((total_linters + 1))
 

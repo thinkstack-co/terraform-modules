@@ -19,6 +19,8 @@ reports/shellcheck/
 reports/python-flake8/
 reports/python-black/
 reports/hadolint/
+reports/bash/
+reports/jscpd/
 
 # mypy cache
 .mypy_cache
