@@ -1,0 +1,533 @@
+{
+  "statistics": {
+    "detectionDate": "2025-08-22T19:59:09.616Z",
+    "formats": {
+      "json": {
+        "sources": {
+          "/app/global/iam/iam_groups/iam_policies/system_admins/system-admins-policy.json": {
+            "lines": 69,
+            "tokens": 285,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_roles/ebs_backup_role/ebs-backup-trust-policy.json": {
+            "lines": 12,
+            "tokens": 60,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_roles/cloudcraft_role/cloudcraft-trust-policy.json": {
+            "lines": 16,
+            "tokens": 78,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_roles/aws_backup/aws_backup_trust_policy.json": {
+            "lines": 12,
+            "tokens": 60,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_policies/s3_put_object/s3_put_object.json": {
+            "lines": 20,
+            "tokens": 99,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_policies/mfa_self_serv/mfa_enforcement_policy.json": {
+            "lines": 52,
+            "tokens": 236,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_policies/ebs_backup/ebs-backup-role-policy.json": {
+            "lines": 42,
+            "tokens": 188,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_policies/aws_backup_cleanup_search/aws-backup-cleanup-search-policy.json": {
+            "lines": 15,
+            "tokens": 69,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/global/iam/iam_policies/aws_backup_cleanup_delete/aws-backup-cleanup-delete-policy.json": {
+            "lines": 51,
+            "tokens": 213,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/modules/aws/azure_ad_sso/azure-ad-sso-policy.json": {
+            "lines": 10,
+            "tokens": 51,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/.claude/settings.local.json": {
+            "lines": 8,
+            "tokens": 35,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/.markdownlint.json": {
+            "lines": 5,
+            "tokens": 29,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/.jscpd.json": {
+            "lines": 29,
+            "tokens": 166,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 341,
+          "tokens": 1569,
+          "sources": 13,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "python": {
+        "sources": {
+          "/app/modules/aws/network_diagram_generator/lambda/main.py": {
+            "lines": 118,
+            "tokens": 516,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/modules/aws/config/lambda_compliance_reporter/lambda_function.py": {
+            "lines": 425,
+            "tokens": 3646,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 298,
+            "percentage": 4.24,
+            "percentageTokens": 8.17,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/modules/aws/aws_cost_report/cost_reporter/lambda_function.py": {
+            "lines": 215,
+            "tokens": 1878,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 758,
+          "tokens": 6040,
+          "sources": 3,
+          "clones": 1,
+          "duplicatedLines": 9,
+          "duplicatedTokens": 149,
+          "percentage": 1.19,
+          "percentageTokens": 2.47,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "bash": {
+        "sources": {
+          "/app/modules/thinkstack/siem/snypr_centos_script.sh": {
+            "lines": 43,
+            "tokens": 198,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/run-superlinter.sh": {
+            "lines": 101,
+            "tokens": 596,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/run-linters.sh": {
+            "lines": 318,
+            "tokens": 2402,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 462,
+          "tokens": 3196,
+          "sources": 3,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "yaml": {
+        "sources": {
+          "/app/.github/workflows/test.yml": {
+            "lines": 68,
+            "tokens": 427,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/.github/workflows/scheduled_tfsec_security_scan.yml": {
+            "lines": 30,
+            "tokens": 183,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/.github/workflows/build.yml": {
+            "lines": 34,
+            "tokens": 238,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/modules/.terraform-docs.yml": {
+            "lines": 8,
+            "tokens": 33,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/app/.pre-commit-config.yaml": {
+            "lines": 73,
+            "tokens": 532,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 213,
+          "tokens": 1413,
+          "sources": 5,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 1774,
+      "tokens": 12218,
+      "sources": 24,
+      "clones": 1,
+      "duplicatedLines": 9,
+      "duplicatedTokens": 149,
+      "percentage": 0.51,
+      "percentageTokens": 1.22,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "python",
+      "lines": 10,
+      "fragment": "),\n                    (\"FONTNAME\", (0, 0), (-1, 0), \"Helvetica-Bold\"),\n                    (\"FONTSIZE\", (0, 0), (-1, -1), 10),\n                    (\"BOTTOMPADDING\", (0, 0), (-1, 0), 8),\n                    (\"BACKGROUND\", (0, 1), (-1, -1), colors.whitesmoke),\n                    (\n                        \"ROWBACKGROUNDS\",\n                        (0, 1),\n                        (-1, -1),\n                        [colors.whitesmoke, colors.HexColor(\"#ffeaea\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "modules/aws/config/lambda_compliance_reporter/lambda_function.py",
+        "start": 381,
+        "end": 390,
+        "startLoc": {
+          "line": 381,
+          "column": 7,
+          "position": 3212
+        },
+        "endLoc": {
+          "line": 390,
+          "column": 10,
+          "position": 3361
+        },
+        "blame": {
+          "381": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "381",
+            "rev": "ce4de752"
+          },
+          "382": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "382",
+            "rev": "ce4de752"
+          },
+          "383": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "383",
+            "rev": "ce4de752"
+          },
+          "384": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "384",
+            "rev": "ce4de752"
+          },
+          "385": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "385",
+            "rev": "ce4de752"
+          },
+          "386": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "386",
+            "rev": "ce4de752"
+          },
+          "387": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "387",
+            "rev": "ce4de752"
+          },
+          "388": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "388",
+            "rev": "ce4de752"
+          },
+          "389": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "389",
+            "rev": "ce4de752"
+          },
+          "390": {
+            "author": "Wesley Bey",
+            "date": "2025-04-24 11:21:57 -0500",
+            "line": "390",
+            "rev": "ce4de752"
+          }
+        }
+      },
+      "secondFile": {
+        "name": "modules/aws/config/lambda_compliance_reporter/lambda_function.py",
+        "start": 316,
+        "end": 325,
+        "startLoc": {
+          "line": 316,
+          "column": 9,
+          "position": 2399
+        },
+        "endLoc": {
+          "line": 325,
+          "column": 10,
+          "position": 2548
+        },
+        "blame": {
+          "316": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "316",
+            "rev": "812c3838"
+          },
+          "317": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "317",
+            "rev": "812c3838"
+          },
+          "318": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "318",
+            "rev": "812c3838"
+          },
+          "319": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "319",
+            "rev": "812c3838"
+          },
+          "320": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "320",
+            "rev": "812c3838"
+          },
+          "321": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "321",
+            "rev": "812c3838"
+          },
+          "322": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "322",
+            "rev": "812c3838"
+          },
+          "323": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "323",
+            "rev": "812c3838"
+          },
+          "324": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "324",
+            "rev": "812c3838"
+          },
+          "325": {
+            "author": "Wesley Bey",
+            "date": "2025-06-12 10:10:30 -0500",
+            "line": "325",
+            "rev": "812c3838"
+          }
+        }
+      }
+    }
+  ]
+}

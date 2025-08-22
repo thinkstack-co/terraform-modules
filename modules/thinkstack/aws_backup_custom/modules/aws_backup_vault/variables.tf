@@ -137,7 +137,7 @@ variable "monthly_min_retention_days" {
 variable "yearly_min_retention_days" {
   description = "Minimum retention days for yearly vault"
   type        = number
-  default     = 2555  # 7 years
+  default     = 2555 # 7 years
 }
 
 # DR variables

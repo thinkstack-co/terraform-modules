@@ -204,6 +204,12 @@ variable "user_data" {
   default     = ""
 }
 
+variable "user_data_base64" {
+  type        = string
+  description = "The base64-encoded user data to provide when launching the instance"
+  default     = ""
+}
+
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
   type        = list(any)

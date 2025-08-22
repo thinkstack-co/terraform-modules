@@ -58,7 +58,8 @@ resource "aws_instance" "ec2" {
   subnet_id              = var.subnet_id
   tags                   = merge(var.tags, ({ "Name" = var.name }))
   tenancy                = var.tenancy
-  user_data              = var.user_data
+  user_data              = var.user_data_base64 != "" ? null : var.user_data
+  user_data_base64       = var.user_data_base64 != "" ? var.user_data_base64 : null
   vpc_security_group_ids = var.vpc_security_group_ids
 
   lifecycle {
@@ -100,7 +101,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
 
   #If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered. 
   #If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
-  alarm_actions = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_actions = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"

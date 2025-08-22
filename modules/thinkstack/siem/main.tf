@@ -52,8 +52,8 @@ resource "aws_subnet" "public_subnets" {
 ###########################
 
 resource "aws_eip" "nateip" {
-  count = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
-  vpc   = true
+  count  = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
+  domain = "vpc"
 }
 
 resource "aws_internet_gateway" "igw" {
@@ -284,7 +284,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -472,7 +472,7 @@ resource "aws_kms_key" "key" {
       {
         Effect = "Allow",
         Principal = {
-          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+          Service = "logs.${data.aws_region.current.id}.amazonaws.com"
         },
         Action = [
           "kms:Encrypt*",
@@ -484,7 +484,7 @@ resource "aws_kms_key" "key" {
         Resource = "*",
         Condition = {
           ArnEquals = {
-            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:log-group:*"
           }
         }
       }
@@ -614,7 +614,7 @@ resource "aws_kms_key" "cloudtrail_key" {
         Action = [
           "kms:GenerateDataKey*",
         ],
-        Resource = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+        Resource = "arn:aws:kms:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:key/*",
         Condition = {
           StringLike = {
             "kms:EncryptionContext:aws:cloudtrail:arn" = "arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"
@@ -628,7 +628,7 @@ resource "aws_kms_key" "cloudtrail_key" {
           Service = "cloudtrail.amazonaws.com"
         },
         Action   = "kms:DescribeKey",
-        Resource = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*"
+        Resource = "arn:aws:kms:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:key/*"
       },
       {
         Sid    = "Allow principals in the account to decrypt log files",
@@ -640,7 +640,7 @@ resource "aws_kms_key" "cloudtrail_key" {
           "kms:Decrypt",
           "kms:ReEncryptFrom"
         ],
-        Resource = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+        Resource = "arn:aws:kms:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:key/*",
         Condition = {
           StringEquals = {
             "kms:CallerAccount" = data.aws_caller_identity.current.account_id
@@ -660,7 +660,7 @@ resource "aws_kms_key" "cloudtrail_key" {
           "kms:Decrypt",
           "kms:ReEncryptFrom"
         ],
-        Resource = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/*",
+        Resource = "arn:aws:kms:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:key/*",
         Condition = {
           StringEquals = {
             "kms:CallerAccount" = data.aws_caller_identity.current.account_id
@@ -702,7 +702,7 @@ resource "aws_sqs_queue" "cloudtrail_queue" {
         "Service": "s3.amazonaws.com"
       },
       "Action": "SQS:SendMessage",
-      "Resource": "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:siem_cloudtrail_queue",
+      "Resource": "arn:aws:sqs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:siem_cloudtrail_queue",
       "Condition": {
         "StringEquals": {
           "aws:SourceAccount": "${data.aws_caller_identity.current.account_id}"
@@ -860,7 +860,7 @@ resource "aws_iam_policy" "siem_cloudtrail_policy" {
         ],
         Resource = [
           aws_sqs_queue.cloudtrail_queue[0].arn,
-          aws_s3_bucket.cloudtrail_s3_bucket[0].arn + "/*",
+          "${aws_s3_bucket.cloudtrail_s3_bucket[0].arn}/*",
           aws_kms_key.cloudtrail_key[0].arn
         ]
       },

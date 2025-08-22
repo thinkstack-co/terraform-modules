@@ -1,0 +1,4 @@
+*/package/*
+.venv/
+.terraform/
+reports/

@@ -142,7 +142,8 @@ def get_iam_user_name(user_id):
 
 def lambda_handler(event, context):
     """
-    AWS Lambda entry point to generate a compliance report for AWS Config rules and upload the report as a PDF to S3.
+    AWS Lambda entry point to generate a compliance report for AWS Config rules
+    and upload the report as a PDF to S3.
 
     Steps performed:
     1. Fetch AWS account info (name and ID).
@@ -158,7 +159,8 @@ def lambda_handler(event, context):
        - Compliance summary table
        - Rule-by-rule compliance status
        - Non-compliant resources
-    9. Upload the generated PDF to an S3 bucket, using environment variables for bucket and prefix if set.
+    9. Upload the generated PDF to an S3 bucket, using environment variables
+       for bucket and prefix if set.
     10. Return a status message with the S3 location of the uploaded report.
 
     Args:
@@ -287,7 +289,7 @@ def lambda_handler(event, context):
             # Get the status from compliance data
             status = compliance.get(rule_name, "UNKNOWN")
 
-            # Replace INSUFFICIENT_DATA with N/A when there are no resources for the rule
+            # Replace INSUFFICIENT_DATA with N/A when there are no resources for rule
             if status == "INSUFFICIENT_DATA":
                 status = "N/A"
 
@@ -353,7 +355,7 @@ def lambda_handler(event, context):
         )
     elements.append(Spacer(1, 18))
 
-    # Removed duplicate compliance summary table (already shown at the top of the report)
+    # Removed duplicate compliance summary table (already shown at top of report)
 
     # Non-compliant resources table
     elements.append(Paragraph("Non-Compliant Resources", subtitle_style))

@@ -9,7 +9,7 @@ terraform {
 }
 
 resource "aws_iam_role" "backup_role" {
-  name               = var.role_name
+  name = var.role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -101,7 +101,7 @@ resource "aws_iam_role_policy" "backup_resource_access" {
           "ec2:CreateSnapshot",
           "ec2:CreateTags",
           "ec2:CreateImage",
-          
+
           # RDS permissions
           "rds:DescribeDBInstances",
           "rds:DescribeDBClusters",
@@ -111,13 +111,13 @@ resource "aws_iam_role_policy" "backup_resource_access" {
           "rds:CreateDBSnapshot",
           "rds:CreateDBClusterSnapshot",
           "rds:AddTagsToResource",
-          
+
           # EFS permissions
           "elasticfilesystem:DescribeFileSystems",
           "elasticfilesystem:DescribeBackups",
           "elasticfilesystem:CreateBackup",
           "elasticfilesystem:TagResource",
-          
+
           # DynamoDB permissions
           "dynamodb:ListTables",
           "dynamodb:DescribeTable",
@@ -125,25 +125,25 @@ resource "aws_iam_role_policy" "backup_resource_access" {
           "dynamodb:CreateBackup",
           "dynamodb:DescribeBackup",
           "dynamodb:ListBackups",
-          
+
           # S3 permissions (if S3 backup is enabled)
           "s3:ListAllMyBuckets",
           "s3:GetBucketLocation",
           "s3:GetBucketVersioning",
           "s3:GetBucketTagging",
           "s3:GetBucketAcl",
-          
+
           # FSx permissions
           "fsx:DescribeFileSystems",
           "fsx:DescribeBackups",
           "fsx:CreateBackup",
           "fsx:TagResource",
-          
+
           # Storage Gateway permissions
           "storagegateway:ListVolumes",
           "storagegateway:DescribeCachediSCSIVolumes",
           "storagegateway:DescribeStorediSCSIVolumes",
-          
+
           # Backup permissions
           "backup:DescribeBackupVault",
           "backup:ListBackupVaults",
@@ -154,7 +154,7 @@ resource "aws_iam_role_policy" "backup_resource_access" {
           "backup:ListRecoveryPointsByBackupVault",
           "backup:StartBackupJob",
           "backup:DescribeBackupJob",
-          
+
           # Organizations permissions (for organizational backups)
           "organizations:ListAccounts",
           "organizations:DescribeAccount",

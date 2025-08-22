@@ -42,7 +42,7 @@ resource "aws_kms_key" "fsx" {
       {
         "Effect" = "Allow",
         "Principal" = {
-          "Service" = "fsx.${data.aws_region.current.name}.amazonaws.com"
+          "Service" = "fsx.${data.aws_region.current.id}.amazonaws.com"
         },
         "Action" = [
           "kms:Encrypt*",
