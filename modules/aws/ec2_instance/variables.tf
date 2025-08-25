@@ -27,11 +27,6 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "number" {
-  type        = number
-  description = "Number of instances to launch"
-  default     = 1
-}
 
 variable "disable_api_termination" {
   type        = bool
@@ -201,6 +196,12 @@ variable "tenancy" {
 variable "user_data" {
   type        = string
   description = "The user data to provide when launching the instance"
+  default     = ""
+}
+
+variable "user_data_base64" {
+  type        = string
+  description = "The base64-encoded user data to provide when launching the instance"
   default     = ""
 }
 
