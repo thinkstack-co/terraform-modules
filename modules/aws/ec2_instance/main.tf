@@ -27,7 +27,6 @@ resource "aws_instance" "ec2" {
   ami                                  = var.ami
   associate_public_ip_address          = var.associate_public_ip_address
   availability_zone                    = var.availability_zone
-  count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
@@ -72,17 +71,15 @@ resource "aws_instance" "ec2" {
 ###################################################
 # Creating a CloudWatch metric alarm for each instance. This alarm triggers if the status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  for_each = { for instance in aws_instance.ec2 : instance.id => instance }
-
   alarm_actions = [] # No 'Recover' action for StatusCheckFailed_Instance metric
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name          = format("%s-instance-alarm", each.value.id)
+  alarm_name          = format("%s-instance-alarm", aws_instance.ec2.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = each.value.id
+    InstanceId = aws_instance.ec2.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -97,19 +94,17 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 # Creating another CloudWatch metric alarm for each instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
-  for_each = { for instance in aws_instance.ec2 : instance.id => instance }
-
   #If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered. 
   #If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
-  alarm_actions = contains(local.recover_action_unsupported_instances, each.value.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
+  alarm_actions = contains(local.recover_action_unsupported_instances, aws_instance.ec2.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", each.value.id)
+  alarm_name          = format("%s-system-alarm", aws_instance.ec2.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = each.value.id
+    InstanceId = aws_instance.ec2.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []

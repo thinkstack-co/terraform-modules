@@ -27,11 +27,6 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "number" {
-  type        = number
-  description = "Number of instances to launch"
-  default     = 1
-}
 
 variable "disable_api_termination" {
   type        = bool
