@@ -67,16 +67,12 @@ class QoiDecoder(ImageFile.PyDecoder):
                 op = byte >> 6
                 if op == 0:  # QOI_OP_INDEX
                     op_index = byte & 0b00111111
-                    value = self._previously_seen_pixels.get(
-                        op_index, bytearray((0, 0, 0, 0))
-                    )
+                    value = self._previously_seen_pixels.get(op_index, bytearray((0, 0, 0, 0)))
                 elif op == 1 and self._previous_pixel:  # QOI_OP_DIFF
                     value = bytearray(
                         (
-                            (self._previous_pixel[0] + ((byte & 0b00110000) >> 4) - 2)
-                            % 256,
-                            (self._previous_pixel[1] + ((byte & 0b00001100) >> 2) - 2)
-                            % 256,
+                            (self._previous_pixel[0] + ((byte & 0b00110000) >> 4) - 2) % 256,
+                            (self._previous_pixel[1] + ((byte & 0b00001100) >> 2) - 2) % 256,
                             (self._previous_pixel[2] + (byte & 0b00000011) - 2) % 256,
                             self._previous_pixel[3],
                         )

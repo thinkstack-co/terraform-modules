@@ -113,9 +113,7 @@ class ImagePalette:
     # Declare tostring as an alias for tobytes
     tostring = tobytes
 
-    def _new_color_index(
-        self, image: Image.Image | None = None, e: Exception | None = None
-    ) -> int:
+    def _new_color_index(self, image: Image.Image | None = None, e: Exception | None = None) -> int:
         if not isinstance(self.palette, bytearray):
             self._palette = bytearray(self.palette)
         index = len(self.palette) // 3
@@ -169,11 +167,7 @@ class ImagePalette:
                 assert isinstance(self._palette, bytearray)
                 self.colors[color] = index
                 if index * 3 < len(self.palette):
-                    self._palette = (
-                        self._palette[: index * 3]
-                        + bytes(color)
-                        + self._palette[index * 3 + 3 :]
-                    )
+                    self._palette = self._palette[: index * 3] + bytes(color) + self._palette[index * 3 + 3 :]
                 else:
                     self._palette += bytes(color)
                 self.dirty = 1
@@ -261,11 +255,7 @@ def load(filename: str) -> tuple[bytes, str]:
 
     with open(filename, "rb") as fp:
         paletteHandlers: list[
-            type[
-                GimpPaletteFile.GimpPaletteFile
-                | GimpGradientFile.GimpGradientFile
-                | PaletteFile.PaletteFile
-            ]
+            type[GimpPaletteFile.GimpPaletteFile | GimpGradientFile.GimpGradientFile | PaletteFile.PaletteFile]
         ] = [
             GimpPaletteFile.GimpPaletteFile,
             GimpGradientFile.GimpGradientFile,

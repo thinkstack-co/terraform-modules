@@ -1,10 +1,11 @@
-#Copyright ReportLab Europe Ltd. 2000-2017
-#see license.txt for license details
+# Copyright ReportLab Europe Ltd. 2000-2017
+# see license.txt for license details
 import reportlab
-reportlab._rl_testing=True
+
+reportlab._rl_testing = True
 del reportlab
-__version__='4.0.1'
-__doc__="""Provides support for the test suite.
+__version__ = "4.0.1"
+__doc__ = """Provides support for the test suite.
 
 The test suite as a whole, and individual tests, need to share
 certain support functions.  We have to put these in here so they
@@ -12,34 +13,46 @@ can always be imported, and so that individual tests need to import
 nothing more than "reportlab.whatever..."
 """
 
-import sys, os, fnmatch, re, functools
-from configparser import ConfigParser
+import fnmatch
+import functools
+import os
+import re
+import sys
 import unittest
-from reportlab.lib.utils import isCompactDistro, __rl_loader__, rl_isdir, asUnicode
+from configparser import ConfigParser
+
+from reportlab.lib.utils import __rl_loader__, asUnicode, isCompactDistro, rl_isdir
+
 
 def haveRenderPM():
-    from reportlab.graphics.renderPM import _getPMBackend, RenderPMError
+    from reportlab.graphics.renderPM import RenderPMError, _getPMBackend
+
     try:
         return _getPMBackend()
     except RenderPMError:
         return False
 
-DEJAVUSANS = ('DejaVuSans','DejaVuSans-Bold','DejaVuSans-Oblique','DejaVuSans-BoldOblique')
+
+DEJAVUSANS = ("DejaVuSans", "DejaVuSans-Bold", "DejaVuSans-Oblique", "DejaVuSans-BoldOblique")
+
+
 def haveDejaVu():
     from reportlab.pdfbase.ttfonts import TTFont
+
     for x in DEJAVUSANS:
         try:
-            TTFont(x,x+'.ttf')
+            TTFont(x, x + ".ttf")
         except:
             return False
     return True
 
+
 # Helper functions.
 def isWritable(D):
     try:
-        fn = '00DELETE.ME'
-        f = open(fn, 'w')
-        f.write('test of writability - can be deleted')
+        fn = "00DELETE.ME"
+        f = open(fn, "w")
+        f.write("test of writability - can be deleted")
         f.close()
         if os.path.isfile(fn):
             os.remove(fn)
@@ -47,20 +60,25 @@ def isWritable(D):
     except:
         return 0
 
+
 _OUTDIR = None
 RL_HOME = None
 testsFolder = None
+
+
 def setOutDir(name):
     """Is it a writable file system distro being invoked within
     test directory?  If so, can write test output here.  If not,
     it had better go in a temp directory.  Only do this once per
     process"""
     global _OUTDIR, RL_HOME, testsFolder
-    if _OUTDIR: return _OUTDIR
-    D = [d[9:] for d in sys.argv if d.startswith('--outdir=')]
+    if _OUTDIR:
+        return _OUTDIR
+    D = [d[9:] for d in sys.argv if d.startswith("--outdir=")]
     if not D:
-        D = os.environ.get('RL_TEST_OUTDIR','')
-        if D: D=[D]
+        D = os.environ.get("RL_TEST_OUTDIR", "")
+        if D:
+            D = [D]
     if D:
         _OUTDIR = D[-1]
         try:
@@ -71,43 +89,49 @@ def setOutDir(name):
             if d in sys.argv:
                 sys.argv.remove(d)
     else:
-        assert name=='__main__',"setOutDir should only be called in the main script"
-        scriptDir=os.path.dirname(sys.argv[0])
-        if not scriptDir: scriptDir=os.getcwd()
+        assert name == "__main__", "setOutDir should only be called in the main script"
+        scriptDir = os.path.dirname(sys.argv[0])
+        if not scriptDir:
+            scriptDir = os.getcwd()
         _OUTDIR = scriptDir
 
     if not isWritable(_OUTDIR):
-        _OUTDIR = get_rl_tempdir('reportlab_test')
+        _OUTDIR = get_rl_tempdir("reportlab_test")
 
     import reportlab
-    RL_HOME=reportlab.__path__[0]
-    if not os.path.isabs(RL_HOME): RL_HOME=os.path.normpath(os.path.abspath(RL_HOME))
+
+    RL_HOME = reportlab.__path__[0]
+    if not os.path.isabs(RL_HOME):
+        RL_HOME = os.path.normpath(os.path.abspath(RL_HOME))
     topDir = os.path.dirname(RL_HOME)
-    testsFolder = os.path.join(topDir,'tests')
+    testsFolder = os.path.join(topDir, "tests")
     if not os.path.isdir(testsFolder):
-        testsFolder = os.path.join(os.path.dirname(topDir),'tests')
+        testsFolder = os.path.join(os.path.dirname(topDir), "tests")
     if not os.path.isdir(testsFolder):
-        if name=='__main__':
-            scriptDir=os.path.dirname(sys.argv[0])
-            if not scriptDir: scriptDir=os.getcwd()
+        if name == "__main__":
+            scriptDir = os.path.dirname(sys.argv[0])
+            if not scriptDir:
+                scriptDir = os.getcwd()
             testsFolder = os.path.abspath(scriptDir)
         else:
             testsFolder = None
     if testsFolder:
-        sys.path.insert(0,os.path.dirname(testsFolder))
+        sys.path.insert(0, os.path.dirname(testsFolder))
     return _OUTDIR
 
-_mockumap = (
-        None if os.environ.get('OFFLINE_MOCK','1')!='1' 
-            else'http://www.reportlab.com/rsrc/encryption.gif',
-        )
+
+_mockumap = (None if os.environ.get("OFFLINE_MOCK", "1") != "1" else "http://www.reportlab.com/rsrc/encryption.gif",)
+
+
 def mockUrlRead(name):
     if name in _mockumap:
-        with open(os.path.join(testsFolder,os.path.basename(name)),'rb') as f:
+        with open(os.path.join(testsFolder, os.path.basename(name)), "rb") as f:
             return f.read()
     else:
         from urllib.request import urlopen
+
         return urlopen(name).read()
+
 
 def outputfile(fn):
     """This works out where to write test output.  If running
@@ -116,16 +140,19 @@ def outputfile(fn):
     normally be a file called 'test_foo.pdf', next door.
     """
     D = setOutDir(__name__)
-    if fn: D = os.path.join(D,fn)
+    if fn:
+        D = os.path.join(D, fn)
     return D
 
+
 def printLocation(depth=1):
-    if sys._getframe(depth).f_locals.get('__name__')=='__main__':
-        outDir = outputfile('')
-        if outDir!=_OUTDIR:
+    if sys._getframe(depth).f_locals.get("__name__") == "__main__":
+        outDir = outputfile("")
+        if outDir != _OUTDIR:
             print('Logs and output files written to folder "%s"' % outDir)
 
-def makeSuiteForClasses(*classes,testMethodPrefix=None):
+
+def makeSuiteForClasses(*classes, testMethodPrefix=None):
     "Return a test suite with tests loaded from provided classes."
 
     suite = unittest.TestSuite()
@@ -135,6 +162,7 @@ def makeSuiteForClasses(*classes,testMethodPrefix=None):
     for C in classes:
         suite.addTest(loader.loadTestsFromTestCase(C))
     return suite
+
 
 def getCVSEntries(folder, files=1, folders=0):
     """Returns a list of filenames as listed in the CVS/Entries file.
@@ -149,16 +177,15 @@ def getCVSEntries(folder, files=1, folders=0):
 
     # If CVS subfolder doesn't exist return empty list.
     try:
-        f = open(join(folder, 'CVS', 'Entries'))
+        f = open(join(folder, "CVS", "Entries"))
     except IOError:
         return []
 
     # Return names of files and/or folders in CVS/Entries files.
     allEntries = []
     for line in f.readlines():
-        if folders and line[0] == 'D' \
-           or files and line[0] != 'D':
-            entry = line.split('/')[1]
+        if folders and line[0] == "D" or files and line[0] != "D":
+            entry = line.split("/")[1]
             if entry:
                 allEntries.append(join(folder, entry))
 
@@ -169,7 +196,7 @@ def getCVSEntries(folder, files=1, folders=0):
 class ExtConfigParser(ConfigParser):
     "A slightly extended version to return lists of strings."
 
-    pat = re.compile(r'\s*\[.*\]\s*')
+    pat = re.compile(r"\s*\[.*\]\s*")
 
     def getstringlist(self, section, option):
         "Coerce option to a list of strings or return unchanged if that fails."
@@ -178,10 +205,10 @@ class ExtConfigParser(ConfigParser):
 
         # This seems to allow for newlines inside values
         # of the config file, but be careful!!
-        val = value.replace('\n', '')
+        val = value.replace("\n", "")
 
         if self.pat.match(val):
-            return eval(val,{__builtins__:None})
+            return eval(val, {__builtins__: None})
         else:
             return value
 
@@ -189,23 +216,29 @@ class ExtConfigParser(ConfigParser):
 # This class as suggested by /F with an additional hook
 # to be able to filter filenames.
 
+
 class GlobDirectoryWalker:
     "A forward iterator that traverses files in a directory tree."
 
-    def __init__(self, directory, pattern='*'):
+    def __init__(self, directory, pattern="*"):
         self.index = 0
         self.pattern = pattern
-        directory.replace('/',os.sep)
+        directory.replace("/", os.sep)
         if os.path.isdir(directory):
             self.stack = [directory]
             self.files = []
         else:
             if not isCompactDistro() or not __rl_loader__ or not rl_isdir(directory):
                 raise ValueError('"%s" is not a directory' % directory)
-            self.directory = directory[len(__rl_loader__.archive)+len(os.sep):]
-            pfx = self.directory+os.sep
+            self.directory = directory[len(__rl_loader__.archive) + len(os.sep) :]
+            pfx = self.directory + os.sep
             n = len(pfx)
-            self.files = list(map(lambda x, n=n: x[n:],list(filter(lambda x,pfx=pfx: x.startswith(pfx),list(__rl_loader__._files.keys())))))
+            self.files = list(
+                map(
+                    lambda x, n=n: x[n:],
+                    list(filter(lambda x, pfx=pfx: x.startswith(pfx), list(__rl_loader__._files.keys()))),
+                )
+            )
             self.files.sort()
             self.stack = []
 
@@ -238,28 +271,27 @@ class GlobDirectoryWalker:
 class RestrictedGlobDirectoryWalker(GlobDirectoryWalker):
     "An restricted directory tree iterator."
 
-    def __init__(self, directory, pattern='*', ignore=None):
+    def __init__(self, directory, pattern="*", ignore=None):
         GlobDirectoryWalker.__init__(self, directory, pattern)
 
         if ignore == None:
             ignore = []
         ip = [].append
-        if isinstance(ignore,(tuple,list)):
+        if isinstance(ignore, (tuple, list)):
             for p in ignore:
                 ip(p)
-        elif isinstance(ignore,str):
+        elif isinstance(ignore, str):
             ip(ignore)
-        self.ignorePatterns = ([_.replace('/',os.sep) for _ in ip.__self__] if os.sep != '/'
-                                else ip.__self__)
+        self.ignorePatterns = [_.replace("/", os.sep) for _ in ip.__self__] if os.sep != "/" else ip.__self__
 
     def filterFiles(self, folder, files):
         "Filters all items from files matching patterns to ignore."
 
         fnm = fnmatch.fnmatch
         indicesToDelete = []
-        for i,f in enumerate(files):
+        for i, f in enumerate(files):
             for p in self.ignorePatterns:
-                if fnm(f, p) or fnm(os.path.join(folder,f),p):
+                if fnm(f, p) or fnm(os.path.join(folder, f), p):
                     indicesToDelete.append(i)
         indicesToDelete.reverse()
         for i in indicesToDelete:
@@ -296,6 +328,7 @@ class CVSGlobDirectoryWalker(GlobDirectoryWalker):
 
 # An experimental untested base class with additional 'security'.
 
+
 class SecureTestCase(unittest.TestCase):
     """Secure testing base class with additional pre- and postconditions.
 
@@ -321,21 +354,25 @@ class SecureTestCase(unittest.TestCase):
         sys.path = self._initialPath
         os.chdir(self._initialWorkDir)
 
+
 class NearTestCase(unittest.TestCase):
-    def assertNear(a,b,accuracy=1e-5):
-        if isinstance(a,(float,int)):
-            if abs(a-b)>accuracy:
+    def assertNear(a, b, accuracy=1e-5):
+        if isinstance(a, (float, int)):
+            if abs(a - b) > accuracy:
                 raise AssertionError("%s not near %s" % (a, b))
         else:
-            for ae,be in zip(a,b):
-                if abs(ae-be)>accuracy:
+            for ae, be in zip(a, b):
+                if abs(ae - be) > accuracy:
                     raise AssertionError("%s not near %s" % (a, b))
+
     assertNear = staticmethod(assertNear)
+
 
 class ScriptThatMakesFileTest(unittest.TestCase):
     """Runs a Python script at OS level, expecting it to produce a file.
 
     It CDs to the working directory to run the script."""
+
     def __init__(self, scriptDir, scriptName, outFileName, verbose=0):
         self.scriptDir = scriptDir
         self.scriptName = scriptName
@@ -347,9 +384,9 @@ class ScriptThatMakesFileTest(unittest.TestCase):
     def setUp(self):
         self.cwd = os.getcwd()
         global testsFolder
-        scriptDir=self.scriptDir
+        scriptDir = self.scriptDir
         if not os.path.isabs(scriptDir):
-            scriptDir=os.path.join(testsFolder,scriptDir)
+            scriptDir = os.path.join(testsFolder, scriptDir)
 
         os.chdir(scriptDir)
         assert os.path.isfile(self.scriptName), "Script %s not found!" % self.scriptName
@@ -360,43 +397,55 @@ class ScriptThatMakesFileTest(unittest.TestCase):
         os.chdir(self.cwd)
 
     def runTest(self):
-        fmt = sys.platform=='win32' and '"%s" %s' or '%s %s'
+        fmt = sys.platform == "win32" and '"%s" %s' or "%s %s"
         import subprocess
-        out = subprocess.check_output((sys.executable,self.scriptName))
-        #p = os.popen(fmt % (sys.executable,self.scriptName),'r')
-        #out = p.read()
+
+        out = subprocess.check_output((sys.executable, self.scriptName))
+        # p = os.popen(fmt % (sys.executable,self.scriptName),'r')
+        # out = p.read()
         if self.verbose:
             print(out)
-        #status = p.close()
+        # status = p.close()
         assert os.path.isfile(self.outFileName), "File %s not created!" % self.outFileName
 
-def equalStrings(a,b,enc='utf8'):
-    return a==b if type(a)==type(b) else asUnicode(a,enc)==asUnicode(b,enc)
 
-def eqCheck(r,x):
-    if r!=x:
-        print('Strings unequal\nexp: %s\ngot: %s' % (ascii(x),ascii(r)))
+def equalStrings(a, b, enc="utf8"):
+    return a == b if type(a) == type(b) else asUnicode(a, enc) == asUnicode(b, enc)
+
+
+def eqCheck(r, x):
+    if r != x:
+        print("Strings unequal\nexp: %s\ngot: %s" % (ascii(x), ascii(r)))
+
 
 def rlextraNeeded():
     try:
         import rlextra
+
         return False
     except:
         return True
 
-def rlSkipIf(cond,reason,__module__=None):
+
+def rlSkipIf(cond, reason, __module__=None):
     def inner(func):
         @functools.wraps(func)
-        def wrapper(*args,**kwds):
-            if cond and os.environ.get('RL_indicateSkips','0')=='1':
-                print(f'''
-skipping {func.__module__ or __module__}.{func.__name__} {reason}''')
-            return unittest.skipIf(cond,reason)(func)(*args,**kwds)
+        def wrapper(*args, **kwds):
+            if cond and os.environ.get("RL_indicateSkips", "0") == "1":
+                print(
+                    f"""
+skipping {func.__module__ or __module__}.{func.__name__} {reason}"""
+                )
+            return unittest.skipIf(cond, reason)(func)(*args, **kwds)
+
         return wrapper
+
     return inner
 
-def rlSkipUnless(cond,reason,__module__=None):
-    return rlSkipIf(not cond,reason,__module__=__module__)
 
-def rlSkip(reason,__module__=None):
-    return rlSkipIf(True,reason,__module__=__module__)
+def rlSkipUnless(cond, reason, __module__=None):
+    return rlSkipIf(not cond, reason, __module__=__module__)
+
+
+def rlSkip(reason, __module__=None):
+    return rlSkipIf(True, reason, __module__=__module__)

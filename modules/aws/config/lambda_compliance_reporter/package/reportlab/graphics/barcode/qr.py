@@ -16,24 +16,28 @@
 # DENSO WAVE INCORPORATED
 #   http://www.denso-wave.com/qrcode/faqpatent-e.html
 
-__all__ = ('QrCodeWidget')
+__all__ = "QrCodeWidget"
 
 import itertools
 
-from reportlab.platypus.flowables import Flowable
+from reportlab.graphics.barcode import qrencoder
 from reportlab.graphics.shapes import Group, Rect
-from reportlab.lib import colors
-from reportlab.lib.validators import isNumber, isNumberOrNone, isColor, Validator
-from reportlab.lib.attrmap import AttrMap, AttrMapValue
 from reportlab.graphics.widgetbase import Widget
+from reportlab.lib import colors
+from reportlab.lib.attrmap import AttrMap, AttrMapValue
 from reportlab.lib.units import mm
 from reportlab.lib.utils import asUnicodeEx, isUnicode
-from reportlab.graphics.barcode import qrencoder
+from reportlab.lib.validators import Validator, isColor, isNumber, isNumberOrNone
+from reportlab.platypus.flowables import Flowable
+
 
 class isLevel(Validator):
     def test(self, x):
-        return x in ['L', 'M', 'Q', 'H']
+        return x in ["L", "M", "Q", "H"]
+
+
 isLevel = isLevel()
+
 
 class isUnicodeOrQRList(Validator):
     def _test(self, x):
@@ -53,50 +57,53 @@ class isUnicodeOrQRList(Validator):
             return asUnicodeEx(x)
         except UnicodeError:
             raise ValueError("Can't convert to unicode: %r" % x)
+
+
 isUnicodeOrQRList = isUnicodeOrQRList()
+
 
 class SRect(Rect):
     def __init__(self, x, y, width, height, fillColor=colors.black):
-        Rect.__init__(self, x, y, width, height, fillColor=fillColor,
-                      strokeColor=None, strokeWidth=0)
+        Rect.__init__(self, x, y, width, height, fillColor=fillColor, strokeColor=None, strokeWidth=0)
+
 
 class QrCodeWidget(Widget):
     codeName = "QR"
     _attrMap = AttrMap(
-        BASE = Widget,
-        value = AttrMapValue(isUnicodeOrQRList, desc='QRCode data'),
-        x = AttrMapValue(isNumber, desc='x-coord'),
-        y = AttrMapValue(isNumber, desc='y-coord'),
-        barFillColor = AttrMapValue(isColor, desc='bar color'),
-        barWidth = AttrMapValue(isNumber, desc='Width of bars.'), # maybe should be named just width?
-        barHeight = AttrMapValue(isNumber, desc='Height of bars.'), # maybe should be named just height?
-        barBorder = AttrMapValue(isNumber, desc='Width of QR border.'), # maybe should be named qrBorder?
-        barLevel = AttrMapValue(isLevel, desc='QR Code level.'), # maybe should be named qrLevel
-        qrVersion = AttrMapValue(isNumberOrNone, desc='QR Code version. None for auto'),
+        BASE=Widget,
+        value=AttrMapValue(isUnicodeOrQRList, desc="QRCode data"),
+        x=AttrMapValue(isNumber, desc="x-coord"),
+        y=AttrMapValue(isNumber, desc="y-coord"),
+        barFillColor=AttrMapValue(isColor, desc="bar color"),
+        barWidth=AttrMapValue(isNumber, desc="Width of bars."),  # maybe should be named just width?
+        barHeight=AttrMapValue(isNumber, desc="Height of bars."),  # maybe should be named just height?
+        barBorder=AttrMapValue(isNumber, desc="Width of QR border."),  # maybe should be named qrBorder?
+        barLevel=AttrMapValue(isLevel, desc="QR Code level."),  # maybe should be named qrLevel
+        qrVersion=AttrMapValue(isNumberOrNone, desc="QR Code version. None for auto"),
         # Below are ignored, they make no sense
-        barStrokeWidth = AttrMapValue(isNumber, desc='Width of bar borders.'),
-        barStrokeColor = AttrMapValue(isColor, desc='Color of bar borders.'),
-        )
+        barStrokeWidth=AttrMapValue(isNumber, desc="Width of bar borders."),
+        barStrokeColor=AttrMapValue(isColor, desc="Color of bar borders."),
+    )
     x = 0
     y = 0
     barFillColor = colors.black
     barStrokeColor = None
     barStrokeWidth = 0
-    barHeight = 32*mm
-    barWidth = 32*mm
+    barHeight = 32 * mm
+    barWidth = 32 * mm
     barBorder = 4
-    barLevel = 'L'
+    barLevel = "L"
     qrVersion = None
     value = None
 
-    def __init__(self, value='Hello World', **kw):
+    def __init__(self, value="Hello World", **kw):
         self.value = isUnicodeOrQRList.normalize(value)
         for k, v in kw.items():
             setattr(self, k, v)
 
         ec_level = getattr(qrencoder.QRErrorCorrectLevel, self.barLevel)
 
-        self.__dict__['qr'] = qrencoder.QRCode(self.qrVersion, ec_level)
+        self.__dict__["qr"] = qrencoder.QRCode(self.qrVersion, ec_level)
 
         if isUnicode(self.value):
             self.addData(self.value)
@@ -136,8 +143,7 @@ class QrCodeWidget(Widget):
                 if isDark:
                     x = (c + border) * boxsize
                     y = (r + border + 1) * boxsize
-                    s = SRect(offsetX + x, offsetY + height - y, count * boxsize, boxsize,
-                            fillColor=color)
+                    s = SRect(offsetX + x, offsetY + height - y, count * boxsize, boxsize, fillColor=color)
                     g.add(s)
                 c += count
 
@@ -146,11 +152,12 @@ class QrCodeWidget(Widget):
 
 # Flowable version
 
+
 class QrCode(Flowable):
-    height = 32*mm
-    width = 32*mm
+    height = 32 * mm
+    width = 32 * mm
     qrBorder = 4
-    qrLevel = 'L'
+    qrLevel = "L"
     qrVersion = None
     value = None
 

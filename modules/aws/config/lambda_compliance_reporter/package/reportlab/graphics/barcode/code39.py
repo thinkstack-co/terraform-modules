@@ -30,76 +30,172 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+from string import ascii_lowercase, ascii_uppercase
+from string import digits as string_digits
+
+from reportlab.graphics.barcode.common import Barcode
 from reportlab.lib.units import inch
 from reportlab.lib.utils import asNative
-from reportlab.graphics.barcode.common import Barcode
-from string import ascii_uppercase, ascii_lowercase, digits as string_digits
 
 _patterns = {
-    '0':    ("bsbSBsBsb", 0),       '1': ("BsbSbsbsB", 1),
-    '2':    ("bsBSbsbsB", 2),       '3': ("BsBSbsbsb", 3),
-    '4':    ("bsbSBsbsB", 4),       '5': ("BsbSBsbsb", 5),
-    '6':    ("bsBSBsbsb", 6),       '7': ("bsbSbsBsB", 7),
-    '8':    ("BsbSbsBsb", 8),       '9': ("bsBSbsBsb", 9),
-    'A':    ("BsbsbSbsB", 10),      'B': ("bsBsbSbsB", 11),
-    'C':    ("BsBsbSbsb", 12),      'D': ("bsbsBSbsB", 13),
-    'E':    ("BsbsBSbsb", 14),      'F': ("bsBsBSbsb", 15),
-    'G':    ("bsbsbSBsB", 16),      'H': ("BsbsbSBsb", 17),
-    'I':    ("bsBsbSBsb", 18),      'J': ("bsbsBSBsb", 19),
-    'K':    ("BsbsbsbSB", 20),      'L': ("bsBsbsbSB", 21),
-    'M':    ("BsBsbsbSb", 22),      'N': ("bsbsBsbSB", 23),
-    'O':    ("BsbsBsbSb", 24),      'P': ("bsBsBsbSb", 25),
-    'Q':    ("bsbsbsBSB", 26),      'R': ("BsbsbsBSb", 27),
-    'S':    ("bsBsbsBSb", 28),      'T': ("bsbsBsBSb", 29),
-    'U':    ("BSbsbsbsB", 30),      'V': ("bSBsbsbsB", 31),
-    'W':    ("BSBsbsbsb", 32),      'X': ("bSbsBsbsB", 33),
-    'Y':    ("BSbsBsbsb", 34),      'Z': ("bSBsBsbsb", 35),
-    '-':    ("bSbsbsBsB", 36),      '.': ("BSbsbsBsb", 37),
-    ' ':    ("bSBsbsBsb", 38),      '*': ("bSbsBsBsb", None),
-    '$':    ("bSbSbSbsb", 39),      '/': ("bSbSbsbSb", 40),
-    '+':    ("bSbsbSbSb", 41),      '%': ("bsbSbSbSb", 42)
-    }
+    "0": ("bsbSBsBsb", 0),
+    "1": ("BsbSbsbsB", 1),
+    "2": ("bsBSbsbsB", 2),
+    "3": ("BsBSbsbsb", 3),
+    "4": ("bsbSBsbsB", 4),
+    "5": ("BsbSBsbsb", 5),
+    "6": ("bsBSBsbsb", 6),
+    "7": ("bsbSbsBsB", 7),
+    "8": ("BsbSbsBsb", 8),
+    "9": ("bsBSbsBsb", 9),
+    "A": ("BsbsbSbsB", 10),
+    "B": ("bsBsbSbsB", 11),
+    "C": ("BsBsbSbsb", 12),
+    "D": ("bsbsBSbsB", 13),
+    "E": ("BsbsBSbsb", 14),
+    "F": ("bsBsBSbsb", 15),
+    "G": ("bsbsbSBsB", 16),
+    "H": ("BsbsbSBsb", 17),
+    "I": ("bsBsbSBsb", 18),
+    "J": ("bsbsBSBsb", 19),
+    "K": ("BsbsbsbSB", 20),
+    "L": ("bsBsbsbSB", 21),
+    "M": ("BsBsbsbSb", 22),
+    "N": ("bsbsBsbSB", 23),
+    "O": ("BsbsBsbSb", 24),
+    "P": ("bsBsBsbSb", 25),
+    "Q": ("bsbsbsBSB", 26),
+    "R": ("BsbsbsBSb", 27),
+    "S": ("bsBsbsBSb", 28),
+    "T": ("bsbsBsBSb", 29),
+    "U": ("BSbsbsbsB", 30),
+    "V": ("bSBsbsbsB", 31),
+    "W": ("BSBsbsbsb", 32),
+    "X": ("bSbsBsbsB", 33),
+    "Y": ("BSbsBsbsb", 34),
+    "Z": ("bSBsBsbsb", 35),
+    "-": ("bSbsbsBsB", 36),
+    ".": ("BSbsbsBsb", 37),
+    " ": ("bSBsbsBsb", 38),
+    "*": ("bSbsBsBsb", None),
+    "$": ("bSbSbSbsb", 39),
+    "/": ("bSbSbsbSb", 40),
+    "+": ("bSbsbSbSb", 41),
+    "%": ("bsbSbSbSb", 42),
+}
 
 _stdchrs = string_digits + ascii_uppercase + "-. $/+%"
 
 _extended = {
-    '\0':   "%U",    '\01':  "$A",    '\02':  "$B",    '\03':  "$C",
-    '\04':  "$D",    '\05':  "$E",    '\06':  "$F",    '\07':  "$G",
-    '\010': "$H",    '\011': "$I",    '\012': "$J",    '\013': "$K",
-    '\014': "$L",    '\015': "$M",    '\016': "$N",    '\017': "$O",
-    '\020': "$P",    '\021': "$Q",    '\022': "$R",    '\023': "$S",
-    '\024': "$T",    '\025': "$U",    '\026': "$V",    '\027': "$W",
-    '\030': "$X",    '\031': "$Y",    '\032': "$Z",    '\033': "%A",
-    '\034': "%B",    '\035': "%C",    '\036': "%D",    '\037': "%E",
-    '!':    "/A",    '"':    "/B",    '#':    "/C",    '$':    "/D",
-    '%':    "/E",    '&':    "/F",    '\'':   "/G",    '(':    "/H",
-    ')':    "/I",    '*':    "/J",    '+':    "/K",    ',':    "/L",
-    '/':    "/O",    ':':    "/Z",    ';':    "%F",    '<':    "%G",
-    '=':    "%H",    '>':    "%I",    '?':    "%J",    '@':    "%V",
-    '[':    "%K",    '\\':   "%L",    ']':    "%M",    '^':    "%N",
-    '_':    "%O",    '`':    "%W",    'a':    "+A",    'b':    "+B",
-    'c':    "+C",    'd':    "+D",    'e':    "+E",    'f':    "+F",
-    'g':    "+G",    'h':    "+H",    'i':    "+I",    'j':    "+J",
-    'k':    "+K",    'l':    "+L",    'm':    "+M",    'n':    "+N",
-    'o':    "+O",    'p':    "+P",    'q':    "+Q",    'r':    "+R",
-    's':    "+S",    't':    "+T",    'u':    "+U",    'v':    "+V",
-    'w':    "+W",    'x':    "+X",    'y':    "+Y",    'z':    "+Z",
-    '{':    "%P",    '|':    "%Q",    '}':    "%R",    '~':    "%S",
-    '\177': "%T"
-    }
+    "\0": "%U",
+    "\01": "$A",
+    "\02": "$B",
+    "\03": "$C",
+    "\04": "$D",
+    "\05": "$E",
+    "\06": "$F",
+    "\07": "$G",
+    "\010": "$H",
+    "\011": "$I",
+    "\012": "$J",
+    "\013": "$K",
+    "\014": "$L",
+    "\015": "$M",
+    "\016": "$N",
+    "\017": "$O",
+    "\020": "$P",
+    "\021": "$Q",
+    "\022": "$R",
+    "\023": "$S",
+    "\024": "$T",
+    "\025": "$U",
+    "\026": "$V",
+    "\027": "$W",
+    "\030": "$X",
+    "\031": "$Y",
+    "\032": "$Z",
+    "\033": "%A",
+    "\034": "%B",
+    "\035": "%C",
+    "\036": "%D",
+    "\037": "%E",
+    "!": "/A",
+    '"': "/B",
+    "#": "/C",
+    "$": "/D",
+    "%": "/E",
+    "&": "/F",
+    "'": "/G",
+    "(": "/H",
+    ")": "/I",
+    "*": "/J",
+    "+": "/K",
+    ",": "/L",
+    "/": "/O",
+    ":": "/Z",
+    ";": "%F",
+    "<": "%G",
+    "=": "%H",
+    ">": "%I",
+    "?": "%J",
+    "@": "%V",
+    "[": "%K",
+    "\\": "%L",
+    "]": "%M",
+    "^": "%N",
+    "_": "%O",
+    "`": "%W",
+    "a": "+A",
+    "b": "+B",
+    "c": "+C",
+    "d": "+D",
+    "e": "+E",
+    "f": "+F",
+    "g": "+G",
+    "h": "+H",
+    "i": "+I",
+    "j": "+J",
+    "k": "+K",
+    "l": "+L",
+    "m": "+M",
+    "n": "+N",
+    "o": "+O",
+    "p": "+P",
+    "q": "+Q",
+    "r": "+R",
+    "s": "+S",
+    "t": "+T",
+    "u": "+U",
+    "v": "+V",
+    "w": "+W",
+    "x": "+X",
+    "y": "+Y",
+    "z": "+Z",
+    "{": "%P",
+    "|": "%Q",
+    "}": "%R",
+    "~": "%S",
+    "\177": "%T",
+}
 
 
-_extchrs = _stdchrs + ascii_lowercase + \
-    "\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017" + \
-    "\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037" + \
-    "*!'#&\"(),:;<=>?@[\\]^_`{|}~\177"
+_extchrs = (
+    _stdchrs
+    + ascii_lowercase
+    + "\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017"
+    + "\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037"
+    + "*!'#&\"(),:;<=>?@[\\]^_`{|}~\177"
+)
+
 
 def _encode39(value, cksum, stop):
     v = sum([_patterns[c][1] for c in value]) % 43
     if cksum:
         value += _stdchrs[v]
-    if stop: value = '*'+value+'*'
+    if stop:
+        value = "*" + value + "*"
     return value
+
 
 class _Code39Base(Barcode):
     barWidth = inch * 0.0075
@@ -112,7 +208,8 @@ class _Code39Base(Barcode):
     checksum = 1
     bearers = 0.0
     stop = 1
-    def __init__(self, value = "", **args):
+
+    def __init__(self, value="", **args):
         value = asNative(value)
         for k, v in args.items():
             setattr(self, k, v)
@@ -129,12 +226,13 @@ class _Code39Base(Barcode):
     def decompose(self):
         dval = ""
         for c in self.encoded:
-            dval = dval + _patterns[c][0] + 'i'
+            dval = dval + _patterns[c][0] + "i"
         self.decomposed = dval[:-1]
         return self.decomposed
 
     def _humanText(self):
         return self.stop and self.encoded[1:-1] or self.encoded
+
 
 class Standard39(_Code39Base):
     """
@@ -190,6 +288,7 @@ class Standard39(_Code39Base):
     Official Spec, "ANSI/AIM BC1-1995, USS" is available for US$45 from
     http://www.aimglobal.org/aimstore/
     """
+
     def validate(self):
         vval = [].append
         self.valid = 1
@@ -200,12 +299,13 @@ class Standard39(_Code39Base):
                 self.valid = 0
                 continue
             vval(c)
-        self.validated = ''.join(vval.__self__)
+        self.validated = "".join(vval.__self__)
         return self.validated
 
     def encode(self):
         self.encoded = _encode39(self.validated, self.checksum, self.stop)
         return self.encoded
+
 
 class Extended39(_Code39Base):
     """
@@ -220,6 +320,7 @@ class Extended39(_Code39Base):
     http://www.semiconductor.agilent.com/barcode/sg/Misc/xcode_39.html
     http://www.barcodeman.com/c39_ext.html
     """
+
     def validate(self):
         vval = ""
         self.valid = 1
@@ -240,5 +341,5 @@ class Extended39(_Code39Base):
                 self.encoded = self.encoded + c
             else:
                 raise ValueError
-        self.encoded = _encode39(self.encoded, self.checksum,self.stop)
+        self.encoded = _encode39(self.encoded, self.checksum, self.stop)
         return self.encoded

@@ -27,9 +27,7 @@ from .version import VERSION, __version__
 __all__ = ["UniversalDetector", "detect", "detect_all", "__version__", "VERSION"]
 
 
-def detect(
-    byte_str: Union[bytes, bytearray], should_rename_legacy: bool = False
-) -> ResultDict:
+def detect(byte_str: Union[bytes, bytearray], should_rename_legacy: bool = False) -> ResultDict:
     """
     Detect the encoding of the given byte string.
 
@@ -41,9 +39,7 @@ def detect(
     """
     if not isinstance(byte_str, bytearray):
         if not isinstance(byte_str, bytes):
-            raise TypeError(
-                f"Expected object of type bytes or bytearray, got: {type(byte_str)}"
-            )
+            raise TypeError(f"Expected object of type bytes or bytearray, got: {type(byte_str)}")
         byte_str = bytearray(byte_str)
     detector = UniversalDetector(should_rename_legacy=should_rename_legacy)
     detector.feed(byte_str)
@@ -70,9 +66,7 @@ def detect_all(
     """
     if not isinstance(byte_str, bytearray):
         if not isinstance(byte_str, bytes):
-            raise TypeError(
-                f"Expected object of type bytes or bytearray, got: {type(byte_str)}"
-            )
+            raise TypeError(f"Expected object of type bytes or bytearray, got: {type(byte_str)}")
         byte_str = bytearray(byte_str)
 
     detector = UniversalDetector(should_rename_legacy=should_rename_legacy)
@@ -94,14 +88,10 @@ def detect_all(
                 # Use Windows encoding name instead of ISO-8859 if we saw any
                 # extra Windows-specific bytes
                 if lower_charset_name.startswith("iso-8859") and detector.has_win_bytes:
-                    charset_name = detector.ISO_WIN_MAP.get(
-                        lower_charset_name, charset_name
-                    )
+                    charset_name = detector.ISO_WIN_MAP.get(lower_charset_name, charset_name)
                 # Rename legacy encodings with superset encodings if asked
                 if should_rename_legacy:
-                    charset_name = detector.LEGACY_MAP.get(
-                        charset_name.lower(), charset_name
-                    )
+                    charset_name = detector.LEGACY_MAP.get(charset_name.lower(), charset_name)
                 results.append(
                     {
                         "encoding": charset_name,

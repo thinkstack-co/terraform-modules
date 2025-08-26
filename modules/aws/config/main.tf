@@ -9,7 +9,7 @@ locals {
   customer_identifier  = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
   valid_retention_days = (var.report_retention_days == 0 || var.glacier_transition_days == 0) || var.report_retention_days > var.glacier_transition_days
 }
-# --- Core AWS Config Resources --- 
+# --- Core AWS Config Resources ---
 
 # IAM Role for AWS Config Service
 resource "aws_iam_role" "config_role" {
@@ -133,7 +133,7 @@ resource "aws_iam_role_policy_attachment" "config" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
 }
 
-# --- Optional AWS Managed Config Rules --- 
+# --- Optional AWS Managed Config Rules ---
 
 resource "aws_config_config_rule" "iam_password_policy" {
   count       = var.enable_iam_password_policy_rule ? 1 : 0
@@ -350,7 +350,7 @@ resource "null_resource" "validate_retention_days" {
   }
 }
 
-# --- Optional Compliance Reporter Lambda --- 
+# --- Optional Compliance Reporter Lambda ---
 
 # The Lambda function is pre-packaged with all dependencies in the repository
 # This eliminates the need for local Python/pip installation
@@ -395,7 +395,7 @@ data "aws_iam_policy_document" "reporter_lambda_policy" {
       "config:DescribeConfigRules",
       "config:ListDiscoveredResources"
     ]
-    resources = ["*"] # Config read actions often require * 
+    resources = ["*"] # Config read actions often require *
     effect    = "Allow"
   }
   statement { # STS access

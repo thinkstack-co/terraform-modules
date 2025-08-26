@@ -153,9 +153,7 @@ class WmfStubImageFile(ImageFile.StubImageFile):
     def _load(self) -> ImageFile.StubHandler | None:
         return _handler
 
-    def load(
-        self, dpi: float | tuple[float, float] | None = None
-    ) -> Image.core.PixelAccess | None:
+    def load(self, dpi: float | tuple[float, float] | None = None) -> Image.core.PixelAccess | None:
         if dpi is not None:
             self.info["dpi"] = dpi
             x0, y0, x1, y1 = self.info["wmf_bbox"]

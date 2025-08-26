@@ -51,9 +51,7 @@ def _get_image_from_kw(kw: dict[str, Any]) -> ImageFile.ImageFile | None:
     return Image.open(source)
 
 
-def _pyimagingtkcall(
-    command: str, photo: PhotoImage | tkinter.PhotoImage, ptr: CapsuleType
-) -> None:
+def _pyimagingtkcall(command: str, photo: PhotoImage | tkinter.PhotoImage, ptr: CapsuleType) -> None:
     tk = photo.tk
     try:
         tk.call(command, photo, repr(ptr))

@@ -260,9 +260,7 @@ class iTXt(str):
     tkey: str | bytes | None
 
     @staticmethod
-    def __new__(
-        cls, text: str, lang: str | None = None, tkey: str | None = None
-    ) -> iTXt:
+    def __new__(cls, text: str, lang: str | None = None, tkey: str | None = None) -> iTXt:
         """
         :param cls: the class to use when creating the instance
         :param text: value for this key
@@ -332,9 +330,7 @@ class PngInfo:
         else:
             self.add(b"iTXt", key + b"\0\0\0" + lang + b"\0" + tkey + b"\0" + value)
 
-    def add_text(
-        self, key: str | bytes, value: str | bytes | iTXt, zip: bool = False
-    ) -> None:
+    def add_text(self, key: str | bytes, value: str | bytes | iTXt, zip: bool = False) -> None:
         """Appends a text chunk.
 
         :param key: latin-1 encodable text key name
@@ -399,10 +395,7 @@ class PngStream(ChunkStream):
     def check_text_memory(self, chunklen: int) -> None:
         self.text_memory += chunklen
         if self.text_memory > MAX_TEXT_MEMORY:
-            msg = (
-                "Too much memory used in text chunks: "
-                f"{self.text_memory}>MAX_TEXT_MEMORY"
-            )
+            msg = "Too much memory used in text chunks: " f"{self.text_memory}>MAX_TEXT_MEMORY"
             raise ValueError(msg)
 
     def save_rewind(self) -> None:
@@ -699,9 +692,7 @@ class PngStream(ChunkStream):
             msg = "APNG contains truncated fcTL chunk"
             raise ValueError(msg)
         seq = i32(s)
-        if (self._seq_num is None and seq != 0) or (
-            self._seq_num is not None and self._seq_num != seq - 1
-        ):
+        if (self._seq_num is None and seq != 0) or (self._seq_num is not None and self._seq_num != seq - 1):
             msg = "APNG contains frame sequence errors"
             raise SyntaxError(msg)
         self._seq_num = seq
@@ -1063,9 +1054,7 @@ class PngImageFile(ImageFile.ImageFile):
             if self._prev_im and self.blend_op == Blend.OP_OVER:
                 updated = self._crop(self.im, self.dispose_extent)
                 if self.im.mode == "RGB" and "transparency" in self.info:
-                    mask = updated.convert_transparent(
-                        "RGBA", self.info["transparency"]
-                    )
+                    mask = updated.convert_transparent("RGBA", self.info["transparency"])
                 else:
                     if self.im.mode == "P" and "transparency" in self.info:
                         t = self.info["transparency"]
@@ -1213,9 +1202,7 @@ def _write_multiple_frames(
                     base_im = im_frames[-2].im
                 else:
                     base_im = previous.im
-                delta = ImageChops.subtract_modulo(
-                    im_frame.convert("RGBA"), base_im.convert("RGBA")
-                )
+                delta = ImageChops.subtract_modulo(im_frame.convert("RGBA"), base_im.convert("RGBA"))
                 bbox = delta.getbbox(alpha_only=False)
                 if (
                     not bbox
@@ -1311,9 +1298,7 @@ def _save(
     # save an image to disk (called by the save method)
 
     if save_all:
-        default_image = im.encoderinfo.get(
-            "default_image", im.info.get("default_image")
-        )
+        default_image = im.encoderinfo.get("default_image", im.info.get("default_image"))
         modes = set()
         sizes = set()
         append_images = im.encoderinfo.get("append_images", [])
@@ -1485,9 +1470,7 @@ def _save(
 
     single_im: Image.Image | None = im
     if save_all:
-        single_im = _write_multiple_frames(
-            im, fp, chunk, mode, rawmode, default_image, append_images
-        )
+        single_im = _write_multiple_frames(im, fp, chunk, mode, rawmode, default_image, append_images)
     if single_im:
         ImageFile._save(
             single_im,

@@ -74,7 +74,7 @@ module "alb_ssl_cert" {
   validation_method = "DNS"
   listener_arn    = module.https_listener.listener_arn
   certificate_arn = aws_acm_certificate.cert.arn
-  
+
   tags = {
     terraform   = "true"
     environment = "production"
@@ -93,7 +93,7 @@ module "alb_ssl_cert" {
   subject_alternative_names = ["www.example.com", "api.example.com"]
   listener_arn              = module.https_listener.listener_arn
   certificate_arn           = aws_acm_certificate.cert.arn
-  
+
   tags = {
     terraform   = "true"
     environment = "production"

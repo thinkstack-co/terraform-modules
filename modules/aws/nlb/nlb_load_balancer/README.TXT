@@ -16,7 +16,7 @@ Below are the variables utilized in the aws_lb resource block:
 
 5. `enable_http2`: A boolean flag that enables or disables HTTP/2.
 
-6. `idle_timeout`: The amount of time in seconds that the connection is allowed to be idle 
+6. `idle_timeout`: The amount of time in seconds that the connection is allowed to be idle
 (no data has been sent over the connection) before it is closed by the load balancer.
 
 7. `internal`: A boolean flag that indicates whether this load balancer is internal or external.
@@ -38,8 +38,8 @@ Below are the variables utilized in the aws_lb resource block:
 
 
 ################################ MODULE EXAMPLE ###################################################################
-Here's an example usage of the variables:  Keep in mind, the references to other modules are based on the other 
-resources in this NLB Resource Group.  You will need to have modules set for a listener and a target group for 
+Here's an example usage of the variables:  Keep in mind, the references to other modules are based on the other
+resources in this NLB Resource Group.  You will need to have modules set for a listener and a target group for
 this module to be relevant.
 
 module "aws_prod_nlb" {
@@ -69,5 +69,3 @@ module "aws_prod_nlb" {
   }
 }
 ####################################################################################################################
-
-

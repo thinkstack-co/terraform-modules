@@ -66,7 +66,7 @@
 ```
 module test_user {
     source               = "github.com/thinkstack-co/terraform-modules//global/iam/iam_user"
-    
+
     name                 = "test_user"
 }
 ```

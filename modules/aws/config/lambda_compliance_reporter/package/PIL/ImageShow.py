@@ -74,10 +74,7 @@ class Viewer:
         Converts the given image to the target format and displays it.
         """
 
-        if not (
-            image.mode in ("1", "RGBA")
-            or (self.format == "PNG" and image.mode in ("I;16", "LA"))
-        ):
+        if not (image.mode in ("1", "RGBA") or (self.format == "PNG" and image.mode in ("I;16", "LA"))):
             base = Image.getmodebase(image.mode)
             if image.mode != base:
                 image = image.convert(base)
@@ -131,11 +128,7 @@ class WindowsViewer(Viewer):
     options = {"compress_level": 1, "save_all": True}
 
     def get_command(self, file: str, **options: Any) -> str:
-        return (
-            f'start "Pillow" /WAIT "{file}" '
-            "&& ping -n 4 127.0.0.1 >NUL "
-            f'&& del /f "{file}"'
-        )
+        return f'start "Pillow" /WAIT "{file}" ' "&& ping -n 4 127.0.0.1 >NUL " f'&& del /f "{file}"'
 
     def show_file(self, path: str, **options: Any) -> int:
         """
@@ -230,9 +223,7 @@ class DisplayViewer(UnixViewer):
     This viewer supports the ``title`` parameter.
     """
 
-    def get_command_ex(
-        self, file: str, title: str | None = None, **options: Any
-    ) -> tuple[str, str]:
+    def get_command_ex(self, file: str, title: str | None = None, **options: Any) -> tuple[str, str]:
         command = executable = "display"
         if title:
             command += f" -title {quote(title)}"
@@ -296,9 +287,7 @@ class XVViewer(UnixViewer):
     This viewer supports the ``title`` parameter.
     """
 
-    def get_command_ex(
-        self, file: str, title: str | None = None, **options: Any
-    ) -> tuple[str, str]:
+    def get_command_ex(self, file: str, title: str | None = None, **options: Any) -> tuple[str, str]:
         # note: xv is pretty outdated.  most modern systems have
         # imagemagick's display command instead.
         command = executable = "xv"

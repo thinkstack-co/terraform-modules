@@ -70,7 +70,7 @@
 ```
 module "aws_prod_corelight" {
       source              = "github.com/thinkstack-co/terraform-modules//modules/aws/corelight"
-      
+
       ami                 = "ami-b7f895cffdsaaafdsa"
       availability_zones  = [module.vpc.availability_zone[0], module.vpc.availability_zone[1]]
       number              = 2
@@ -81,7 +81,7 @@ module "aws_prod_corelight" {
       user_data           = "customer_id_key"
       vpc_id              = "vpc-222222222"
       vxlan_cidr_blocks   = ["10.44.1.1/32"]
-      
+
       tags                = {
         terraform        = "true"
         created_by       = "Zachary Hill"

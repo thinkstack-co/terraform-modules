@@ -99,7 +99,7 @@ module "cpu_alarm" {
   threshold           = 80
   alarm_description   = "This metric monitors ec2 cpu utilization"
   alarm_actions       = [aws_sns_topic.alerts.arn]
-  
+
   dimensions = {
     InstanceId = aws_instance.web_server.id
   }
@@ -122,7 +122,7 @@ module "log_destination" {
 
   destination_name    = "s3-log-destination"
   destination_target_arn = aws_kinesis_firehose_delivery_stream.s3_stream.arn
-  
+
   # Additional configuration for IAM roles and policies
   # ...
 }

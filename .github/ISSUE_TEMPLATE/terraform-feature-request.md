@@ -10,7 +10,7 @@ assignees: zachreborn, TheJalpa, jakeasarus
 ### Describe the feature
 A clear and concise description of what the feature is.
 
-Considerations: 
+Considerations:
 What is the issue we are solving with this request?
 Does it require modifying an existing module or adding a new module?
 What will be the most scalable, repeatable way to create and add/edit/modify this feature?
@@ -24,7 +24,7 @@ What is the priority we should consider when making this, such as high/low/mediu
 Example branches/successful runs/working versions demonstrating this prior to completion.
 
 ### Confirmation
-Confirmation that proposed solution is successful. 
+Confirmation that proposed solution is successful.
 
 ### Next Steps
 [] Step 1...

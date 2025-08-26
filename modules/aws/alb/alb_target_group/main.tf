@@ -25,6 +25,8 @@ resource "aws_lb_target_group" "this" {
     unhealthy_threshold = var.unhealthy_threshold_count
     matcher             = var.matcher
   }
+
+  tags = var.tags
 }
 
 resource "aws_lb_target_group_attachment" "this" {

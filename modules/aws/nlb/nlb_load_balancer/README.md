@@ -74,10 +74,10 @@
 module "app_server" {
     source             = "github.com/thinkstack-co/terraform-modules//modules/aws/alb"
 
-    access_logs_bucket = 
-    name               = 
-    security_groups    = 
-    subnets            = 
+    access_logs_bucket =
+    name               =
+    security_groups    =
+    subnets            =
 }
 ```
 
@@ -194,6 +194,6 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[JQuery-url]: https://jquery.com
 [Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
 [Terraform-url]: https://terraform.io

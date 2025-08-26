@@ -119,9 +119,7 @@ class MspDecoder(ImageFile.PyDecoder):
         blank_line = bytearray((0xFF,) * ((self.state.xsize + 7) // 8))
         try:
             self.fd.seek(32)
-            rowmap = struct.unpack_from(
-                f"<{self.state.ysize}H", self.fd.read(self.state.ysize * 2)
-            )
+            rowmap = struct.unpack_from(f"<{self.state.ysize}H", self.fd.read(self.state.ysize * 2))
         except struct.error as e:
             msg = "Truncated MSP file in row map"
             raise OSError(msg) from e

@@ -62,9 +62,7 @@ class LutBuilder:
 
     """
 
-    def __init__(
-        self, patterns: list[str] | None = None, op_name: str | None = None
-    ) -> None:
+    def __init__(self, patterns: list[str] | None = None, op_name: str | None = None) -> None:
         if patterns is not None:
             self.patterns = patterns
         else:
@@ -107,9 +105,7 @@ class LutBuilder:
         assert len(permutation) == 9
         return "".join(pattern[p] for p in permutation)
 
-    def _pattern_permute(
-        self, basic_pattern: str, options: str, basic_result: int
-    ) -> list[tuple[str, int]]:
+    def _pattern_permute(self, basic_pattern: str, options: str, basic_result: int) -> list[tuple[str, int]]:
         """pattern_permute takes a basic pattern and its result and clones
         the pattern according to the modifications described in the $options
         parameter. It returns a list of all cloned patterns."""
@@ -119,9 +115,7 @@ class LutBuilder:
         if "4" in options:
             res = patterns[-1][1]
             for i in range(4):
-                patterns.append(
-                    (self._string_permute(patterns[-1][0], ROTATION_MATRIX), res)
-                )
+                patterns.append((self._string_permute(patterns[-1][0], ROTATION_MATRIX), res))
         # mirror
         if "M" in options:
             n = len(patterns)

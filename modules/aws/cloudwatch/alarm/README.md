@@ -81,7 +81,7 @@ module "cpu_alarm" {
   statistic           = "Average"
   threshold           = 80
   alarm_actions       = [aws_sns_topic.alerts.arn]
-  
+
   dimensions = {
     InstanceId = aws_instance.web_server.id
   }
@@ -104,7 +104,7 @@ module "storage_alarm" {
   statistic           = "Average"
   threshold           = 10
   alarm_actions       = [aws_sns_topic.alerts.arn]
-  
+
   dimensions = {
     VolumeId = aws_ebs_volume.data_volume.id
   }

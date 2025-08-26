@@ -69,9 +69,7 @@ class Dib:
                  defines the size of the image.
     """
 
-    def __init__(
-        self, image: Image.Image | str, size: tuple[int, int] | None = None
-    ) -> None:
+    def __init__(self, image: Image.Image | str, size: tuple[int, int] | None = None) -> None:
         if isinstance(image, str):
             mode = image
             image = ""
@@ -161,9 +159,7 @@ class Dib:
             result = self.image.query_palette(handle_int)
         return result
 
-    def paste(
-        self, im: Image.Image, box: tuple[int, int, int, int] | None = None
-    ) -> None:
+    def paste(self, im: Image.Image, box: tuple[int, int, int, int] | None = None) -> None:
         """
         Paste a PIL image into the bitmap image.
 
@@ -204,12 +200,8 @@ class Dib:
 class Window:
     """Create a Window with the given title size."""
 
-    def __init__(
-        self, title: str = "PIL", width: int | None = None, height: int | None = None
-    ) -> None:
-        self.hwnd = Image.core.createwindow(
-            title, self.__dispatcher, width or 0, height or 0
-        )
+    def __init__(self, title: str = "PIL", width: int | None = None, height: int | None = None) -> None:
+        self.hwnd = Image.core.createwindow(title, self.__dispatcher, width or 0, height or 0)
 
     def __dispatcher(self, action: str, *args: int) -> None:
         getattr(self, f"ui_handle_{action}")(*args)

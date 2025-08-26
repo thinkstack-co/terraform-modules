@@ -89,7 +89,7 @@ module "aws_prod_app" {
 ```
 module "app_server" {
     source                 = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
-        
+
     name                   = "app_server"
     ami                    = "ami-ffffffff"
     count                  = 1

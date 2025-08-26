@@ -30,28 +30,30 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-from reportlab.platypus.flowables import Flowable
+from string import ascii_lowercase, ascii_uppercase
+from string import digits as string_digits
+
 from reportlab.lib.units import inch
-from string import ascii_lowercase, ascii_uppercase, digits as string_digits
+from reportlab.platypus.flowables import Flowable
+
 
 class Barcode(Flowable):
     """Abstract Base for barcodes. Includes implementations of
     some methods suitable for the more primitive barcode types"""
 
-    fontName = 'Courier'
+    fontName = "Courier"
     fontSize = 12
     humanReadable = 0
 
     def _humanText(self):
         return self.encoded
 
-    def __init__(self, value='',**kwd):
+    def __init__(self, value="", **kwd):
         self.value = str(value)
 
         self._setKeywords(**kwd)
-        if not hasattr(self, 'gap'):
+        if not hasattr(self, "gap"):
             self.gap = None
-
 
     def _calculate(self):
         self.validate()
@@ -59,8 +61,8 @@ class Barcode(Flowable):
         self.decompose()
         self.computeSize()
 
-    def _setKeywords(self,**kwd):
-        for (k, v) in kwd.items():
+    def _setKeywords(self, **kwd):
+        for k, v in kwd.items():
             setattr(self, k, v)
 
     def validate(self):
@@ -83,11 +85,11 @@ class Barcode(Flowable):
         w = 0.0
 
         for c in self.decomposed:
-            if c in 'sb':
+            if c in "sb":
                 w = w + barWidth
-            elif c in 'SB':
+            elif c in "SB":
                 w = w + wx
-            else: # 'i'
+            else:  # 'i'
                 w = w + self.gap
 
         if self.barHeight is None:
@@ -99,7 +101,6 @@ class Barcode(Flowable):
         if self.quiet:
             w += self.lquiet + self.rquiet
 
-
         self._height = self.barHeight
         self._width = w
 
@@ -107,16 +108,18 @@ class Barcode(Flowable):
     def width(self):
         self._calculate()
         return self._width
+
     @width.setter
-    def width(self,v):
+    def width(self, v):
         pass
 
     @property
     def height(self):
         self._calculate()
         return self._height
+
     @height.setter
-    def height(self,v):
+    def height(self, v):
         pass
 
     def draw(self):
@@ -130,30 +133,37 @@ class Barcode(Flowable):
         tb = self.barHeight - (b * 1.5)
 
         for c in self.decomposed:
-            if c == 'i':
+            if c == "i":
                 left = left + self.gap
-            elif c == 's':
+            elif c == "s":
                 left = left + barWidth
-            elif c == 'S':
+            elif c == "S":
                 left = left + wx
-            elif c == 'b':
+            elif c == "b":
                 self.rect(left, bb, barWidth, tb)
                 left = left + barWidth
-            elif c == 'B':
+            elif c == "B":
                 self.rect(left, bb, wx, tb)
                 left = left + wx
 
         if self.bearers:
-            if getattr(self,'bearerBox', None):
+            if getattr(self, "bearerBox", None):
                 canv = self.canv
-                if hasattr(canv,'_Gadd'):
-                    #this is a widget rect takes other arguments
-                    canv.rect(bb, bb, self.width, self.barHeight-b,
-                            strokeWidth=b, strokeColor=self.barFillColor or self.barStrokeColor, fillColor=None)
+                if hasattr(canv, "_Gadd"):
+                    # this is a widget rect takes other arguments
+                    canv.rect(
+                        bb,
+                        bb,
+                        self.width,
+                        self.barHeight - b,
+                        strokeWidth=b,
+                        strokeColor=self.barFillColor or self.barStrokeColor,
+                        fillColor=None,
+                    )
                 else:
                     canv.saveState()
                     canv.setLineWidth(b)
-                    canv.rect(bb, bb, self.width, self.barHeight-b, stroke=1, fill=0)
+                    canv.rect(bb, bb, self.width, self.barHeight - b, stroke=1, fill=0)
                     canv.restoreState()
             else:
                 w = self._width - (self.lquiet + self.rquiet)
@@ -164,47 +174,54 @@ class Barcode(Flowable):
 
     def drawHumanReadable(self):
         if self.humanReadable:
-            #we have text
+            # we have text
             from reportlab.pdfbase.pdfmetrics import getAscent, stringWidth
+
             s = str(self._humanText())
             fontSize = self.fontSize
             fontName = self.fontName
-            w = stringWidth(s,fontName,fontSize)
+            w = stringWidth(s, fontName, fontSize)
             width = self._width
             if self.quiet:
-                width -= self.lquiet+self.rquiet
+                width -= self.lquiet + self.rquiet
                 x = self.lquiet
             else:
                 x = 0
-            if w>width: fontSize *= width/float(w)
-            y = 1.07*getAscent(fontName)*fontSize/1000.
-            self.annotate(x+width/2.,-y,s,fontName,fontSize)
+            if w > width:
+                fontSize *= width / float(w)
+            y = 1.07 * getAscent(fontName) * fontSize / 1000.0
+            self.annotate(x + width / 2.0, -y, s, fontName, fontSize)
 
     def rect(self, x, y, w, h):
         self.canv.rect(x, y, w, h, stroke=0, fill=1)
 
-    def annotate(self,x,y,text,fontName,fontSize,anchor='middle'):
+    def annotate(self, x, y, text, fontName, fontSize, anchor="middle"):
         canv = self.canv
         canv.saveState()
-        canv.setFont(self.fontName,fontSize)
-        if anchor=='middle': func = 'drawCentredString'
-        elif anchor=='end': func = 'drawRightString'
-        else: func = 'drawString'
-        getattr(canv,func)(x,y,text)
+        canv.setFont(self.fontName, fontSize)
+        if anchor == "middle":
+            func = "drawCentredString"
+        elif anchor == "end":
+            func = "drawRightString"
+        else:
+            func = "drawString"
+        getattr(canv, func)(x, y, text)
         canv.restoreState()
 
     def _checkVal(self, name, v, allowed):
         if v not in allowed:
-            raise ValueError('%s attribute %s is invalid %r\nnot in allowed %r' % (
-                self.__class__.__name__, name, v, allowed))
+            raise ValueError(
+                "%s attribute %s is invalid %r\nnot in allowed %r" % (self.__class__.__name__, name, v, allowed)
+            )
         return v
+
 
 class MultiWidthBarcode(Barcode):
     """Base for variable-bar-width codes like Code93 and Code128"""
 
     def computeSize(self, *args):
         barWidth = self.barWidth
-        oa, oA = ord('a') - 1, ord('A') - 1
+        oa, oA = ord("a") - 1, ord("A") - 1
 
         w = 0.0
 
@@ -227,7 +244,7 @@ class MultiWidthBarcode(Barcode):
 
     def draw(self):
         self._calculate()
-        oa, oA = ord('a') - 1, ord('A') - 1
+        oa, oA = ord("a") - 1, ord("A") - 1
         barWidth = self.barWidth
         left = self.quiet and self.lquiet or 0
 
@@ -240,6 +257,7 @@ class MultiWidthBarcode(Barcode):
                 self.rect(left, 0, w, self.barHeight)
                 left += w
         self.drawHumanReadable()
+
 
 class I2of5(Barcode):
     """
@@ -304,19 +322,28 @@ class I2of5(Barcode):
     """
 
     patterns = {
-        'start' : 'bsbs',
-        'stop' : 'Bsb',
-
-        'B0' : 'bbBBb',     'S0' : 'ssSSs',
-        'B1' : 'BbbbB',     'S1' : 'SsssS',
-        'B2' : 'bBbbB',     'S2' : 'sSssS',
-        'B3' : 'BBbbb',     'S3' : 'SSsss',
-        'B4' : 'bbBbB',     'S4' : 'ssSsS',
-        'B5' : 'BbBbb',     'S5' : 'SsSss',
-        'B6' : 'bBBbb',     'S6' : 'sSSss',
-        'B7' : 'bbbBB',     'S7' : 'sssSS',
-        'B8' : 'BbbBb',     'S8' : 'SssSs',
-        'B9' : 'bBbBb',     'S9' : 'sSsSs'
+        "start": "bsbs",
+        "stop": "Bsb",
+        "B0": "bbBBb",
+        "S0": "ssSSs",
+        "B1": "BbbbB",
+        "S1": "SsssS",
+        "B2": "bBbbB",
+        "S2": "sSssS",
+        "B3": "BBbbb",
+        "S3": "SSsss",
+        "B4": "bbBbB",
+        "S4": "ssSsS",
+        "B5": "BbBbb",
+        "S5": "SsSss",
+        "B6": "bBBbb",
+        "S6": "sSSss",
+        "B7": "bbbBB",
+        "S7": "sssSS",
+        "B8": "BbbBb",
+        "S8": "SssSs",
+        "B9": "bBbBb",
+        "S9": "sSsSs",
     }
 
     barHeight = None
@@ -330,8 +357,7 @@ class I2of5(Barcode):
     rquiet = None
     stop = 1
 
-    def __init__(self, value='', **args):
-
+    def __init__(self, value="", **args):
         if type(value) == type(1):
             value = str(value)
 
@@ -363,31 +389,33 @@ class I2of5(Barcode):
         cs = self.checksum
         c = len(s)
 
-        #ensure len(result)%2 == 0, checksum included
+        # ensure len(result)%2 == 0, checksum included
         if ((c % 2 == 0) and cs) or ((c % 2 == 1) and not cs):
-            s = '0' + s
+            s = "0" + s
             c += 1
 
         if cs:
-            c = 3*sum([int(s[i]) for i in range(0,c,2)])+sum([int(s[i]) for i in range(1,c,2)])
+            c = 3 * sum([int(s[i]) for i in range(0, c, 2)]) + sum([int(s[i]) for i in range(1, c, 2)])
             s += str((10 - c) % 10)
 
         self.encoded = s
 
     def decompose(self):
-        dval = self.stop and [self.patterns['start']] or []
+        dval = self.stop and [self.patterns["start"]] or []
         a = dval.append
 
         for i in range(0, len(self.encoded), 2):
-            b = self.patterns['B' + self.encoded[i]]
-            s = self.patterns['S' + self.encoded[i+1]]
+            b = self.patterns["B" + self.encoded[i]]
+            s = self.patterns["S" + self.encoded[i + 1]]
 
             for i in range(0, len(b)):
                 a(b[i] + s[i])
 
-        if self.stop: a(self.patterns['stop'])
-        self.decomposed = ''.join(dval)
+        if self.stop:
+            a(self.patterns["stop"])
+        self.decomposed = "".join(dval)
         return self.decomposed
+
 
 class MSI(Barcode):
     """
@@ -436,13 +464,18 @@ class MSI(Barcode):
     """
 
     patterns = {
-        'start' : 'Bs',          'stop' : 'bSb',
-
-        '0' : 'bSbSbSbS',        '1' : 'bSbSbSBs',
-        '2' : 'bSbSBsbS',        '3' : 'bSbSBsBs',
-        '4' : 'bSBsbSbS',        '5' : 'bSBsbSBs',
-        '6' : 'bSBsBsbS',        '7' : 'bSBsBsBs',
-        '8' : 'BsbSbSbS',        '9' : 'BsbSbSBs'
+        "start": "Bs",
+        "stop": "bSb",
+        "0": "bSbSbSbS",
+        "1": "bSbSbSBs",
+        "2": "bSbSBsbS",
+        "3": "bSbSBsBs",
+        "4": "bSBsbSbS",
+        "5": "bSBsbSBs",
+        "6": "bSBsBsbS",
+        "7": "bSBsBsBs",
+        "8": "BsbSbSbS",
+        "9": "BsbSbSBs",
     }
 
     stop = 1
@@ -456,7 +489,6 @@ class MSI(Barcode):
     rquiet = None
 
     def __init__(self, value="", **args):
-
         if type(value) == type(1):
             value = str(value)
 
@@ -487,7 +519,7 @@ class MSI(Barcode):
         s = self.validated
 
         if self.checksum:
-            c = ''
+            c = ""
             for i in range(1, len(s), 2):
                 c = c + s[i]
             d = str(int(c) * 2)
@@ -503,11 +535,13 @@ class MSI(Barcode):
         self.encoded = s
 
     def decompose(self):
-        dval = self.stop and [self.patterns['start']] or [] 
+        dval = self.stop and [self.patterns["start"]] or []
         dval += [self.patterns[c] for c in self.encoded]
-        if self.stop: dval.append(self.patterns['stop'])
-        self.decomposed = ''.join(dval)
+        if self.stop:
+            dval.append(self.patterns["stop"])
+        self.decomposed = "".join(dval)
         return self.decomposed
+
 
 class Codabar(Barcode):
     """
@@ -564,35 +598,64 @@ class Codabar(Barcode):
     """
 
     patterns = {
-        '0':    'bsbsbSB',        '1':    'bsbsBSb',        '2':    'bsbSbsB',
-        '3':    'BSbsbsb',        '4':    'bsBsbSb',        '5':    'BsbsbSb',
-        '6':    'bSbsbsB',        '7':    'bSbsBsb',        '8':    'bSBsbsb',
-        '9':    'BsbSbsb',        '-':    'bsbSBsb',        '$':    'bsBSbsb',
-        ':':    'BsbsBsB',        '/':    'BsBsbsB',        '.':    'BsBsBsb',
-        '+':    'bsBsBsB',        'A':    'bsBSbSb',        'B':    'bSbSbsB',
-        'C':    'bsbSbSB',        'D':    'bsbSBSb'
+        "0": "bsbsbSB",
+        "1": "bsbsBSb",
+        "2": "bsbSbsB",
+        "3": "BSbsbsb",
+        "4": "bsBsbSb",
+        "5": "BsbsbSb",
+        "6": "bSbsbsB",
+        "7": "bSbsBsb",
+        "8": "bSBsbsb",
+        "9": "BsbSbsb",
+        "-": "bsbSBsb",
+        "$": "bsBSbsb",
+        ":": "BsbsBsB",
+        "/": "BsBsbsB",
+        ".": "BsBsBsb",
+        "+": "bsBsBsB",
+        "A": "bsBSbSb",
+        "B": "bSbSbsB",
+        "C": "bsbSbSB",
+        "D": "bsbSBSb",
     }
 
     values = {
-        '0' : 0,    '1' : 1,    '2' : 2,    '3' : 3,    '4' : 4,
-        '5' : 5,    '6' : 6,    '7' : 7,    '8' : 8,    '9' : 9,
-        '-' : 10,   '$' : 11,   ':' : 12,   '/' : 13,   '.' : 14,
-        '+' : 15,   'A' : 16,   'B' : 17,   'C' : 18,   'D' : 19
-        }
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "-": 10,
+        "$": 11,
+        ":": 12,
+        "/": 13,
+        ".": 14,
+        "+": 15,
+        "A": 16,
+        "B": 17,
+        "C": 18,
+        "D": 19,
+    }
 
     chars = string_digits + "-$:/.+"
 
     stop = 1
     barHeight = None
     barWidth = inch * 0.0065
-    ratio = 2.0 # XXX ?
+    ratio = 2.0  # XXX ?
     checksum = 0
     bearers = 0.0
     quiet = 1
     lquiet = None
     rquiet = None
 
-    def __init__(self, value='', **args):
+    def __init__(self, value="", **args):
         if type(value) == type(1):
             value = str(value)
 
@@ -615,15 +678,15 @@ class Codabar(Barcode):
         for i in range(0, len(s)):
             c = s[i]
             if c not in self.chars:
-                if ((i != 0) and (i != len(s) - 1)) or (c not in 'ABCD'):
+                if ((i != 0) and (i != len(s) - 1)) or (c not in "ABCD"):
                     self.Valid = 0
                     continue
             vval = vval + c
 
         if self.stop:
-            if vval[0] not in 'ABCD':
-                vval = 'A' + vval
-            if vval[-1] not in 'ABCD':
+            if vval[0] not in "ABCD":
+                vval = "A" + vval
+            if vval[-1] not in "ABCD":
                 vval = vval + vval[0]
 
         self.validated = vval
@@ -639,9 +702,10 @@ class Codabar(Barcode):
         self.encoded = s
 
     def decompose(self):
-        dval = ''.join([self.patterns[c]+'i' for c in self.encoded])
+        dval = "".join([self.patterns[c] + "i" for c in self.encoded])
         self.decomposed = dval[:-1]
         return self.decomposed
+
 
 class Code11(Barcode):
     """
@@ -688,31 +752,48 @@ class Code11(Barcode):
     http://www.cwi.nl/people/dik/english/codes/barcodes.html
     """
 
-    chars = '0123456789-'
+    chars = "0123456789-"
 
     patterns = {
-        '0' : 'bsbsB',        '1' : 'BsbsB',        '2' : 'bSbsB',
-        '3' : 'BSbsb',        '4' : 'bsBsB',        '5' : 'BsBsb',
-        '6' : 'bSBsb',        '7' : 'bsbSB',        '8' : 'BsbSb',
-        '9' : 'Bsbsb',        '-' : 'bsBsb',        'S' : 'bsBSb' # Start/Stop
+        "0": "bsbsB",
+        "1": "BsbsB",
+        "2": "bSbsB",
+        "3": "BSbsb",
+        "4": "bsBsB",
+        "5": "BsBsb",
+        "6": "bSBsb",
+        "7": "bsbSB",
+        "8": "BsbSb",
+        "9": "Bsbsb",
+        "-": "bsBsb",
+        "S": "bsBSb",  # Start/Stop
     }
 
     values = {
-        '0' : 0,    '1' : 1,    '2' : 2,    '3' : 3,    '4' : 4,
-        '5' : 5,    '6' : 6,    '7' : 7,    '8' : 8,    '9' : 9,
-        '-' : 10,
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "-": 10,
     }
 
     stop = 1
     barHeight = None
     barWidth = inch * 0.0075
-    ratio = 2.2 # XXX ?
-    checksum = -1 # Auto
+    ratio = 2.2  # XXX ?
+    checksum = -1  # Auto
     bearers = 0.0
     quiet = 1
     lquiet = None
     rquiet = None
-    def __init__(self, value='', **args):
+
+    def __init__(self, value="", **args):
         if type(value) == type(1):
             value = str(value)
 
@@ -742,33 +823,35 @@ class Code11(Barcode):
         self.validated = vval
         return vval
 
-    def _addCSD(self,s,m):
+    def _addCSD(self, s, m):
         # compute first checksum
         i = c = 0
         v = 1
         V = self.values
         while i < len(s):
-            c += v * V[s[-(i+1)]]
+            c += v * V[s[-(i + 1)]]
             i += 1
             v += 1
-            if v==m:
+            if v == m:
                 v = 1
-        return s+self.chars[c % 11]
+        return s + self.chars[c % 11]
 
     def encode(self):
         s = self.validated
 
         tcs = self.checksum
-        if tcs<0:
-            self.checksum = tcs = 1+int(len(s)>10)
+        if tcs < 0:
+            self.checksum = tcs = 1 + int(len(s) > 10)
 
-        if tcs > 0: s = self._addCSD(s,11)
-        if tcs > 1: s = self._addCSD(s,10)
+        if tcs > 0:
+            s = self._addCSD(s, 11)
+        if tcs > 1:
+            s = self._addCSD(s, 10)
 
-        self.encoded = self.stop and ('S' + s + 'S') or s
+        self.encoded = self.stop and ("S" + s + "S") or s
 
     def decompose(self):
-        self.decomposed = ''.join([(self.patterns[c]+'i') for c in self.encoded])[:-1]
+        self.decomposed = "".join([(self.patterns[c] + "i") for c in self.encoded])[:-1]
         return self.decomposed
 
     def _humanText(self):

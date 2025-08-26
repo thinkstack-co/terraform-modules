@@ -1,9 +1,9 @@
-#Copyright ReportLab Europe Ltd. 2000-2019
-#see license.txt for license details
-__version__='3.4.22'
+# Copyright ReportLab Europe Ltd. 2000-2019
+# see license.txt for license details
+__version__ = "3.4.22"
 
-#modification of users/robin/ttflist.py.
-__doc__="""This provides some general-purpose tools for finding fonts.
+# modification of users/robin/ttflist.py.
+__doc__ = """This provides some general-purpose tools for finding fonts.
 
 The FontFinder object can search for font files.  It aims to build
 a catalogue of fonts which our framework can work with.  It may be useful
@@ -58,49 +58,57 @@ of non-Python applications.
 Future plans might include using this to auto-register fonts; and making it
 update itself smartly on repeated instantiation.
 """
-import sys, os, pickle
+import os
+import pickle
+import sys
 from hashlib import md5
-from xml.sax.saxutils import quoteattr
 from time import process_time as clock
-from reportlab.lib.utils import asBytes, asNative as _asNative
+from xml.sax.saxutils import quoteattr
+
+from reportlab.lib.utils import asBytes
+from reportlab.lib.utils import asNative as _asNative
+
 
 def asNative(s):
     try:
         return _asNative(s)
     except:
-        return _asNative(s,enc='latin-1')
+        return _asNative(s, enc="latin-1")
 
-EXTENSIONS = ['.ttf','.ttc','.otf','.pfb','.pfa']
+
+EXTENSIONS = [".ttf", ".ttc", ".otf", ".pfb", ".pfa"]
 
 # PDF font flags (see PDF Reference Guide table 5.19)
-FF_FIXED        = 1 <<  1-1
-FF_SERIF        = 1 <<  2-1
-FF_SYMBOLIC     = 1 <<  3-1
-FF_SCRIPT       = 1 <<  4-1
-FF_NONSYMBOLIC  = 1 <<  6-1
-FF_ITALIC       = 1 <<  7-1
-FF_ALLCAP       = 1 << 17-1
-FF_SMALLCAP     = 1 << 18-1
-FF_FORCEBOLD    = 1 << 19-1
+FF_FIXED = 1 << 1 - 1
+FF_SERIF = 1 << 2 - 1
+FF_SYMBOLIC = 1 << 3 - 1
+FF_SCRIPT = 1 << 4 - 1
+FF_NONSYMBOLIC = 1 << 6 - 1
+FF_ITALIC = 1 << 7 - 1
+FF_ALLCAP = 1 << 17 - 1
+FF_SMALLCAP = 1 << 18 - 1
+FF_FORCEBOLD = 1 << 19 - 1
+
 
 class FontDescriptor:
     """This is a short descriptive record about a font.
 
     typeCode should be a file extension e.g. ['ttf','ttc','otf','pfb','pfa']
     """
+
     def __init__(self):
         self.name = None
         self.fullName = None
         self.familyName = None
         self.styleName = None
-        self.isBold = False   #true if it's somehow bold
-        self.isItalic = False #true if it's italic or oblique or somehow slanty
+        self.isBold = False  # true if it's somehow bold
+        self.isItalic = False  # true if it's italic or oblique or somehow slanty
         self.isFixedPitch = False
-        self.isSymbolic = False   #false for Dingbats, Symbols etc.
+        self.isSymbolic = False  # false for Dingbats, Symbols etc.
 
-        self.typeCode = None   #normally the extension minus the dot
-        self.fileName = None  #full path to where we found it.
-        self.metricsFileName = None  #defined only for type='type1pc', or 'type1mac'
+        self.typeCode = None  # normally the extension minus the dot
+        self.fileName = None  # full path to where we found it.
+        self.metricsFileName = None  # defined only for type='type1pc', or 'type1mac'
 
         self.timeModified = 0
 
@@ -111,46 +119,49 @@ class FontDescriptor:
         "Return an XML tag representation"
         attrs = []
         for k, v in self.__dict__.items():
-            if k not in ['timeModified']:
+            if k not in ["timeModified"]:
                 if v:
-                    attrs.append('%s=%s' % (k, quoteattr(str(v))))
-        return '<font ' + ' '.join(attrs) + '/>'
+                    attrs.append("%s=%s" % (k, quoteattr(str(v))))
+        return "<font " + " ".join(attrs) + "/>"
 
-from reportlab.lib.utils import rl_isdir, rl_isfile, rl_listdir, rl_getmtime
+
+from reportlab.lib.utils import rl_getmtime, rl_isdir, rl_isfile, rl_listdir
+
+
 class FontFinder:
     def __init__(self, dirs=[], useCache=True, validate=False, recur=False, fsEncoding=None, verbose=0):
         self.useCache = useCache
         self.validate = validate
         if fsEncoding is None:
             fsEncoding = sys.getfilesystemencoding()
-        self._fsEncoding = fsEncoding or 'utf8'
+        self._fsEncoding = fsEncoding or "utf8"
 
         self._dirs = set()
         self._recur = recur
         self.addDirectories(dirs)
         self._fonts = []
 
-        self._skippedFiles = [] #list of filenames we did not handle
-        self._badFiles = []  #list of filenames we rejected
+        self._skippedFiles = []  # list of filenames we did not handle
+        self._badFiles = []  # list of filenames we rejected
 
         self._fontsByName = {}
         self._fontsByFamily = {}
-        self._fontsByFamilyBoldItalic = {}   #indexed by bold, italic
+        self._fontsByFamilyBoldItalic = {}  # indexed by bold, italic
         self.verbose = verbose
 
     def addDirectory(self, dirName, recur=None):
-        #aesthetics - if there are 2 copies of a font, should the first or last
-        #be picked up?  might need reversing
+        # aesthetics - if there are 2 copies of a font, should the first or last
+        # be picked up?  might need reversing
         if rl_isdir(dirName):
             self._dirs.add(dirName)
             if recur if recur is not None else self._recur:
-                for r,D,F in os.walk(dirName):
+                for r, D, F in os.walk(dirName):
                     for d in D:
-                        self._dirs.add(os.path.join(r,d))
+                        self._dirs.add(os.path.join(r, d))
 
-    def addDirectories(self, dirNames,recur=None):
+    def addDirectories(self, dirNames, recur=None):
         for dirName in dirNames:
-            self.addDirectory(dirName,recur=recur)
+            self.addDirectory(dirName, recur=recur)
 
     def getFamilyNames(self):
         "Returns a list of the distinct font families found"
@@ -158,36 +169,36 @@ class FontFinder:
             fonts = self._fonts
             for font in fonts:
                 fam = font.familyName
-                if fam is None: continue
+                if fam is None:
+                    continue
                 if fam in self._fontsByFamily:
                     self._fontsByFamily[fam].append(font)
                 else:
                     self._fontsByFamily[fam] = [font]
         fsEncoding = self._fsEncoding
-        names = list(asBytes(_,enc=fsEncoding) for _ in self._fontsByFamily.keys())
+        names = list(asBytes(_, enc=fsEncoding) for _ in self._fontsByFamily.keys())
         names.sort()
         return names
 
     def getFontsInFamily(self, familyName):
         "Return list of all font objects with this family name"
-        return self._fontsByFamily.get(familyName,[])
+        return self._fontsByFamily.get(familyName, [])
 
     def getFamilyXmlReport(self):
-        """Reports on all families found as XML.
-        """
+        """Reports on all families found as XML."""
         lines = []
         lines.append('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
         lines.append("<font_families>")
         for dirName in self._dirs:
             lines.append("    <directory name=%s/>" % quoteattr(asNative(dirName)))
         for familyName in self.getFamilyNames():
-            if familyName:  #skip null case
-                lines.append('    <family name=%s>' % quoteattr(asNative(familyName)))
+            if familyName:  # skip null case
+                lines.append("    <family name=%s>" % quoteattr(asNative(familyName)))
                 for font in self.getFontsInFamily(familyName):
-                    lines.append('        ' + font.getTag())
-                lines.append('    </family>')
+                    lines.append("        " + font.getTag())
+                lines.append("    </family>")
         lines.append("</font_families>")
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def getFontsWithAttributes(self, **kwds):
         """This is a general lightweight search."""
@@ -216,18 +227,19 @@ class FontFinder:
         """Base this on the directories...same set of directories
         should give same cache"""
         fsEncoding = self._fsEncoding
-        hash = md5(b''.join(asBytes(_,enc=fsEncoding) for _ in sorted(self._dirs))).hexdigest()
+        hash = md5(b"".join(asBytes(_, enc=fsEncoding) for _ in sorted(self._dirs))).hexdigest()
         from reportlab.lib.utils import get_rl_tempfile
-        fn = get_rl_tempfile('fonts_%s.dat' % hash)
+
+        fn = get_rl_tempfile("fonts_%s.dat" % hash)
         return fn
 
     def save(self, fileName):
-        f = open(fileName, 'wb')
+        f = open(fileName, "wb")
         pickle.dump(self, f)
         f.close()
 
     def load(self, fileName):
-        f = open(fileName, 'rb')
+        f = open(fileName, "rb")
         finder2 = pickle.load(f)
         f.close()
         self.__dict__.update(finder2.__dict__)
@@ -236,18 +248,20 @@ class FontFinder:
         if self.verbose:
             started = clock()
         if not self._dirs:
-            raise ValueError("Font search path is empty!  Please specify search directories using addDirectory or addDirectories")
+            raise ValueError(
+                "Font search path is empty!  Please specify search directories using addDirectory or addDirectories"
+            )
 
         if self.useCache:
             cfn = self._getCacheFileName()
             if rl_isfile(cfn):
                 try:
                     self.load(cfn)
-                    if self.verbose>=3:
+                    if self.verbose >= 3:
                         print("loaded cached file with %d fonts (%s)" % (len(self._fonts), cfn))
                     return
                 except:
-                    pass  #pickle load failed.  Ho hum, maybe it's an old pickle.  Better rebuild it.
+                    pass  # pickle load failed.  Ho hum, maybe it's an old pickle.  Better rebuild it.
 
         for dirName in self._dirs:
             try:
@@ -257,7 +271,7 @@ class FontFinder:
             for fileName in fileNames:
                 root, ext = os.path.splitext(fileName)
                 if ext.lower() in EXTENSIONS:
-                    #it's a font
+                    # it's a font
                     f = FontDescriptor()
                     f.fileName = fileName = os.path.normpath(os.path.join(dirName, fileName))
                     try:
@@ -267,21 +281,22 @@ class FontFinder:
                         continue
 
                     ext = ext.lower()
-                    if ext[0] == '.':
+                    if ext[0] == ".":
                         ext = ext[1:]
-                    f.typeCode = ext  #strip the dot
+                    f.typeCode = ext  # strip the dot
 
-                    #what to do depends on type.  We only accept .pfb if we
-                    #have .afm to go with it, and don't handle .otf now.
+                    # what to do depends on type.  We only accept .pfb if we
+                    # have .afm to go with it, and don't handle .otf now.
 
-                    if ext in ('otf', 'pfa'):
+                    if ext in ("otf", "pfa"):
                         self._skippedFiles.append(fileName)
 
-                    elif ext in ('ttf','ttc'):
-                        #parsing should check it for us
-                        from reportlab.pdfbase.ttfonts import TTFontFile, TTFError
+                    elif ext in ("ttf", "ttc"):
+                        # parsing should check it for us
+                        from reportlab.pdfbase.ttfonts import TTFError, TTFontFile
+
                         try:
-                            font = TTFontFile(fileName,validate=self.validate)
+                            font = TTFontFile(fileName, validate=self.validate)
                         except TTFError:
                             self._badFiles.append(fileName)
                             continue
@@ -289,28 +304,27 @@ class FontFinder:
                         f.fullName = font.fullName
                         f.styleName = font.styleName
                         f.familyName = font.familyName
-                        f.isBold = (FF_FORCEBOLD == FF_FORCEBOLD & font.flags)
-                        f.isItalic = (FF_ITALIC == FF_ITALIC & font.flags)
+                        f.isBold = FF_FORCEBOLD == FF_FORCEBOLD & font.flags
+                        f.isItalic = FF_ITALIC == FF_ITALIC & font.flags
 
-                    elif ext == 'pfb':
-
+                    elif ext == "pfb":
                         # type 1; we need an AFM file or have to skip.
-                        if rl_isfile(os.path.join(dirName, root + '.afm')):
-                            f.metricsFileName = os.path.normpath(os.path.join(dirName, root + '.afm'))
-                        elif rl_isfile(os.path.join(dirName, root + '.AFM')):
-                            f.metricsFileName = os.path.normpath(os.path.join(dirName, root + '.AFM'))
+                        if rl_isfile(os.path.join(dirName, root + ".afm")):
+                            f.metricsFileName = os.path.normpath(os.path.join(dirName, root + ".afm"))
+                        elif rl_isfile(os.path.join(dirName, root + ".AFM")):
+                            f.metricsFileName = os.path.normpath(os.path.join(dirName, root + ".AFM"))
                         else:
                             self._skippedFiles.append(fileName)
                             continue
                         from reportlab.pdfbase.pdfmetrics import parseAFMFile
 
                         (info, glyphs) = parseAFMFile(f.metricsFileName)
-                        f.name = info['FontName']
-                        f.fullName = info.get('FullName', f.name)
-                        f.familyName = info.get('FamilyName', None)
-                        f.isItalic = (float(info.get('ItalicAngle', 0)) > 0.0)
-                        #if the weight has the word bold, deem it bold
-                        f.isBold = ('bold' in info.get('Weight','').lower())
+                        f.name = info["FontName"]
+                        f.fullName = info.get("FullName", f.name)
+                        f.familyName = info.get("FamilyName", None)
+                        f.isItalic = float(info.get("ItalicAngle", 0)) > 0.0
+                        # if the weight has the word bold, deem it bold
+                        f.isBold = "bold" in info.get("Weight", "").lower()
 
                     self._fonts.append(f)
         if self.useCache:
@@ -318,43 +332,47 @@ class FontFinder:
 
         if self.verbose:
             finished = clock()
-            print("found %d fonts; skipped %d; bad %d.  Took %0.2f seconds" % (
-                len(self._fonts), len(self._skippedFiles), len(self._badFiles),
-                finished - started
-                ))
+            print(
+                "found %d fonts; skipped %d; bad %d.  Took %0.2f seconds"
+                % (len(self._fonts), len(self._skippedFiles), len(self._badFiles), finished - started)
+            )
+
 
 def test():
-    #windows-centric test maybe
+    # windows-centric test maybe
     from reportlab import rl_config
+
     ff = FontFinder(verbose=rl_config.verbose)
     ff.useCache = True
     ff.validate = True
 
     import reportlab
-    ff.addDirectory('C:\\windows\\fonts')
-    rlFontDir = os.path.join(os.path.dirname(reportlab.__file__), 'fonts')
+
+    ff.addDirectory("C:\\windows\\fonts")
+    rlFontDir = os.path.join(os.path.dirname(reportlab.__file__), "fonts")
     ff.addDirectory(rlFontDir)
     ff.search()
 
-    print('cache file name...')
+    print("cache file name...")
     print(ff._getCacheFileName())
 
-    print('families...')
+    print("families...")
     for familyName in ff.getFamilyNames():
-        print('\t%s' % familyName)
+        print("\t%s" % familyName)
 
     print()
     outw = sys.stdout.write
-    outw('fonts called Vera:')
-    for font in ff.getFontsInFamily('Bitstream Vera Sans'):
-        outw(' %s' % font.name)
+    outw("fonts called Vera:")
+    for font in ff.getFontsInFamily("Bitstream Vera Sans"):
+        outw(" %s" % font.name)
     print()
-    outw('Bold fonts\n\t')
+    outw("Bold fonts\n\t")
     for font in ff.getFontsWithAttributes(isBold=True, isItalic=False):
-        outw(font.fullName+' ')
+        outw(font.fullName + " ")
     print()
-    print('family report')
+    print("family report")
     print(ff.getFamilyXmlReport())
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     test()

@@ -47,9 +47,7 @@ def _accept(prefix: bytes) -> bool | str:
         b"msf1",
     ):
         if not SUPPORTED:
-            return (
-                "image file could not be identified because AVIF support not installed"
-            )
+            return "image file could not be identified because AVIF support not installed"
         return True
     return False
 
@@ -73,9 +71,7 @@ class AvifImageFile(ImageFile.ImageFile):
             msg = "image file could not be opened because AVIF support not installed"
             raise SyntaxError(msg)
 
-        if DECODE_CODEC_CHOICE != "auto" and not _avif.decoder_codec_available(
-            DECODE_CODEC_CHOICE
-        ):
+        if DECODE_CODEC_CHOICE != "auto" and not _avif.decoder_codec_available(DECODE_CODEC_CHOICE):
             msg = "Invalid opening codec"
             raise ValueError(msg)
         self._decoder = _avif.AvifDecoder(
@@ -85,9 +81,7 @@ class AvifImageFile(ImageFile.ImageFile):
         )
 
         # Get info from decoder
-        self._size, self.n_frames, self._mode, icc, exif, exif_orientation, xmp = (
-            self._decoder.get_info()
-        )
+        self._size, self.n_frames, self._mode, icc, exif, exif_orientation, xmp = self._decoder.get_info()
         self.is_animated = self.n_frames > 1
 
         if icc:
@@ -120,9 +114,7 @@ class AvifImageFile(ImageFile.ImageFile):
     def load(self) -> Image.core.PixelAccess | None:
         if self.tile:
             # We need to load the image data for this frame
-            data, timescale, pts_in_timescales, duration_in_timescales = (
-                self._decoder.get_frame(self.__frame)
-            )
+            data, timescale, pts_in_timescales, duration_in_timescales = self._decoder.get_frame(self.__frame)
             self.info["timestamp"] = round(1000 * (pts_in_timescales / timescale))
             self.info["duration"] = round(1000 * (duration_in_timescales / timescale))
 
@@ -143,9 +135,7 @@ def _save_all(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     _save(im, fp, filename, save_all=True)
 
 
-def _save(
-    im: Image.Image, fp: IO[bytes], filename: str | bytes, save_all: bool = False
-) -> None:
+def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes, save_all: bool = False) -> None:
     info = im.encoderinfo.copy()
     if save_all:
         append_images = list(info.get("append_images", []))
@@ -206,8 +196,7 @@ def _save(
             invalid = any(not isinstance(v, tuple) or len(v) != 2 for v in advanced)
         if invalid:
             msg = (
-                "advanced codec options must be a dict of key-value string "
-                "pairs or a series of key-value two-tuples"
+                "advanced codec options must be a dict of key-value string " "pairs or a series of key-value two-tuples"
             )
             raise ValueError(msg)
 

@@ -39,9 +39,7 @@ def nextheader(fobj: IO[bytes]) -> tuple[bytes, int]:
     return struct.unpack(">4sI", fobj.read(HEADERSIZE))
 
 
-def read_32t(
-    fobj: IO[bytes], start_length: tuple[int, int], size: tuple[int, int, int]
-) -> dict[str, Image.Image]:
+def read_32t(fobj: IO[bytes], start_length: tuple[int, int], size: tuple[int, int, int]) -> dict[str, Image.Image]:
     # The 128x128 icon seems to have an extra header for some reason.
     (start, length) = start_length
     fobj.seek(start)
@@ -52,9 +50,7 @@ def read_32t(
     return read_32(fobj, (start + 4, length - 4), size)
 
 
-def read_32(
-    fobj: IO[bytes], start_length: tuple[int, int], size: tuple[int, int, int]
-) -> dict[str, Image.Image]:
+def read_32(fobj: IO[bytes], start_length: tuple[int, int], size: tuple[int, int, int]) -> dict[str, Image.Image]:
     """
     Read a 32bit RGB icon resource.  Seems to be either uncompressed or
     an RLE packbits-like scheme.
@@ -97,9 +93,7 @@ def read_32(
     return {"RGB": im}
 
 
-def read_mk(
-    fobj: IO[bytes], start_length: tuple[int, int], size: tuple[int, int, int]
-) -> dict[str, Image.Image]:
+def read_mk(fobj: IO[bytes], start_length: tuple[int, int], size: tuple[int, int, int]) -> dict[str, Image.Image]:
     # Alpha masks seem to be uncompressed
     start = start_length[0]
     fobj.seek(start)
@@ -122,15 +116,9 @@ def read_png_or_jpeg2000(
         im = PngImagePlugin.PngImageFile(fobj)
         Image._decompression_bomb_check(im.size)
         return {"RGBA": im}
-    elif (
-        sig.startswith((b"\xff\x4f\xff\x51", b"\x0d\x0a\x87\x0a"))
-        or sig == b"\x00\x00\x00\x0cjP  \x0d\x0a\x87\x0a"
-    ):
+    elif sig.startswith((b"\xff\x4f\xff\x51", b"\x0d\x0a\x87\x0a")) or sig == b"\x00\x00\x00\x0cjP  \x0d\x0a\x87\x0a":
         if not enable_jpeg2k:
-            msg = (
-                "Unsupported icon subimage format (rebuild PIL "
-                "with JPEG 2000 support to fix this)"
-            )
+            msg = "Unsupported icon subimage format (rebuild PIL " "with JPEG 2000 support to fix this)"
             raise ValueError(msg)
         # j2k, jpc or j2c
         fobj.seek(start)
@@ -226,9 +214,7 @@ class IcnsFile:
                 dct.update(reader(self.fobj, desc, size))
         return dct
 
-    def getimage(
-        self, size: tuple[int, int] | tuple[int, int, int] | None = None
-    ) -> Image.Image:
+    def getimage(self, size: tuple[int, int] | tuple[int, int, int] | None = None) -> Image.Image:
         if size is None:
             size = self.bestsize()
         elif len(size) == 2:
@@ -346,11 +332,7 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     provided_images = {im.width: im for im in im.encoderinfo.get("append_images", [])}
     size_streams = {}
     for size in set(sizes.values()):
-        image = (
-            provided_images[size]
-            if size in provided_images
-            else im.resize((size, size))
-        )
+        image = provided_images[size] if size in provided_images else im.resize((size, size))
 
         temp = io.BytesIO()
         image.save(temp, "png")

@@ -151,9 +151,7 @@ class PpmImageFile(ImageFile.ImageFile):
                     decoder_name = "ppm"
 
             args = rawmode if decoder_name == "raw" else (rawmode, maxval)
-        self.tile = [
-            ImageFile._Tile(decoder_name, (0, 0) + self.size, self.fp.tell(), args)
-        ]
+        self.tile = [ImageFile._Tile(decoder_name, (0, 0) + self.size, self.fp.tell(), args)]
 
 
 #
@@ -262,9 +260,7 @@ class PpmPlainDecoder(ImageFile.PyDecoder):
             if block and not block[-1:].isspace():  # block might split token
                 half_token = tokens.pop()  # save half token for later
                 if len(half_token) > max_len:  # prevent buildup of half_token
-                    msg = (
-                        b"Token too long found in data: %s" % half_token[: max_len + 1]
-                    )
+                    msg = b"Token too long found in data: %s" % half_token[: max_len + 1]
                     raise ValueError(msg)
 
             for token in tokens:
@@ -316,9 +312,7 @@ class PpmDecoder(ImageFile.PyDecoder):
                 # eof
                 break
             for b in range(bands):
-                value = (
-                    pixels[b] if in_byte_count == 1 else i16(pixels, b * in_byte_count)
-                )
+                value = pixels[b] if in_byte_count == 1 else i16(pixels, b * in_byte_count)
                 value = min(out_max, round(value / maxval * out_max))
                 data += o32(value) if self.mode == "I" else o8(value)
         rawmode = "I;32" if self.mode == "I" else self.mode
@@ -355,9 +349,7 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     elif head == b"Pf":
         fp.write(b"-1.0\n")
     row_order = -1 if im.mode == "F" else 1
-    ImageFile._save(
-        im, fp, [ImageFile._Tile("raw", (0, 0) + im.size, 0, (rawmode, 0, row_order))]
-    )
+    ImageFile._save(im, fp, [ImageFile._Tile("raw", (0, 0) + im.size, 0, (rawmode, 0, row_order))])
 
 
 #

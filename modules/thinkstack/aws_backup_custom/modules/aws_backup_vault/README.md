@@ -21,10 +21,10 @@ module "backup_vault" {
 
   name        = "my-backup-vault"
   kms_key_arn = aws_kms_key.backup.arn
-  
+
   enable_vault_lock             = true
   vault_lock_min_retention_days = 7
-  
+
   tags = {
     Environment = "production"
   }
@@ -40,17 +40,17 @@ module "backup_vaults" {
 
   create_single_vault = false  # Disable single vault mode
   vault_name_prefix   = "prod"  # Results in: prod-daily, prod-weekly, etc.
-  
+
   # Choose which scheduled vaults to create
   enable_hourly_vault  = false  # No hourly vault
   enable_daily_vault   = true   # Creates prod-daily
   enable_weekly_vault  = true   # Creates prod-weekly
   enable_monthly_vault = true   # Creates prod-monthly
   enable_yearly_vault  = false  # No yearly vault
-  
+
   kms_key_arn       = aws_kms_key.backup.arn
   enable_vault_lock = true
-  
+
   tags = {
     Environment = "production"
   }
@@ -73,7 +73,7 @@ provider "aws" {
 
 module "backup_vaults_with_dr" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault?ref=v2.6.6"
-  
+
   providers = {
     aws    = aws
     aws.dr = aws.dr
@@ -81,28 +81,28 @@ module "backup_vaults_with_dr" {
 
   create_single_vault = false
   vault_name_prefix   = "prod"
-  
+
   # Primary vault configuration
   enable_hourly_vault  = true
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = true
   enable_yearly_vault  = true
-  
+
   # DR configuration - Master switch
   enable_dr            = true
   dr_vault_name_prefix = "prod-dr"
   dr_kms_key_arn       = aws_kms_key.dr_backup.arn
-  
+
   # Granular DR control - Choose which vaults get DR copies
   enable_hourly_dr_vault  = false  # No DR for hourly (too frequent)
   enable_daily_dr_vault   = true   # DR for daily
-  enable_weekly_dr_vault  = true   # DR for weekly  
+  enable_weekly_dr_vault  = true   # DR for weekly
   enable_monthly_dr_vault = true   # DR for monthly
   enable_yearly_dr_vault  = false  # No DR for yearly (too large)
-  
+
   kms_key_arn = aws_kms_key.backup.arn
-  
+
   tags = {
     Environment = "production"
   }
@@ -136,14 +136,14 @@ If you try to enable a DR vault without its primary vault:
 ```hcl
 module "invalid_config" {
   source = "..."
-  
+
   enable_daily_vault     = false  # Primary daily disabled
-  enable_dr              = true   
+  enable_dr              = true
   enable_daily_dr_vault  = true   # Trying to enable DR daily
-  
+
   # This will fail with:
   # Error: Resource precondition failed
-  # Cannot enable daily DR vault without primary daily vault. 
+  # Cannot enable daily DR vault without primary daily vault.
   # Set enable_daily_vault = true or enable_daily_dr_vault = false.
 }
 ```
@@ -263,28 +263,28 @@ module "simple_vault" {
 # Multiple vaults with selective DR
 module "prod_vaults" {
   source = "..."
-  
+
   create_single_vault = false
   vault_name_prefix   = "prod"
-  
+
   # Enable specific vaults
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = true
-  
+
   # Enable vault lock with custom retention
   enable_vault_lock          = true
   daily_min_retention_days   = 14    # 2 weeks minimum
   weekly_min_retention_days  = 60    # 2 months minimum
   monthly_min_retention_days = 730   # 2 years minimum
-  
+
   # Enable DR for critical vaults only
   enable_dr               = true
   dr_vault_name_prefix    = "prod-dr"
   enable_daily_dr_vault   = true
   enable_weekly_dr_vault  = true
   enable_monthly_dr_vault = false    # Save costs, no DR for monthly
-  
+
   kms_key_arn = aws_kms_key.backup.arn
 }
 ```
@@ -294,23 +294,23 @@ module "prod_vaults" {
 # Long retention with vault lock
 module "compliance_vaults" {
   source = "..."
-  
+
   create_single_vault = false
   vault_name_prefix   = "compliance"
-  
+
   # Only long-term vaults
   enable_monthly_vault = true
   enable_yearly_vault  = true
-  
+
   # Strict vault lock
   enable_vault_lock              = true
   vault_lock_changeable_for_days = 0      # Immediate lock
   vault_lock_max_retention_days  = 10950  # 30 years
   monthly_min_retention_days     = 1095   # 3 years
   yearly_min_retention_days      = 3650   # 10 years
-  
+
   kms_key_arn = aws_kms_key.backup.arn
-  
+
   tags = {
     Compliance = "required"
     Retention  = "long-term"
@@ -340,7 +340,7 @@ module "compliance_vaults" {
 ```hcl
 module "production_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault?ref=v2.6.6"
-  
+
   providers = {
     aws    = aws
     aws.dr = aws.dr
@@ -348,31 +348,31 @@ module "production_vaults" {
 
   create_single_vault = false
   vault_name_prefix   = "prod"
-  
+
   # Create all primary vaults
   enable_hourly_vault  = true
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = true
   enable_yearly_vault  = true
-  
+
   # Enable DR but optimize costs
   enable_dr            = true
   dr_vault_name_prefix = "prod-dr"
-  
+
   # Only critical backups go to DR
   enable_hourly_dr_vault  = false  # Too expensive for hourly DR
   enable_daily_dr_vault   = true   # Critical daily backups to DR
   enable_weekly_dr_vault  = true   # Weekly snapshots to DR
   enable_monthly_dr_vault = true   # Compliance requires monthly DR
   enable_yearly_dr_vault  = false  # Yearly archives stay in primary region
-  
+
   kms_key_arn    = aws_kms_key.backup.arn
   dr_kms_key_arn = aws_kms_key.dr_backup.arn
-  
+
   # Enable vault lock for compliance
   enable_vault_lock = true
-  
+
   tags = {
     Environment = "production"
     CostCenter  = "infrastructure"
@@ -387,19 +387,19 @@ module "dev_vaults" {
 
   create_single_vault = false
   vault_name_prefix   = "dev"
-  
+
   # Only daily and weekly for dev
   enable_hourly_vault  = false
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = false
   enable_yearly_vault  = false
-  
+
   # No DR for development
   enable_dr = false
-  
+
   kms_key_arn = aws_kms_key.backup.arn
-  
+
   tags = {
     Environment = "development"
   }

@@ -109,7 +109,7 @@ module "web_alb" {
   enable_http2       = true
   access_logs_enabled = true
   access_logs_bucket = "my-alb-logs-bucket"
-  
+
   tags = {
     terraform   = "true"
     environment = "production"
@@ -125,7 +125,7 @@ module "https_listener" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = module.alb_ssl_cert.acm_certificate_arn
-  
+
   default_action = {
     type             = "forward"
     target_group_arn = module.web_target_group.target_group_arn
@@ -139,7 +139,7 @@ module "http_redirect_listener" {
   load_balancer_arn = module.web_alb.lb_arn
   port              = 80
   protocol          = "HTTP"
-  
+
   default_action = {
     type = "redirect"
     redirect = {
@@ -159,9 +159,9 @@ module "web_target_group" {
   port        = 80
   protocol    = "HTTP"
   vpc_id      = module.vpc.vpc_id
-  
+
   health_check_path = "/health"
-  
+
   target_group_arn = aws_lb_target_group.this.arn
   target_id        = aws_instance.web.id
 }
@@ -187,7 +187,7 @@ module "alb_ssl_cert" {
   subject_alternative_names = ["www.example.com", "api.example.com"]
   listener_arn              = module.https_listener.listener_arn
   certificate_arn           = aws_acm_certificate.cert.arn
-  
+
   tags = {
     terraform   = "true"
     environment = "production"

@@ -6,14 +6,21 @@
 # Module directory
 .terraform/
 
-# Variable values for development
+{{ ... }}
 terraform.tfvars
 
 # macOS
 .DS_Store
 
-# Lint reports (keep local)
-# lint_reports/
+# Linting reports (local only)
+lint-reports/
+reports/markdownlint/
+reports/shellcheck/
+reports/python-flake8/
+reports/python-black/
+reports/hadolint/
+reports/bash/
+reports/jscpd/
 
 # mypy cache
 .mypy_cache

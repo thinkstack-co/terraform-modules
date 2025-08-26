@@ -42,13 +42,7 @@ class PSDraw:
     def begin_document(self, id: str | None = None) -> None:
         """Set up printing of a document. (Write PostScript DSC header.)"""
         # FIXME: incomplete
-        self.fp.write(
-            b"%!PS-Adobe-3.0\n"
-            b"save\n"
-            b"/showpage { } def\n"
-            b"%%EndComments\n"
-            b"%%BeginDocument\n"
-        )
+        self.fp.write(b"%!PS-Adobe-3.0\n" b"save\n" b"/showpage { } def\n" b"%%EndComments\n" b"%%BeginDocument\n")
         # self.fp.write(ERROR_PS)  # debugging!
         self.fp.write(EDROFF_PS)
         self.fp.write(VDI_PS)
@@ -71,9 +65,7 @@ class PSDraw:
         font_bytes = bytes(font, "UTF-8")
         if font_bytes not in self.isofont:
             # reencode font
-            self.fp.write(
-                b"/PSDraw-%s ISOLatin1Encoding /%s E\n" % (font_bytes, font_bytes)
-            )
+            self.fp.write(b"/PSDraw-%s ISOLatin1Encoding /%s E\n" % (font_bytes, font_bytes))
             self.isofont[font_bytes] = 1
         # rough
         self.fp.write(b"/F0 %d /PSDraw-%s F\n" % (size, font_bytes))
@@ -108,9 +100,7 @@ class PSDraw:
     if TYPE_CHECKING:
         from . import Image
 
-    def image(
-        self, box: tuple[int, int, int, int], im: Image.Image, dpi: int | None = None
-    ) -> None:
+    def image(self, box: tuple[int, int, int, int], im: Image.Image, dpi: int | None = None) -> None:
         """Draw a PIL image, centered in the given box."""
         # default resolution depends on mode
         if not dpi:

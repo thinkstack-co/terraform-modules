@@ -149,9 +149,7 @@ class ImageFont:
 
         self.font = Image.core.font(image.im, data)
 
-    def getmask(
-        self, text: str | bytes, mode: str = "", *args: Any, **kwargs: Any
-    ) -> Image.core.ImagingCore:
+    def getmask(self, text: str | bytes, mode: str = "", *args: Any, **kwargs: Any) -> Image.core.ImagingCore:
         """
         Create a bitmap for the text.
 
@@ -173,9 +171,7 @@ class ImageFont:
         Image._decompression_bomb_check(self.font.getsize(text))
         return self.font.getmask(text, mode)
 
-    def getbbox(
-        self, text: str | bytes | bytearray, *args: Any, **kwargs: Any
-    ) -> tuple[int, int, int, int]:
+    def getbbox(self, text: str | bytes | bytearray, *args: Any, **kwargs: Any) -> tuple[int, int, int, int]:
         """
         Returns bounding box (in pixels) of given text.
 
@@ -189,9 +185,7 @@ class ImageFont:
         width, height = self.font.getsize(text)
         return 0, 0, width, height
 
-    def getlength(
-        self, text: str | bytes | bytearray, *args: Any, **kwargs: Any
-    ) -> int:
+    def getlength(self, text: str | bytes | bytearray, *args: Any, **kwargs: Any) -> int:
         """
         Returns length (in pixels) of given text.
         This is the amount by which following text should be offset.
@@ -256,19 +250,14 @@ class FreeTypeFont:
             if core.HAVE_RAQM:
                 layout_engine = Layout.RAQM
         elif layout_engine == Layout.RAQM and not core.HAVE_RAQM:
-            warnings.warn(
-                "Raqm layout was requested, but Raqm is not available. "
-                "Falling back to basic layout."
-            )
+            warnings.warn("Raqm layout was requested, but Raqm is not available. " "Falling back to basic layout.")
             layout_engine = Layout.BASIC
 
         self.layout_engine = layout_engine
 
         def load_from_bytes(f: IO[bytes]) -> None:
             self.font_bytes = f.read()
-            self.font = core.getfont(
-                "", size, index, encoding, self.font_bytes, layout_engine
-            )
+            self.font = core.getfont("", size, index, encoding, self.font_bytes, layout_engine)
 
         if is_path(font):
             font = os.fspath(font)
@@ -282,9 +271,7 @@ class FreeTypeFont:
                     with open(font, "rb") as f:
                         load_from_bytes(f)
                     return
-            self.font = core.getfont(
-                font, size, index, encoding, layout_engine=layout_engine
-            )
+            self.font = core.getfont(font, size, index, encoding, layout_engine=layout_engine)
         else:
             load_from_bytes(cast(IO[bytes], font))
 
@@ -448,9 +435,7 @@ class FreeTypeFont:
         :return: ``(left, top, right, bottom)`` bounding box
         """
         _string_length_check(text)
-        size, offset = self.font.getsize(
-            text, mode, direction, features, language, anchor
-        )
+        size, offset = self.font.getsize(text, mode, direction, features, language, anchor)
         left, top = offset[0] - stroke_width, offset[1] - stroke_width
         width, height = size[0] + 2 * stroke_width, size[1] + 2 * stroke_width
         return left, top, left + width, top + height
@@ -742,9 +727,7 @@ class FreeTypeFont:
 class TransposedFont:
     """Wrapper for writing rotated or mirrored text"""
 
-    def __init__(
-        self, font: ImageFont | FreeTypeFont, orientation: Image.Transpose | None = None
-    ):
+    def __init__(self, font: ImageFont | FreeTypeFont, orientation: Image.Transpose | None = None):
         """
         Wrapper that creates a transposed font from any existing font
         object.
@@ -758,17 +741,13 @@ class TransposedFont:
         self.font = font
         self.orientation = orientation  # any 'transpose' argument, or None
 
-    def getmask(
-        self, text: str | bytes, mode: str = "", *args: Any, **kwargs: Any
-    ) -> Image.core.ImagingCore:
+    def getmask(self, text: str | bytes, mode: str = "", *args: Any, **kwargs: Any) -> Image.core.ImagingCore:
         im = self.font.getmask(text, mode, *args, **kwargs)
         if self.orientation is not None:
             return im.transpose(self.orientation)
         return im
 
-    def getbbox(
-        self, text: str | bytes, *args: Any, **kwargs: Any
-    ) -> tuple[int, int, float, float]:
+    def getbbox(self, text: str | bytes, *args: Any, **kwargs: Any) -> tuple[int, int, float, float]:
         # TransposedFont doesn't support getmask2, move top-left point to (0, 0)
         # this has no effect on ImageFont and simulates anchor="lt" for FreeTypeFont
         left, top, right, bottom = self.font.getbbox(text, *args, **kwargs)

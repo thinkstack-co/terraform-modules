@@ -87,4 +87,3 @@ variable "matcher" {
   description = "The codes to use when checking for a successful response from a target. If the protocol version is HTTP/1.1 or HTTP/2, the possible values are from 200 to 499. You can specify multiple values or a range of values. The default value is 200. If the protocol version is gRPC, the possible values are from 0 to 99. You can specify multiple values or a range of values. The default value is 12."
   default     = "200"
 }
-

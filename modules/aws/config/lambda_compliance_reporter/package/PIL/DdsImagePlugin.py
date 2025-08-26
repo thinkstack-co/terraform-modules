@@ -476,9 +476,7 @@ class DdsImageFile(ImageFile.ImageFile):
             raise NotImplementedError(msg)
 
         if n:
-            self.tile = [
-                ImageFile._Tile("bcn", extents, offset, (n, self.pixel_format))
-            ]
+            self.tile = [ImageFile._Tile("bcn", extents, offset, (n, self.pixel_format))]
         else:
             self.tile = [ImageFile._Tile("raw", extents, 0, rawmode or self.mode)]
 
@@ -514,9 +512,7 @@ class DdsRgbDecoder(ImageFile.PyDecoder):
             for i, mask in enumerate(masks):
                 masked_value = value & mask
                 # Remove the zero padding, and scale it to 8 bits
-                data += o8(
-                    int(((masked_value >> mask_offsets[i]) / mask_totals[i]) * 255)
-                )
+                data += o8(int(((masked_value >> mask_offsets[i]) / mask_totals[i]) * 255))
         self.set_as_raw(data)
         return -1, 0
 

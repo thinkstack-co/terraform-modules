@@ -112,11 +112,7 @@ class BmpImageFile(ImageFile.ImageFile):
             file_info["y_flip"] = header_data[7] == 0xFF
             file_info["direction"] = 1 if file_info["y_flip"] else -1
             file_info["width"] = i32(header_data, 0)
-            file_info["height"] = (
-                i32(header_data, 4)
-                if not file_info["y_flip"]
-                else 2**32 - i32(header_data, 4)
-            )
+            file_info["height"] = i32(header_data, 4) if not file_info["y_flip"] else 2**32 - i32(header_data, 4)
             file_info["planes"] = i16(header_data, 8)
             file_info["bits"] = i16(header_data, 10)
             file_info["compression"] = i32(header_data, 12)
@@ -178,11 +174,7 @@ class BmpImageFile(ImageFile.ImageFile):
 
         # ------- If color count was not found in the header, compute from bits
         assert isinstance(file_info["bits"], int)
-        file_info["colors"] = (
-            file_info["colors"]
-            if file_info.get("colors", 0)
-            else (1 << file_info["bits"])
-        )
+        file_info["colors"] = file_info["colors"] if file_info.get("colors", 0) else (1 << file_info["bits"])
         assert isinstance(file_info["colors"], int)
         if offset == 14 + file_info["header_size"] and file_info["bits"] <= 8:
             offset += 4 * file_info["colors"]
@@ -224,17 +216,11 @@ class BmpImageFile(ImageFile.ImageFile):
                 (16, (0x7C00, 0x3E0, 0x1F)): "BGR;15",
             }
             if file_info["bits"] in SUPPORTED:
-                if (
-                    file_info["bits"] == 32
-                    and file_info["rgba_mask"] in SUPPORTED[file_info["bits"]]
-                ):
+                if file_info["bits"] == 32 and file_info["rgba_mask"] in SUPPORTED[file_info["bits"]]:
                     assert isinstance(file_info["rgba_mask"], tuple)
                     raw_mode = MASK_MODES[(file_info["bits"], file_info["rgba_mask"])]
                     self._mode = "RGBA" if "A" in raw_mode else self.mode
-                elif (
-                    file_info["bits"] in (24, 16)
-                    and file_info["rgb_mask"] in SUPPORTED[file_info["bits"]]
-                ):
+                elif file_info["bits"] in (24, 16) and file_info["rgb_mask"] in SUPPORTED[file_info["bits"]]:
                     assert isinstance(file_info["rgb_mask"], tuple)
                     raw_mode = MASK_MODES[(file_info["bits"], file_info["rgb_mask"])]
                 else:
@@ -244,9 +230,7 @@ class BmpImageFile(ImageFile.ImageFile):
                 msg = "Unsupported BMP bitfields layout"
                 raise OSError(msg)
         elif file_info["compression"] == self.COMPRESSIONS["RAW"]:
-            if file_info["bits"] == 32 and (
-                header == 22 or USE_RAW_ALPHA  # 32-bit .cur offset
-            ):
+            if file_info["bits"] == 32 and (header == 22 or USE_RAW_ALPHA):  # 32-bit .cur offset
                 raw_mode, self._mode = "BGRA", "RGBA"
         elif file_info["compression"] in (
             self.COMPRESSIONS["RLE8"],
@@ -268,11 +252,7 @@ class BmpImageFile(ImageFile.ImageFile):
                 padding = file_info["palette_padding"]
                 palette = read(padding * file_info["colors"])
                 grayscale = True
-                indices = (
-                    (0, 255)
-                    if file_info["colors"] == 2
-                    else list(range(file_info["colors"]))
-                )
+                indices = (0, 255) if file_info["colors"] == 2 else list(range(file_info["colors"]))
 
                 # ----------------- Check if grayscale and ignore palette if so
                 for ind, val in enumerate(indices):
@@ -286,9 +266,7 @@ class BmpImageFile(ImageFile.ImageFile):
                     raw_mode = self.mode
                 else:
                     self._mode = "P"
-                    self.palette = ImagePalette.raw(
-                        "BGRX" if padding == 4 else "BGR", palette
-                    )
+                    self.palette = ImagePalette.raw("BGRX" if padding == 4 else "BGR", palette)
 
         # ---------------------------- Finally set the tile data for the plugin
         self.info["compression"] = file_info["compression"]
@@ -424,9 +402,7 @@ def _dib_save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     _save(im, fp, filename, False)
 
 
-def _save(
-    im: Image.Image, fp: IO[bytes], filename: str | bytes, bitmap_header: bool = True
-) -> None:
+def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes, bitmap_header: bool = True) -> None:
     try:
         rawmode, bits, colors = SAVE[im.mode]
     except KeyError as e:
@@ -488,9 +464,7 @@ def _save(
     if palette:
         fp.write(palette)
 
-    ImageFile._save(
-        im, fp, [ImageFile._Tile("raw", (0, 0) + im.size, 0, (rawmode, stride, -1))]
-    )
+    ImageFile._save(im, fp, [ImageFile._Tile("raw", (0, 0) + im.size, 0, (rawmode, stride, -1))])
 
 
 #

@@ -61,9 +61,7 @@ def unpack_565(i: int) -> tuple[int, int, int]:
     return ((i >> 11) & 0x1F) << 3, ((i >> 5) & 0x3F) << 2, (i & 0x1F) << 3
 
 
-def decode_dxt1(
-    data: bytes, alpha: bool = False
-) -> tuple[bytearray, bytearray, bytearray, bytearray]:
+def decode_dxt1(data: bytes, alpha: bool = False) -> tuple[bytearray, bytearray, bytearray, bytearray]:
     """
     input: one "row" of data (i.e. will produce 4*width pixels)
     """
@@ -325,9 +323,7 @@ class _BLPBaseDecoder(abc.ABC, ImageFile.PyDecoder):
             ret.append((b, g, r, a))
         return ret
 
-    def _read_bgra(
-        self, palette: list[tuple[int, int, int, int]], alpha: bool
-    ) -> bytearray:
+    def _read_bgra(self, palette: list[tuple[int, int, int, int]], alpha: bool) -> bytearray:
         data = bytearray()
         _data = BytesIO(self._safe_read(self._lengths[0]))
         while True:

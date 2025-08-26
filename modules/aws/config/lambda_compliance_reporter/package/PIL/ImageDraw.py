@@ -59,9 +59,7 @@ directly.
 
 
 class ImageDraw:
-    font: (
-        ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None
-    ) = None
+    font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None) = None
 
     def __init__(self, im: Image.Image, mode: str | None = None) -> None:
         """
@@ -142,9 +140,7 @@ class ImageDraw:
         else:
             return self.getfont()
 
-    def _getink(
-        self, ink: _Ink | None, fill: _Ink | None = None
-    ) -> tuple[int | None, int | None]:
+    def _getink(self, ink: _Ink | None, fill: _Ink | None = None) -> tuple[int | None, int | None]:
         result_ink = None
         result_fill = None
         if ink is None and fill is None:
@@ -180,9 +176,7 @@ class ImageDraw:
         if ink is not None:
             self.draw.draw_arc(xy, start, end, ink, width)
 
-    def bitmap(
-        self, xy: Sequence[int], bitmap: Image.Image, fill: _Ink | None = None
-    ) -> None:
+    def bitmap(self, xy: Sequence[int], bitmap: Image.Image, fill: _Ink | None = None) -> None:
         """Draw a bitmap."""
         bitmap.load()
         ink, fill = self._getink(fill)
@@ -249,15 +243,11 @@ class ImageDraw:
                 if isinstance(xy[0], (list, tuple)):
                     points = cast(Sequence[Sequence[float]], xy)
                 else:
-                    points = [
-                        cast(Sequence[float], tuple(xy[i : i + 2]))
-                        for i in range(0, len(xy), 2)
-                    ]
+                    points = [cast(Sequence[float], tuple(xy[i : i + 2])) for i in range(0, len(xy), 2)]
                 for i in range(1, len(points) - 1):
                     point = points[i]
                     angles = [
-                        math.degrees(math.atan2(end[0] - start[0], start[1] - end[1]))
-                        % 360
+                        math.degrees(math.atan2(end[0] - start[0], start[1] - end[1])) % 360
                         for start, end in (
                             (points[i - 1], point),
                             (point, points[i + 1]),
@@ -267,9 +257,7 @@ class ImageDraw:
                         # This is a straight line, so no joint is required
                         continue
 
-                    def coord_at_angle(
-                        coord: Sequence[float], angle: float
-                    ) -> tuple[float, ...]:
+                    def coord_at_angle(coord: Sequence[float], angle: float) -> tuple[float, ...]:
                         x, y = coord
                         angle -= 90
                         distance = width / 2 - 1
@@ -281,9 +269,9 @@ class ImageDraw:
                             )
                         )
 
-                    flipped = (
-                        angles[1] > angles[0] and angles[1] - 180 > angles[0]
-                    ) or (angles[1] < angles[0] and angles[1] + 180 > angles[0])
+                    flipped = (angles[1] > angles[0] and angles[1] - 180 > angles[0]) or (
+                        angles[1] < angles[0] and angles[1] + 180 > angles[0]
+                    )
                     coords = [
                         (point[0] - width / 2 + 1, point[1] - width / 2 + 1),
                         (point[0] + width / 2 - 1, point[1] + width / 2 - 1),
@@ -559,12 +547,7 @@ class ImageDraw:
         xy: tuple[float, float],
         text: AnyStr,
         fill: _Ink | None = None,
-        font: (
-            ImageFont.ImageFont
-            | ImageFont.FreeTypeFont
-            | ImageFont.TransposedFont
-            | None
-        ) = None,
+        font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None) = None,
         anchor: str | None = None,
         spacing: float = 4,
         align: str = "left",
@@ -658,9 +641,7 @@ class ImageDraw:
                 color.fillband(3, ink_alpha)
                 x, y = coord
                 if self.im is not None:
-                    self.im.paste(
-                        color, (x, y, x + mask.size[0], y + mask.size[1]), mask
-                    )
+                    self.im.paste(color, (x, y, x + mask.size[0], y + mask.size[1]), mask)
             else:
                 self.draw.draw_bitmap(coord, mask, ink)
 
@@ -685,12 +666,7 @@ class ImageDraw:
         self,
         xy: tuple[float, float],
         text: AnyStr,
-        font: (
-            ImageFont.ImageFont
-            | ImageFont.FreeTypeFont
-            | ImageFont.TransposedFont
-            | None
-        ),
+        font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None),
         anchor: str | None,
         spacing: float,
         align: str,
@@ -724,11 +700,7 @@ class ImageDraw:
         widths = []
         max_width: float = 0
         lines = text.split("\n" if isinstance(text, str) else b"\n")
-        line_spacing = (
-            self.textbbox((0, 0), "A", font, stroke_width=stroke_width)[3]
-            + stroke_width
-            + spacing
-        )
+        line_spacing = self.textbbox((0, 0), "A", font, stroke_width=stroke_width)[3] + stroke_width + spacing
 
         for line in lines:
             line_width = self.textlength(
@@ -799,12 +771,7 @@ class ImageDraw:
         xy: tuple[float, float],
         text: AnyStr,
         fill: _Ink | None = None,
-        font: (
-            ImageFont.ImageFont
-            | ImageFont.FreeTypeFont
-            | ImageFont.TransposedFont
-            | None
-        ) = None,
+        font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None) = None,
         anchor: str | None = None,
         spacing: float = 4,
         align: str = "left",
@@ -850,12 +817,7 @@ class ImageDraw:
     def textlength(
         self,
         text: AnyStr,
-        font: (
-            ImageFont.ImageFont
-            | ImageFont.FreeTypeFont
-            | ImageFont.TransposedFont
-            | None
-        ) = None,
+        font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None) = None,
         direction: str | None = None,
         features: list[str] | None = None,
         language: str | None = None,
@@ -880,12 +842,7 @@ class ImageDraw:
         self,
         xy: tuple[float, float],
         text: AnyStr,
-        font: (
-            ImageFont.ImageFont
-            | ImageFont.FreeTypeFont
-            | ImageFont.TransposedFont
-            | None
-        ) = None,
+        font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None) = None,
         anchor: str | None = None,
         spacing: float = 4,
         align: str = "left",
@@ -921,21 +878,14 @@ class ImageDraw:
             )
 
         mode = "RGBA" if embedded_color else self.fontmode
-        bbox = font.getbbox(
-            text, mode, direction, features, language, stroke_width, anchor
-        )
+        bbox = font.getbbox(text, mode, direction, features, language, stroke_width, anchor)
         return bbox[0] + xy[0], bbox[1] + xy[1], bbox[2] + xy[0], bbox[3] + xy[1]
 
     def multiline_textbbox(
         self,
         xy: tuple[float, float],
         text: AnyStr,
-        font: (
-            ImageFont.ImageFont
-            | ImageFont.FreeTypeFont
-            | ImageFont.TransposedFont
-            | None
-        ) = None,
+        font: (ImageFont.ImageFont | ImageFont.FreeTypeFont | ImageFont.TransposedFont | None) = None,
         anchor: str | None = None,
         spacing: float = 4,
         align: str = "left",
@@ -1008,9 +958,7 @@ def Draw(im: Image.Image, mode: str | None = None) -> ImageDraw:
         return ImageDraw(im, mode)
 
 
-def getdraw(
-    im: Image.Image | None = None, hints: list[str] | None = None
-) -> tuple[ImageDraw2.Draw | None, ModuleType]:
+def getdraw(im: Image.Image | None = None, hints: list[str] | None = None) -> tuple[ImageDraw2.Draw | None, ModuleType]:
     """
     :param im: The image to draw in.
     :param hints: An optional list of hints. Deprecated.
@@ -1151,9 +1099,9 @@ def _compute_regular_polygon_vertices(
 
         *centroid, polygon_radius = cast(list[float], list(bounding_circle))
     elif len(bounding_circle) == 2 and isinstance(bounding_circle[0], (list, tuple)):
-        if not all(
-            isinstance(i, (int, float)) for i in bounding_circle[0]
-        ) or not isinstance(bounding_circle[1], (int, float)):
+        if not all(isinstance(i, (int, float)) for i in bounding_circle[0]) or not isinstance(
+            bounding_circle[1], (int, float)
+        ):
             msg = "bounding_circle should only contain numeric data"
             raise ValueError(msg)
 
@@ -1164,10 +1112,7 @@ def _compute_regular_polygon_vertices(
         centroid = cast(list[float], list(bounding_circle[0]))
         polygon_radius = cast(float, bounding_circle[1])
     else:
-        msg = (
-            "bounding_circle should contain 2D coordinates "
-            "and a radius (e.g. (x, y, r) or ((x, y), r) )"
-        )
+        msg = "bounding_circle should contain 2D coordinates " "and a radius (e.g. (x, y, r) or ((x, y), r) )"
         raise ValueError(msg)
 
     if polygon_radius <= 0:
@@ -1219,9 +1164,7 @@ def _compute_regular_polygon_vertices(
     return [_compute_polygon_vertex(angle) for angle in angles]
 
 
-def _color_diff(
-    color1: float | tuple[int, ...], color2: float | tuple[int, ...]
-) -> float:
+def _color_diff(color1: float | tuple[int, ...], color2: float | tuple[int, ...]) -> float:
     """
     Uses 1-norm distance to calculate difference between two values.
     """

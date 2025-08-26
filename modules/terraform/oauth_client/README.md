@@ -66,7 +66,7 @@
 ```
 module "prod_oauth" {
     source           = "github.com/thinkstack-co/terraform-modules//modules/terraform/oauth_client"
-    
+
     name             = "my-github-oauth-client"
     organization     = "my-org-name"
     api_url          = "https://api.github.com"

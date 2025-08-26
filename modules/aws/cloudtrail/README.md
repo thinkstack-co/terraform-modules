@@ -75,12 +75,12 @@ module "cloudtrail" {
   include_global_service_events = true
   is_multi_region_trail         = true
   enable_log_file_validation    = true
-  
+
   # Optional - S3 bucket logging configuration
   enable_s3_bucket_logging = true
   target_bucket            = module.s3_logging_bucket.id
   target_prefix            = "cloudtrail-bucket-logs/"
-  
+
   # Optional - custom tags
   tags = {
     Environment = "Production"

@@ -67,9 +67,7 @@ class GdImageFile(ImageFile.ImageFile):
         if tindex < 256:
             self.info["transparency"] = tindex
 
-        self.palette = ImagePalette.raw(
-            "RGBX", s[7 + true_color_offset + 6 : 7 + true_color_offset + 6 + 256 * 4]
-        )
+        self.palette = ImagePalette.raw("RGBX", s[7 + true_color_offset + 6 : 7 + true_color_offset + 6 + 256 * 4])
 
         self.tile = [
             ImageFile._Tile(

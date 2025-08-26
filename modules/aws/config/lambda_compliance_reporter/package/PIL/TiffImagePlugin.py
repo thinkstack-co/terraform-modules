@@ -292,17 +292,13 @@ def _accept(prefix: bytes) -> bool:
     return prefix.startswith(tuple(PREFIXES))
 
 
-def _limit_rational(
-    val: float | Fraction | IFDRational, max_val: int
-) -> tuple[IntegralLike, IntegralLike]:
+def _limit_rational(val: float | Fraction | IFDRational, max_val: int) -> tuple[IntegralLike, IntegralLike]:
     inv = abs(val) > 1
     n_d = IFDRational(1 / val if inv else val).limit_rational(max_val)
     return n_d[::-1] if inv else n_d
 
 
-def _limit_signed_rational(
-    val: IFDRational, max_val: int, min_val: int
-) -> tuple[IntegralLike, IntegralLike]:
+def _limit_signed_rational(val: IFDRational, max_val: int, min_val: int) -> tuple[IntegralLike, IntegralLike]:
     frac = Fraction(val)
     n_d: tuple[IntegralLike, IntegralLike] = frac.numerator, frac.denominator
 
@@ -324,9 +320,7 @@ _write_dispatch = {}
 
 
 def _delegate(op: str) -> Any:
-    def delegate(
-        self: IFDRational, *args: tuple[float, ...]
-    ) -> bool | float | Fraction:
+    def delegate(self: IFDRational, *args: tuple[float, ...]) -> bool | float | Fraction:
         return getattr(self._val, op)(*args)
 
     return delegate
@@ -346,9 +340,7 @@ class IFDRational(Rational):
 
     __slots__ = ("_numerator", "_denominator", "_val")
 
-    def __init__(
-        self, value: float | Fraction | IFDRational, denominator: int = 1
-    ) -> None:
+    def __init__(self, value: float | Fraction | IFDRational, denominator: int = 1) -> None:
         """
         :param value: either an integer numerator, a
         float/rational/other number, or an IFDRational
@@ -500,15 +492,11 @@ def _register_basic(idx_fmt_name: tuple[int, str, str]) -> None:
     TYPES[idx] = name
     size = struct.calcsize(f"={fmt}")
 
-    def basic_handler(
-        self: ImageFileDirectory_v2, data: bytes, legacy_api: bool = True
-    ) -> tuple[Any, ...]:
+    def basic_handler(self: ImageFileDirectory_v2, data: bytes, legacy_api: bool = True) -> tuple[Any, ...]:
         return self._unpack(f"{len(data) // size}{fmt}", data)
 
     _load_dispatch[idx] = size, basic_handler  # noqa: F821
-    _write_dispatch[idx] = lambda self, *values: (  # noqa: F821
-        b"".join(self._pack(fmt, value) for value in values)
-    )
+    _write_dispatch[idx] = lambda self, *values: (b"".join(self._pack(fmt, value) for value in values))  # noqa: F821
 
 
 if TYPE_CHECKING:
@@ -613,11 +601,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
         self.tagtype: dict[int, int] = {}
         """ Dictionary of tag types """
         self.reset()
-        self.next = (
-            self._unpack("Q", ifh[8:])[0]
-            if self._bigtiff
-            else self._unpack("L", ifh[4:])[0]
-        )
+        self.next = self._unpack("Q", ifh[8:])[0] if self._bigtiff else self._unpack("L", ifh[4:])[0]
         self._legacy_api = False
 
     prefix = property(lambda self: self._prefix)
@@ -649,10 +633,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
 
         Returns the complete tag dictionary, with named tags where possible.
         """
-        return {
-            TiffTags.lookup(code, self.group).name: value
-            for code, value in self.items()
-        }
+        return {TiffTags.lookup(code, self.group).name: value for code, value in self.items()}
 
     def __len__(self) -> int:
         return len(set(self._tagdata) | set(self._tags_v2))
@@ -721,19 +702,13 @@ class ImageFileDirectory_v2(_IFDv2Base):
                     self.tagtype[tag] = TiffTags.BYTE
 
         if self.tagtype[tag] == TiffTags.UNDEFINED:
-            values = [
-                v.encode("ascii", "replace") if isinstance(v, str) else v
-                for v in values
-            ]
+            values = [v.encode("ascii", "replace") if isinstance(v, str) else v for v in values]
         elif self.tagtype[tag] == TiffTags.RATIONAL:
             values = [float(v) if isinstance(v, int) else v for v in values]
 
         is_ifd = self.tagtype[tag] == TiffTags.LONG and isinstance(values, dict)
         if not is_ifd:
-            values = tuple(
-                info.cvt_enum(value) if isinstance(value, str) else value
-                for value in values
-            )
+            values = tuple(info.cvt_enum(value) if isinstance(value, str) else value for value in values)
 
         dest = self._tags_v1 if legacy_api else self._tags_v2
 
@@ -757,10 +732,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
                 (dest[tag],) = values
             except ValueError:
                 # We've got a builtin tag with 1 expected entry
-                warnings.warn(
-                    f"Metadata Warning, tag {tag} had too many entries: "
-                    f"{len(values)}, expected 1"
-                )
+                warnings.warn(f"Metadata Warning, tag {tag} had too many entries: " f"{len(values)}, expected 1")
                 dest[tag] = values[0]
 
         else:
@@ -827,9 +799,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
         return value + b"\0"
 
     @_register_loader(5, 8)
-    def load_rational(
-        self, data: bytes, legacy_api: bool = True
-    ) -> tuple[tuple[int, int] | IFDRational, ...]:
+    def load_rational(self, data: bytes, legacy_api: bool = True) -> tuple[tuple[int, int] | IFDRational, ...]:
         vals = self._unpack(f"{len(data) // 4}L", data)
 
         def combine(a: int, b: int) -> tuple[int, int] | IFDRational:
@@ -839,9 +809,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
 
     @_register_writer(5)
     def write_rational(self, *values: IFDRational) -> bytes:
-        return b"".join(
-            self._pack("2L", *_limit_rational(frac, 2**32 - 1)) for frac in values
-        )
+        return b"".join(self._pack("2L", *_limit_rational(frac, 2**32 - 1)) for frac in values)
 
     @_register_loader(7, 1)
     def load_undefined(self, data: bytes, legacy_api: bool = True) -> bytes:
@@ -856,9 +824,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
         return value
 
     @_register_loader(10, 8)
-    def load_signed_rational(
-        self, data: bytes, legacy_api: bool = True
-    ) -> tuple[tuple[int, int] | IFDRational, ...]:
+    def load_signed_rational(self, data: bytes, legacy_api: bool = True) -> tuple[tuple[int, int] | IFDRational, ...]:
         vals = self._unpack(f"{len(data) // 4}l", data)
 
         def combine(a: int, b: int) -> tuple[int, int] | IFDRational:
@@ -868,18 +834,12 @@ class ImageFileDirectory_v2(_IFDv2Base):
 
     @_register_writer(10)
     def write_signed_rational(self, *values: IFDRational) -> bytes:
-        return b"".join(
-            self._pack("2l", *_limit_signed_rational(frac, 2**31 - 1, -(2**31)))
-            for frac in values
-        )
+        return b"".join(self._pack("2l", *_limit_signed_rational(frac, 2**31 - 1, -(2**31))) for frac in values)
 
     def _ensure_read(self, fp: IO[bytes], size: int) -> bytes:
         ret = fp.read(size)
         if len(ret) != size:
-            msg = (
-                "Corrupt EXIF data.  "
-                f"Expecting to read {size} bytes but only got {len(ret)}. "
-            )
+            msg = "Corrupt EXIF data.  " f"Expecting to read {size} bytes but only got {len(ret)}. "
             raise OSError(msg)
         return ret
 
@@ -966,9 +926,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
 
         fmt = "Q" if self._bigtiff else "L"
         fmt_size = 8 if self._bigtiff else 4
-        offset += (
-            len(result) + len(self._tags_v2) * (20 if self._bigtiff else 12) + fmt_size
-        )
+        offset += len(result) + len(self._tags_v2) * (20 if self._bigtiff else 12) + fmt_size
         stripoffsets = None
 
         # pass 1: convert tags to binary format
@@ -1023,9 +981,7 @@ class ImageFileDirectory_v2(_IFDv2Base):
         # pass 2: write entries to file
         for tag, typ, count, value, data in entries:
             logger.debug("%s %s %s %s %s", tag, typ, count, repr(value), repr(data))
-            result += self._pack(
-                "HHQ8s" if self._bigtiff else "HHL4s", tag, typ, count, value
-            )
+            result += self._pack("HHQ8s" if self._bigtiff else "HHL4s", tag, typ, count, value)
 
         # -- overwrite here for multi-page --
         result += self._pack(fmt, 0)  # end of entries
@@ -1216,9 +1172,7 @@ class TiffImageFile(ImageFile.ImageFile):
         if not self._seek_check(frame):
             return
         self._seek(frame)
-        if self._im is not None and (
-            self.im.size != self._tile_size or self.im.mode != self.mode
-        ):
+        if self._im is not None and (self.im.size != self._tile_size or self.im.mode != self.mode):
             # The core image will no longer be used
             self._im = None
 
@@ -1490,9 +1444,7 @@ class TiffImageFile(ImageFile.ImageFile):
 
         if samples_per_pixel > MAX_SAMPLESPERPIXEL:
             # DOS check, samples_per_pixel can be a Long, and we extend the tuple below
-            logger.error(
-                "More samples per pixel than can be decoded: %s", samples_per_pixel
-            )
+            logger.error("More samples per pixel than can be decoded: %s", samples_per_pixel)
             msg = "Invalid value for samples per pixel"
             raise SyntaxError(msg)
 
@@ -1575,11 +1527,7 @@ class TiffImageFile(ImageFile.ImageFile):
                 self._mode, rawmode = OPEN_INFO[key]
             # YCbCr images with new jpeg compression with pixels in one plane
             # unpacked straight into RGB values
-            if (
-                photo == 6
-                and self._compression == "jpeg"
-                and self._planar_configuration == 1
-            ):
+            if photo == 6 and self._compression == "jpeg" and self._planar_configuration == 1:
                 rawmode = "RGB"
             # libtiff always returns the bytes in native order.
             # we're expecting image byte order. So, if the rawmode
@@ -2146,9 +2094,7 @@ class AppendingTiffWriter(io.BytesIO):
         while True:
             ifd_offset = self._read(8 if self._bigtiff else 4)
             if ifd_offset == 0:
-                self.whereToWriteNewIFDOffset = self.f.tell() - (
-                    8 if self._bigtiff else 4
-                )
+                self.whereToWriteNewIFDOffset = self.f.tell() - (8 if self._bigtiff else 4)
                 break
 
             self.f.seek(ifd_offset)
@@ -2166,9 +2112,7 @@ class AppendingTiffWriter(io.BytesIO):
             raise RuntimeError(msg)
 
     def _read(self, field_size: int) -> int:
-        (value,) = struct.unpack(
-            self.endian + self._fmt(field_size), self.f.read(field_size)
-        )
+        (value,) = struct.unpack(self.endian + self._fmt(field_size), self.f.read(field_size))
         return value
 
     def readShort(self) -> int:
@@ -2183,15 +2127,11 @@ class AppendingTiffWriter(io.BytesIO):
             msg = f"wrote only {bytes_written} bytes but wanted {expected}"
             raise RuntimeError(msg)
 
-    def _rewriteLast(
-        self, value: int, field_size: int, new_field_size: int = 0
-    ) -> None:
+    def _rewriteLast(self, value: int, field_size: int, new_field_size: int = 0) -> None:
         self.f.seek(-field_size, os.SEEK_CUR)
         if not new_field_size:
             new_field_size = field_size
-        bytes_written = self.f.write(
-            struct.pack(self.endian + self._fmt(new_field_size), value)
-        )
+        bytes_written = self.f.write(struct.pack(self.endian + self._fmt(new_field_size), value))
         self._verify_bytes_written(bytes_written, new_field_size)
 
     def rewriteLastShortToLong(self, value: int) -> None:
@@ -2204,9 +2144,7 @@ class AppendingTiffWriter(io.BytesIO):
         return self._rewriteLast(value, 4)
 
     def _write(self, value: int, field_size: int) -> None:
-        bytes_written = self.f.write(
-            struct.pack(self.endian + self._fmt(field_size), value)
-        )
+        bytes_written = self.f.write(struct.pack(self.endian + self._fmt(field_size), value))
         self._verify_bytes_written(bytes_written, field_size)
 
     def writeShort(self, value: int) -> None:
@@ -2224,9 +2162,7 @@ class AppendingTiffWriter(io.BytesIO):
         num_tags = self._read(8 if self._bigtiff else 2)
 
         for i in range(num_tags):
-            tag, field_type, count = struct.unpack(
-                self.tagFormat, self.f.read(12 if self._bigtiff else 8)
-            )
+            tag, field_type, count = struct.unpack(self.tagFormat, self.f.read(12 if self._bigtiff else 8))
 
             field_size = self.fieldSizes[field_type]
             total_size = field_size * count
@@ -2289,9 +2225,7 @@ class AppendingTiffWriter(io.BytesIO):
             else:
                 self._rewriteLast(offset, field_size)
 
-    def fixOffsets(
-        self, count: int, isShort: bool = False, isLong: bool = False
-    ) -> None:
+    def fixOffsets(self, count: int, isShort: bool = False, isLong: bool = False) -> None:
         if isShort:
             field_size = 2
         elif isLong:

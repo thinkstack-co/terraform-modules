@@ -43,6 +43,3 @@ resource "aws_lb_listener" "listener" {
 
   tags = var.tags
 }
-
-
-

@@ -75,10 +75,10 @@ module "web_target_group" {
   port        = 80
   protocol    = "HTTP"
   vpc_id      = module.vpc.vpc_id
-  
+
   health_check_path = "/health"
   health_check_interval_seconds = 15
-  
+
   target_group_arn = aws_lb_target_group.this.arn
   target_id        = aws_instance.web.id
 }
@@ -95,11 +95,11 @@ module "api_target_group" {
   port        = 8080
   protocol    = "HTTP"
   vpc_id      = module.vpc.vpc_id
-  
+
   health_check_path = "/api/health"
   health_check_protocol = "HTTP"
   matcher = "200,201"
-  
+
   target_group_arn = aws_lb_target_group.this.arn
   target_id        = "10.0.1.15"
 }
@@ -114,7 +114,7 @@ module "lambda_target_group" {
   name        = "lambda-tg"
   target_type = "lambda"
   vpc_id      = module.vpc.vpc_id
-  
+
   target_group_arn = aws_lb_target_group.this.arn
   target_id        = aws_lambda_function.api.arn
 }

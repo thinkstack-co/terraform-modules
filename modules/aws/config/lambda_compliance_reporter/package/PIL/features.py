@@ -341,9 +341,7 @@ def pilinfo(out: IO[str] | None = None, supported_formats: bool = True) -> None:
             print(line, file=out)
 
             if i in extensions:
-                print(
-                    "Extensions: {}".format(", ".join(sorted(extensions[i]))), file=out
-                )
+                print("Extensions: {}".format(", ".join(sorted(extensions[i]))), file=out)
 
             features = []
             if i in Image.OPEN:

@@ -22,3 +22,8 @@ variable "oauth_token" {
   description = "(Required) The token string you were given by your VCS provider, e.g. ghp_xxxxxxxxxxxxxxx for a GitHub personal access token. For more information on how to generate this token string for your VCS provider, see the Create an OAuth Client documentation."
   type        = string
 }
+
+variable "service_provider" {
+  description = "(Required) VCS provider service identifier for the OAuth client (per tfe_oauth_client service_provider)."
+  type        = string
+}

@@ -41,7 +41,7 @@ resource "aws_kms_key" "key" {
       {
         "Effect" = "Allow",
         "Principal" = {
-          "Service" = "logs.${data.aws_region.current.name}.amazonaws.com"
+          "Service" = "logs.${data.aws_region.current.id}.amazonaws.com"
         },
         "Action" = [
           "kms:Encrypt*",
@@ -53,7 +53,7 @@ resource "aws_kms_key" "key" {
         "Resource" = "*",
         "Condition" = {
           "ArnEquals" = {
-            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:log-group:*"
           }
         }
       }

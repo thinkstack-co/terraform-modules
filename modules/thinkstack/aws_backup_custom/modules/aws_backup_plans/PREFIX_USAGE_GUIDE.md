@@ -21,17 +21,17 @@ The module now supports a `plan_prefix` variable that allows you to create multi
 ```hcl
 module "backup_plan_a" {
   source = "../"
-  
+
   name        = "backup_plan"
   plan_prefix = "plan-a"  # This will create resources like "plan-a-backup_plan-daily"
-  
+
   # Enable the schedules you need
   enable_daily_plan     = true
   daily_retention_days  = 30
-  
+
   enable_weekly_plan    = true
   weekly_retention_days = 90
-  
+
   enable_monthly_plan    = true
   monthly_retention_days = 365
 }
@@ -52,9 +52,9 @@ When you set `plan_prefix = "plan-a"` and `name = "backup_plan"`, the module cre
 ```hcl
 module "backup_with_dr_copies" {
   source = "../"
-  
+
   plan_prefix = "plan-b"
-  
+
   enable_daily_plan     = true
   enable_daily_dr_copy  = true
   daily_dr_retention_days = 7
@@ -65,14 +65,14 @@ module "backup_with_dr_copies" {
 ```hcl
 module "backup_with_separate_dr" {
   source = "../"
-  
+
   plan_prefix = "plan-c"
   create_separate_dr_plans = true  # Creates dedicated DR plans
-  
+
   enable_daily_plan     = true
   enable_daily_dr_copy  = true
   daily_dr_retention_days = 7
-  
+
   # Optional: Custom DR schedules
   dr_schedules = {
     daily = "cron(0 10 ? * * *)"  # DR backup at 10 AM
@@ -91,11 +91,11 @@ This creates:
 module "plan_a" {
   source      = "../"
   plan_prefix = "plan-a"
-  
+
   enable_daily_plan    = true
   enable_weekly_plan   = true
   enable_monthly_plan  = true
-  
+
   # All plans get tagged with "plan-a" = "true"
 }
 
@@ -103,10 +103,10 @@ module "plan_a" {
 module "plan_b" {
   source      = "../"
   plan_prefix = "plan-b"
-  
+
   enable_daily_plan = true
   daily_retention_days = 7
-  
+
   # All plans get tagged with "plan-b" = "true"
 }
 
@@ -114,11 +114,11 @@ module "plan_b" {
 module "plan_c" {
   source      = "../"
   plan_prefix = "plan-c"
-  
+
   enable_monthly_plan = true
   monthly_retention_days = 2555  # 7 years
   monthly_cold_storage_after = 90
-  
+
   # All plans get tagged with "plan-c" = "true"
 }
 ```
@@ -131,7 +131,7 @@ Each plan can target different resources using tags:
 module "backup_plan_a" {
   source = "../"
   plan_prefix = "plan-a"
-  
+
   create_backup_selection = true
   backup_selection_tags = [
     {

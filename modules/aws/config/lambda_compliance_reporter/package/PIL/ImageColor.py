@@ -84,9 +84,7 @@ def getrgb(color: str) -> tuple[int, int, int] | tuple[int, int, int, int]:
             int((int(m.group(3)) * 255) / 100.0 + 0.5),
         )
 
-    m = re.match(
-        r"hsl\(\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)%\s*,\s*(\d+\.?\d*)%\s*\)$", color
-    )
+    m = re.match(r"hsl\(\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)%\s*,\s*(\d+\.?\d*)%\s*\)$", color)
     if m:
         from colorsys import hls_to_rgb
 
@@ -101,9 +99,7 @@ def getrgb(color: str) -> tuple[int, int, int] | tuple[int, int, int, int]:
             int(rgb_floats[2] * 255 + 0.5),
         )
 
-    m = re.match(
-        r"hs[bv]\(\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)%\s*,\s*(\d+\.?\d*)%\s*\)$", color
-    )
+    m = re.match(r"hs[bv]\(\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)%\s*,\s*(\d+\.?\d*)%\s*\)$", color)
     if m:
         from colorsys import hsv_to_rgb
 

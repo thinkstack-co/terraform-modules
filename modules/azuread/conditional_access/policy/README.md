@@ -63,7 +63,7 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 ### Simple Example
-This example create a geographic IP address block filter that blocks access from 
+This example create a geographic IP address block filter that blocks access from
 ```
 module geo_ip_login_filter {
   source                = "github.com/thinkstack-co/terraform-modules//modules/azuread/conditional_access"

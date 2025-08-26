@@ -168,9 +168,7 @@ class JapaneseContextAnalysis:
                     if self._total_rel > self.MAX_REL_THRESHOLD:
                         self._done = True
                         break
-                    self._rel_sample[
-                        jp2_char_context[self._last_char_order][order]
-                    ] += 1
+                    self._rel_sample[jp2_char_context[self._last_char_order][order]] += 1
                 self._last_char_order = order
 
     def got_enough_data(self) -> bool:

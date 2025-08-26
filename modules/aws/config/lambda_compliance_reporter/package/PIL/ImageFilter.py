@@ -242,9 +242,7 @@ class UnsharpMask(MultibandFilter):
 
     name = "UnsharpMask"
 
-    def __init__(
-        self, radius: float = 2, percent: int = 150, threshold: int = 3
-    ) -> None:
+    def __init__(self, radius: float = 2, percent: int = 150, threshold: int = 3) -> None:
         self.radius = radius
         self.percent = percent
         self.threshold = threshold
@@ -446,10 +444,7 @@ class Color3DLUT(MultibandFilter):
                 flat_table: list[int] = []
                 for pixel in raw_table:
                     if len(pixel) != channels:
-                        msg = (
-                            "The elements of the table should "
-                            f"have a length of {channels}."
-                        )
+                        msg = "The elements of the table should " f"have a length of {channels}."
                         raise ValueError(msg)
                     flat_table.extend(pixel)
                 table = flat_table
