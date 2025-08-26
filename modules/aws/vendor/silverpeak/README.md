@@ -71,7 +71,7 @@
 ```
 module "aws_prod_silverpeak" {
   source            = "github.com/thinkstack-co/terraform-modules//modules/aws/silverpeak"
-  
+
   ami               = "ami-b11111895cf"
   availability_zone = module.vpc.availability_zone[0]
   count             = 1

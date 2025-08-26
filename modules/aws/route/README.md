@@ -28,7 +28,7 @@
 
 <h3 align="center">Route Module</h3>
   <p align="center">
-    This module configures a route 
+    This module configures a route
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />

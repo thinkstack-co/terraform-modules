@@ -181,9 +181,7 @@ def _write_image(
     return image_ref, procset
 
 
-def _save(
-    im: Image.Image, fp: IO[bytes], filename: str | bytes, save_all: bool = False
-) -> None:
+def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes, save_all: bool = False) -> None:
     is_appending = im.encoderinfo.get("append", False)
     filename_str = filename.decode() if isinstance(filename, bytes) else filename
     if is_appending:
@@ -199,9 +197,7 @@ def _save(
         x_resolution = y_resolution = im.encoderinfo.get("resolution", 72.0)
 
     info = {
-        "title": (
-            None if is_appending else os.path.splitext(os.path.basename(filename))[0]
-        ),
+        "title": (None if is_appending else os.path.splitext(os.path.basename(filename))[0]),
         "author": None,
         "subject": None,
         "keywords": None,

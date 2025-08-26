@@ -24,8 +24,8 @@ OS2TypoDescent: -708
 OS2WinAscent: 2311
 OS2WinDescent: 708
 ScriptLang: 1
- 1 latn 1 dflt 
-LangName: 1033 "" "" "Regular" "DarkGarden (Michal Kosmulski)" "" "" "" "" "Micha+AUIA Kosmulski" "Micha+AUIA Kosmulski" 
+ 1 latn 1 dflt
+LangName: 1033 "" "" "Regular" "DarkGarden (Michal Kosmulski)" "" "" "" "" "Micha+AUIA Kosmulski" "Micha+AUIA Kosmulski"
 Encoding: unicode
 UnicodeInterp: none
 DisplaySize: -48

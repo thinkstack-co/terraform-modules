@@ -66,7 +66,7 @@
 ```
 module "backup_policy" {
     source = "github.com/thinkstack-co/terraform-modules//modules/aws/iam_policy"
-    
+
     description = "Backup to s3 permissions"
     name        = "backup_policy"
     policy      = file("global/iam/iam_policies/backup_policy/backup-policy.json")

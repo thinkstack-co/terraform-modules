@@ -152,7 +152,7 @@ module "aws_backup_custom" {
 # Tag resources for backup
 resource "aws_instance" "app_server" {
   # ... instance configuration ...
-  
+
   tags = {
     Name            = "app-server"
     backup_schedule = "daily"  # Include in daily backups
@@ -206,7 +206,7 @@ module "aws_backup_custom" {
 # Critical server with all backups and DR
 resource "aws_instance" "critical_server" {
   # ... configuration ...
-  
+
   tags = {
     Name            = "critical-server"
     backup_schedule = "all"        # All backup schedules
@@ -217,7 +217,7 @@ resource "aws_instance" "critical_server" {
 # Standard server with daily/weekly only, no DR
 resource "aws_instance" "standard_server" {
   # ... configuration ...
-  
+
   tags = {
     Name            = "standard-server"
     backup_schedule = "daily-weekly"  # Daily and weekly only
@@ -236,66 +236,66 @@ resource "aws_instance" "standard_server" {
 # Complete example showing all features of the backup vault module
 module "backup_vaults" {
   source = "./modules/aws_backup_vault"
-  
+
   # Provider configuration for DR
   providers = {
     aws    = aws
     aws.dr = aws.dr
   }
-  
+
   # Single custom vault (optional - set to false to use only scheduled vaults)
   create_single_vault = true
   name                = "custom-backup-vault"
-  
+
   # KMS encryption key (required)
   kms_key_arn = aws_kms_key.backup.arn
-  
+
   # Force destroy allows deletion even with recovery points
   force_destroy = false
-  
+
   # Scheduled vaults - enable the ones you need
   enable_hourly_vault  = true
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = true
   enable_yearly_vault  = true
-  
+
   # Vault naming prefix (results in: myapp-hourly, myapp-daily, etc.)
   vault_name_prefix = "myapp"
-  
+
   # Enable vault lock for compliance
   enable_vault_lock              = true
   vault_lock_changeable_for_days = 3
   vault_lock_max_retention_days  = 36500  # 100 years
   vault_lock_min_retention_days  = 7      # For single vault
-  
+
   # Per-schedule minimum retention (for vault lock)
   hourly_min_retention_days  = 1
   daily_min_retention_days   = 7
   weekly_min_retention_days  = 30
   monthly_min_retention_days = 90
   yearly_min_retention_days  = 365
-  
+
   # DR Configuration
   enable_dr            = true
   dr_vault_name        = "dr-custom-vault"           # For single vault DR
   dr_vault_name_prefix = "myapp-dr"                  # For scheduled vault DR
   dr_kms_key_arn       = aws_kms_key.dr_backup.arn  # Optional separate DR key
-  
+
   # Enable specific DR vaults (allows selective DR)
   enable_hourly_dr_vault  = false  # No DR for hourly
   enable_daily_dr_vault   = true   # Enable DR for daily
   enable_weekly_dr_vault  = true   # Enable DR for weekly
   enable_monthly_dr_vault = true   # Enable DR for monthly
   enable_yearly_dr_vault  = false  # No DR for yearly
-  
+
   # Tags
   tags = {
     terraform    = "true"
     environment  = "production"
     cost_center  = "operations"
   }
-  
+
   # DR-specific tags
   dr_tags = {
     dr_region = "us-west-2"
@@ -334,17 +334,17 @@ output "vault_arns" {
 # Complete example showing all features of the backup plans module
 module "backup_plans" {
   source = "./modules/aws_backup_plans"
-  
+
   # Basic configuration
   name = "production-backup-plans"
-  
+
   # Enable backup selection (creates IAM role and selection resources)
   create_backup_selection = true
   enable_s3_backup        = true  # Include S3 backup permissions
-  
+
   # Plan organization
   use_individual_plans = true  # Create separate plan per schedule (false = combined plan)
-  
+
   # Hourly backup configuration
   enable_hourly_plan              = true
   hourly_schedule                 = "cron(0 * ? * * *)"      # Every hour (default)
@@ -354,17 +354,17 @@ module "backup_plans" {
   hourly_completion_window        = 120                      # Minutes
   hourly_cold_storage_after       = null                    # Days (null = disabled)
   hourly_enable_continuous_backup = false
-  
+
   # Hourly DR configuration
   enable_hourly_dr_copy         = true
   hourly_dr_vault_arn           = module.backup_vaults.dr_vault_arns["hourly"]
   hourly_dr_retention_days      = 3
   hourly_dr_cold_storage_after  = null
-  
+
   # Hourly selection tags (uses smart defaults if not specified)
   hourly_selection_tag_key   = null  # Will use "hourly_prod_dr_backups" (because DR is enabled)
   hourly_selection_tag_value = "true"
-  
+
   # Daily backup configuration
   enable_daily_plan              = true
   daily_schedule                 = "cron(0 5 ? * * *)"       # 5 AM daily (default)
@@ -374,17 +374,17 @@ module "backup_plans" {
   daily_completion_window        = 180
   daily_cold_storage_after       = null
   daily_enable_continuous_backup = false
-  
+
   # Daily DR configuration
   enable_daily_dr_copy         = true
   daily_dr_vault_arn           = module.backup_vaults.dr_vault_arns["daily"]
   daily_dr_retention_days      = 14
   daily_dr_cold_storage_after  = null
-  
+
   # Daily selection tags (custom override)
   daily_selection_tag_key   = "DailyBackupRequired"
   daily_selection_tag_value = "yes"
-  
+
   # Weekly backup configuration
   enable_weekly_plan              = true
   weekly_schedule                 = "cron(0 5 ? * 1 *)"      # Monday 5 AM (default)
@@ -394,13 +394,13 @@ module "backup_plans" {
   weekly_completion_window        = 360
   weekly_cold_storage_after       = 30                      # Move to cold storage after 30 days
   weekly_enable_continuous_backup = false
-  
+
   # Weekly DR configuration
   enable_weekly_dr_copy         = true
   weekly_dr_vault_arn           = module.backup_vaults.dr_vault_arns["weekly"]
   weekly_dr_retention_days      = 30
   weekly_dr_cold_storage_after  = 7
-  
+
   # Monthly backup configuration
   enable_monthly_plan              = true
   monthly_schedule                 = "cron(0 5 1 * ? *)"     # 1st of month 5 AM (default)
@@ -410,10 +410,10 @@ module "backup_plans" {
   monthly_completion_window        = 720
   monthly_cold_storage_after       = 90
   monthly_enable_continuous_backup = false
-  
+
   # Monthly DR configuration
   enable_monthly_dr_copy         = false  # No DR for monthly
-  
+
   # Yearly backup configuration
   enable_yearly_plan              = true
   yearly_schedule                 = "cron(0 5 1 1 ? *)"      # Jan 1st 5 AM (default)
@@ -423,13 +423,13 @@ module "backup_plans" {
   yearly_completion_window        = 1440                    # 24 hours
   yearly_cold_storage_after       = 365                     # Move to cold storage after 1 year
   yearly_enable_continuous_backup = false
-  
+
   # Yearly DR configuration
   enable_yearly_dr_copy         = true
   yearly_dr_vault_arn           = module.backup_vaults.dr_vault_arns["yearly"]
   yearly_dr_retention_days      = 1095                      # 3 years
   yearly_dr_cold_storage_after  = 90
-  
+
   # Global backup selection tags (apply to all schedules)
   backup_selection_tags = [
     {
@@ -443,18 +443,18 @@ module "backup_plans" {
       value = "true"
     }
   ]
-  
+
   # Additional specific resources to backup
   backup_selection_resources = [
     "arn:aws:rds:us-east-1:123456789012:db:critical-database",
     "arn:aws:dynamodb:us-east-1:123456789012:table/important-table"
   ]
-  
+
   # Resources to exclude from backup
   backup_selection_not_resources = [
     "arn:aws:ec2:us-east-1:123456789012:instance/i-temporary"
   ]
-  
+
   # Advanced selection conditions
   backup_selection_conditions = [
     {
@@ -472,7 +472,7 @@ module "backup_plans" {
       ]
     }
   ]
-  
+
   # Advanced backup settings
   advanced_backup_settings = [
     {
@@ -482,10 +482,10 @@ module "backup_plans" {
       }
     }
   ]
-  
+
   # Legacy custom rules (for backward compatibility)
   rules = []
-  
+
   tags = {
     terraform    = "true"
     environment  = "production"
@@ -497,7 +497,7 @@ module "backup_plans" {
 resource "aws_instance" "critical_server" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t3.large"
-  
+
   tags = {
     Name                    = "critical-server"
     Environment             = "production"
@@ -514,7 +514,7 @@ resource "aws_db_instance" "finance_db" {
   identifier     = "finance-database"
   engine         = "postgres"
   instance_class = "db.t3.medium"
-  
+
   tags = {
     Name          = "finance-database"
     Environment   = "production"
@@ -531,21 +531,21 @@ resource "aws_db_instance" "finance_db" {
 # Complete example showing all features of the IAM role module
 module "backup_iam_role" {
   source = "./modules/aws_backup_iam_role"
-  
+
   # Role configuration
   role_name        = "aws-backup-service-role"
   role_path        = "/service-role/"
   role_description = "IAM role for AWS Backup service"
-  
+
   # Permissions boundary (optional)
   role_permissions_boundary = "arn:aws:iam::123456789012:policy/PermissionsBoundary"
-  
+
   # Maximum session duration in seconds (1-12 hours)
   role_max_session_duration = 3600  # 1 hour
-  
+
   # Force detach policies on delete
   role_force_detach_policies = true
-  
+
   # Custom assume role policy (optional - defaults to AWS Backup service)
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -562,7 +562,7 @@ module "backup_iam_role" {
       }
     ]
   })
-  
+
   # Attach AWS managed policies
   aws_managed_policies = [
     "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup",
@@ -570,13 +570,13 @@ module "backup_iam_role" {
     "arn:aws:iam::aws:policy/AWSBackupServiceRolePolicyForS3Backup",
     "arn:aws:iam::aws:policy/AWSBackupServiceRolePolicyForS3Restore"
   ]
-  
+
   # Create and attach a custom policy
   create_custom_policy = true
   custom_policy_name   = "aws-backup-custom-policy"
   custom_policy_path   = "/service-policy/"
   custom_policy_description = "Custom policy for additional backup permissions"
-  
+
   # Custom policy document
   custom_policy = jsonencode({
     Version = "2012-10-17"
@@ -613,12 +613,12 @@ module "backup_iam_role" {
       }
     ]
   })
-  
+
   # Additional custom policies to attach (existing policy ARNs)
   custom_policies = [
     "arn:aws:iam::123456789012:policy/MyExistingBackupPolicy"
   ]
-  
+
   tags = {
     terraform    = "true"
     environment  = "production"
@@ -636,7 +636,7 @@ resource "aws_backup_selection" "custom" {
   iam_role_arn = module.backup_iam_role.role_arn
   name         = "custom-backup-selection"
   plan_id      = aws_backup_plan.custom.id
-  
+
   selection_tag {
     type  = "STRINGEQUALS"
     key   = "BackupPolicy"
@@ -653,47 +653,47 @@ resource "aws_backup_selection" "custom" {
 # 1. Create backup vaults with DR
 module "backup_vaults" {
   source = "./modules/aws_backup_vault"
-  
+
   providers = {
     aws    = aws
     aws.dr = aws.dr
   }
-  
+
   create_single_vault = false  # Use only scheduled vaults
   kms_key_arn         = aws_kms_key.backup.arn
   vault_name_prefix   = "prod"
-  
+
   # Enable all scheduled vaults
   enable_hourly_vault  = true
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = true
   enable_yearly_vault  = true
-  
+
   # Enable DR for daily and weekly only
   enable_dr              = true
   enable_daily_dr_vault  = true
   enable_weekly_dr_vault = true
-  
+
   # Vault lock for compliance
   enable_vault_lock = true
-  
+
   tags = local.common_tags
 }
 
 # 2. Create backup plans with integrated selections
 module "backup_plans" {
   source = "./modules/aws_backup_plans"
-  
+
   name                    = "prod-backup-strategy"
   create_backup_selection = true
   use_individual_plans    = true
-  
+
   # Hourly backups for critical systems
   enable_hourly_plan    = true
   hourly_retention_days = 7
   hourly_vault_name     = module.backup_vaults.scheduled_vault_names["hourly"]
-  
+
   # Daily backups with DR
   enable_daily_plan       = true
   daily_retention_days    = 30
@@ -701,7 +701,7 @@ module "backup_plans" {
   enable_daily_dr_copy    = true
   daily_dr_vault_arn      = module.backup_vaults.dr_vault_arns["daily"]
   daily_dr_retention_days = 14
-  
+
   # Weekly backups with DR
   enable_weekly_plan       = true
   weekly_retention_days    = 90
@@ -710,19 +710,19 @@ module "backup_plans" {
   weekly_dr_vault_arn      = module.backup_vaults.dr_vault_arns["weekly"]
   weekly_dr_retention_days = 30
   weekly_cold_storage_after = 30
-  
+
   # Monthly backups (no DR)
   enable_monthly_plan       = true
   monthly_retention_days    = 365
   monthly_vault_name        = module.backup_vaults.scheduled_vault_names["monthly"]
   monthly_cold_storage_after = 90
-  
+
   # Yearly backups (no DR)
   enable_yearly_plan        = true
   yearly_retention_days     = 2555
   yearly_vault_name         = module.backup_vaults.scheduled_vault_names["yearly"]
   yearly_cold_storage_after = 365
-  
+
   # Global selection tags
   backup_selection_tags = [
     {
@@ -731,7 +731,7 @@ module "backup_plans" {
       value = "production"
     }
   ]
-  
+
   # Windows VSS for EC2
   advanced_backup_settings = [
     {
@@ -741,20 +741,20 @@ module "backup_plans" {
       }
     }
   ]
-  
+
   tags = local.common_tags
 }
 
 # 3. Create additional IAM role for custom backup jobs (optional)
 module "custom_backup_role" {
   source = "./modules/aws_backup_iam_role"
-  
+
   role_name = "custom-backup-role"
-  
+
   aws_managed_policies = [
     "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
   ]
-  
+
   create_custom_policy = true
   custom_policy_name   = "custom-backup-permissions"
   custom_policy = jsonencode({
@@ -776,7 +776,7 @@ module "custom_backup_role" {
       }
     ]
   })
-  
+
   tags = local.common_tags
 }
 
@@ -785,7 +785,7 @@ resource "aws_kms_key" "backup" {
   description             = "KMS key for backup encryption"
   deletion_window_in_days = 30
   enable_key_rotation     = true
-  
+
   tags = merge(local.common_tags, {
     Name = "backup-encryption-key"
   })
@@ -805,7 +805,7 @@ resource "aws_instance" "web_servers" {
   count         = 3
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t3.medium"
-  
+
   tags = {
     Name                   = "web-server-${count.index + 1}"
     Environment            = "production"
@@ -823,7 +823,7 @@ resource "aws_db_instance" "app_database" {
   allocated_storage      = 100
   storage_encrypted      = true
   skip_final_snapshot    = false
-  
+
   tags = {
     Name                  = "app-database"
     Environment           = "production"

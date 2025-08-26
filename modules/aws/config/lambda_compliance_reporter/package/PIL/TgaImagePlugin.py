@@ -68,12 +68,7 @@ class TgaImageFile(ImageFile.ImageFile):
         self._size = i16(s, 12), i16(s, 14)
 
         # validate header fields
-        if (
-            colormaptype not in (0, 1)
-            or self.size[0] <= 0
-            or self.size[1] <= 0
-            or depth not in (1, 8, 16, 24, 32)
-        ):
+        if colormaptype not in (0, 1) or self.size[0] <= 0 or self.size[1] <= 0 or depth not in (1, 8, 16, 24, 32):
             msg = "not a TGA file"
             raise SyntaxError(msg)
 
@@ -115,18 +110,12 @@ class TgaImageFile(ImageFile.ImageFile):
             # read palette
             start, size, mapdepth = i16(s, 3), i16(s, 5), s[7]
             if mapdepth == 16:
-                self.palette = ImagePalette.raw(
-                    "BGRA;15Z", bytes(2 * start) + self.fp.read(2 * size)
-                )
+                self.palette = ImagePalette.raw("BGRA;15Z", bytes(2 * start) + self.fp.read(2 * size))
                 self.palette.mode = "RGBA"
             elif mapdepth == 24:
-                self.palette = ImagePalette.raw(
-                    "BGR", bytes(3 * start) + self.fp.read(3 * size)
-                )
+                self.palette = ImagePalette.raw("BGR", bytes(3 * start) + self.fp.read(3 * size))
             elif mapdepth == 32:
-                self.palette = ImagePalette.raw(
-                    "BGRA", bytes(4 * start) + self.fp.read(4 * size)
-                )
+                self.palette = ImagePalette.raw("BGRA", bytes(4 * start) + self.fp.read(4 * size))
             else:
                 msg = "unknown TGA map depth"
                 raise SyntaxError(msg)

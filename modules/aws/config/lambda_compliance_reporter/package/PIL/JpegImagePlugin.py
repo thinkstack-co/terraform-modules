@@ -376,9 +376,7 @@ class JpegImageFile(ImageFile.ImageFile):
                     rawmode = self.mode
                     if self.mode == "CMYK":
                         rawmode = "CMYK;I"  # assume adobe conventions
-                    self.tile = [
-                        ImageFile._Tile("jpeg", (0, 0) + self.size, 0, (rawmode, ""))
-                    ]
+                    self.tile = [ImageFile._Tile("jpeg", (0, 0) + self.size, 0, (rawmode, ""))]
                     # self.__offset = self.fp.tell()
                     break
                 s = self.fp.read(1)
@@ -422,9 +420,7 @@ class JpegImageFile(ImageFile.ImageFile):
 
         return s
 
-    def draft(
-        self, mode: str | None, size: tuple[int, int] | None
-    ) -> tuple[str, tuple[int, int, float, float]] | None:
+    def draft(self, mode: str | None, size: tuple[int, int] | None) -> tuple[str, tuple[int, int, float, float]] | None:
         if len(self.tile) != 1:
             return None
 
@@ -571,9 +567,7 @@ def _getmp(self: JpegImageFile) -> dict[int, Any] | None:
     try:
         rawmpentries = mp[0xB002]
         for entrynum in range(quant):
-            unpackedentry = struct.unpack_from(
-                f"{endianness}LLLHH", rawmpentries, entrynum * 16
-            )
+            unpackedentry = struct.unpack_from(f"{endianness}LLLHH", rawmpentries, entrynum * 16)
             labels = ("Attribute", "Size", "DataOffset", "EntryNo1", "EntryNo2")
             mpentry = dict(zip(labels, unpackedentry))
             mpentryattr = {
@@ -711,19 +705,13 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
         subsampling = get_sampling(im)
 
     def validate_qtables(
-        qtables: (
-            str | tuple[list[int], ...] | list[list[int]] | dict[int, list[int]] | None
-        ),
+        qtables: (str | tuple[list[int], ...] | list[list[int]] | dict[int, list[int]] | None),
     ) -> list[list[int]] | None:
         if qtables is None:
             return qtables
         if isinstance(qtables, str):
             try:
-                lines = [
-                    int(num)
-                    for line in qtables.splitlines()
-                    for num in line.split("#", 1)[0].split()
-                ]
+                lines = [int(num) for line in qtables.splitlines() for num in line.split("#", 1)[0].split()]
             except ValueError as e:
                 msg = "Invalid quantization table"
                 raise ValueError(msg) from e
@@ -731,9 +719,7 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
                 qtables = [lines[s : s + 64] for s in range(0, len(lines), 64)]
         if isinstance(qtables, (tuple, list, dict)):
             if isinstance(qtables, dict):
-                qtables = [
-                    qtables[key] for key in range(len(qtables)) if key in qtables
-                ]
+                qtables = [qtables[key] for key in range(len(qtables)) if key in qtables]
             elif isinstance(qtables, tuple):
                 qtables = list(qtables)
             if not (0 < len(qtables) < 5):
@@ -783,14 +769,7 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
         i = 1
         for marker in markers:
             size = o16(2 + overhead_len + len(marker))
-            extra += (
-                b"\xff\xe2"
-                + size
-                + b"ICC_PROFILE\0"
-                + o8(i)
-                + o8(len(markers))
-                + marker
-            )
+            extra += b"\xff\xe2" + size + b"ICC_PROFILE\0" + o8(i) + o8(len(markers)) + marker
             i += 1
 
     comment = info.get("comment", im.info.get("comment"))
@@ -850,9 +829,7 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
         # Ensure that our buffer is big enough. Same with the icc_profile block.
         bufsize = max(bufsize, len(exif) + 5, len(extra) + 1)
 
-    ImageFile._save(
-        im, fp, [ImageFile._Tile("jpeg", (0, 0) + im.size, 0, rawmode)], bufsize
-    )
+    ImageFile._save(im, fp, [ImageFile._Tile("jpeg", (0, 0) + im.size, 0, rawmode)], bufsize)
 
 
 def _save_cjpeg(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
@@ -867,9 +844,7 @@ def _save_cjpeg(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
 
 ##
 # Factory for making JPEG and MPO instances
-def jpeg_factory(
-    fp: IO[bytes], filename: str | bytes | None = None
-) -> JpegImageFile | MpoImageFile:
+def jpeg_factory(fp: IO[bytes], filename: str | bytes | None = None) -> JpegImageFile | MpoImageFile:
     im = JpegImageFile(fp, filename)
     try:
         mpheader = im._getmp()
@@ -887,10 +862,7 @@ def jpeg_factory(
         # It is really a JPEG
         pass
     except SyntaxError:
-        warnings.warn(
-            "Image appears to be a malformed MPO file, it will be "
-            "interpreted as a base JPEG file"
-        )
+        warnings.warn("Image appears to be a malformed MPO file, it will be " "interpreted as a base JPEG file")
     return im
 
 

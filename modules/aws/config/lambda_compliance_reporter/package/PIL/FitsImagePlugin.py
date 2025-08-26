@@ -69,9 +69,7 @@ class FitsImageFile(ImageFile.ImageFile):
         offset += self.fp.tell() - 80
         self.tile = [ImageFile._Tile(decoder_name, (0, 0) + self.size, offset, args)]
 
-    def _get_size(
-        self, headers: dict[bytes, bytes], prefix: bytes
-    ) -> tuple[int, int] | None:
+    def _get_size(self, headers: dict[bytes, bytes], prefix: bytes) -> tuple[int, int] | None:
         naxis = int(headers[prefix + b"NAXIS"])
         if naxis == 0:
             return None
@@ -81,9 +79,7 @@ class FitsImageFile(ImageFile.ImageFile):
         else:
             return int(headers[prefix + b"NAXIS1"]), int(headers[prefix + b"NAXIS2"])
 
-    def _parse_headers(
-        self, headers: dict[bytes, bytes]
-    ) -> tuple[str, int, tuple[str | int, ...]]:
+    def _parse_headers(self, headers: dict[bytes, bytes]) -> tuple[str, int, tuple[str | int, ...]]:
         prefix = b""
         decoder_name = "raw"
         offset = 0

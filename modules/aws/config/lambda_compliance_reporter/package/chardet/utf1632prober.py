@@ -113,20 +113,16 @@ class UTF1632Prober(CharSetProber):
     def is_likely_utf16be(self) -> bool:
         approx_chars = self.approx_16bit_chars()
         return approx_chars >= self.MIN_CHARS_FOR_DETECTION and (
-            (self.nonzeros_at_mod[1] + self.nonzeros_at_mod[3]) / approx_chars
-            > self.EXPECTED_RATIO
-            and (self.zeros_at_mod[0] + self.zeros_at_mod[2]) / approx_chars
-            > self.EXPECTED_RATIO
+            (self.nonzeros_at_mod[1] + self.nonzeros_at_mod[3]) / approx_chars > self.EXPECTED_RATIO
+            and (self.zeros_at_mod[0] + self.zeros_at_mod[2]) / approx_chars > self.EXPECTED_RATIO
             and not self.invalid_utf16be
         )
 
     def is_likely_utf16le(self) -> bool:
         approx_chars = self.approx_16bit_chars()
         return approx_chars >= self.MIN_CHARS_FOR_DETECTION and (
-            (self.nonzeros_at_mod[0] + self.nonzeros_at_mod[2]) / approx_chars
-            > self.EXPECTED_RATIO
-            and (self.zeros_at_mod[1] + self.zeros_at_mod[3]) / approx_chars
-            > self.EXPECTED_RATIO
+            (self.nonzeros_at_mod[0] + self.nonzeros_at_mod[2]) / approx_chars > self.EXPECTED_RATIO
+            and (self.zeros_at_mod[1] + self.zeros_at_mod[3]) / approx_chars > self.EXPECTED_RATIO
             and not self.invalid_utf16le
         )
 
@@ -139,17 +135,9 @@ class UTF1632Prober(CharSetProber):
 
         https://en.wikipedia.org/wiki/UTF-32
         """
-        if (
-            quad[0] != 0
-            or quad[1] > 0x10
-            or (quad[0] == 0 and quad[1] == 0 and 0xD8 <= quad[2] <= 0xDF)
-        ):
+        if quad[0] != 0 or quad[1] > 0x10 or (quad[0] == 0 and quad[1] == 0 and 0xD8 <= quad[2] <= 0xDF):
             self.invalid_utf32be = True
-        if (
-            quad[3] != 0
-            or quad[2] > 0x10
-            or (quad[3] == 0 and quad[2] == 0 and 0xD8 <= quad[1] <= 0xDF)
-        ):
+        if quad[3] != 0 or quad[2] > 0x10 or (quad[3] == 0 and quad[2] == 0 and 0xD8 <= quad[1] <= 0xDF):
             self.invalid_utf32le = True
 
     def validate_utf16_characters(self, pair: List[int]) -> None:

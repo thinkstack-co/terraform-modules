@@ -52,25 +52,25 @@ run_linter() {
     local linter_name="$1"
     local linter_command="$2"
     local report_subdir="$3"
-    
+
     total_linters=$((total_linters + 1))
     echo -e "${YELLOW}Running $linter_name...${NC}"
-    
+
     local linter_report="$REPORTS_DIR/$report_subdir/${report_subdir}_report_$TIMESTAMP.txt"
-    
+
     {
         echo "$linter_name Report - $(date)"
         echo "=================================="
         echo "Command: $linter_command"
         echo ""
     } > "$linter_report"
-    
+
     {
         echo "=== $linter_name Results ==="
         echo "Report: $linter_report"
         echo ""
     } >> "$MAIN_REPORT"
-    
+
     if eval "$linter_command" >> "$linter_report" 2>&1; then
         echo -e "${GREEN}✓ $linter_name passed${NC}"
         echo "✓ PASSED" >> "$MAIN_REPORT"
@@ -81,7 +81,7 @@ run_linter() {
         echo "✗ FAILED" >> "$linter_report"
         failed_linters=$((failed_linters + 1))
     fi
-    
+
     echo "" >> "$MAIN_REPORT"
     echo ""
 }
@@ -131,7 +131,7 @@ if [ -n "$shell_files" ]; then
         fi
         echo "" >> "$shellcheck_report"
     done
-    
+
     if [ $shellcheck_failed -eq 0 ]; then
         echo -e "${GREEN}✓ ShellCheck passed${NC}"
         echo "✓ PASSED" >> "$shellcheck_report"
@@ -169,7 +169,7 @@ if [ -n "$python_files" ]; then
         fi
         echo "" >> "$black_report"
     done
-    
+
     if [ $black_failed -eq 0 ]; then
         echo -e "${GREEN}✓ Python Black passed${NC}"
         echo "✓ PASSED" >> "$black_report"
@@ -203,7 +203,7 @@ if [ -n "$dockerfile_files" ]; then
         fi
         echo "" >> "$hadolint_report"
     done
-    
+
     if [ $hadolint_failed -eq 0 ]; then
         echo -e "${GREEN}✓ Hadolint passed${NC}"
         echo "✓ PASSED" >> "$hadolint_report"
@@ -237,7 +237,7 @@ if [ -n "$bash_files" ]; then
         fi
         echo "" >> "$bash_report"
     done
-    
+
     if [ $bash_failed -eq 0 ]; then
         echo -e "${GREEN}✓ Bash linting passed${NC}"
         echo "✓ PASSED" >> "$bash_report"
@@ -282,7 +282,7 @@ SUMMARY_FILE="$REPORTS_DIR/latest_summary.txt"
     echo "Failed linters: $failed_linters"
     echo "Passed linters: $((total_linters - failed_linters))"
     echo ""
-    
+
     if [ $failed_linters -eq 0 ]; then
         echo "✅ STATUS: All linters passed!"
     else
@@ -293,7 +293,7 @@ SUMMARY_FILE="$REPORTS_DIR/latest_summary.txt"
             echo "  - $line"
         done
     fi
-    
+
     echo ""
     echo "Full report: $MAIN_REPORT"
 } > "$SUMMARY_FILE"

@@ -41,7 +41,7 @@ echo ""
     echo "Super-Linter Report - $(date)"
     echo "=================================="
     echo ""
-    
+
     docker run --rm \
         -e RUN_LOCAL=true \
         -e USE_FIND_ALGORITHM=true \
@@ -57,7 +57,7 @@ echo ""
         -e FILTER_REGEX_EXCLUDE=".*/.terraform/.*|.*/package/.*|.*/.git/.*" \
         -v "$(pwd)":/tmp/lint \
         ghcr.io/github/super-linter:slim-v5.0.0 2>&1
-        
+
     echo ""
     echo "Report generated at: $(date)"
 } | tee "$REPORT_FILE"
@@ -68,27 +68,27 @@ SUMMARY_FILE="$REPORTS_DIR/latest_summary.txt"
     echo "Super-Linter Summary - $(date)"
     echo "=============================="
     echo ""
-    
+
     # Extract error counts from the report
     if grep -q "ERROR" "$REPORT_FILE"; then
         echo "ERRORS FOUND:"
         grep "ERROR" "$REPORT_FILE" | head -20
         echo ""
     fi
-    
+
     if grep -q "WARN" "$REPORT_FILE"; then
         echo "WARNINGS FOUND:"
         grep "WARN" "$REPORT_FILE" | head -10
         echo ""
     fi
-    
+
     # Check final status
     if grep -q "All file(s) linted successfully" "$REPORT_FILE"; then
         echo "✅ STATUS: All linters passed!"
     else
         echo "❌ STATUS: Some linters failed - check full report for details"
     fi
-    
+
     echo ""
     echo "Full report: $REPORT_FILE"
 } > "$SUMMARY_FILE"

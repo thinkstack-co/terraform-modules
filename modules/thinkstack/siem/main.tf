@@ -330,7 +330,7 @@ resource "aws_security_group" "sg" {
     description = "SNMP Trap Ingester Port"
   }
 
-  /* 
+  /*
 ########################################
 # Syslog Port Mappings
 ########################################

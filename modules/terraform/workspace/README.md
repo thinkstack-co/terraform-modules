@@ -66,7 +66,7 @@
 ```
 module "client_prod_security" {
     source           = "github.com/thinkstack-co/terraform-modules//modules/terraform/workspace"
-    
+
     identifier        = "github-repo/client_prod_security"
     name              = "client_prod_security"
     oauth_token_id    = var.github_oauth_token_id

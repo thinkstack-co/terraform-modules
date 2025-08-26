@@ -223,15 +223,9 @@ def colorize(
         range_map = range(whitepoint - blackpoint)
 
         for i in range_map:
-            red.append(
-                rgb_black[0] + i * (rgb_white[0] - rgb_black[0]) // len(range_map)
-            )
-            green.append(
-                rgb_black[1] + i * (rgb_white[1] - rgb_black[1]) // len(range_map)
-            )
-            blue.append(
-                rgb_black[2] + i * (rgb_white[2] - rgb_black[2]) // len(range_map)
-            )
+            red.append(rgb_black[0] + i * (rgb_white[0] - rgb_black[0]) // len(range_map))
+            green.append(rgb_black[1] + i * (rgb_white[1] - rgb_black[1]) // len(range_map))
+            blue.append(rgb_black[2] + i * (rgb_white[2] - rgb_black[2]) // len(range_map))
 
     # Create the mapping (3-color)
     else:
@@ -239,20 +233,12 @@ def colorize(
         range_map2 = range(whitepoint - midpoint)
 
         for i in range_map1:
-            red.append(
-                rgb_black[0] + i * (rgb_mid[0] - rgb_black[0]) // len(range_map1)
-            )
-            green.append(
-                rgb_black[1] + i * (rgb_mid[1] - rgb_black[1]) // len(range_map1)
-            )
-            blue.append(
-                rgb_black[2] + i * (rgb_mid[2] - rgb_black[2]) // len(range_map1)
-            )
+            red.append(rgb_black[0] + i * (rgb_mid[0] - rgb_black[0]) // len(range_map1))
+            green.append(rgb_black[1] + i * (rgb_mid[1] - rgb_black[1]) // len(range_map1))
+            blue.append(rgb_black[2] + i * (rgb_mid[2] - rgb_black[2]) // len(range_map1))
         for i in range_map2:
             red.append(rgb_mid[0] + i * (rgb_white[0] - rgb_mid[0]) // len(range_map2))
-            green.append(
-                rgb_mid[1] + i * (rgb_white[1] - rgb_mid[1]) // len(range_map2)
-            )
+            green.append(rgb_mid[1] + i * (rgb_white[1] - rgb_mid[1]) // len(range_map2))
             blue.append(rgb_mid[2] + i * (rgb_white[2] - rgb_mid[2]) // len(range_map2))
 
     # Create the high-end values
@@ -266,9 +252,7 @@ def colorize(
     return _lut(image, red + green + blue)
 
 
-def contain(
-    image: Image.Image, size: tuple[int, int], method: int = Image.Resampling.BICUBIC
-) -> Image.Image:
+def contain(image: Image.Image, size: tuple[int, int], method: int = Image.Resampling.BICUBIC) -> Image.Image:
     """
     Returns a resized version of the image, set to the maximum width and height
     within the requested size, while maintaining the original aspect ratio.
@@ -297,9 +281,7 @@ def contain(
     return image.resize(size, resample=method)
 
 
-def cover(
-    image: Image.Image, size: tuple[int, int], method: int = Image.Resampling.BICUBIC
-) -> Image.Image:
+def cover(image: Image.Image, size: tuple[int, int], method: int = Image.Resampling.BICUBIC) -> Image.Image:
     """
     Returns a resized version of the image, so that the requested size is
     covered, while maintaining the original aspect ratio.
@@ -389,9 +371,7 @@ def crop(image: Image.Image, border: int = 0) -> Image.Image:
     return image.crop((left, top, image.size[0] - right, image.size[1] - bottom))
 
 
-def scale(
-    image: Image.Image, factor: float, resample: int = Image.Resampling.BICUBIC
-) -> Image.Image:
+def scale(image: Image.Image, factor: float, resample: int = Image.Resampling.BICUBIC) -> Image.Image:
     """
     Returns a rescaled image by a specific factor given in parameter.
     A factor greater than 1 expands the image, between 0 and 1 contracts the
@@ -425,9 +405,8 @@ class SupportsGetMesh(Protocol):
 
     def getmesh(
         self, image: Image.Image
-    ) -> list[
-        tuple[tuple[int, int, int, int], tuple[int, int, int, int, int, int, int, int]]
-    ]: ...
+    ) -> list[tuple[tuple[int, int, int, int], tuple[int, int, int, int, int, int, int, int]]]:
+        ...
 
 
 def deform(
@@ -445,9 +424,7 @@ def deform(
        in the PIL.Image.transform function.
     :return: An image.
     """
-    return image.transform(
-        image.size, Image.Transform.MESH, deformer.getmesh(image), resample
-    )
+    return image.transform(image.size, Image.Transform.MESH, deformer.getmesh(image), resample)
 
 
 def equalize(image: Image.Image, mask: Image.Image | None = None) -> Image.Image:
@@ -674,13 +651,13 @@ def solarize(image: Image.Image, threshold: int = 128) -> Image.Image:
 
 
 @overload
-def exif_transpose(image: Image.Image, *, in_place: Literal[True]) -> None: ...
+def exif_transpose(image: Image.Image, *, in_place: Literal[True]) -> None:
+    ...
 
 
 @overload
-def exif_transpose(
-    image: Image.Image, *, in_place: Literal[False] = False
-) -> Image.Image: ...
+def exif_transpose(image: Image.Image, *, in_place: Literal[False] = False) -> Image.Image:
+    ...
 
 
 def exif_transpose(image: Image.Image, *, in_place: bool = False) -> Image.Image | None:
@@ -732,9 +709,7 @@ def exif_transpose(image: Image.Image, *, in_place: bool = False) -> Image.Image
                         if isinstance(value, str):
                             value = re.sub(pattern, "", value)
                         elif isinstance(value, tuple):
-                            value = tuple(
-                                re.sub(pattern.encode(), b"", v) for v in value
-                            )
+                            value = tuple(re.sub(pattern.encode(), b"", v) for v in value)
                         else:
                             value = re.sub(pattern.encode(), b"", value)
                         exif_image.info[key] = value

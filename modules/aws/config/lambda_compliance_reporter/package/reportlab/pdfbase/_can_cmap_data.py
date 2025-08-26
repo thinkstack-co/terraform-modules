@@ -15,7 +15,7 @@ Running off CMAP files we get the following widths...::
     7.7800000000000002
     >>> font.stringWidth(u'\u6771\u4EAC', 10)
     20.0
-    >>> 
+    >>>
 
 """
 
@@ -24,14 +24,13 @@ from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
 
 def run():
-
     buf = []
-    buf.append('widthsByUnichar = {}')
+    buf.append("widthsByUnichar = {}")
     for fontName, (language, encName) in defaultUnicodeEncodings.items():
-        print('handling %s : %s : %s' % (fontName, language, encName))
+        print("handling %s : %s : %s" % (fontName, language, encName))
 
-        #this does just about all of it for us, as all the info
-        #we need is present.
+        # this does just about all of it for us, as all the info
+        # we need is present.
         font = UnicodeCIDFont(fontName)
 
         widthsByCID = font.face._explicitWidths
@@ -41,18 +40,15 @@ def run():
             width = widthsByCID.get(cid, 1000)
             if width != 1000:
                 nonStandardWidthsByUnichar[chr(codePoint)] = width
-        
 
-        
-        print('created font width map (%d items).  ' % len(nonStandardWidthsByUnichar))
+        print("created font width map (%d items).  " % len(nonStandardWidthsByUnichar))
 
         buf.append('widthsByUnichar["%s"] = %s' % (fontName, repr(nonStandardWidthsByUnichar)))
-        
-        
-    src = '\n'.join(buf) + '\n'
-    open('canned_widths.py','w').write(src)
-    print('wrote canned_widths.py')
 
-if __name__=='__main__':
+    src = "\n".join(buf) + "\n"
+    open("canned_widths.py", "w").write(src)
+    print("wrote canned_widths.py")
+
+
+if __name__ == "__main__":
     run()
-    

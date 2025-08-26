@@ -66,10 +66,10 @@
 ```
 module "route53_zone" {
   source  = "github.com/thinkstack-co/terraform-modules//modules/aws/route53/zone"
-  
+
   comment = "ThinkStack primary domain"
   name    = "thinkstack.co"
-  
+
   tags    = {
     terraform   = "yes"
     created_by  = "Zachary Hill"

@@ -80,7 +80,7 @@ module "web_alb" {
   enable_deletion_protection       = true
   access_logs_enabled              = true
   access_logs_bucket               = "my-alb-logs-bucket"
-  
+
   tags = {
     terraform   = "true"
     environment = "production"
@@ -101,7 +101,7 @@ module "internal_alb" {
   security_groups                  = [module.internal_sg.id]
   enable_cross_zone_load_balancing = true
   idle_timeout                     = 120
-  
+
   tags = {
     terraform   = "true"
     environment = "production"

@@ -1313,4 +1313,3 @@ resource "aws_backup_selection" "yearly_dr_selection_all" {
     value = var.dr_tag_value
   }
 }
-

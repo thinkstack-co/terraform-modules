@@ -14,7 +14,7 @@ module "prod-prod-lb" {
   access_logs_enabled              = false
   access_logs_bucket               = "alb-logs-12452452564354622"
 
-  security_groups                  = [module.prod_prod_alb_sg.id, 
+  security_groups                  = [module.prod_prod_alb_sg.id,
                                       module.prod_prod_salesforce_sg.id,
                                       module.prod_prod_vonage_sg.id]
 
@@ -32,19 +32,19 @@ module "prod-prod-lb" {
 module "prod-prod-lb-listener" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_listener?ref=dev_alb"
 
-  load_balancer_arn = module.prod-prod-lb.lb_arn           
+  load_balancer_arn = module.prod-prod-lb.lb_arn
   port = 443
   protocol = "HTTPS"
   ssl_policy = "ELBSecurityPolicy-2016-08"
   ssl_certificate = module.prod-alb-ssl-certificate.acm_certificate_arn
   target_groups = [
     {
-      arn = module.prod-prod-target-group.target_group_arn   
+      arn = module.prod-prod-target-group.target_group_arn
       weight = 100
     }
   ]
   stickiness_enabled = false
-    
+
   tags = {
     terraform   = "yes"
     created_by  = "Wesley Bey"
@@ -56,7 +56,7 @@ module "prod-prod-lb-listener" {
 }
 
 module "prod-prod-target-group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_target_group?ref=dev_alb"  
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/alb/alb_target_group?ref=dev_alb"
 
   name                            = "prod-prod-target-group"
   target_type                     = "instance"
@@ -72,7 +72,7 @@ module "prod-prod-target-group" {
   unhealthy_threshold_count       = 2
   matcher                         = "200"
   target_id                       = "i-0a98692818ae9a611"
-  target_group_arn                = module.prod-prod-target-group.target_group_arn 
+  target_group_arn                = module.prod-prod-target-group.target_group_arn
 
   tags = {
     terraform   = "yes"

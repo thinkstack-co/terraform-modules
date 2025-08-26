@@ -33,15 +33,7 @@ from enum import IntEnum
 from functools import cached_property
 from typing import IO, Any, Literal, NamedTuple, Union
 
-from . import (
-    Image,
-    ImageChops,
-    ImageFile,
-    ImageMath,
-    ImageOps,
-    ImagePalette,
-    ImageSequence,
-)
+from . import Image, ImageChops, ImageFile, ImageMath, ImageOps, ImagePalette, ImageSequence
 from ._binary import i16le as i16
 from ._binary import o8
 from ._binary import o16le as o16
@@ -333,10 +325,7 @@ class GifImageFile(ImageFile.ImageFile):
                 self.palette = None
         else:
             if self.mode == "P":
-                if (
-                    LOADING_STRATEGY != LoadingStrategy.RGB_AFTER_DIFFERENT_PALETTE_ONLY
-                    or palette
-                ):
+                if LOADING_STRATEGY != LoadingStrategy.RGB_AFTER_DIFFERENT_PALETTE_ONLY or palette:
                     if "transparency" in self.info:
                         self.im.putpalettealpha(self.info["transparency"], 0)
                         self.im = self.im.convert("RGBA", Image.Dither.FLOYDSTEINBERG)
@@ -395,9 +384,7 @@ class GifImageFile(ImageFile.ImageFile):
                         if self.mode in ("RGB", "RGBA"):
                             dispose_mode = "RGBA"
                             color = _rgb(frame_transparency) + (0,)
-                        self.dispose = Image.core.fill(
-                            dispose_mode, dispose_size, color
-                        )
+                        self.dispose = Image.core.fill(dispose_mode, dispose_size, color)
             except AttributeError:
                 pass
 
@@ -431,9 +418,7 @@ class GifImageFile(ImageFile.ImageFile):
         self._prev_im = None
         if self.__frame == 0:
             if self._frame_transparency is not None:
-                self.im = Image.core.fill(
-                    temp_mode, self.size, self._frame_transparency
-                )
+                self.im = Image.core.fill(temp_mode, self.size, self._frame_transparency)
         elif self.mode in ("RGB", "RGBA"):
             self._prev_im = self.im
             if self._frame_palette:
@@ -532,9 +517,7 @@ def _normalize_mode(im: Image.Image) -> Image.Image:
 _Palette = Union[bytes, bytearray, list[int], ImagePalette.ImagePalette]
 
 
-def _normalize_palette(
-    im: Image.Image, palette: _Palette | None, info: dict[str, Any]
-) -> Image.Image:
+def _normalize_palette(im: Image.Image, palette: _Palette | None, info: dict[str, Any]) -> Image.Image:
     """
     Normalizes the palette for image.
       - Sets the palette to the incoming palette, if provided.
@@ -591,9 +574,7 @@ def _normalize_palette(
             im = im.remap_palette(optimized_palette_colors, source_palette)
             if "transparency" in info:
                 try:
-                    info["transparency"] = optimized_palette_colors.index(
-                        info["transparency"]
-                    )
+                    info["transparency"] = optimized_palette_colors.index(info["transparency"])
                 except ValueError:
                     del info["transparency"]
             return im
@@ -624,19 +605,13 @@ def _write_single_frame(
     _write_local_header(fp, im, (0, 0), flags)
 
     im_out.encoderconfig = (8, get_interlace(im))
-    ImageFile._save(
-        im_out, fp, [ImageFile._Tile("gif", (0, 0) + im.size, 0, RAWMODE[im_out.mode])]
-    )
+    ImageFile._save(im_out, fp, [ImageFile._Tile("gif", (0, 0) + im.size, 0, RAWMODE[im_out.mode])])
 
     fp.write(b"\0")  # end of image data
 
 
-def _getbbox(
-    base_im: Image.Image, im_frame: Image.Image
-) -> tuple[Image.Image, tuple[int, int, int, int] | None]:
-    palette_bytes = [
-        bytes(im.palette.palette) if im.palette else b"" for im in (base_im, im_frame)
-    ]
+def _getbbox(base_im: Image.Image, im_frame: Image.Image) -> tuple[Image.Image, tuple[int, int, int, int] | None]:
+    palette_bytes = [bytes(im.palette.palette) if im.palette else b"" for im in (base_im, im_frame)]
     if palette_bytes[0] != palette_bytes[1]:
         im_frame = im_frame.convert("RGBA")
         base_im = base_im.convert("RGBA")
@@ -650,9 +625,7 @@ class _Frame(NamedTuple):
     encoderinfo: dict[str, Any]
 
 
-def _write_multiple_frames(
-    im: Image.Image, fp: IO[bytes], palette: _Palette | None
-) -> bool:
+def _write_multiple_frames(im: Image.Image, fp: IO[bytes], palette: _Palette | None) -> bool:
     duration = im.encoderinfo.get("duration")
     disposal = im.encoderinfo.get("disposal", im.info.get("disposal"))
 
@@ -695,9 +668,7 @@ def _write_multiple_frames(
                 if im_frames[-1].encoderinfo.get("disposal") == 2:
                     # To appear correctly in viewers using a convention,
                     # only consider transparency, and not background color
-                    color = im.encoderinfo.get(
-                        "transparency", im.info.get("transparency")
-                    )
+                    color = im.encoderinfo.get("transparency", im.info.get("transparency"))
                     if color is not None:
                         if background_im is None:
                             background = _get_background(im_frame, color)
@@ -712,9 +683,7 @@ def _write_multiple_frames(
                     if "transparency" not in encoderinfo:
                         assert im_frame.palette is not None
                         try:
-                            encoderinfo["transparency"] = (
-                                im_frame.palette._new_color_index(im_frame)
-                            )
+                            encoderinfo["transparency"] = im_frame.palette._new_color_index(im_frame)
                         except ValueError:
                             pass
                     if "transparency" in encoderinfo:
@@ -726,9 +695,7 @@ def _write_multiple_frames(
                             mask = ImageMath.lambda_eval(
                                 lambda args: args["convert"](
                                     args["max"](
-                                        args["max"](
-                                            args["max"](args["r"], args["g"]), args["b"]
-                                        ),
+                                        args["max"](args["max"](args["r"], args["g"]), args["b"]),
                                         args["a"],
                                     )
                                     * 255,
@@ -784,9 +751,7 @@ def _save_all(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     _save(im, fp, filename, save_all=True)
 
 
-def _save(
-    im: Image.Image, fp: IO[bytes], filename: str | bytes, save_all: bool = False
-) -> None:
+def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes, save_all: bool = False) -> None:
     # header
     if "palette" in im.encoderinfo or "palette" in im.info:
         palette = im.encoderinfo.get("palette", im.info.get("palette"))
@@ -813,9 +778,7 @@ def get_interlace(im: Image.Image) -> int:
     return interlace
 
 
-def _write_local_header(
-    fp: IO[bytes], im: Image.Image, offset: tuple[int, int], flags: int
-) -> None:
+def _write_local_header(fp: IO[bytes], im: Image.Image, offset: tuple[int, int], flags: int) -> None:
     try:
         transparency = im.encoderinfo["transparency"]
     except KeyError:
@@ -875,17 +838,13 @@ def _save_netpbm(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     try:
         with open(filename, "wb") as f:
             if im.mode != "RGB":
-                subprocess.check_call(
-                    ["ppmtogif", tempfile], stdout=f, stderr=subprocess.DEVNULL
-                )
+                subprocess.check_call(["ppmtogif", tempfile], stdout=f, stderr=subprocess.DEVNULL)
             else:
                 # Pipe ppmquant output into ppmtogif
                 # "ppmquant 256 %s | ppmtogif > %s" % (tempfile, filename)
                 quant_cmd = ["ppmquant", "256", tempfile]
                 togif_cmd = ["ppmtogif"]
-                quant_proc = subprocess.Popen(
-                    quant_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
-                )
+                quant_proc = subprocess.Popen(quant_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                 togif_proc = subprocess.Popen(
                     togif_cmd,
                     stdin=quant_proc.stdout,
@@ -950,9 +909,7 @@ def _get_optimize(im: Image.Image, info: dict[str, Any]) -> list[int] | None:
                 return used_palette_colors
 
             assert im.palette is not None
-            num_palette_colors = len(im.palette.palette) // Image.getmodebands(
-                im.palette.mode
-            )
+            num_palette_colors = len(im.palette.palette) // Image.getmodebands(im.palette.mode)
             current_palette_size = 1 << (num_palette_colors - 1).bit_length()
             if (
                 # check that the palette would become smaller when saved
@@ -1043,13 +1000,7 @@ def _get_global_header(im: Image.Image, info: dict[str, Any]) -> list[bytes]:
 
     version = b"87a"
     if im.info.get("version") == b"89a" or (
-        info
-        and (
-            "transparency" in info
-            or info.get("loop") is not None
-            or info.get("duration")
-            or info.get("comment")
-        )
+        info and ("transparency" in info or info.get("loop") is not None or info.get("duration") or info.get("comment"))
     ):
         version = b"89a"
 
@@ -1059,10 +1010,7 @@ def _get_global_header(im: Image.Image, info: dict[str, Any]) -> list[bytes]:
     color_table_size = _get_color_table_size(palette_bytes)
 
     header = [
-        b"GIF"  # signature
-        + version  # version
-        + o16(im.size[0])  # canvas width
-        + o16(im.size[1]),  # canvas height
+        b"GIF" + version + o16(im.size[0]) + o16(im.size[1]),  # signature  # version  # canvas width  # canvas height
         # Logical Screen Descriptor
         # size of global color table + global color table flag
         o8(color_table_size + 128),  # packed fields
@@ -1154,9 +1102,7 @@ def getheader(
     return header, used_palette_colors
 
 
-def getdata(
-    im: Image.Image, offset: tuple[int, int] = (0, 0), **params: Any
-) -> list[bytes]:
+def getdata(im: Image.Image, offset: tuple[int, int] = (0, 0), **params: Any) -> list[bytes]:
     """
     Legacy Method
 

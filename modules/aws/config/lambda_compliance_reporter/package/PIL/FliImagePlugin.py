@@ -29,11 +29,7 @@ from ._util import DeferredError
 
 
 def _accept(prefix: bytes) -> bool:
-    return (
-        len(prefix) >= 6
-        and i16(prefix, 4) in [0xAF11, 0xAF12]
-        and i16(prefix, 14) in [0, 3]  # flags
-    )
+    return len(prefix) >= 6 and i16(prefix, 4) in [0xAF11, 0xAF12] and i16(prefix, 14) in [0, 3]  # flags
 
 
 ##
@@ -97,9 +93,7 @@ class FliImageFile(ImageFile.ImageFile):
                 if not chunk_size:
                     break
 
-        self.palette = ImagePalette.raw(
-            "RGB", b"".join(o8(r) + o8(g) + o8(b) for (r, g, b) in palette)
-        )
+        self.palette = ImagePalette.raw("RGB", b"".join(o8(r) + o8(g) + o8(b) for (r, g, b) in palette))
 
         # set things up to decode first frame
         self.__frame = -1

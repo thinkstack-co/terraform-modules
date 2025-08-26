@@ -66,7 +66,7 @@
 ```
 module "search_queue" {
   source                     = "github.com/thinkstack-co/terraform-modules//modules/aws/sqs_queue"
-  
+
   name                       = var.search_queue_name
   visibility_timeout_seconds = 300
 }

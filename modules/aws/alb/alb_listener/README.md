@@ -74,7 +74,7 @@ module "http_listener" {
   load_balancer_arn = module.web_alb.lb_arn
   port              = 80
   protocol          = "HTTP"
-  
+
   default_action = {
     type             = "forward"
     target_group_arn = module.web_target_group.arn
@@ -93,7 +93,7 @@ module "https_listener" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = module.acm_certificate.acm_certificate_arn
-  
+
   default_action = {
     type             = "forward"
     target_group_arn = module.web_target_group.arn
@@ -106,7 +106,7 @@ module "http_redirect_listener" {
   load_balancer_arn = module.web_alb.lb_arn
   port              = 80
   protocol          = "HTTP"
-  
+
   default_action = {
     type = "redirect"
     redirect = {

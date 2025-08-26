@@ -65,9 +65,9 @@
 
 ```
 module test {
-    source = 
+    source =
 
-    variable = 
+    variable =
 }
 ```
 

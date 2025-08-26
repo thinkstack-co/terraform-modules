@@ -118,4 +118,3 @@ Failed to load configurations; examples/cloudformation_test/basic/main.tf:21,1-2
 ```
 The module directory "modules/aws/cloudformation_test" does not exist or cannot be read.
 ```
-

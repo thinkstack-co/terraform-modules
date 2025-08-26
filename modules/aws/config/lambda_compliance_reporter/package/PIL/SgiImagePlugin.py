@@ -120,18 +120,10 @@ class SgiImageFile(ImageFile.ImageFile):
                 self.tile = []
                 offset = headlen
                 for layer in self.mode:
-                    self.tile.append(
-                        ImageFile._Tile(
-                            "raw", (0, 0) + self.size, offset, (layer, 0, orientation)
-                        )
-                    )
+                    self.tile.append(ImageFile._Tile("raw", (0, 0) + self.size, offset, (layer, 0, orientation)))
                     offset += pagesize
         elif compression == 1:
-            self.tile = [
-                ImageFile._Tile(
-                    "sgi_rle", (0, 0) + self.size, headlen, (rawmode, orientation, bpc)
-                )
-            ]
+            self.tile = [ImageFile._Tile("sgi_rle", (0, 0) + self.size, headlen, (rawmode, orientation, bpc))]
 
 
 def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
@@ -225,9 +217,7 @@ class SGI16Decoder(ImageFile.PyDecoder):
 
         for band in range(zsize):
             channel = Image.new("L", (self.state.xsize, self.state.ysize))
-            channel.frombytes(
-                self.fd.read(2 * pagesize), "raw", "L;16B", stride, orientation
-            )
+            channel.frombytes(self.fd.read(2 * pagesize), "raw", "L;16B", stride, orientation)
             self.im.putband(channel.im, band)
 
         return -1, 0

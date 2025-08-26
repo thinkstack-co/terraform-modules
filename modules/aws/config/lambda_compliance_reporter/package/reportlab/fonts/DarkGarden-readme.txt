@@ -64,7 +64,7 @@ On Linux / UNIX (using commandline)
 
 COPYRIGHT AND LICENSE
 
-Copyright (C) 1999, 2000, 2004 Michal Kosmulski 
+Copyright (C) 1999, 2000, 2004 Michal Kosmulski
 <mkosmul@users.sourceforge.net>
 
 This font is free software; you can redistribute it and/or modify

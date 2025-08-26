@@ -76,9 +76,7 @@ def get_non_compliant_resources(rule_name):
     resources = []
     paginator = config.get_paginator("get_compliance_details_by_config_rule")
 
-    for page in paginator.paginate(
-        ConfigRuleName=rule_name, ComplianceTypes=["NON_COMPLIANT"]
-    ):
+    for page in paginator.paginate(ConfigRuleName=rule_name, ComplianceTypes=["NON_COMPLIANT"]):
         for result in page["EvaluationResults"]:
             res = result["EvaluationResultIdentifier"]["EvaluationResultQualifier"]
 
@@ -193,9 +191,7 @@ def lambda_handler(event, context):
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
-    insufficient_data_count = sum(
-        1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
-    )
+    insufficient_data_count = sum(1 for v in compliance.values() if v == "INSUFFICIENT_DATA")
 
     # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
     for rule_name, status in compliance.items():
@@ -220,9 +216,7 @@ def lambda_handler(event, context):
                         # For other resources, try to use the Name tag if present
                         display_name = get_resource_name_from_tag(arn)
 
-                    non_compliant_section.append(
-                        [display_name, res["ResourceType"], arn]
-                    )
+                    non_compliant_section.append([display_name, res["ResourceType"], arn])
 
     # ── DEBUG FINAL ROWS ──
     print("DEBUG final non_compliant_section:", non_compliant_section)
@@ -300,9 +294,7 @@ def lambda_handler(event, context):
                 [
                     Paragraph(rule_name, small_style),
                     Paragraph(description, desc_style),
-                    Paragraph(
-                        status, small_style
-                    ),  # Status will be styled separately below
+                    Paragraph(status, small_style),  # Status will be styled separately below
                 ]
             )
 
@@ -350,9 +342,7 @@ def lambda_handler(event, context):
         )
         elements.append(rules_summary_table)
     else:
-        elements.append(
-            Paragraph("<i>No AWS Config rules configured.</i>", normal_style)
-        )
+        elements.append(Paragraph("<i>No AWS Config rules configured.</i>", normal_style))
     elements.append(Spacer(1, 18))
 
     # Removed duplicate compliance summary table (already shown at top of report)
@@ -368,9 +358,7 @@ def lambda_handler(event, context):
             ]
         ]
         for name, rtype, arn in non_compliant_section:
-            table_data.append(
-                [Paragraph(name, normal_style), Paragraph(rtype, normal_style)]
-            )
+            table_data.append([Paragraph(name, normal_style), Paragraph(rtype, normal_style)])
 
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(
@@ -397,9 +385,7 @@ def lambda_handler(event, context):
         elements.append(noncomp_table)
 
     else:
-        elements.append(
-            Paragraph("<i>No non-compliant resources found.</i>", normal_style)
-        )
+        elements.append(Paragraph("<i>No non-compliant resources found.</i>", normal_style))
 
     doc.build(elements)
     buffer.seek(0)
@@ -416,9 +402,7 @@ def lambda_handler(event, context):
         f"{now_dt.strftime('%d')}/"
         f"compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
     )
-    s3.put_object(
-        Bucket=bucket, Key=key, Body=buffer.getvalue(), ContentType="application/pdf"
-    )
+    s3.put_object(Bucket=bucket, Key=key, Body=buffer.getvalue(), ContentType="application/pdf")
 
     return {
         "statusCode": 200,

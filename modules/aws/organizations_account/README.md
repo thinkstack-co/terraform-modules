@@ -66,7 +66,7 @@
 ```
 module "account_prod_infrastructure" {
     source    = "github.com/thinkstack-co/terraform-modules//modules/aws/organizations_account"
-    
+
     name      = "account_prod_infrastructure"
     email     = "aws_environments+account@example.com"
     parent_id = var.account_parent_id

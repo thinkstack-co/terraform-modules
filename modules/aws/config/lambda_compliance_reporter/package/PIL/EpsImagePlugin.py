@@ -170,9 +170,7 @@ def Ghostscript(
 
 
 def _accept(prefix: bytes) -> bool:
-    return prefix.startswith(b"%!PS") or (
-        len(prefix) >= 4 and i32(prefix) == 0xC6D3D0C5
-    )
+    return prefix.startswith(b"%!PS") or (len(prefix) >= 4 and i32(prefix) == 0xC6D3D0C5)
 
 
 ##
@@ -329,9 +327,7 @@ class EpsImageFile(ImageFile.ImageFile):
                 # data start identifier (the image data follows after a single line
                 #   consisting only of this quoted value)
                 image_data_values = byte_arr[11:bytes_read].split(None, 7)
-                columns, rows, bit_depth, mode_id = (
-                    int(value) for value in image_data_values[:4]
-                )
+                columns, rows, bit_depth, mode_id = (int(value) for value in image_data_values[:4])
 
                 if bit_depth == 1:
                     self._mode = "1"
@@ -368,9 +364,7 @@ class EpsImageFile(ImageFile.ImageFile):
             bounding_box[3] - bounding_box[1],
         )
 
-        self.tile = [
-            ImageFile._Tile("eps", (0, 0) + self.size, offset, (length, bounding_box))
-        ]
+        self.tile = [ImageFile._Tile("eps", (0, 0) + self.size, offset, (length, bounding_box))]
 
     def _find_offset(self, fp: IO[bytes]) -> tuple[int, int]:
         s = fp.read(4)
@@ -395,9 +389,7 @@ class EpsImageFile(ImageFile.ImageFile):
 
         return length, offset
 
-    def load(
-        self, scale: int = 1, transparency: bool = False
-    ) -> Image.core.PixelAccess | None:
+    def load(self, scale: int = 1, transparency: bool = False) -> Image.core.PixelAccess | None:
         # Load EPS via Ghostscript
         if self.tile:
             self.im = Ghostscript(self.tile, self.size, self.fp, scale, transparency)

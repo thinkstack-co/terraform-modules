@@ -113,9 +113,7 @@ class _Tile(NamedTuple):
 class ImageFile(Image.Image):
     """Base class for image file format handlers."""
 
-    def __init__(
-        self, fp: StrOrBytesPath | IO[bytes], filename: str | bytes | None = None
-    ) -> None:
+    def __init__(self, fp: StrOrBytesPath | IO[bytes], filename: str | bytes | None = None) -> None:
         super().__init__()
 
         self._min_frame = 0
@@ -232,9 +230,7 @@ class ImageFile(Image.Image):
             with Image.open(fp) as im:
                 from . import TiffImagePlugin
 
-                if thumbnail_offset is None and isinstance(
-                    im, TiffImagePlugin.TiffImageFile
-                ):
+                if thumbnail_offset is None and isinstance(im, TiffImagePlugin.TiffImageFile):
                     im._frame_pos = [ifd_offset]
                     im._seek(0)
                 im.load()
@@ -320,9 +316,7 @@ class ImageFile(Image.Image):
                     if offset + self.size[1] * args[1] > self.map.size():
                         msg = "buffer is not large enough"
                         raise OSError(msg)
-                    self.im = Image.core.map_buffer(
-                        self.map, self.size, decoder_name, offset, args
-                    )
+                    self.im = Image.core.map_buffer(self.map, self.size, decoder_name, offset, args)
                     readonly = 1
                     # After trashing self.im,
                     # we might need to reload the palette data.
@@ -342,16 +336,11 @@ class ImageFile(Image.Image):
 
             # Remove consecutive duplicates that only differ by their offset
             self.tile = [
-                list(tiles)[-1]
-                for _, tiles in itertools.groupby(
-                    self.tile, lambda tile: (tile[0], tile[1], tile[3])
-                )
+                list(tiles)[-1] for _, tiles in itertools.groupby(self.tile, lambda tile: (tile[0], tile[1], tile[3]))
             ]
             for i, (decoder_name, extents, offset, args) in enumerate(self.tile):
                 seek(offset)
-                decoder = Image._getdecoder(
-                    self.mode, decoder_name, args, self.decoderconfig
-                )
+                decoder = Image._getdecoder(self.mode, decoder_name, args, self.decoderconfig)
                 try:
                     decoder.setimage(self.im, extents)
                     if decoder.pulls_fd:
@@ -379,10 +368,7 @@ class ImageFile(Image.Image):
                                 if LOAD_TRUNCATED_IMAGES:
                                     break
                                 else:
-                                    msg = (
-                                        "image file is truncated "
-                                        f"({len(b)} bytes not processed)"
-                                    )
+                                    msg = "image file is truncated " f"({len(b)} bytes not processed)"
                                     raise OSError(msg)
 
                             b = b + s
@@ -800,10 +786,7 @@ class PyCodec:
             msg = "Size cannot be negative"
             raise ValueError(msg)
 
-        if (
-            self.state.xsize + self.state.xoff > self.im.size[0]
-            or self.state.ysize + self.state.yoff > self.im.size[1]
-        ):
+        if self.state.xsize + self.state.xoff > self.im.size[0] or self.state.ysize + self.state.yoff > self.im.size[1]:
             msg = "Tile cannot extend outside image"
             raise ValueError(msg)
 
@@ -834,9 +817,7 @@ class PyDecoder(PyCodec):
         msg = "unavailable in base decoder"
         raise NotImplementedError(msg)
 
-    def set_as_raw(
-        self, data: bytes, rawmode: str | None = None, extra: tuple[Any, ...] = ()
-    ) -> None:
+    def set_as_raw(self, data: bytes, rawmode: str | None = None, extra: tuple[Any, ...] = ()) -> None:
         """
         Convenience method to set the internal image from a stream of raw data
 

@@ -32,9 +32,7 @@ from ._typing import SupportsRead
 try:
     from . import _imagingcms as core
 
-    _CmsProfileCompatible = Union[
-        str, SupportsRead[bytes], core.CmsProfile, "ImageCmsProfile"
-    ]
+    _CmsProfileCompatible = Union[str, SupportsRead[bytes], core.CmsProfile, "ImageCmsProfile"]
 except ImportError as ex:
     # Allow error import for doc purposes, but error out when accessing
     # anything in core.
@@ -329,9 +327,7 @@ class ImageCmsTransform(Image.ImagePointHandler):
                     }.get(mode),
                 )
         if proof is None:
-            self.transform = core.buildTransform(
-                input.profile, output.profile, input_mode, output_mode, intent, flags
-            )
+            self.transform = core.buildTransform(input.profile, output.profile, input_mode, output_mode, intent, flags)
         else:
             self.transform = core.buildProofTransform(
                 input.profile,
@@ -597,9 +593,7 @@ def buildTransform(
             inputProfile = ImageCmsProfile(inputProfile)
         if not isinstance(outputProfile, ImageCmsProfile):
             outputProfile = ImageCmsProfile(outputProfile)
-        return ImageCmsTransform(
-            inputProfile, outputProfile, inMode, outMode, renderingIntent, flags=flags
-        )
+        return ImageCmsTransform(inputProfile, outputProfile, inMode, outMode, renderingIntent, flags=flags)
     except (OSError, TypeError, ValueError) as v:
         raise PyCMSError(v) from v
 
@@ -721,9 +715,7 @@ buildTransformFromOpenProfiles = buildTransform
 buildProofTransformFromOpenProfiles = buildProofTransform
 
 
-def applyTransform(
-    im: Image.Image, transform: ImageCmsTransform, inPlace: bool = False
-) -> Image.Image | None:
+def applyTransform(im: Image.Image, transform: ImageCmsTransform, inPlace: bool = False) -> Image.Image | None:
     """
     (pyCMS) Applies a transform to a given image.
 
@@ -776,9 +768,7 @@ def applyTransform(
     return imOut
 
 
-def createProfile(
-    colorSpace: Literal["LAB", "XYZ", "sRGB"], colorTemp: SupportsFloat = 0
-) -> core.CmsProfile:
+def createProfile(colorSpace: Literal["LAB", "XYZ", "sRGB"], colorTemp: SupportsFloat = 0) -> core.CmsProfile:
     """
     (pyCMS) Creates a profile.
 
@@ -809,9 +799,7 @@ def createProfile(
     """
 
     if colorSpace not in ["LAB", "XYZ", "sRGB"]:
-        msg = (
-            f"Color space not supported for on-the-fly profile creation ({colorSpace})"
-        )
+        msg = f"Color space not supported for on-the-fly profile creation ({colorSpace})"
         raise PyCMSError(msg)
 
     if colorSpace == "LAB":
@@ -1059,9 +1047,7 @@ def getDefaultIntent(profile: _CmsProfileCompatible) -> int:
         raise PyCMSError(v) from v
 
 
-def isIntentSupported(
-    profile: _CmsProfileCompatible, intent: Intent, direction: Direction
-) -> Literal[-1, 1]:
+def isIntentSupported(profile: _CmsProfileCompatible, intent: Intent, direction: Direction) -> Literal[-1, 1]:
     """
     (pyCMS) Checks if a given intent is supported.
 

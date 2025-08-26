@@ -29,15 +29,7 @@ from . import FontFile, Image
 
 def bdf_char(
     f: BinaryIO,
-) -> (
-    tuple[
-        str,
-        int,
-        tuple[tuple[int, int], tuple[int, int, int, int], tuple[int, int, int, int]],
-        Image.Image,
-    ]
-    | None
-):
+) -> tuple[str, int, tuple[tuple[int, int], tuple[int, int, int, int], tuple[int, int, int, int]], Image.Image,] | None:
     # skip to STARTCHAR
     while True:
         s = f.readline()

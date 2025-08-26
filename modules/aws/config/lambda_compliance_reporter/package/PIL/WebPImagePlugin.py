@@ -27,9 +27,7 @@ def _accept(prefix: bytes) -> bool | str:
 
     if is_riff_file_format and is_webp_file and is_valid_vp8_mode:
         if not SUPPORTED:
-            return (
-                "image file could not be identified because WEBP support not installed"
-            )
+            return "image file could not be identified because WEBP support not installed"
         return True
     return False
 
@@ -208,11 +206,7 @@ def _save_all(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
         kmax = 17 if lossless else 5
 
     # Validate background color
-    if (
-        not isinstance(background, (list, tuple))
-        or len(background) != 4
-        or not all(0 <= v < 256 for v in background)
-    ):
+    if not isinstance(background, (list, tuple)) or len(background) != 4 or not all(0 <= v < 256 for v in background):
         msg = f"Background color is not an RGBA tuple clamped to (0-255): {background}"
         raise OSError(msg)
 

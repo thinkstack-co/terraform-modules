@@ -115,4 +115,3 @@ variable "subnets" {
   type        = list(string)
   description = "(Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource."
 }
-

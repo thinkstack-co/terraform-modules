@@ -79,7 +79,7 @@ module "example_team_access" {
 ```
 module "example_team_access" {
     source       = "github.com/thinkstack-co/terraform-modules//modules/terraform/team_access"
-    
+
     for_each     = var.permissions_mapping
     team_id      = each.value.id
     workspace_id = module.workspace.id
