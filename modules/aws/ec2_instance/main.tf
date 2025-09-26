@@ -96,7 +96,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 resource "aws_cloudwatch_metric_alarm" "system" {
   #If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered.
   #If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
-  alarm_actions = contains(local.recover_action_unsupported_instances, aws_instance.ec2.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
+  alarm_actions = contains(local.recover_action_unsupported_instances, var.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.name}:ec2:recover"]
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
