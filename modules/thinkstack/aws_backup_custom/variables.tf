@@ -436,3 +436,24 @@ variable "dr_tag_value" {
   type        = string
   default     = "true"
 }
+
+###############################################################
+# Backup Exclusion Variables
+###############################################################
+variable "enable_backup_exclusions" {
+  description = "(Optional) Whether to enable backup exclusions based on tags. When enabled, resources with the exclusion tag will be excluded from backups."
+  type        = bool
+  default     = false
+}
+
+variable "backup_exclusion_tag_key" {
+  description = "(Optional) The tag key to use for excluding resources from backups. Resources with this tag will NOT be backed up, even if they match the backup schedule tag."
+  type        = string
+  default     = "backup_exclude"
+}
+
+variable "backup_exclusion_tag_value" {
+  description = "(Optional) The tag value to match for excluding resources from backups. Resources with backup_exclusion_tag_key = backup_exclusion_tag_value will be excluded."
+  type        = string
+  default     = "true"
+}

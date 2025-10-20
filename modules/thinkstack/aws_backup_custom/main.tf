@@ -685,6 +685,17 @@ resource "aws_backup_selection" "multi_plan_selections" {
     key   = var.standard_backup_tag_key
     value = each.value.combo_name
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates backup selection for resources tagged with backup_schedule="hourly"
@@ -701,6 +712,17 @@ resource "aws_backup_selection" "hourly_selection" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -719,6 +741,17 @@ resource "aws_backup_selection" "daily_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates backup selection for resources tagged with backup_schedule="weekly"
@@ -735,6 +768,17 @@ resource "aws_backup_selection" "weekly_selection" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -753,6 +797,17 @@ resource "aws_backup_selection" "monthly_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates backup selection for resources tagged with backup_schedule="yearly"
@@ -769,6 +824,17 @@ resource "aws_backup_selection" "yearly_selection" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -787,6 +853,17 @@ resource "aws_backup_selection" "hourly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "daily_selection_all" {
@@ -799,6 +876,17 @@ resource "aws_backup_selection" "daily_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -813,6 +901,17 @@ resource "aws_backup_selection" "weekly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "monthly_selection_all" {
@@ -826,6 +925,17 @@ resource "aws_backup_selection" "monthly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "yearly_selection_all" {
@@ -838,6 +948,17 @@ resource "aws_backup_selection" "yearly_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1078,6 +1199,17 @@ resource "aws_backup_selection" "hourly_dr_selection" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selection for daily backups
@@ -1100,6 +1232,17 @@ resource "aws_backup_selection" "daily_dr_selection" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1124,6 +1267,17 @@ resource "aws_backup_selection" "weekly_dr_selection" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selection for monthly backups
@@ -1147,6 +1301,17 @@ resource "aws_backup_selection" "monthly_dr_selection" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selection for yearly backups
@@ -1169,6 +1334,17 @@ resource "aws_backup_selection" "yearly_dr_selection" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1213,6 +1389,17 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selections for resources tagged with backup_schedule="all"
@@ -1236,6 +1423,17 @@ resource "aws_backup_selection" "hourly_dr_selection_all" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "daily_dr_selection_all" {
@@ -1254,6 +1452,17 @@ resource "aws_backup_selection" "daily_dr_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1274,6 +1483,17 @@ resource "aws_backup_selection" "weekly_dr_selection_all" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "monthly_dr_selection_all" {
@@ -1293,6 +1513,17 @@ resource "aws_backup_selection" "monthly_dr_selection_all" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "yearly_dr_selection_all" {
@@ -1311,5 +1542,16 @@ resource "aws_backup_selection" "yearly_dr_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }

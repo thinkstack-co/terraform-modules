@@ -226,6 +226,108 @@ resource "aws_instance" "standard_server" {
 }
 ```
 
+### Example: Excluding Individual Resources from Backups
+
+```hcl
+module "aws_backup_custom" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom"
+
+  # Enable daily and weekly backups
+  create_daily_plan   = true
+  create_weekly_plan  = true
+  
+  # Enable backup exclusions feature
+  enable_backup_exclusions  = true
+  backup_exclusion_tag_key  = "backup_exclude"  # Default
+  backup_exclusion_tag_value = "true"           # Default
+
+  # Create KMS key for encryption
+  create_kms_key = true
+
+  tags = {
+    terraform   = "true"
+    environment = "production"
+  }
+}
+
+# EC2 instance with EBS volumes - some volumes excluded
+resource "aws_instance" "database_server" {
+  ami           = "ami-12345678"
+  instance_type = "m5.xlarge"
+  
+  tags = {
+    Name            = "database-server"
+    backup_schedule = "daily"  # Instance will be backed up
+  }
+}
+
+# Root volume - will be backed up with the instance
+resource "aws_ebs_volume" "root_volume" {
+  availability_zone = "us-east-1a"
+  size              = 100
+  
+  tags = {
+    Name = "database-root"
+    # No backup_exclude tag - will be included
+  }
+}
+
+# Data volume - will be backed up with the instance
+resource "aws_ebs_volume" "data_volume" {
+  availability_zone = "us-east-1a"
+  size              = 500
+  
+  tags = {
+    Name = "database-data"
+    # No backup_exclude tag - will be included
+  }
+}
+
+# Temp volume - EXCLUDED from backups
+resource "aws_ebs_volume" "temp_volume" {
+  availability_zone = "us-east-1a"
+  size              = 200
+  
+  tags = {
+    Name           = "database-temp"
+    backup_exclude = "true"  # This volume will be EXCLUDED
+  }
+}
+
+# Attach all volumes to instance
+resource "aws_volume_attachment" "root_attach" {
+  device_name = "/dev/sda1"
+  volume_id   = aws_ebs_volume.root_volume.id
+  instance_id = aws_instance.database_server.id
+}
+
+resource "aws_volume_attachment" "data_attach" {
+  device_name = "/dev/sdf"
+  volume_id   = aws_ebs_volume.data_volume.id
+  instance_id = aws_instance.database_server.id
+}
+
+resource "aws_volume_attachment" "temp_attach" {
+  device_name = "/dev/sdg"
+  volume_id   = aws_ebs_volume.temp_volume.id
+  instance_id = aws_instance.database_server.id
+}
+```
+
+**How Exclusions Work:**
+
+- When `enable_backup_exclusions = true`, the module adds conditions to all backup selections
+- Resources (EBS volumes, RDS instances, etc.) with `backup_exclude = "true"` are **excluded** from backups
+- This works at the **individual resource level**, allowing you to exclude specific EBS volumes while backing up others
+- The exclusion applies to **all backup plans** (hourly, daily, weekly, monthly, yearly)
+
+**Important Notes:**
+
+- AWS Backup evaluates tags on **each resource** independently when using conditions
+- For EC2 instances, each attached EBS volume is evaluated separately
+- Volumes without the exclusion tag will be backed up normally
+- This is the **only way** to selectively exclude individual EBS volumes from EC2 instance backups
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Complete Module Examples
