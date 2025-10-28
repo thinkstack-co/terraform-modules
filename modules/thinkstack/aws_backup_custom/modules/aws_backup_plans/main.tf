@@ -535,7 +535,7 @@ resource "aws_backup_selection" "individual" {
     for_each = var.enable_backup_exclusions ? [1] : []
     content {
       string_not_equals {
-        key   = var.backup_exclusion_tag_key
+        key   = "aws:ResourceTag/${var.backup_exclusion_tag_key}"
         value = var.backup_exclusion_tag_value
       }
     }
@@ -546,7 +546,7 @@ resource "aws_backup_selection" "individual" {
     for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
     content {
       string_not_equals {
-        key   = condition.value.key
+        key   = "aws:ResourceTag/${condition.value.key}"
         value = condition.value.value
       }
     }
@@ -630,7 +630,7 @@ resource "aws_backup_selection" "combined" {
     for_each = var.enable_backup_exclusions ? [1] : []
     content {
       string_not_equals {
-        key   = var.backup_exclusion_tag_key
+        key   = "aws:ResourceTag/${var.backup_exclusion_tag_key}"
         value = var.backup_exclusion_tag_value
       }
     }
@@ -641,7 +641,7 @@ resource "aws_backup_selection" "combined" {
     for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
     content {
       string_not_equals {
-        key   = condition.value.key
+        key   = "aws:ResourceTag/${condition.value.key}"
         value = condition.value.value
       }
     }
@@ -725,7 +725,7 @@ resource "aws_backup_selection" "custom" {
     for_each = var.enable_backup_exclusions ? [1] : []
     content {
       string_not_equals {
-        key   = var.backup_exclusion_tag_key
+        key   = "aws:ResourceTag/${var.backup_exclusion_tag_key}"
         value = var.backup_exclusion_tag_value
       }
     }
@@ -736,7 +736,7 @@ resource "aws_backup_selection" "custom" {
     for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
     content {
       string_not_equals {
-        key   = condition.value.key
+        key   = "aws:ResourceTag/${condition.value.key}"
         value = condition.value.value
       }
     }
