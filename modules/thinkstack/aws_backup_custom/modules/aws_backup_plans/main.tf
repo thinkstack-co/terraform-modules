@@ -530,6 +530,28 @@ resource "aws_backup_selection" "individual" {
     }
   }
 
+  # Backup exclusion condition (exclude resources with specific tags)
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+
+  # Additional exclusion conditions
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
+    content {
+      string_not_equals {
+        key   = condition.value.key
+        value = condition.value.value
+      }
+    }
+  }
+
   # Not supported resources
   not_resources = var.backup_selection_not_resources
 }
@@ -603,6 +625,28 @@ resource "aws_backup_selection" "combined" {
     }
   }
 
+  # Backup exclusion condition (exclude resources with specific tags)
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+
+  # Additional exclusion conditions
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
+    content {
+      string_not_equals {
+        key   = condition.value.key
+        value = condition.value.value
+      }
+    }
+  }
+
   # Not supported resources
   not_resources = var.backup_selection_not_resources
 }
@@ -672,6 +716,28 @@ resource "aws_backup_selection" "custom" {
           key   = string_not_like.value.key
           value = string_not_like.value.value
         }
+      }
+    }
+  }
+
+  # Backup exclusion condition (exclude resources with specific tags)
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+
+  # Additional exclusion conditions
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
+    content {
+      string_not_equals {
+        key   = condition.value.key
+        value = condition.value.value
       }
     }
   }

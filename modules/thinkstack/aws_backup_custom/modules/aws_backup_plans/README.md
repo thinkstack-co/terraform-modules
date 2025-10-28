@@ -649,6 +649,103 @@ resource "aws_db_instance" "critical_db" {
 }
 ```
 
+### Backup Exclusions
+
+You can exclude specific resources (like EBS volumes) from backups using exclusion tags. This is useful when you have resources that should not be backed up even if they're attached to resources that are included in the backup plan.
+
+```hcl
+# Enable backup exclusions in your backup plan
+module "daily_backup_plan" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
+
+  name                    = "backup_plan"
+  plan_prefix             = "prod-database"
+  create_backup_selection = true
+
+  # Server selection - include resources with this tag
+  server_selection_tag   = "DailyBackup"
+  server_selection_value = "enabled"
+
+  # Enable backup exclusions
+  enable_backup_exclusions  = true
+  backup_exclusion_tag_key  = "BackupExclude"
+  backup_exclusion_tag_value = "true"
+
+  # Optional: Add additional exclusion tags
+  additional_exclusion_tags = [
+    {
+      key   = "NoBackup"
+      value = "true"
+    },
+    {
+      key   = "TempVolume"
+      value = "true"
+    }
+  ]
+
+  enable_daily_plan    = true
+  daily_schedule       = "cron(0 3 ? * * *)"
+  daily_retention_days = 7
+  daily_vault_name     = module.backup_vaults.scheduled_vault_names["daily"]
+
+  tags = {
+    terraform = "true"
+  }
+}
+
+# Example: EC2 instance with EBS volumes - some excluded from backups
+resource "aws_instance" "database_server" {
+  ami           = "ami-12345678"
+  instance_type = "m5.large"
+
+  tags = {
+    Name        = "DatabaseServer"
+    DailyBackup = "enabled"  # This instance will be backed up
+  }
+}
+
+# Data volume - will be backed up
+resource "aws_ebs_volume" "data" {
+  availability_zone = "us-east-1a"
+  size              = 100
+
+  tags = {
+    Name        = "DatabaseData"
+    DailyBackup = "enabled"  # Will be backed up
+  }
+}
+
+# Temp volume - excluded from backups
+resource "aws_ebs_volume" "temp" {
+  availability_zone = "us-east-1a"
+  size              = 50
+
+  tags = {
+    Name          = "DatabaseTemp"
+    DailyBackup   = "enabled"  # Would normally be backed up
+    BackupExclude = "true"     # But this tag excludes it from backups
+  }
+}
+
+# Cache volume - also excluded
+resource "aws_ebs_volume" "cache" {
+  availability_zone = "us-east-1a"
+  size              = 25
+
+  tags = {
+    Name        = "DatabaseCache"
+    DailyBackup = "enabled"  # Would normally be backed up
+    NoBackup    = "true"     # Excluded via additional_exclusion_tags
+  }
+}
+```
+
+**How Exclusions Work:**
+- Resources are first selected based on the inclusion tags (`server_selection_tag`)
+- Then, resources with exclusion tags are filtered out
+- This allows fine-grained control over what gets backed up
+- Useful for temporary volumes, cache volumes, or other ephemeral storage
+
 ### How to Tag Your Servers
 
 Each backup plan uses a simple tag-based selection system. You need to tag your resources with the appropriate tag key and value:
@@ -798,6 +895,15 @@ For each schedule type:
 | backup_selection_resources | Specific resource ARNs to include | `list(string)` | `[]` | no |
 | backup_selection_not_resources | Resource ARNs to exclude | `list(string)` | `[]` | no |
 | backup_selection_conditions | Advanced selection conditions | `list(object)` | `[]` | no |
+
+### Backup Exclusions
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| enable_backup_exclusions | Enable backup exclusions based on tags | `bool` | `false` | no |
+| backup_exclusion_tag_key | Tag key to use for excluding resources from backups | `string` | `"BackupExclude"` | no |
+| backup_exclusion_tag_value | Tag value to match for excluding resources from backups | `string` | `"true"` | no |
+| additional_exclusion_tags | Additional tag conditions to exclude resources from backups | `list(object({key = string, value = string}))` | `[]` | no |
 
 ### Per-Schedule Selection Tags
 

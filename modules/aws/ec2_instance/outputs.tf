@@ -68,3 +68,31 @@ output "instance_state" {
   description = "State of the instance"
   value       = aws_instance.ec2.instance_state
 }
+
+# Performance Optimization Diagnostic Outputs
+# These outputs help verify that the performance optimization is working correctly
+# and show which method is being used to obtain AWS region and account information.
+
+output "performance_optimization_info" {
+  description = <<-EOT
+    Diagnostic information showing whether performance optimization is active.
+    This helps confirm that region/account variables are being passed correctly
+    to avoid redundant AWS API calls.
+  EOT
+  value = {
+    # Shows whether aws_region variable was passed (true = optimized, false = using data source)
+    region_optimization_active = var.aws_region != null
+
+    # Shows whether aws_account_id variable was passed (true = optimized, false = using data source)
+    account_optimization_active = var.aws_account_id != null
+
+    # The actual region being used (regardless of source)
+    aws_region = local.aws_region
+
+    # The actual account ID being used (regardless of source)
+    aws_account_id = local.aws_account_id
+
+    # Overall optimization status message
+    optimization_status = (var.aws_region != null && var.aws_account_id != null) ? "✅ OPTIMIZED: Both variables passed, no API calls made" : (var.aws_region != null || var.aws_account_id != null) ? "⚠️ PARTIAL: Some variables passed, some API calls still made" : "❌ NOT OPTIMIZED: Using data sources, making redundant API calls"
+  }
+}

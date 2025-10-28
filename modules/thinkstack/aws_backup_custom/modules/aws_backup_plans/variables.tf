@@ -580,3 +580,31 @@ variable "yearly_selection_tag_value" {
   type        = string
   default     = "true"
 }
+
+# Backup Exclusion Variables
+variable "enable_backup_exclusions" {
+  description = "Enable backup exclusions based on tags"
+  type        = bool
+  default     = false
+}
+
+variable "backup_exclusion_tag_key" {
+  description = "Tag key to use for excluding resources from backups (e.g., 'BackupExclude', 'NoBackup')"
+  type        = string
+  default     = "BackupExclude"
+}
+
+variable "backup_exclusion_tag_value" {
+  description = "Tag value to match for excluding resources from backups (e.g., 'true', 'yes', 'enabled')"
+  type        = string
+  default     = "true"
+}
+
+variable "additional_exclusion_tags" {
+  description = "Additional tag conditions to exclude resources from backups"
+  type = list(object({
+    key   = string
+    value = string
+  }))
+  default = []
+}
