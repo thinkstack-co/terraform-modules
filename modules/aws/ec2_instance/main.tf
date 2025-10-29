@@ -35,7 +35,8 @@ data "aws_caller_identity" "current" {
 locals {
   # Use passed aws_region variable if provided, otherwise query from data source
   # Ternary operator: condition ? true_value : false_value
-  aws_region = var.aws_region != null ? var.aws_region : data.aws_region.current[0].name
+  # Note: Using 'id' instead of deprecated 'name' attribute
+  aws_region = var.aws_region != null ? var.aws_region : data.aws_region.current[0].id
 
   # Use passed aws_account_id variable if provided, otherwise query from data source
   # Ternary operator: condition ? true_value : false_value
@@ -81,7 +82,9 @@ resource "aws_instance" "ec2" {
   subnet_id              = var.subnet_id
   tags                   = merge(var.tags, ({ "Name" = var.name }))
   tenancy                = var.tenancy
-  user_data              = var.user_data_base64 != "" ? null : var.user_data
+  # Only set user_data if user_data_base64 is not provided (prevents base64 warning)
+  user_data              = var.user_data_base64 != "" ? null : (var.user_data != "" ? var.user_data : null)
+  # Only set user_data_base64 if explicitly provided
   user_data_base64       = var.user_data_base64 != "" ? var.user_data_base64 : null
   vpc_security_group_ids = var.vpc_security_group_ids
 
