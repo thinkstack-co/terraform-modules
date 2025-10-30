@@ -741,6 +741,7 @@ resource "aws_ebs_volume" "cache" {
 ```
 
 **How Exclusions Work:**
+
 - Resources are first selected based on the inclusion tags (`server_selection_tag`)
 - Then, resources with exclusion tags are filtered out using AWS Backup's `string_not_equals` condition
 - The module automatically adds the required `aws:ResourceTag/` prefix to tag keys
@@ -748,6 +749,7 @@ resource "aws_ebs_volume" "cache" {
 - Useful for temporary volumes, cache volumes, or other ephemeral storage
 
 **Important Notes:**
+
 - Tag keys are automatically prefixed with `aws:ResourceTag/` by the module (e.g., `BackupExclude` becomes `aws:ResourceTag/BackupExclude`)
 - You only need to specify the tag name without the prefix in the module configuration
 - The exclusion logic works at the AWS Backup selection level, not at the resource level
@@ -944,7 +946,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - <info@thinkstack.co>
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
 
@@ -973,6 +975,3 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
-[product-screenshot]: /images/screenshot.webp
-[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
-[Terraform-url]: https://terraform.io
