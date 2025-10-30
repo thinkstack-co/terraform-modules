@@ -168,19 +168,3 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.cost_report_schedule.arn
 }
-
-
-# S3 Bucket Data Source
-# This data source fetches information about the cost report bucket (not strictly necessary unless you need bucket metadata elsewhere).
-data "aws_s3_bucket" "cost_report" {
-  bucket = aws_s3_bucket.cost_report.id
-}
-
-# (Optional) Output the latest uploaded PDF (key pattern matching)
-# S3 Bucket Objects Data Source
-# This data source lists all cost report PDFs in the bucket with the specified prefix.
-data "aws_s3_objects" "report_pdfs" {
-  bucket = aws_s3_bucket.cost_report.id
-  prefix = "cost-report-"
-}
-#
