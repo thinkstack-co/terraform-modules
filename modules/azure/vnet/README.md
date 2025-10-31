@@ -64,7 +64,8 @@ The module supports:
 - **Network Security Groups**: Pre-configured NSG for service endpoint security
 - **Flow Logs**: Optional VNet flow logs with storage account and Network Watcher integration
 - **Traffic Analytics**: Optional traffic analytics with Log Analytics workspace integration
-- **Flexible Configuration**: Create new or use existing resource groups and Network Watchers
+
+**Note**: This module requires an existing resource group. Use the separate resource group module to create and manage resource groups.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -74,12 +75,26 @@ The module supports:
 ### Basic Example
 
 ```hcl
+# First, create the resource group
+module "resource_group" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+
+  name     = "my-resource-group"
+  location = "eastus"
+  tags = {
+    terraform   = "true"
+    created_by  = "Terraform"
+    environment = "dev"
+  }
+}
+
+# Then, create the VNet
 module "vnet" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/vnet"
 
   name                = "my-vnet"
   location            = "eastus"
-  resource_group_name = "my-resource-group"
+  resource_group_name = module.resource_group.name
   vnet_address_space  = "10.0.0.0/16"
 
   private_subnets_list = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -102,10 +117,9 @@ module "vnet" {
 module "vnet" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/vnet"
 
-  # Resource Group
-  create_resource_group = true
-  resource_group_name   = "my-vnet-rg"
-  location              = "eastus"
+  # Resource Group (must exist)
+  resource_group_name = "my-vnet-rg"
+  location            = "eastus"
 
   # Virtual Network
   name               = "production-vnet"
@@ -160,9 +174,8 @@ module "vnet" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/vnet"
 
   # Use existing resource group
-  create_resource_group = false
-  resource_group_name   = "existing-rg"
-  location              = "eastus"
+  resource_group_name = "existing-rg"
+  location            = "eastus"
 
   name               = "my-vnet"
   vnet_address_space = "10.50.0.0/16"
@@ -188,7 +201,7 @@ module "vnet" {
 ### Argument Reference
 
 * `name` - (Required) Name to be tagged on all resources as an identifier.
-* `resource_group_name` - (Required) The name of the resource group in which to create the VNet.
+* `resource_group_name` - (Required) The name of an existing resource group in which to create the VNet.
 * `location` - (Optional) The Azure region where resources will be created. Default is `eastus`.
 * `vnet_address_space` - (Optional) The address space for the Virtual Network. Default is `10.11.0.0/16`.
 * `private_subnets_list` - (Optional) List of private subnets inside the VNet.
@@ -217,7 +230,6 @@ module "vnet" {
 
 | Name | Type | Documentation |
 |------|------|--------------|
-| [azurerm_resource_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal) |
 | [azurerm_virtual_network](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview) |
 | [azurerm_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-manage-subnet) |
 | [azurerm_network_security_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview) |
@@ -233,11 +245,10 @@ module "vnet" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | name | Name to be tagged on all resources as an identifier | `string` | n/a | yes |
-| resource_group_name | The name of the resource group | `string` | n/a | yes |
+| resource_group_name | The name of an existing resource group | `string` | n/a | yes |
 | location | The Azure region where resources will be created | `string` | `"eastus"` | no |
 | vnet_address_space | The address space for the Virtual Network | `string` | `"10.11.0.0/16"` | no |
 | dns_servers | List of DNS servers to use for the VNet | `list(string)` | `[]` | no |
-| create_resource_group | Whether to create a new resource group | `bool` | `false` | no |
 | private_subnets_list | List of private subnets inside the VNet | `list(string)` | `["10.11.1.0/24", "10.11.2.0/24", "10.11.3.0/24"]` | no |
 | public_subnets_list | List of public subnets inside the VNet | `list(string)` | `["10.11.201.0/24", "10.11.202.0/24", "10.11.203.0/24"]` | no |
 | dmz_subnets_list | List of DMZ subnets inside the VNet | `list(string)` | `["10.11.101.0/24", "10.11.102.0/24", "10.11.103.0/24"]` | no |

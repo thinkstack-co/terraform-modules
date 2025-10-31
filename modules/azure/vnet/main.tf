@@ -14,20 +14,12 @@ terraform {
 data "azurerm_client_config" "current" {}
 
 ###########################
-# Resource Group
+# Locals
 ###########################
-# Note: In Azure, we need a resource group. This can be created externally or by the module.
-# For flexibility, we'll assume it's passed in via variable, but provide option to create it.
-
-resource "azurerm_resource_group" "rg" {
-  count    = var.create_resource_group ? 1 : 0
-  name     = var.resource_group_name
-  location = var.location
-  tags     = var.tags
-}
+# Note: Resource group must be created separately using the resource group module
 
 locals {
-  resource_group_name = var.create_resource_group ? azurerm_resource_group.rg[0].name : var.resource_group_name
+  resource_group_name = var.resource_group_name
 }
 
 ###########################

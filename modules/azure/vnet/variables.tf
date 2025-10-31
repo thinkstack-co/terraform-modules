@@ -1,15 +1,10 @@
 ###########################
 # Resource Group
 ###########################
-
-variable "create_resource_group" {
-  description = "(Optional) Whether to create a new resource group. If false, resource_group_name must exist."
-  type        = bool
-  default     = false
-}
+# Note: Resource group must be created separately using the resource group module
 
 variable "resource_group_name" {
-  description = "(Required) The name of the resource group in which to create the VNet."
+  description = "(Required) The name of an existing resource group in which to create the VNet."
   type        = string
 }
 
