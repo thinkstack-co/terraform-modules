@@ -203,7 +203,7 @@ module "vnet" {
 * `name` - (Required) Name to be tagged on all resources as an identifier.
 * `resource_group_name` - (Required) The name of an existing resource group in which to create the VNet.
 * `location` - (Optional) The Azure region where resources will be created. Default is `eastus`.
-* `vnet_address_space` - (Optional) The address space for the Virtual Network. Default is `10.11.0.0/16`.
+* `vnet_address_space` - (Optional) The address space for the Virtual Network. Default is `10.100.0.0/16`.
 * `private_subnets_list` - (Optional) List of private subnets inside the VNet.
 * `public_subnets_list` - (Optional) List of public subnets inside the VNet.
 * `enable_nat_gateway` - (Optional) Enable NAT gateways in private subnets. Default is `true`.
@@ -247,14 +247,14 @@ module "vnet" {
 | name | Name to be tagged on all resources as an identifier | `string` | n/a | yes |
 | resource_group_name | The name of an existing resource group | `string` | n/a | yes |
 | location | The Azure region where resources will be created | `string` | `"eastus"` | no |
-| vnet_address_space | The address space for the Virtual Network | `string` | `"10.11.0.0/16"` | no |
+| vnet_address_space | The address space for the Virtual Network | `string` | `"10.100.0.0/16"` | no |
 | dns_servers | List of DNS servers to use for the VNet | `list(string)` | `[]` | no |
-| private_subnets_list | List of private subnets inside the VNet | `list(string)` | `["10.11.1.0/24", "10.11.2.0/24", "10.11.3.0/24"]` | no |
-| public_subnets_list | List of public subnets inside the VNet | `list(string)` | `["10.11.201.0/24", "10.11.202.0/24", "10.11.203.0/24"]` | no |
-| dmz_subnets_list | List of DMZ subnets inside the VNet | `list(string)` | `["10.11.101.0/24", "10.11.102.0/24", "10.11.103.0/24"]` | no |
-| db_subnets_list | List of database subnets inside the VNet | `list(string)` | `["10.11.11.0/24", "10.11.12.0/24", "10.11.13.0/24"]` | no |
-| mgmt_subnets_list | List of management subnets inside the VNet | `list(string)` | `["10.11.61.0/24", "10.11.62.0/24", "10.11.63.0/24"]` | no |
-| workspaces_subnets_list | List of workspaces subnets inside the VNet | `list(string)` | `["10.11.21.0/24", "10.11.22.0/24", "10.11.23.0/24"]` | no |
+| private_subnets_list | List of private subnets inside the VNet | `list(string)` | `["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]` | no |
+| public_subnets_list | List of public subnets inside the VNet | `list(string)` | `["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24"]` | no |
+| dmz_subnets_list | List of DMZ subnets inside the VNet | `list(string)` | `["10.100.101.0/24", "10.100.102.0/24", "10.100.103.0/24"]` | no |
+| db_subnets_list | List of database subnets inside the VNet | `list(string)` | `["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24"]` | no |
+| mgmt_subnets_list | List of management subnets inside the VNet | `list(string)` | `["10.100.251.0/24", "10.100.252.0/24", "10.100.253.0/24"]` | no |
+| workspaces_subnets_list | List of workspaces subnets inside the VNet | `list(string)` | `["10.100.21.0/24", "10.100.22.0/24", "10.100.23.0/24"]` | no |
 | enable_service_endpoints | Enable service endpoints on private subnets | `bool` | `false` | no |
 | service_endpoints | List of service endpoints to enable | `list(string)` | `["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]` | no |
 | enable_nat_gateway | Enable NAT gateways in private subnets | `bool` | `true` | no |
@@ -299,13 +299,13 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │                      Virtual Network                         │
-│                    (10.11.0.0/16)                           │
+│                    (10.100.0.0/16)                          │
 │                                                              │
 │  ┌────────────────┐  ┌────────────────┐  ┌──────────────┐ │
 │  │ Public Subnets │  │  DMZ Subnets   │  │ Private      │ │
-│  │ 10.11.201.0/24 │  │ 10.11.101.0/24 │  │ Subnets      │ │
-│  │ 10.11.202.0/24 │  │ 10.11.102.0/24 │  │ 10.11.1.0/24 │ │
-│  │ 10.11.203.0/24 │  │ 10.11.103.0/24 │  │ 10.11.2.0/24 │ │
+│  │ 10.100.201.0/24│  │ 10.100.101.0/24│  │ Subnets      │ │
+│  │ 10.100.202.0/24│  │ 10.100.102.0/24│  │ 10.100.1.0/24│ │
+│  │ 10.100.203.0/24│  │ 10.100.103.0/24│  │ 10.100.2.0/24│ │
 │  └────────┬───────┘  └────────┬───────┘  └──────┬───────┘ │
 │           │                   │                  │          │
 │           │                   │         ┌────────▼───────┐ │
@@ -315,9 +315,9 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 │           │                   │                  │          │
 │  ┌────────▼───────┐  ┌────────▼───────┐  ┌──────▼───────┐ │
 │  │   DB Subnets   │  │  Mgmt Subnets  │  │ Workspaces   │ │
-│  │ 10.11.11.0/24  │  │ 10.11.61.0/24  │  │ Subnets      │ │
-│  │ 10.11.12.0/24  │  │ 10.11.62.0/24  │  │ 10.11.21.0/24│ │
-│  │ 10.11.13.0/24  │  │ 10.11.63.0/24  │  │ 10.11.22.0/24│ │
+│  │ 10.100.11.0/24 │  │ 10.100.251.0/24│  │ Subnets      │ │
+│  │ 10.100.12.0/24 │  │ 10.100.252.0/24│  │ 10.100.21.0/24│ │
+│  │ 10.100.13.0/24 │  │ 10.100.253.0/24│  │ 10.100.22.0/24│ │
 │  └────────────────┘  └────────────────┘  └──────────────┘ │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
@@ -325,6 +325,25 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
                            ▼
                     Internet Gateway
 ```
+
+### Default IP Address Allocation Scheme
+
+The module uses a standardized IP allocation scheme within the default `10.100.0.0/16` VNet to prevent overlaps:
+
+| Subnet Type | IP Range | Purpose |
+|-------------|----------|---------|
+| **Private** | `10.100.1.0/24` - `10.100.3.0/24` | Application servers, workloads |
+| **Database** | `10.100.11.0/24` - `10.100.13.0/24` | Database servers |
+| **Workspaces** | `10.100.21.0/24` - `10.100.23.0/24` | Virtual desktops, user workspaces |
+| **DMZ** | `10.100.101.0/24` - `10.100.103.0/24` | Internet-facing resources |
+| **Public** | `10.100.201.0/24` - `10.100.203.0/24` | Load balancers, public endpoints |
+| **Management** | `10.100.251.0/24` - `10.100.253.0/24` | Bastion hosts, jump boxes |
+
+This allocation scheme:
+- Provides clear separation between subnet types
+- Leaves room for expansion within each category
+- Prevents IP address overlap
+- Follows a logical numbering pattern for easy identification
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

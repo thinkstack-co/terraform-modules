@@ -21,7 +21,7 @@ variable "location" {
 variable "vnet_address_space" {
   description = "The address space for the Virtual Network"
   type        = string
-  default     = "10.11.0.0/16"
+  default     = "10.100.0.0/16"
 }
 
 variable "dns_servers" {
@@ -37,37 +37,37 @@ variable "dns_servers" {
 variable "private_subnets_list" {
   type        = list(string)
   description = "A list of private subnets inside the VNet."
-  default     = ["10.11.1.0/24", "10.11.2.0/24", "10.11.3.0/24"]
+  default     = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]
 }
 
 variable "public_subnets_list" {
   type        = list(string)
   description = "A list of public subnets inside the VNet."
-  default     = ["10.11.201.0/24", "10.11.202.0/24", "10.11.203.0/24"]
+  default     = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24"]
 }
 
 variable "dmz_subnets_list" {
   type        = list(string)
   description = "A list of DMZ subnets inside the VNet."
-  default     = ["10.11.101.0/24", "10.11.102.0/24", "10.11.103.0/24"]
+  default     = ["10.100.101.0/24", "10.100.102.0/24", "10.100.103.0/24"]
 }
 
 variable "db_subnets_list" {
   type        = list(string)
   description = "A list of database subnets inside the VNet."
-  default     = ["10.11.11.0/24", "10.11.12.0/24", "10.11.13.0/24"]
+  default     = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24"]
 }
 
 variable "mgmt_subnets_list" {
   type        = list(string)
   description = "A list of management subnets inside the VNet."
-  default     = ["10.11.61.0/24", "10.11.62.0/24", "10.11.63.0/24"]
+  default     = ["10.100.251.0/24", "10.100.252.0/24", "10.100.253.0/24"]
 }
 
 variable "workspaces_subnets_list" {
   type        = list(string)
   description = "A list of workspaces subnets inside the VNet."
-  default     = ["10.11.21.0/24", "10.11.22.0/24", "10.11.23.0/24"]
+  default     = ["10.100.21.0/24", "10.100.22.0/24", "10.100.23.0/24"]
 }
 
 ###########################

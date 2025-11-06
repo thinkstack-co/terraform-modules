@@ -67,6 +67,21 @@ locals {
   dr_vault_arns = {
     for k, v in local.dr_vault_configs : k => v != null ? v.vault_input : null
   }
+
+  # Determine if any DR copy is enabled
+  any_dr_enabled = (
+    var.enable_hourly_dr_copy ||
+    var.enable_daily_dr_copy ||
+    var.enable_weekly_dr_copy ||
+    var.enable_monthly_dr_copy ||
+    var.enable_yearly_dr_copy
+  )
+
+  # Automatically exclude EBS volumes when DR is enabled (only copy AMIs)
+  # Users can override by providing their own backup_selection_not_resources
+  effective_not_resources = length(var.backup_selection_not_resources) > 0 ? var.backup_selection_not_resources : (
+    local.any_dr_enabled ? ["arn:aws:ec2:*:*:volume/*"] : []
+  )
 }
 
 # Data sources
@@ -552,8 +567,8 @@ resource "aws_backup_selection" "individual" {
     }
   }
 
-  # Not supported resources
-  not_resources = var.backup_selection_not_resources
+  # Not supported resources - automatically excludes EBS volumes when DR is enabled
+  not_resources = local.effective_not_resources
 }
 
 # Backup selection for combined plan
@@ -647,8 +662,8 @@ resource "aws_backup_selection" "combined" {
     }
   }
 
-  # Not supported resources
-  not_resources = var.backup_selection_not_resources
+  # Not supported resources - automatically excludes EBS volumes when DR is enabled
+  not_resources = local.effective_not_resources
 }
 
 # Backup selection for custom plan
@@ -742,6 +757,6 @@ resource "aws_backup_selection" "custom" {
     }
   }
 
-  # Not supported resources
-  not_resources = var.backup_selection_not_resources
+  # Not supported resources - automatically excludes EBS volumes when DR is enabled
+  not_resources = local.effective_not_resources
 }

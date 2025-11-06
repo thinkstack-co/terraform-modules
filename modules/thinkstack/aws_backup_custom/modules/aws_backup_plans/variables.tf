@@ -492,7 +492,7 @@ variable "backup_selection_resources" {
 }
 
 variable "backup_selection_not_resources" {
-  description = "List of resource ARNs to exclude from the backup selection"
+  description = "List of resource ARNs to exclude from the backup selection. If not specified and any DR copy is enabled, EBS volumes (arn:aws:ec2:*:*:volume/*) are automatically excluded to ensure only AMIs are copied to DR region."
   type        = list(string)
   default     = []
 }
