@@ -1,4 +1,92 @@
 locals {
+  # OS version to image mapping
+  # Maps simplified os_version values to Azure Marketplace image references
+  os_image_map = {
+    # Windows Server images
+    "2025-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2025-datacenter"
+    }
+    "2025-datacenter-core" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2025-datacenter-core"
+    }
+    "2022-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2022-datacenter"
+    }
+    "2022-datacenter-core" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2022-datacenter-core"
+    }
+    "2022-datacenter-azure-edition" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2022-datacenter-azure-edition"
+    }
+    "2019-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2019-datacenter"
+    }
+    "2019-datacenter-core" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2019-datacenter-core"
+    }
+    "2016-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2016-datacenter"
+    }
+    # Ubuntu images
+    "ubuntu-22.04" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-jammy"
+      sku       = "22_04-lts-gen2"
+    }
+    "ubuntu-20.04" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-focal"
+      sku       = "20_04-lts-gen2"
+    }
+    # Red Hat Enterprise Linux images
+    "rhel-9" = {
+      publisher = "RedHat"
+      offer     = "RHEL"
+      sku       = "9-lvm-gen2"
+    }
+    "rhel-8" = {
+      publisher = "RedHat"
+      offer     = "RHEL"
+      sku       = "8-lvm-gen2"
+    }
+    # Debian images
+    "debian-12" = {
+      publisher = "Debian"
+      offer     = "debian-12"
+      sku       = "12-gen2"
+    }
+    "debian-11" = {
+      publisher = "Debian"
+      offer     = "debian-11"
+      sku       = "11-gen2"
+    }
+  }
+
+  # Determine which image reference to use
+  # Priority: source_image_id > os_version > manual source_image_* variables
+  use_os_version_map = var.source_image_id == null && var.os_version != null
+
+  # Get image details from map or use provided variables
+  selected_publisher = local.use_os_version_map ? local.os_image_map[var.os_version].publisher : var.source_image_publisher
+  selected_offer     = local.use_os_version_map ? local.os_image_map[var.os_version].offer : var.source_image_offer
+  selected_sku       = local.use_os_version_map ? local.os_image_map[var.os_version].sku : var.source_image_sku
+
   # VM sizes that support accelerated networking
   # This list includes common VM sizes that support accelerated networking
   # Reference: https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli

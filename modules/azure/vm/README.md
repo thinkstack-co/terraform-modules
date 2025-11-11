@@ -55,6 +55,7 @@ This Terraform module creates and manages Azure Virtual Machines (both Linux and
 
 The module supports:
 - Both Linux and Windows operating systems
+- **Simplified OS selection** with `os_version` parameter (e.g., "2025-datacenter", "ubuntu-22.04")
 - Static or dynamic IP addressing
 - Accelerated networking for supported VM sizes
 - Managed identities (system-assigned and user-assigned)
@@ -64,12 +65,36 @@ The module supports:
 - Boot diagnostics for troubleshooting
 - Cloud-init / custom data support
 
+### Supported OS Versions
+
+The module provides simplified OS selection through the `os_version` parameter. Instead of manually specifying `source_image_publisher`, `source_image_offer`, and `source_image_sku`, you can use one of these predefined values:
+
+**Windows Server:**
+- `2025-datacenter` - Windows Server 2025 Datacenter
+- `2025-datacenter-core` - Windows Server 2025 Datacenter Core
+- `2022-datacenter` - Windows Server 2022 Datacenter
+- `2022-datacenter-core` - Windows Server 2022 Datacenter Core
+- `2022-datacenter-azure-edition` - Windows Server 2022 Datacenter Azure Edition
+- `2019-datacenter` - Windows Server 2019 Datacenter
+- `2019-datacenter-core` - Windows Server 2019 Datacenter Core
+- `2016-datacenter` - Windows Server 2016 Datacenter
+
+**Linux:**
+- `ubuntu-22.04` - Ubuntu 22.04 LTS
+- `ubuntu-20.04` - Ubuntu 20.04 LTS
+- `rhel-9` - Red Hat Enterprise Linux 9
+- `rhel-8` - Red Hat Enterprise Linux 8
+- `debian-12` - Debian 12
+- `debian-11` - Debian 11
+
+You can still use manual image configuration by specifying `source_image_publisher`, `source_image_offer`, and `source_image_sku` directly, or use a custom image with `source_image_id`.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-### Basic Linux VM Example
+### Basic Linux VM Example (Simplified with os_version)
 
 ```hcl
 module "linux_vm" {
@@ -90,7 +115,43 @@ module "linux_vm" {
   disable_password_authentication = true
   ssh_public_key                  = file("~/.ssh/id_rsa.pub")
 
-  # Image configuration
+  # Simplified OS selection - automatically sets publisher/offer/sku
+  os_version = "ubuntu-22.04"
+
+  # Monitoring
+  enable_monitoring_alerts = true
+  action_group_id          = azurerm_monitor_action_group.main.id
+
+  tags = {
+    terraform   = "true"
+    created_by  = "Terraform"
+    environment = "production"
+  }
+}
+```
+
+### Basic Linux VM Example (Manual Image Configuration)
+
+```hcl
+module "linux_vm_manual" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/vm"
+
+  name                = "web-server-02"
+  resource_group_name = "production-rg"
+  location            = "eastus"
+  vm_size             = "Standard_D2s_v3"
+  os_type             = "Linux"
+
+  # Network configuration
+  subnet_id          = azurerm_subnet.main.id
+  private_ip_address = "10.0.1.11"
+
+  # Authentication
+  admin_username                  = "azureuser"
+  disable_password_authentication = true
+  ssh_public_key                  = file("~/.ssh/id_rsa.pub")
+
+  # Manual image configuration (alternative to os_version)
   source_image_publisher = "Canonical"
   source_image_offer     = "0001-com-ubuntu-server-jammy"
   source_image_sku       = "22_04-lts-gen2"
@@ -108,7 +169,7 @@ module "linux_vm" {
 }
 ```
 
-### Basic Windows VM Example
+### Basic Windows VM Example (Simplified with os_version)
 
 ```hcl
 module "windows_vm" {
@@ -128,11 +189,47 @@ module "windows_vm" {
   admin_username = "azureadmin"
   admin_password = var.admin_password
 
-  # Image configuration
-  source_image_publisher = "MicrosoftWindowsServer"
-  source_image_offer     = "WindowsServer"
-  source_image_sku       = "2022-datacenter-azure-edition"
-  source_image_version   = "latest"
+  # Simplified OS selection - automatically sets publisher/offer/sku
+  os_version = "2022-datacenter-azure-edition"
+
+  # Storage
+  os_disk_storage_account_type = "Premium_LRS"
+  os_disk_size_gb              = 256
+
+  # Monitoring
+  enable_monitoring_alerts = true
+  action_group_id          = azurerm_monitor_action_group.main.id
+
+  tags = {
+    terraform   = "true"
+    created_by  = "Terraform"
+    environment = "production"
+  }
+}
+```
+
+### Windows Server 2025 Example
+
+```hcl
+module "windows_2025_vm" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/vm"
+
+  name                = "app-server-02"
+  resource_group_name = "production-rg"
+  location            = "eastus"
+  vm_size             = "Standard_D4s_v3"
+  os_type             = "Windows"
+
+  # Network configuration
+  subnet_id          = azurerm_subnet.main.id
+  private_ip_address = "10.0.1.21"
+
+  # Authentication
+  admin_username = "azureadmin"
+  admin_password = var.admin_password
+
+  # Windows Server 2025 Datacenter
+  os_version = "2025-datacenter"
 
   # Storage
   os_disk_storage_account_type = "Premium_LRS"

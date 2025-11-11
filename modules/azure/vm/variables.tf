@@ -136,9 +136,36 @@ variable "os_disk_size_gb" {
 # Source Image Variables
 ######################################
 
+variable "os_version" {
+  type        = string
+  description = <<-EOT
+    (Optional) Simplified OS version selection. When provided, automatically sets source_image_publisher, 
+    source_image_offer, and source_image_sku. If not provided, you must specify those variables manually.
+    
+    Supported Windows versions:
+    - "2025-datacenter" - Windows Server 2025 Datacenter
+    - "2025-datacenter-core" - Windows Server 2025 Datacenter Core
+    - "2022-datacenter" - Windows Server 2022 Datacenter
+    - "2022-datacenter-core" - Windows Server 2022 Datacenter Core
+    - "2022-datacenter-azure-edition" - Windows Server 2022 Datacenter Azure Edition
+    - "2019-datacenter" - Windows Server 2019 Datacenter
+    - "2019-datacenter-core" - Windows Server 2019 Datacenter Core
+    - "2016-datacenter" - Windows Server 2016 Datacenter
+    
+    Supported Linux versions:
+    - "ubuntu-22.04" - Ubuntu 22.04 LTS
+    - "ubuntu-20.04" - Ubuntu 20.04 LTS
+    - "rhel-9" - Red Hat Enterprise Linux 9
+    - "rhel-8" - Red Hat Enterprise Linux 8
+    - "debian-12" - Debian 12
+    - "debian-11" - Debian 11
+  EOT
+  default     = null
+}
+
 variable "source_image_id" {
   type        = string
-  description = "(Optional) The ID of a custom image to use. If provided, source_image_* variables are ignored"
+  description = "(Optional) The ID of a custom image to use. If provided, source_image_* variables and os_version are ignored"
   default     = null
 }
 

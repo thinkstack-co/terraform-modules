@@ -101,9 +101,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   dynamic "source_image_reference" {
     for_each = var.source_image_id == null ? [1] : []
     content {
-      publisher = var.source_image_publisher
-      offer     = var.source_image_offer
-      sku       = var.source_image_sku
+      publisher = local.selected_publisher
+      offer     = local.selected_offer
+      sku       = local.selected_sku
       version   = var.source_image_version
     }
   }
@@ -161,9 +161,9 @@ resource "azurerm_windows_virtual_machine" "vm" {
   dynamic "source_image_reference" {
     for_each = var.source_image_id == null ? [1] : []
     content {
-      publisher = var.source_image_publisher
-      offer     = var.source_image_offer
-      sku       = var.source_image_sku
+      publisher = local.selected_publisher
+      offer     = local.selected_offer
+      sku       = local.selected_sku
       version   = var.source_image_version
     }
   }

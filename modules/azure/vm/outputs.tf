@@ -119,6 +119,10 @@ output "vm_configuration_summary" {
     vm_name                   = var.name
     vm_size                   = var.vm_size
     os_type                   = var.os_type
+    os_version                = var.os_version
+    image_publisher           = local.selected_publisher
+    image_offer               = local.selected_offer
+    image_sku                 = local.selected_sku
     location                  = local.location
     private_ip                = azurerm_network_interface.vm.private_ip_address
     accelerated_networking    = var.enable_accelerated_networking
