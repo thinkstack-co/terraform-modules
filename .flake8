@@ -1,4 +1,5 @@
 # .flake8
 [flake8]
-exclude = .venv,__pycache__,.git
-max-line-length = 120
+exclude = .git,__pycache__,.terraform,package,.venv
+max-line-length = 88
+extend-ignore = E203

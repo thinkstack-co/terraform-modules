@@ -1,96 +1,98 @@
-#copyright ReportLab Europe Limited. 2000-2016
-#see license.txt for license details
-'''
+# copyright ReportLab Europe Limited. 2000-2016
+# see license.txt for license details
+"""
 Arciv Stream  ciphering
-'''
-__all__='''ArcIV encode decode'''.split()
-__version__="1.0"
+"""
+__all__ = """ArcIV encode decode""".split()
+__version__ = "1.0"
 from reportlab.lib.utils import isUnicode
+
+
 class ArcIV:
-	'''
-	performs 'ArcIV' Stream Encryption of S using key
-	Based on what is widely thought to be RSA's ArcIV algorithm.
-	It produces output streams that are identical.
+    """
+    performs 'ArcIV' Stream Encryption of S using key
+    Based on what is widely thought to be RSA's ArcIV algorithm.
+    It produces output streams that are identical.
 
-	NB there is no separate decoder arciv(arciv(s,key),key) == s
-	'''
-	def __init__(self,key):
-		self._key = key
-		self.reset()
+    NB there is no separate decoder arciv(arciv(s,key),key) == s
+    """
 
-	def reset(self):
-		'''restore the cipher to it's start state'''
-		#Initialize private key, k With the values of the key mod 256.
-		#and sbox With numbers 0 - 255. Then compute sbox
-		key = self._key
-		if isUnicode(key): key = key.encode('utf8')
-		sbox = list(range(256))
-		k = list(range(256))
-		lk = len(key)
-		for i in sbox:
-			k[i] = key[i % lk] % 256
+    def __init__(self, key):
+        self._key = key
+        self.reset()
 
-		#Re-order sbox using the private key, k.
-		#Iterating each element of sbox re-calculate the counter j
-		#Then interchange the elements sbox[a] & sbox[b]
-		j = 0
-		for i in range(256):
-			j = (j+sbox[i]+k[i]) % 256
-			sbox[i], sbox[j] = sbox[j], sbox[i]
-		self._sbox, self._i, self._j = sbox, 0, 0
+    def reset(self):
+        """restore the cipher to it's start state"""
+        # Initialize private key, k With the values of the key mod 256.
+        # and sbox With numbers 0 - 255. Then compute sbox
+        key = self._key
+        if isUnicode(key):
+            key = key.encode("utf8")
+        sbox = list(range(256))
+        k = list(range(256))
+        lk = len(key)
+        for i in sbox:
+            k[i] = key[i % lk] % 256
 
-	def _encode(self, B):
-		'''
-		return the list of encoded bytes of B, B might be a string or a
-		list of integers between 0 <= i <= 255
-		'''
-		sbox, i, j = self._sbox, self._i, self._j
+        # Re-order sbox using the private key, k.
+        # Iterating each element of sbox re-calculate the counter j
+        # Then interchange the elements sbox[a] & sbox[b]
+        j = 0
+        for i in range(256):
+            j = (j + sbox[i] + k[i]) % 256
+            sbox[i], sbox[j] = sbox[j], sbox[i]
+        self._sbox, self._i, self._j = sbox, 0, 0
 
-		C = list(B.encode('utf8')) if isinstance(B,str) else (list(B) if isinstance(B,bytes) else B[:])
-		n = len(C)
-		p = 0
-		while p<n:
-			#update the variables i, j.
-			self._i = i = (i + 1) % 256
-			self._j = j = (j + sbox[i]) % 256
-			#swap sbox[i] and sbox[j]
-			sbox[i], sbox[j] = sbox[j], sbox[i]
-			#overwrite the plaintext with the ciphered byte
-			C[p] = C[p] ^ sbox[(sbox[i] + sbox[j]) % 256]
-			p += 1
-		return C
+    def _encode(self, B):
+        """
+        return the list of encoded bytes of B, B might be a string or a
+        list of integers between 0 <= i <= 255
+        """
+        sbox, i, j = self._sbox, self._i, self._j
 
-	def encode(self,S):
-		'ArcIV encode string S'
-		return bytes(self._encode(S))
+        C = list(B.encode("utf8")) if isinstance(B, str) else (list(B) if isinstance(B, bytes) else B[:])
+        n = len(C)
+        p = 0
+        while p < n:
+            # update the variables i, j.
+            self._i = i = (i + 1) % 256
+            self._j = j = (j + sbox[i]) % 256
+            # swap sbox[i] and sbox[j]
+            sbox[i], sbox[j] = sbox[j], sbox[i]
+            # overwrite the plaintext with the ciphered byte
+            C[p] = C[p] ^ sbox[(sbox[i] + sbox[j]) % 256]
+            p += 1
+        return C
 
-_TESTS=[{
-		'key': b"\x01\x23\x45\x67\x89\xab\xcd\xef",
-		'input': b"\x01\x23\x45\x67\x89\xab\xcd\xef",
-		'output': b"\x75\xb7\x87\x80\x99\xe0\xc5\x96",
-		},
+    def encode(self, S):
+        "ArcIV encode string S"
+        return bytes(self._encode(S))
 
-		{
-		'key': b"\x01\x23\x45\x67\x89\xab\xcd\xef",
-		'input': b"\x00\x00\x00\x00\x00\x00\x00\x00",
-		'output': b"\x74\x94\xc2\xe7\x10\x4b\x08\x79",
-		},
 
-		{
-		'key': b"\x00\x00\x00\x00\x00\x00\x00\x00",
-		'input': b"\x00\x00\x00\x00\x00\x00\x00\x00",
-		'output': b"\xde\x18\x89\x41\xa3\x37\x5d\x3a",
-		},
-
-		{
-		'key': b"\xef\x01\x23\x45",
-		'input': b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
-		'output': b"\xd6\xa1\x41\xa7\xec\x3c\x38\xdf\xbd\x61",
-		},
-
-		{
-		'key': b"\x01\x23\x45\x67\x89\xab\xcd\xef",
-		'input': b"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
+_TESTS = [
+    {
+        "key": b"\x01\x23\x45\x67\x89\xab\xcd\xef",
+        "input": b"\x01\x23\x45\x67\x89\xab\xcd\xef",
+        "output": b"\x75\xb7\x87\x80\x99\xe0\xc5\x96",
+    },
+    {
+        "key": b"\x01\x23\x45\x67\x89\xab\xcd\xef",
+        "input": b"\x00\x00\x00\x00\x00\x00\x00\x00",
+        "output": b"\x74\x94\xc2\xe7\x10\x4b\x08\x79",
+    },
+    {
+        "key": b"\x00\x00\x00\x00\x00\x00\x00\x00",
+        "input": b"\x00\x00\x00\x00\x00\x00\x00\x00",
+        "output": b"\xde\x18\x89\x41\xa3\x37\x5d\x3a",
+    },
+    {
+        "key": b"\xef\x01\x23\x45",
+        "input": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+        "output": b"\xd6\xa1\x41\xa7\xec\x3c\x38\xdf\xbd\x61",
+    },
+    {
+        "key": b"\x01\x23\x45\x67\x89\xab\xcd\xef",
+        "input": b"\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
 \x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
 \x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
 \x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
@@ -142,7 +144,7 @@ _TESTS=[{
 \x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
 \x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\
 \x01",
-	'output': b"\x75\x95\xc3\xe6\x11\x4a\x09\x78\x0c\x4a\xd4\
+        "output": b"\x75\x95\xc3\xe6\x11\x4a\x09\x78\x0c\x4a\xd4\
 \x52\x33\x8e\x1f\xfd\x9a\x1b\xe9\x49\x8f\
 \x81\x3d\x76\x53\x34\x49\xb6\x77\x8d\xca\
 \xd8\xc7\x8a\x8d\x2b\xa9\xac\x66\x08\x5d\
@@ -194,21 +196,24 @@ _TESTS=[{
 \xbe\x71\x37\x54\x1c\x04\x71\x26\xc8\xd4\
 \x9e\x27\x55\xab\x18\x1a\xb7\xe9\x40\xb0\
 \xc0",
-		},
-	]
+    },
+]
+
 
 def encode(text, key):
-	"One-line shortcut for making an encoder object"
-	return ArcIV(key).encode(text)
+    "One-line shortcut for making an encoder object"
+    return ArcIV(key).encode(text)
+
 
 def decode(text, key):
-	"One-line shortcut for decoding"
-	# yes, encode and decode are symmetric - see docstring
-	return ArcIV(key).encode(text)
+    "One-line shortcut for decoding"
+    # yes, encode and decode are symmetric - see docstring
+    return ArcIV(key).encode(text)
 
-if __name__=='__main__':
-	i = 0
-	for t in _TESTS:
-		o = ArcIV(t['key']).encode(t['input'])
-		o = ArcIV(t['key']).encode(t['output'])
-		i += 1
+
+if __name__ == "__main__":
+    i = 0
+    for t in _TESTS:
+        o = ArcIV(t["key"]).encode(t["input"])
+        o = ArcIV(t["key"]).encode(t["output"])
+        i += 1

@@ -219,10 +219,7 @@ class UniversalDetector:
         if self._input_state == InputState.PURE_ASCII:
             if self.HIGH_BYTE_DETECTOR.search(byte_str):
                 self._input_state = InputState.HIGH_BYTE
-            elif (
-                self._input_state == InputState.PURE_ASCII
-                and self.ESC_DETECTOR.search(self._last_char + byte_str)
-            ):
+            elif self._input_state == InputState.PURE_ASCII and self.ESC_DETECTOR.search(self._last_char + byte_str):
                 self._input_state = InputState.ESC_ASCII
 
         self._last_char = byte_str[-1:]
@@ -323,14 +320,10 @@ class UniversalDetector:
                 # extra Windows-specific bytes
                 if lower_charset_name.startswith("iso-8859"):
                     if self._has_win_bytes:
-                        charset_name = self.ISO_WIN_MAP.get(
-                            lower_charset_name, charset_name
-                        )
+                        charset_name = self.ISO_WIN_MAP.get(lower_charset_name, charset_name)
                 # Rename legacy encodings with superset encodings if asked
                 if self.should_rename_legacy:
-                    charset_name = self.LEGACY_MAP.get(
-                        (charset_name or "").lower(), charset_name
-                    )
+                    charset_name = self.LEGACY_MAP.get((charset_name or "").lower(), charset_name)
                 self.result = {
                     "encoding": charset_name,
                     "confidence": confidence,

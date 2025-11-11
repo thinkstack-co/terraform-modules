@@ -87,9 +87,7 @@ class EUCJPProber(MultiByteCharSetProber):
         self._last_char[0] = byte_str[-1]
 
         if self.state == ProbingState.DETECTING:
-            if self.context_analyzer.got_enough_data() and (
-                self.get_confidence() > self.SHORTCUT_THRESHOLD
-            ):
+            if self.context_analyzer.got_enough_data() and (self.get_confidence() > self.SHORTCUT_THRESHOLD):
                 self._state = ProbingState.FOUND_IT
 
         return self.state

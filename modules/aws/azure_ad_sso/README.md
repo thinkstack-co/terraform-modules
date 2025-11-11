@@ -74,17 +74,17 @@ module "azure_ad_sso" {
 
   # Required parameter - SAML metadata from Azure AD
   saml_metadata_document = file("${path.module}/azure_ad_metadata.xml")
-  
+
   # Optional - customize role names
   role_admins_name      = "azure_ad_admins"
   role_sysadmins_name   = "azure_ad_sysadmins"
   role_read_only_name   = "azure_ad_readonly"
-  
+
   # Optional - customize session duration (in seconds)
   role_admins_max_session_duration     = 3600
   role_sysadmins_max_session_duration  = 3600
   role_read_only_max_session_duration  = 3600
-  
+
   # Optional - customize IAM user
   user_name       = "azure_ad_role_manager"
   pgp_key         = "keybase:your_keybase_username"

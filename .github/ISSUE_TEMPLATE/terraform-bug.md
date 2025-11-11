@@ -21,13 +21,13 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 ### Problems
-Description of what needs to be solved. 
+Description of what needs to be solved.
 
 ### Solution
 Description of solution, leave blank if not yet found.
 
 ### Confirmation
-Confirmation that proposed solution is successful. 
+Confirmation that proposed solution is successful.
 
 ### Next Steps
 [] Step 1...

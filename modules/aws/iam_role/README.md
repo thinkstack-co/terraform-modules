@@ -1,5 +1,5 @@
 ## Usage
-    
+
 
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
@@ -69,7 +69,7 @@
 ```
 module "iam_role" {
     source             = "github.com/thinkstack-co/terraform-modules//modules/aws/iam_role"
-    
+
     assume_role_policy = module.iam_policy.arn
     description        = "Role used for a test"
     name               = "test_role"

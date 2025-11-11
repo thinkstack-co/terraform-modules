@@ -17,8 +17,21 @@ resource "aws_lb_listener_rule" "this" {
     target_group_arn = var.target_group_arn
   }
 
-  condition {
-    field  = var.condition_field
-    values = var.condition_values
+  dynamic "condition" {
+    for_each = var.condition_field == "path-pattern" ? [1] : []
+    content {
+      path_pattern {
+        values = var.condition_values
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = var.condition_field == "host-header" ? [1] : []
+    content {
+      host_header {
+        values = var.condition_values
+      }
+    }
   }
 }

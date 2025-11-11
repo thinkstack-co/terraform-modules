@@ -33,4 +33,3 @@ id = "generic-api-key"
 description = "Allowlist for s3_key_prefix variable references"
 regexTarget = "match"
 regex = '''var\.s3_key_prefix'''
-

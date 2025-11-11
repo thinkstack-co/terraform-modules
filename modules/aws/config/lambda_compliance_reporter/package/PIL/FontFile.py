@@ -23,9 +23,7 @@ from . import Image, _binary
 WIDTH = 800
 
 
-def puti16(
-    fp: BinaryIO, values: tuple[int, int, int, int, int, int, int, int, int, int]
-) -> None:
+def puti16(fp: BinaryIO, values: tuple[int, int, int, int, int, int, int, int, int, int]) -> None:
     """Write network order (big-endian) 16-bit sequence"""
     for v in values:
         if v < 0:
@@ -50,15 +48,9 @@ class FontFile:
             | None
         ] = [None] * 256
 
-    def __getitem__(self, ix: int) -> (
-        tuple[
-            tuple[int, int],
-            tuple[int, int, int, int],
-            tuple[int, int, int, int],
-            Image.Image,
-        ]
-        | None
-    ):
+    def __getitem__(
+        self, ix: int
+    ) -> tuple[tuple[int, int], tuple[int, int, int, int], tuple[int, int, int, int], Image.Image,] | None:
         return self.glyph[ix]
 
     def compile(self) -> None:
@@ -90,10 +82,9 @@ class FontFile:
 
         # paste glyphs into bitmap
         self.bitmap = Image.new("1", (xsize, ysize))
-        self.metrics: list[
-            tuple[tuple[int, int], tuple[int, int, int, int], tuple[int, int, int, int]]
-            | None
-        ] = [None] * 256
+        self.metrics: list[tuple[tuple[int, int], tuple[int, int, int, int], tuple[int, int, int, int]] | None] = [
+            None
+        ] * 256
         x = y = 0
         for i in range(256):
             glyph = self[i]

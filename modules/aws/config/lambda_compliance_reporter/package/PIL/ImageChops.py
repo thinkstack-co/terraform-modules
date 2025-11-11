@@ -163,9 +163,7 @@ def overlay(image1: Image.Image, image2: Image.Image) -> Image.Image:
     return image1._new(image1.im.chop_overlay(image2.im))
 
 
-def add(
-    image1: Image.Image, image2: Image.Image, scale: float = 1.0, offset: float = 0
-) -> Image.Image:
+def add(image1: Image.Image, image2: Image.Image, scale: float = 1.0, offset: float = 0) -> Image.Image:
     """
     Adds two images, dividing the result by scale and adding the
     offset. If omitted, scale defaults to 1.0, and offset to 0.0. ::
@@ -180,9 +178,7 @@ def add(
     return image1._new(image1.im.chop_add(image2.im, scale, offset))
 
 
-def subtract(
-    image1: Image.Image, image2: Image.Image, scale: float = 1.0, offset: float = 0
-) -> Image.Image:
+def subtract(image1: Image.Image, image2: Image.Image, scale: float = 1.0, offset: float = 0) -> Image.Image:
     """
     Subtracts two images, dividing the result by scale and adding the offset.
     If omitted, scale defaults to 1.0, and offset to 0.0. ::
@@ -281,9 +277,7 @@ def blend(image1: Image.Image, image2: Image.Image, alpha: float) -> Image.Image
     return Image.blend(image1, image2, alpha)
 
 
-def composite(
-    image1: Image.Image, image2: Image.Image, mask: Image.Image
-) -> Image.Image:
+def composite(image1: Image.Image, image2: Image.Image, mask: Image.Image) -> Image.Image:
     """Create composite using transparency mask. Alias for
     :py:func:`PIL.Image.composite`.
 

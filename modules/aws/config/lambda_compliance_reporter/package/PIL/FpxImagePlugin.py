@@ -75,9 +75,7 @@ class FpxImageFile(ImageFile.ImageFile):
         #
         # get the Image Contents Property Set
 
-        prop = self.ole.getproperties(
-            [f"Data Object Store {index:06d}", "\005Image Contents"]
-        )
+        prop = self.ole.getproperties([f"Data Object Store {index:06d}", "\005Image Contents"])
 
         # size (highest resolution)
 

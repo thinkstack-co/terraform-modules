@@ -1,7 +1,7 @@
-#Copyright ReportLab Europe Ltd. 2000-2017
-#see license.txt for license details
-__version__='3.3.0'
-__doc__="""
+# Copyright ReportLab Europe Ltd. 2000-2017
+# see license.txt for license details
+__version__ = "3.3.0"
+__doc__ = """
 Module to analyze Python source code; for syntax coloring tools.
 
 Interface::
@@ -36,28 +36,54 @@ __version__ = "0.4"
 
 import re
 
+
 # First a little helper, since I don't like to repeat things. (Tismer speaking)
 def replace(src, sep, rep):
     return rep.join(src.split(sep))
 
+
 # This list of keywords is taken from ref/node13.html of the
 # Python 1.3 HTML documentation. ("access" is intentionally omitted.)
 keywordsList = [
-    "as", "assert", "exec",
-    "del", "from", "lambda", "return",
-    "and", "elif", "global", "not", "try",
-    "break", "else", "if", "or", "while",
-    "class", "except", "import", "pass",
-    "continue", "finally", "in", "print",
-    "def", "for", "is", "raise", "yield",
-    "with"]
+    "as",
+    "assert",
+    "exec",
+    "del",
+    "from",
+    "lambda",
+    "return",
+    "and",
+    "elif",
+    "global",
+    "not",
+    "try",
+    "break",
+    "else",
+    "if",
+    "or",
+    "while",
+    "class",
+    "except",
+    "import",
+    "pass",
+    "continue",
+    "finally",
+    "in",
+    "print",
+    "def",
+    "for",
+    "is",
+    "raise",
+    "yield",
+    "with",
+]
 
 # Build up a regular expression which will match anything
 # interesting, including multi-line triple-quoted strings.
 commentPat = r"#[^\n]*"
 
 pat = r"q[^\\q\n]*(\\[\000-\377][^\\q\n]*)*q"
-quotePat = replace(pat, "q", "'") + "|" + replace(pat, 'q', '"')
+quotePat = replace(pat, "q", "'") + "|" + replace(pat, "q", '"')
 
 # Way to go, Tim!
 pat = r"""
@@ -78,8 +104,8 @@ pat = r"""
     )*
     qqq
 """
-pat = ''.join(pat.split())  # get rid of whitespace
-tripleQuotePat = replace(pat, "q", "'") + "|" + replace(pat, 'q', '"')
+pat = "".join(pat.split())  # get rid of whitespace
+tripleQuotePat = replace(pat, "q", "'") + "|" + replace(pat, "q", '"')
 
 # Build up a regular expression which matches all and only
 # Python keywords. This will let us skip the uninteresting
@@ -97,7 +123,7 @@ idKeyPat = "[ \t]*[A-Za-z_][A-Za-z_0-9.]*"  # Ident w. leading whitespace.
 idRE = re.compile(idKeyPat)
 
 
-def fontify(pytext, searchfrom = 0, searchto = None):
+def fontify(pytext, searchfrom=0, searchto=None):
     if searchto is None:
         searchto = len(pytext)
     # Cache a few attributes for quicker reference.
@@ -106,20 +132,20 @@ def fontify(pytext, searchfrom = 0, searchto = None):
 
     tags = []
     tags_append = tags.append
-    commentTag = 'comment'
-    stringTag = 'string'
-    keywordTag = 'keyword'
-    identifierTag = 'identifier'
+    commentTag = "comment"
+    stringTag = "string"
+    keywordTag = "keyword"
+    identifierTag = "identifier"
 
     start = 0
     end = searchfrom
     while 1:
         m = search(pytext, end)
         if m is None:
-            break   # EXIT LOOP
+            break  # EXIT LOOP
         start = m.start()
         if start >= searchto:
-            break   # EXIT LOOP
+            break  # EXIT LOOP
         match = m.group(0)
         end = start + len(match)
         c = match[0]

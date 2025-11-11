@@ -232,4 +232,3 @@ output "yearly_backup_plan_dr_id" {
   description = "The ID of the yearly backup plan with DR copy."
   value       = var.create_yearly_plan && var.enable_dr && var.yearly_include_in_dr ? aws_backup_plan.yearly_backup_plan_dr[0].id : null
 }
-

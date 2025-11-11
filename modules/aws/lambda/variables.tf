@@ -54,5 +54,3 @@ variable "variables" {
     lambda = "true"
   }
 }
-
-

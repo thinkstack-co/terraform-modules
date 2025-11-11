@@ -12,11 +12,11 @@ module "backup_iam_role" {
   enable_tag_based_selection = true
   enable_resource_discovery  = true  # Recommended for tag-based selection
   enable_s3_backup          = false  # Set to true if backing up S3 buckets
-  
+
   additional_policy_arns = [
     "arn:aws:iam::123456789012:policy/CustomBackupPolicy"
   ]
-  
+
   tags = {
     Environment = "production"
   }

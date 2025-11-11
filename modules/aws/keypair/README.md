@@ -66,7 +66,7 @@
 ```
 module "keypair" {
   source          = "github.com/thinkstack-co/terraform-modules//modules/aws/keypair"
-  
+
   key_name_prefix = "terraform_keypair_01"
   public_key      = "ssh-rsa AAAAAAAAAAAAA"
 }

@@ -27,4 +27,3 @@ resource "aws_lb" "this" {
 
   tags = var.tags
 }
-

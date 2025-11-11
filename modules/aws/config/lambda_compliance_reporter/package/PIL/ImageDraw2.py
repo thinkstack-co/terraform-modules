@@ -48,9 +48,7 @@ class Brush:
 class Font:
     """Stores a TrueType font and color"""
 
-    def __init__(
-        self, color: str, file: StrOrBytesPath | BinaryIO, size: float = 12
-    ) -> None:
+    def __init__(self, color: str, file: StrOrBytesPath | BinaryIO, size: float = 12) -> None:
         # FIXME: add support for bitmap fonts
         self.color = ImageColor.getrgb(color)
         self.font = ImageFont.truetype(file, size)
@@ -217,9 +215,7 @@ class Draw:
             xy = path
         self.draw.text(xy, text, font=font.font, fill=font.color)
 
-    def textbbox(
-        self, xy: tuple[float, float], text: AnyStr, font: Font
-    ) -> tuple[float, float, float, float]:
+    def textbbox(self, xy: tuple[float, float], text: AnyStr, font: Font) -> tuple[float, float, float, float]:
         """
         Returns bounding box (in pixels) of given text.
 

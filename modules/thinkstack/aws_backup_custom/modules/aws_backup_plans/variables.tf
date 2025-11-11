@@ -61,13 +61,13 @@ variable "hourly_enable_continuous_backup" {
 variable "hourly_start_window" {
   description = "Start window in minutes for hourly backups"
   type        = number
-  default     = 60
+  default     = 180
 }
 
 variable "hourly_completion_window" {
   description = "Completion window in minutes for hourly backups"
   type        = number
-  default     = 120
+  default     = 360
 }
 
 variable "hourly_cold_storage_after" {
@@ -140,13 +140,13 @@ variable "daily_enable_continuous_backup" {
 variable "daily_start_window" {
   description = "Start window in minutes for daily backups"
   type        = number
-  default     = 60
+  default     = 180
 }
 
 variable "daily_completion_window" {
   description = "Completion window in minutes for daily backups"
   type        = number
-  default     = 180
+  default     = 360
 }
 
 variable "daily_cold_storage_after" {
@@ -219,7 +219,7 @@ variable "weekly_enable_continuous_backup" {
 variable "weekly_start_window" {
   description = "Start window in minutes for weekly backups"
   type        = number
-  default     = 60
+  default     = 180
 }
 
 variable "weekly_completion_window" {
@@ -298,13 +298,13 @@ variable "monthly_enable_continuous_backup" {
 variable "monthly_start_window" {
   description = "Start window in minutes for monthly backups"
   type        = number
-  default     = 60
+  default     = 180
 }
 
 variable "monthly_completion_window" {
   description = "Completion window in minutes for monthly backups"
   type        = number
-  default     = 720
+  default     = 360
 }
 
 variable "monthly_cold_storage_after" {
@@ -359,7 +359,7 @@ variable "yearly_schedule" {
 variable "yearly_retention_days" {
   description = "Number of days to retain yearly backups"
   type        = number
-  default     = 2555  # 7 years
+  default     = 2555 # 7 years
 }
 
 variable "yearly_vault_name" {
@@ -377,13 +377,13 @@ variable "yearly_enable_continuous_backup" {
 variable "yearly_start_window" {
   description = "Start window in minutes for yearly backups"
   type        = number
-  default     = 60
+  default     = 180
 }
 
 variable "yearly_completion_window" {
   description = "Completion window in minutes for yearly backups"
   type        = number
-  default     = 1440
+  default     = 360
 }
 
 variable "yearly_cold_storage_after" {
@@ -492,7 +492,7 @@ variable "backup_selection_resources" {
 }
 
 variable "backup_selection_not_resources" {
-  description = "List of resource ARNs to exclude from the backup selection"
+  description = "List of resource ARNs to exclude from the backup selection. If not specified and any DR copy is enabled, EBS volumes (arn:aws:ec2:*:*:volume/*) are automatically excluded to ensure only AMIs are copied to DR region."
   type        = list(string)
   default     = []
 }
@@ -579,4 +579,32 @@ variable "yearly_selection_tag_value" {
   description = "Tag value for yearly backup selection"
   type        = string
   default     = "true"
+}
+
+# Backup Exclusion Variables
+variable "enable_backup_exclusions" {
+  description = "Enable backup exclusions based on tags"
+  type        = bool
+  default     = false
+}
+
+variable "backup_exclusion_tag_key" {
+  description = "Tag key to use for excluding resources from backups (e.g., 'BackupExclude', 'NoBackup')"
+  type        = string
+  default     = "BackupExclude"
+}
+
+variable "backup_exclusion_tag_value" {
+  description = "Tag value to match for excluding resources from backups (e.g., 'true', 'yes', 'enabled')"
+  type        = string
+  default     = "true"
+}
+
+variable "additional_exclusion_tags" {
+  description = "Additional tag conditions to exclude resources from backups"
+  type = list(object({
+    key   = string
+    value = string
+  }))
+  default = []
 }

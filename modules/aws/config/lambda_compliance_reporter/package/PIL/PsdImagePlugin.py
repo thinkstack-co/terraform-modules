@@ -185,9 +185,7 @@ class PsdImageFile(ImageFile.ImageFile):
         return self.frame
 
 
-def _layerinfo(
-    fp: IO[bytes], ct_bytes: int
-) -> list[tuple[str, str, tuple[int, int, int, int], list[ImageFile._Tile]]]:
+def _layerinfo(fp: IO[bytes], ct_bytes: int) -> list[tuple[str, str, tuple[int, int, int, int], list[ImageFile._Tile]]]:
     # read layerinfo block
     layers = []
 
@@ -276,9 +274,7 @@ def _layerinfo(
     return layerinfo
 
 
-def _maketile(
-    file: IO[bytes], mode: str, bbox: tuple[int, int, int, int], channels: int
-) -> list[ImageFile._Tile]:
+def _maketile(file: IO[bytes], mode: str, bbox: tuple[int, int, int, int], channels: int) -> list[ImageFile._Tile]:
     tiles = []
     read = file.read
 

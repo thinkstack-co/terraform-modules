@@ -57,9 +57,7 @@ class Language:
         self.wiki_start_pages = wiki_start_pages
 
     def __repr__(self) -> str:
-        param_str = ", ".join(
-            f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_")
-        )
+        param_str = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_"))
         return f"{self.__class__.__name__}({param_str})"
 
 

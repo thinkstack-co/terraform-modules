@@ -105,9 +105,7 @@ def _parse_codestream(fp: IO[bytes]) -> tuple[tuple[int, int], str]:
     hdr = fp.read(2)
     lsiz = _binary.i16be(hdr)
     siz = hdr + fp.read(lsiz - 2)
-    lsiz, rsiz, xsiz, ysiz, xosiz, yosiz, _, _, _, _, csiz = struct.unpack_from(
-        ">HHIIIIIIIIH", siz
-    )
+    lsiz, rsiz, xsiz, ysiz, xosiz, yosiz, _, _, _, _, csiz = struct.unpack_from(">HHIIIIIIIIH", siz)
 
     size = (xsiz - xosiz, ysiz - yosiz)
     if csiz == 1:
@@ -140,13 +138,7 @@ def _res_to_dpi(num: int, denom: int, exp: int) -> float | None:
 
 def _parse_jp2_header(
     fp: IO[bytes],
-) -> tuple[
-    tuple[int, int],
-    str,
-    str | None,
-    tuple[float, float] | None,
-    ImagePalette.ImagePalette | None,
-]:
+) -> tuple[tuple[int, int], str, str | None, tuple[float, float] | None, ImagePalette.ImagePalette | None,]:
     """Parse the JP2 header box to extract size, component count,
     color space information, and optionally DPI information,
     returning a (size, mode, mimetype, dpi) tuple."""
@@ -320,10 +312,7 @@ class Jpeg2KImageFile(ImageFile.ImageFile):
     @property  # type: ignore[override]
     def reduce(
         self,
-    ) -> (
-        Callable[[int | tuple[int, int], tuple[int, int, int, int] | None], Image.Image]
-        | int
-    ):
+    ) -> Callable[[int | tuple[int, int], tuple[int, int, int, int] | None], Image.Image] | int:
         # https://github.com/python-pillow/Pillow/issues/4343 found that the
         # new Image 'reduce' method was shadowed by this plugin's 'reduce'
         # property. This attempts to allow for both scenarios
@@ -352,9 +341,7 @@ class Jpeg2KImageFile(ImageFile.ImageFile):
 
 
 def _accept(prefix: bytes) -> bool:
-    return prefix.startswith(
-        (b"\xff\x4f\xff\x51", b"\x00\x00\x00\x0cjP  \x0d\x0a\x87\x0a")
-    )
+    return prefix.startswith((b"\xff\x4f\xff\x51", b"\x00\x00\x00\x0cjP  \x0d\x0a\x87\x0a"))
 
 
 # ------------------------------------------------------------
@@ -379,9 +366,7 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
     quality_layers = info.get("quality_layers", None)
     if quality_layers is not None and not (
         isinstance(quality_layers, (list, tuple))
-        and all(
-            isinstance(quality_layer, (int, float)) for quality_layer in quality_layers
-        )
+        and all(isinstance(quality_layer, (int, float)) for quality_layer in quality_layers)
     ):
         msg = "quality_layers must be a sequence of numbers"
         raise ValueError(msg)
@@ -435,8 +420,6 @@ def _save(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
 Image.register_open(Jpeg2KImageFile.format, Jpeg2KImageFile, _accept)
 Image.register_save(Jpeg2KImageFile.format, _save)
 
-Image.register_extensions(
-    Jpeg2KImageFile.format, [".jp2", ".j2k", ".jpc", ".jpf", ".jpx", ".j2c"]
-)
+Image.register_extensions(Jpeg2KImageFile.format, [".jp2", ".j2k", ".jpc", ".jpf", ".jpx", ".j2c"])
 
 Image.register_mime(Jpeg2KImageFile.format, "image/jp2")

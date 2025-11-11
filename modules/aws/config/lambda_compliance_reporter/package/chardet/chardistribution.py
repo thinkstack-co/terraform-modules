@@ -27,31 +27,11 @@
 
 from typing import Tuple, Union
 
-from .big5freq import (
-    BIG5_CHAR_TO_FREQ_ORDER,
-    BIG5_TABLE_SIZE,
-    BIG5_TYPICAL_DISTRIBUTION_RATIO,
-)
-from .euckrfreq import (
-    EUCKR_CHAR_TO_FREQ_ORDER,
-    EUCKR_TABLE_SIZE,
-    EUCKR_TYPICAL_DISTRIBUTION_RATIO,
-)
-from .euctwfreq import (
-    EUCTW_CHAR_TO_FREQ_ORDER,
-    EUCTW_TABLE_SIZE,
-    EUCTW_TYPICAL_DISTRIBUTION_RATIO,
-)
-from .gb2312freq import (
-    GB2312_CHAR_TO_FREQ_ORDER,
-    GB2312_TABLE_SIZE,
-    GB2312_TYPICAL_DISTRIBUTION_RATIO,
-)
-from .jisfreq import (
-    JIS_CHAR_TO_FREQ_ORDER,
-    JIS_TABLE_SIZE,
-    JIS_TYPICAL_DISTRIBUTION_RATIO,
-)
+from .big5freq import BIG5_CHAR_TO_FREQ_ORDER, BIG5_TABLE_SIZE, BIG5_TYPICAL_DISTRIBUTION_RATIO
+from .euckrfreq import EUCKR_CHAR_TO_FREQ_ORDER, EUCKR_TABLE_SIZE, EUCKR_TYPICAL_DISTRIBUTION_RATIO
+from .euctwfreq import EUCTW_CHAR_TO_FREQ_ORDER, EUCTW_TABLE_SIZE, EUCTW_TYPICAL_DISTRIBUTION_RATIO
+from .gb2312freq import GB2312_CHAR_TO_FREQ_ORDER, GB2312_TABLE_SIZE, GB2312_TYPICAL_DISTRIBUTION_RATIO
+from .jisfreq import JIS_CHAR_TO_FREQ_ORDER, JIS_TABLE_SIZE, JIS_TYPICAL_DISTRIBUTION_RATIO
 from .johabfreq import JOHAB_TO_EUCKR_ORDER_TABLE
 
 
@@ -107,9 +87,7 @@ class CharDistributionAnalysis:
             return self.SURE_NO
 
         if self._total_chars != self._freq_chars:
-            r = self._freq_chars / (
-                (self._total_chars - self._freq_chars) * self.typical_distribution_ratio
-            )
+            r = self._freq_chars / ((self._total_chars - self._freq_chars) * self.typical_distribution_ratio)
             if r < self.SURE_YES:
                 return r
 

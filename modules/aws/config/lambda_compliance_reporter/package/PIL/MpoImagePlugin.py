@@ -24,13 +24,7 @@ import os
 import struct
 from typing import IO, Any, cast
 
-from . import (
-    Image,
-    ImageFile,
-    ImageSequence,
-    JpegImagePlugin,
-    TiffImagePlugin,
-)
+from . import Image, ImageFile, ImageSequence, JpegImagePlugin, TiffImagePlugin
 from ._binary import o32le
 from ._util import DeferredError
 
@@ -51,9 +45,7 @@ def _save_all(im: Image.Image, fp: IO[bytes], filename: str | bytes) -> None:
         for im_frame in ImageSequence.Iterator(imSequence):
             if not offsets:
                 # APP2 marker
-                im_frame.encoderinfo["extra"] = (
-                    b"\xff\xe2" + struct.pack(">H", 6 + 82) + b"MPF\0" + b" " * 82
-                )
+                im_frame.encoderinfo["extra"] = b"\xff\xe2" + struct.pack(">H", 6 + 82) + b"MPF\0" + b" " * 82
                 exif = im_frame.encoderinfo.get("exif")
                 if isinstance(exif, Image.Exif):
                     exif = exif.tobytes()
@@ -109,9 +101,7 @@ class MpoImageFile(JpegImagePlugin.JpegImageFile):
             msg = "Image appears to be a malformed MPO file"
             raise ValueError(msg)
         self.n_frames = self.mpinfo[0xB001]
-        self.__mpoffsets = [
-            mpent["DataOffset"] + self.info["mpoffset"] for mpent in self.mpinfo[0xB002]
-        ]
+        self.__mpoffsets = [mpent["DataOffset"] + self.info["mpoffset"] for mpent in self.mpinfo[0xB002]]
         self.__mpoffsets[0] = 0
         # Note that the following assertion will only be invalid if something
         # gets broken within JpegImagePlugin.
@@ -151,9 +141,7 @@ class MpoImageFile(JpegImagePlugin.JpegImageFile):
         if self.info.get("exif") != original_exif:
             self._reload_exif()
 
-        self.tile = [
-            ImageFile._Tile("jpeg", (0, 0) + self.size, self.offset, self.tile[0][-1])
-        ]
+        self.tile = [ImageFile._Tile("jpeg", (0, 0) + self.size, self.offset, self.tile[0][-1])]
         self.__frame = frame
 
     def tell(self) -> int:

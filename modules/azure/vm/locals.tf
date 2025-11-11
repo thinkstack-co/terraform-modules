@@ -1,0 +1,153 @@
+locals {
+  # OS version to image mapping
+  # Maps simplified os_version values to Azure Marketplace image references
+  os_image_map = {
+    # Windows Server images
+    "2025-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2025-datacenter"
+    }
+    "2025-datacenter-core" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2025-datacenter-core"
+    }
+    "2022-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2022-datacenter"
+    }
+    "2022-datacenter-core" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2022-datacenter-core"
+    }
+    "2022-datacenter-azure-edition" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2022-datacenter-azure-edition"
+    }
+    "2019-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2019-datacenter"
+    }
+    "2019-datacenter-core" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2019-datacenter-core"
+    }
+    "2016-datacenter" = {
+      publisher = "MicrosoftWindowsServer"
+      offer     = "WindowsServer"
+      sku       = "2016-datacenter"
+    }
+    # Ubuntu images
+    "ubuntu-22.04" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-jammy"
+      sku       = "22_04-lts-gen2"
+    }
+    "ubuntu-20.04" = {
+      publisher = "Canonical"
+      offer     = "0001-com-ubuntu-server-focal"
+      sku       = "20_04-lts-gen2"
+    }
+    # Red Hat Enterprise Linux images
+    "rhel-9" = {
+      publisher = "RedHat"
+      offer     = "RHEL"
+      sku       = "9-lvm-gen2"
+    }
+    "rhel-8" = {
+      publisher = "RedHat"
+      offer     = "RHEL"
+      sku       = "8-lvm-gen2"
+    }
+    # Debian images
+    "debian-12" = {
+      publisher = "Debian"
+      offer     = "debian-12"
+      sku       = "12-gen2"
+    }
+    "debian-11" = {
+      publisher = "Debian"
+      offer     = "debian-11"
+      sku       = "11-gen2"
+    }
+  }
+
+  # Determine which image reference to use
+  # Priority: source_image_id > os_version > manual source_image_* variables
+  use_os_version_map = var.source_image_id == null && var.os_version != null
+
+  # Get image details from map or use provided variables
+  selected_publisher = local.use_os_version_map ? local.os_image_map[var.os_version].publisher : var.source_image_publisher
+  selected_offer     = local.use_os_version_map ? local.os_image_map[var.os_version].offer : var.source_image_offer
+  selected_sku       = local.use_os_version_map ? local.os_image_map[var.os_version].sku : var.source_image_sku
+
+  # VM sizes that support accelerated networking
+  # This list includes common VM sizes that support accelerated networking
+  # Reference: https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli
+  accelerated_networking_supported_sizes = [
+    # D-series v3
+    "Standard_D2s_v3", "Standard_D4s_v3", "Standard_D8s_v3", "Standard_D16s_v3", "Standard_D32s_v3", "Standard_D48s_v3", "Standard_D64s_v3",
+    "Standard_D2_v3", "Standard_D4_v3", "Standard_D8_v3", "Standard_D16_v3", "Standard_D32_v3", "Standard_D48_v3", "Standard_D64_v3",
+    # D-series v4
+    "Standard_D2s_v4", "Standard_D4s_v4", "Standard_D8s_v4", "Standard_D16s_v4", "Standard_D32s_v4", "Standard_D48s_v4", "Standard_D64s_v4",
+    "Standard_D2_v4", "Standard_D4_v4", "Standard_D8_v4", "Standard_D16_v4", "Standard_D32_v4", "Standard_D48_v4", "Standard_D64_v4",
+    # D-series v5
+    "Standard_D2s_v5", "Standard_D4s_v5", "Standard_D8s_v5", "Standard_D16s_v5", "Standard_D32s_v5", "Standard_D48s_v5", "Standard_D64s_v5", "Standard_D96s_v5",
+    "Standard_D2_v5", "Standard_D4_v5", "Standard_D8_v5", "Standard_D16_v5", "Standard_D32_v5", "Standard_D48_v5", "Standard_D64_v5", "Standard_D96_v5",
+    # E-series v3
+    "Standard_E2s_v3", "Standard_E4s_v3", "Standard_E8s_v3", "Standard_E16s_v3", "Standard_E32s_v3", "Standard_E48s_v3", "Standard_E64s_v3",
+    "Standard_E2_v3", "Standard_E4_v3", "Standard_E8_v3", "Standard_E16_v3", "Standard_E32_v3", "Standard_E48_v3", "Standard_E64_v3",
+    # E-series v4
+    "Standard_E2s_v4", "Standard_E4s_v4", "Standard_E8s_v4", "Standard_E16s_v4", "Standard_E32s_v4", "Standard_E48s_v4", "Standard_E64s_v4",
+    "Standard_E2_v4", "Standard_E4_v4", "Standard_E8_v4", "Standard_E16_v4", "Standard_E32_v4", "Standard_E48_v4", "Standard_E64_v4",
+    # E-series v5
+    "Standard_E2s_v5", "Standard_E4s_v5", "Standard_E8s_v5", "Standard_E16s_v5", "Standard_E32s_v5", "Standard_E48s_v5", "Standard_E64s_v5", "Standard_E96s_v5",
+    "Standard_E2_v5", "Standard_E4_v5", "Standard_E8_v5", "Standard_E16_v5", "Standard_E32_v5", "Standard_E48_v5", "Standard_E64_v5", "Standard_E96_v5",
+    # F-series v2
+    "Standard_F2s_v2", "Standard_F4s_v2", "Standard_F8s_v2", "Standard_F16s_v2", "Standard_F32s_v2", "Standard_F48s_v2", "Standard_F64s_v2", "Standard_F72s_v2",
+    # M-series
+    "Standard_M8ms", "Standard_M16ms", "Standard_M32ms", "Standard_M64ms", "Standard_M128ms",
+    "Standard_M32ls", "Standard_M64ls", "Standard_M64s", "Standard_M128s",
+    # NC-series v3
+    "Standard_NC6s_v3", "Standard_NC12s_v3", "Standard_NC24s_v3",
+    # ND-series
+    "Standard_ND6s", "Standard_ND12s", "Standard_ND24s",
+    # NV-series v3
+    "Standard_NV12s_v3", "Standard_NV24s_v3", "Standard_NV48s_v3"
+  ]
+
+  # VM sizes that support Premium storage
+  # These VM sizes can use Premium_LRS disks
+  premium_storage_supported_sizes = [
+    # All s-series VMs support premium storage
+    # D-series
+    "Standard_D2s_v3", "Standard_D4s_v3", "Standard_D8s_v3", "Standard_D16s_v3", "Standard_D32s_v3", "Standard_D48s_v3", "Standard_D64s_v3",
+    "Standard_D2s_v4", "Standard_D4s_v4", "Standard_D8s_v4", "Standard_D16s_v4", "Standard_D32s_v4", "Standard_D48s_v4", "Standard_D64s_v4",
+    "Standard_D2s_v5", "Standard_D4s_v5", "Standard_D8s_v5", "Standard_D16s_v5", "Standard_D32s_v5", "Standard_D48s_v5", "Standard_D64s_v5", "Standard_D96s_v5",
+    # E-series
+    "Standard_E2s_v3", "Standard_E4s_v3", "Standard_E8s_v3", "Standard_E16s_v3", "Standard_E32s_v3", "Standard_E48s_v3", "Standard_E64s_v3",
+    "Standard_E2s_v4", "Standard_E4s_v4", "Standard_E8s_v4", "Standard_E16s_v4", "Standard_E32s_v4", "Standard_E48s_v4", "Standard_E64s_v4",
+    "Standard_E2s_v5", "Standard_E4s_v5", "Standard_E8s_v5", "Standard_E16s_v5", "Standard_E32s_v5", "Standard_E48s_v5", "Standard_E64s_v5", "Standard_E96s_v5",
+    # F-series
+    "Standard_F2s_v2", "Standard_F4s_v2", "Standard_F8s_v2", "Standard_F16s_v2", "Standard_F32s_v2", "Standard_F48s_v2", "Standard_F64s_v2", "Standard_F72s_v2",
+    # M-series
+    "Standard_M8ms", "Standard_M16ms", "Standard_M32ms", "Standard_M64ms", "Standard_M128ms",
+    "Standard_M32ls", "Standard_M64ls", "Standard_M64s", "Standard_M128s",
+    # B-series (burstable)
+    "Standard_B2s", "Standard_B2ms", "Standard_B4ms", "Standard_B8ms", "Standard_B12ms", "Standard_B16ms", "Standard_B20ms"
+  ]
+
+  # Validation helpers
+  supports_accelerated_networking = contains(local.accelerated_networking_supported_sizes, var.vm_size)
+  supports_premium_storage        = contains(local.premium_storage_supported_sizes, var.vm_size)
+
+  # Warning messages for configuration validation
+  accelerated_networking_warning = var.enable_accelerated_networking && !local.supports_accelerated_networking ? "WARNING: VM size ${var.vm_size} does not support accelerated networking" : ""
+  premium_storage_warning        = var.os_disk_storage_account_type == "Premium_LRS" && !local.supports_premium_storage ? "WARNING: VM size ${var.vm_size} does not support Premium storage" : ""
+}

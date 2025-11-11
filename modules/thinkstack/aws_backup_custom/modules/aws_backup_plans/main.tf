@@ -11,16 +11,16 @@ terraform {
 locals {
   # Construct plan name with optional prefix
   plan_name_base = var.plan_prefix != "" ? "${var.plan_prefix}-${var.name}" : var.name
-  
+
   # Define backup schedules
   backup_schedules = {
-    hourly  = "cron(0 * ? * * *)"      # Every hour
-    daily   = "cron(0 5 ? * * *)"      # Daily at 5 AM
-    weekly  = "cron(0 5 ? * 1 *)"      # Weekly on Monday at 5 AM
-    monthly = "cron(0 5 1 * ? *)"      # Monthly on the 1st at 5 AM
-    yearly  = "cron(0 5 1 1 ? *)"      # Yearly on January 1st at 5 AM
+    hourly  = "cron(0 * ? * * *)" # Every hour
+    daily   = "cron(0 5 ? * * *)" # Daily at 5 AM
+    weekly  = "cron(0 5 ? * 1 *)" # Weekly on Monday at 5 AM
+    monthly = "cron(0 5 1 * ? *)" # Monthly on the 1st at 5 AM
+    yearly  = "cron(0 5 1 1 ? *)" # Yearly on January 1st at 5 AM
   }
-  
+
   # Smart default tag keys based on DR status
   default_tag_keys = {
     hourly  = var.enable_hourly_dr_copy ? "hourly_prod_dr_backups" : "hourly_prod_backups"
@@ -29,7 +29,7 @@ locals {
     monthly = var.enable_monthly_dr_copy ? "monthly_prod_dr_backups" : "monthly_prod_backups"
     yearly  = var.enable_yearly_dr_copy ? "yearly_prod_dr_backups" : "yearly_prod_backups"
   }
-  
+
   # Use custom tag key if provided, otherwise use smart default
   selection_tag_keys = {
     hourly  = coalesce(var.hourly_selection_tag_key, local.default_tag_keys.hourly)
@@ -38,35 +38,50 @@ locals {
     monthly = coalesce(var.monthly_selection_tag_key, local.default_tag_keys.monthly)
     yearly  = coalesce(var.yearly_selection_tag_key, local.default_tag_keys.yearly)
   }
-  
+
   # Determine DR vault ARNs - support both ARN and name inputs
   dr_vault_configs = {
     hourly = var.enable_hourly_dr_copy ? {
       vault_input = coalesce(var.hourly_dr_vault_arn, var.hourly_dr_vault_name)
-      is_arn = can(regex("^arn:aws:backup:", coalesce(var.hourly_dr_vault_arn, var.hourly_dr_vault_name, "")))
+      is_arn      = can(regex("^arn:aws:backup:", coalesce(var.hourly_dr_vault_arn, var.hourly_dr_vault_name, "")))
     } : null
     daily = var.enable_daily_dr_copy ? {
       vault_input = coalesce(var.daily_dr_vault_arn, var.daily_dr_vault_name)
-      is_arn = can(regex("^arn:aws:backup:", coalesce(var.daily_dr_vault_arn, var.daily_dr_vault_name, "")))
+      is_arn      = can(regex("^arn:aws:backup:", coalesce(var.daily_dr_vault_arn, var.daily_dr_vault_name, "")))
     } : null
     weekly = var.enable_weekly_dr_copy ? {
       vault_input = coalesce(var.weekly_dr_vault_arn, var.weekly_dr_vault_name)
-      is_arn = can(regex("^arn:aws:backup:", coalesce(var.weekly_dr_vault_arn, var.weekly_dr_vault_name, "")))
+      is_arn      = can(regex("^arn:aws:backup:", coalesce(var.weekly_dr_vault_arn, var.weekly_dr_vault_name, "")))
     } : null
     monthly = var.enable_monthly_dr_copy ? {
       vault_input = coalesce(var.monthly_dr_vault_arn, var.monthly_dr_vault_name)
-      is_arn = can(regex("^arn:aws:backup:", coalesce(var.monthly_dr_vault_arn, var.monthly_dr_vault_name, "")))
+      is_arn      = can(regex("^arn:aws:backup:", coalesce(var.monthly_dr_vault_arn, var.monthly_dr_vault_name, "")))
     } : null
     yearly = var.enable_yearly_dr_copy ? {
       vault_input = coalesce(var.yearly_dr_vault_arn, var.yearly_dr_vault_name)
-      is_arn = can(regex("^arn:aws:backup:", coalesce(var.yearly_dr_vault_arn, var.yearly_dr_vault_name, "")))
+      is_arn      = can(regex("^arn:aws:backup:", coalesce(var.yearly_dr_vault_arn, var.yearly_dr_vault_name, "")))
     } : null
   }
-  
+
   # Get DR vault ARNs - if input is already an ARN use it, otherwise it must be provided as full ARN
   dr_vault_arns = {
     for k, v in local.dr_vault_configs : k => v != null ? v.vault_input : null
   }
+
+  # Determine if any DR copy is enabled
+  any_dr_enabled = (
+    var.enable_hourly_dr_copy ||
+    var.enable_daily_dr_copy ||
+    var.enable_weekly_dr_copy ||
+    var.enable_monthly_dr_copy ||
+    var.enable_yearly_dr_copy
+  )
+
+  # Automatically exclude EBS volumes when DR is enabled (only copy AMIs)
+  # Users can override by providing their own backup_selection_not_resources
+  effective_not_resources = length(var.backup_selection_not_resources) > 0 ? var.backup_selection_not_resources : (
+    local.any_dr_enabled ? ["arn:aws:ec2:*:*:volume/*"] : []
+  )
 }
 
 # Data sources
@@ -183,7 +198,7 @@ locals {
 # Create individual backup plans when use_individual_plans is true
 resource "aws_backup_plan" "individual" {
   for_each = var.use_individual_plans ? local.enabled_plans : {}
-  
+
   name = "${local.plan_name_base}-${each.key}"
   tags = merge(
     var.tags,
@@ -191,7 +206,7 @@ resource "aws_backup_plan" "individual" {
       Schedule = each.key
       Type     = "backup-plan"
     },
-    var.plan_prefix != "" ? { "${var.plan_prefix}" = "true" } : {}
+    var.plan_prefix != "" ? { (var.plan_prefix) = "true" } : {}
   )
 
   rule {
@@ -214,7 +229,7 @@ resource "aws_backup_plan" "individual" {
       for_each = each.value.enable_dr_copy && each.value.dr_vault_arn != null ? [1] : []
       content {
         destination_vault_arn = each.value.dr_vault_arn
-        
+
         dynamic "lifecycle" {
           for_each = each.value.dr_retention_days != null || each.value.dr_cold_storage_after != null ? [1] : []
           content {
@@ -238,11 +253,11 @@ resource "aws_backup_plan" "individual" {
 # Create a single combined backup plan when use_individual_plans is false
 resource "aws_backup_plan" "combined" {
   count = !var.use_individual_plans && length(local.enabled_plans) > 0 ? 1 : 0
-  
+
   name = local.plan_name_base
   tags = merge(
     var.tags,
-    var.plan_prefix != "" ? { "${var.plan_prefix}" = "true" } : {}
+    var.plan_prefix != "" ? { (var.plan_prefix) = "true" } : {}
   )
 
   dynamic "rule" {
@@ -267,7 +282,7 @@ resource "aws_backup_plan" "combined" {
         for_each = rule.value.copy_actions
         content {
           destination_vault_arn = copy_action.value.destination_vault_arn
-          
+
           dynamic "lifecycle" {
             for_each = copy_action.value.lifecycle != null ? [copy_action.value.lifecycle] : []
             content {
@@ -292,12 +307,12 @@ resource "aws_backup_plan" "combined" {
 # Support for custom rules (backward compatibility)
 resource "aws_backup_plan" "custom" {
   count = length(var.rules) > 0 ? 1 : 0
-  
+
   name = "${local.plan_name_base}-custom"
   tags = merge(
     var.tags,
     { Type = "custom-backup-plan" },
-    var.plan_prefix != "" ? { "${var.plan_prefix}" = "true" } : {}
+    var.plan_prefix != "" ? { (var.plan_prefix) = "true" } : {}
   )
 
   dynamic "rule" {
@@ -322,7 +337,7 @@ resource "aws_backup_plan" "custom" {
         for_each = lookup(rule.value, "copy_actions", [])
         content {
           destination_vault_arn = copy_action.value.destination_vault_arn
-          
+
           dynamic "lifecycle" {
             for_each = lookup(copy_action.value, "lifecycle", null) != null ? [copy_action.value.lifecycle] : []
             content {
@@ -349,8 +364,8 @@ resource "aws_backup_plan" "custom" {
 # IAM role for backup selection
 resource "aws_iam_role" "backup_selection" {
   count = var.create_backup_selection ? 1 : 0
-  
-  name               = "${local.plan_name_base}-backup-selection-role"
+
+  name = "${local.plan_name_base}-backup-selection-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -363,7 +378,7 @@ resource "aws_iam_role" "backup_selection" {
       }
     ]
   })
-  
+
   tags = merge(
     var.tags,
     {
@@ -375,21 +390,21 @@ resource "aws_iam_role" "backup_selection" {
 
 resource "aws_iam_role_policy_attachment" "backup_selection" {
   count = var.create_backup_selection ? 1 : 0
-  
+
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
   role       = aws_iam_role.backup_selection[0].name
 }
 
 resource "aws_iam_role_policy_attachment" "backup_selection_s3" {
   count = var.create_backup_selection && var.enable_s3_backup ? 1 : 0
-  
+
   policy_arn = "arn:aws:iam::aws:policy/AWSBackupServiceRolePolicyForS3Backup"
   role       = aws_iam_role.backup_selection[0].name
 }
 
 resource "aws_iam_role_policy_attachment" "backup_selection_restores" {
   count = var.create_backup_selection ? 1 : 0
-  
+
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores"
   role       = aws_iam_role.backup_selection[0].name
 }
@@ -411,30 +426,30 @@ resource "aws_iam_role_policy" "backup_selection_resource_access" {
           "tag:GetResources",
           "tag:GetTagKeys",
           "tag:GetTagValues",
-          
+
           # EC2 permissions
           "ec2:DescribeInstances",
           "ec2:DescribeVolumes",
           "ec2:DescribeSnapshots",
           "ec2:DescribeTags",
-          
+
           # RDS permissions
           "rds:DescribeDBInstances",
           "rds:DescribeDBClusters",
           "rds:ListTagsForResource",
-          
+
           # EFS permissions
           "elasticfilesystem:DescribeFileSystems",
-          
+
           # DynamoDB permissions
           "dynamodb:ListTables",
           "dynamodb:DescribeTable",
           "dynamodb:ListTagsOfResource",
-          
+
           # S3 permissions
           "s3:ListAllMyBuckets",
           "s3:GetBucketTagging",
-          
+
           # Backup permissions
           "backup:ListBackupVaults",
           "backup:DescribeBackupVault"
@@ -448,7 +463,7 @@ resource "aws_iam_role_policy" "backup_selection_resource_access" {
 # Backup selections for individual plans
 resource "aws_backup_selection" "individual" {
   for_each = var.create_backup_selection && var.use_individual_plans ? local.enabled_plans : {}
-  
+
   iam_role_arn = aws_iam_role.backup_selection[0].arn
   name         = "${local.plan_name_base}-${each.key}-selection"
   plan_id      = aws_backup_plan.individual[each.key].id
@@ -477,8 +492,8 @@ resource "aws_backup_selection" "individual" {
   dynamic "selection_tag" {
     for_each = var.server_selection_tag == null ? [1] : []
     content {
-      type  = "STRINGEQUALS"
-      key   = local.selection_tag_keys[each.key]
+      type = "STRINGEQUALS"
+      key  = local.selection_tag_keys[each.key]
       value = (
         each.key == "hourly" ? var.hourly_selection_tag_value :
         each.key == "daily" ? var.daily_selection_tag_value :
@@ -503,7 +518,7 @@ resource "aws_backup_selection" "individual" {
           value = string_equals.value.value
         }
       }
-      
+
       dynamic "string_not_equals" {
         for_each = lookup(condition.value, "string_not_equals", [])
         content {
@@ -511,7 +526,7 @@ resource "aws_backup_selection" "individual" {
           value = string_not_equals.value.value
         }
       }
-      
+
       dynamic "string_like" {
         for_each = lookup(condition.value, "string_like", [])
         content {
@@ -519,7 +534,7 @@ resource "aws_backup_selection" "individual" {
           value = string_like.value.value
         }
       }
-      
+
       dynamic "string_not_like" {
         for_each = lookup(condition.value, "string_not_like", [])
         content {
@@ -530,14 +545,36 @@ resource "aws_backup_selection" "individual" {
     }
   }
 
-  # Not supported resources
-  not_resources = var.backup_selection_not_resources
+  # Backup exclusion condition (exclude resources with specific tags)
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = "aws:ResourceTag/${var.backup_exclusion_tag_key}"
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+
+  # Additional exclusion conditions
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
+    content {
+      string_not_equals {
+        key   = "aws:ResourceTag/${condition.value.key}"
+        value = condition.value.value
+      }
+    }
+  }
+
+  # Not supported resources - automatically excludes EBS volumes when DR is enabled
+  not_resources = local.effective_not_resources
 }
 
 # Backup selection for combined plan
 resource "aws_backup_selection" "combined" {
   count = var.create_backup_selection && !var.use_individual_plans && length(local.enabled_plans) > 0 ? 1 : 0
-  
+
   iam_role_arn = aws_iam_role.backup_selection[0].arn
   name         = "${local.plan_name_base}-selection"
   plan_id      = aws_backup_plan.combined[0].id
@@ -576,7 +613,7 @@ resource "aws_backup_selection" "combined" {
           value = string_equals.value.value
         }
       }
-      
+
       dynamic "string_not_equals" {
         for_each = lookup(condition.value, "string_not_equals", [])
         content {
@@ -584,7 +621,7 @@ resource "aws_backup_selection" "combined" {
           value = string_not_equals.value.value
         }
       }
-      
+
       dynamic "string_like" {
         for_each = lookup(condition.value, "string_like", [])
         content {
@@ -592,7 +629,7 @@ resource "aws_backup_selection" "combined" {
           value = string_like.value.value
         }
       }
-      
+
       dynamic "string_not_like" {
         for_each = lookup(condition.value, "string_not_like", [])
         content {
@@ -603,14 +640,36 @@ resource "aws_backup_selection" "combined" {
     }
   }
 
-  # Not supported resources
-  not_resources = var.backup_selection_not_resources
+  # Backup exclusion condition (exclude resources with specific tags)
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = "aws:ResourceTag/${var.backup_exclusion_tag_key}"
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+
+  # Additional exclusion conditions
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
+    content {
+      string_not_equals {
+        key   = "aws:ResourceTag/${condition.value.key}"
+        value = condition.value.value
+      }
+    }
+  }
+
+  # Not supported resources - automatically excludes EBS volumes when DR is enabled
+  not_resources = local.effective_not_resources
 }
 
 # Backup selection for custom plan
 resource "aws_backup_selection" "custom" {
   count = var.create_backup_selection && length(var.rules) > 0 ? 1 : 0
-  
+
   iam_role_arn = aws_iam_role.backup_selection[0].arn
   name         = "${local.plan_name_base}-custom-selection"
   plan_id      = aws_backup_plan.custom[0].id
@@ -649,7 +708,7 @@ resource "aws_backup_selection" "custom" {
           value = string_equals.value.value
         }
       }
-      
+
       dynamic "string_not_equals" {
         for_each = lookup(condition.value, "string_not_equals", [])
         content {
@@ -657,7 +716,7 @@ resource "aws_backup_selection" "custom" {
           value = string_not_equals.value.value
         }
       }
-      
+
       dynamic "string_like" {
         for_each = lookup(condition.value, "string_like", [])
         content {
@@ -665,7 +724,7 @@ resource "aws_backup_selection" "custom" {
           value = string_like.value.value
         }
       }
-      
+
       dynamic "string_not_like" {
         for_each = lookup(condition.value, "string_not_like", [])
         content {
@@ -676,6 +735,28 @@ resource "aws_backup_selection" "custom" {
     }
   }
 
-  # Not supported resources
-  not_resources = var.backup_selection_not_resources
+  # Backup exclusion condition (exclude resources with specific tags)
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = "aws:ResourceTag/${var.backup_exclusion_tag_key}"
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+
+  # Additional exclusion conditions
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions && length(var.additional_exclusion_tags) > 0 ? var.additional_exclusion_tags : []
+    content {
+      string_not_equals {
+        key   = "aws:ResourceTag/${condition.value.key}"
+        value = condition.value.value
+      }
+    }
+  }
+
+  # Not supported resources - automatically excludes EBS volumes when DR is enabled
+  not_resources = local.effective_not_resources
 }

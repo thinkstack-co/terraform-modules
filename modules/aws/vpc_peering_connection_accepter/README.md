@@ -67,7 +67,7 @@
 ```
 module "vpc_peer_accepter" {
   source                          = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc_peering_connection_accepter"
-  
+
   auto_accept                     = false
   vpc_peering_connection_id       = module.vpc_peering_connection.id
   tags                            = {

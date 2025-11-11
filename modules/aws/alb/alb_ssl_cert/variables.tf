@@ -38,5 +38,3 @@ variable "certificate_arn" {
   description = "(Required, Forces New Resource) The ARN of the certificate to attach to the listener."
   default     = null
 }
-
-

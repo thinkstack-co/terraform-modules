@@ -72,20 +72,20 @@ Key features:
 # Step 1: Create the backup vaults (uses AWS-managed keys by default)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
-  
+
   create_single_vault = false
   vault_name_prefix   = "app-critical"
-  
+
   # Enable only hourly vault
   enable_hourly_vault = true
   enable_daily_vault  = false
   enable_weekly_vault = false
   enable_monthly_vault = false
   enable_yearly_vault = false
-  
+
   # Uses AWS-managed keys (aws/backup) by default
   # No need to create or manage KMS keys
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -96,36 +96,36 @@ module "backup_vaults" {
 # Step 2: Create the hourly backup plan
 module "hourly_backup_plan" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
-  
+
   name                    = "backup_plan"
   plan_prefix             = "app-critical"
   create_backup_selection = true
-  
+
   # Server selection - tag your servers with: HourlyBackup = "true"
   server_selection_tag   = "HourlyBackup"
   server_selection_value = "true"
-  
+
   # Enable only hourly schedule
   enable_hourly_plan = true
   enable_daily_plan  = false
   enable_weekly_plan = false
   enable_monthly_plan = false
   enable_yearly_plan = false
-  
+
   # Hourly configuration
   hourly_schedule                 = "cron(0 * ? * * *)"  # Every hour on the hour
   hourly_vault_name               = module.backup_vaults.scheduled_vault_names["hourly"]
   hourly_enable_continuous_backup = false
   hourly_start_window             = 60   # 60 minute backup window
   hourly_completion_window        = 120  # Complete within 2 hours
-  
+
   # Production retention
   hourly_retention_days     = 7     # Keep for 7 days
   hourly_cold_storage_after = null  # No cold storage for frequent backups
-  
+
   # No DR for hourly (too expensive)
   enable_hourly_dr_copy = false
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -136,7 +136,7 @@ module "hourly_backup_plan" {
 # Step 3: Tag your resources
 resource "aws_instance" "example" {
   # ... instance configuration ...
-  
+
   tags = {
     Name         = "WebServer"
     HourlyBackup = "true"  # This server will be backed up hourly
@@ -150,31 +150,31 @@ resource "aws_instance" "example" {
 # Step 1: Create the backup vaults with DR (uses AWS-managed keys)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
-  
+
   # The vault module handles DR providers
   providers = {
     aws    = aws
     aws.dr = aws.dr
   }
-  
+
   create_single_vault = false
   vault_name_prefix   = "prod-database"
-  
+
   # Enable only daily vault
   enable_hourly_vault = false
   enable_daily_vault  = true
   enable_weekly_vault = false
   enable_monthly_vault = false
   enable_yearly_vault = false
-  
+
   # Enable DR for daily
   enable_dr             = true
   enable_daily_dr_vault = true
   dr_vault_name_prefix  = "prod-database-dr"
-  
+
   # Uses AWS-managed keys (aws/backup) in both regions
   # No need to create or manage KMS keys
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -185,39 +185,39 @@ module "backup_vaults" {
 # Step 2: Create the daily backup plan with DR copies
 module "daily_backup_plan" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
-  
+
   name                    = "backup_plan"
   plan_prefix             = "prod-database"
   create_backup_selection = true
-  
+
   # Server selection - tag your servers with: DailyBackup = "enabled"
   server_selection_tag   = "DailyBackup"
   server_selection_value = "enabled"
-  
+
   # Enable only daily schedule
   enable_hourly_plan = false
   enable_daily_plan  = true
   enable_weekly_plan = false
   enable_monthly_plan = false
   enable_yearly_plan = false
-  
+
   # Daily configuration
   daily_schedule                 = "cron(0 3 ? * * *)"  # 3 AM every day
   daily_vault_name               = module.backup_vaults.scheduled_vault_names["daily"]
   daily_enable_continuous_backup = true  # Enable point-in-time recovery
   daily_start_window             = 60    # 60 minute backup window
   daily_completion_window        = 180   # Complete within 3 hours
-  
+
   # Production retention
   daily_retention_days     = 30  # Keep production backups for 30 days
   daily_cold_storage_after = 7   # Move to cold storage after 7 days
-  
+
   # DR copy configuration
   enable_daily_dr_copy        = true
   daily_dr_vault_arn          = module.backup_vaults.dr_vault_arns["daily"]
   daily_dr_retention_days     = 14    # Keep DR copies for 14 days
   daily_dr_cold_storage_after = null  # No cold storage for DR
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -229,7 +229,7 @@ module "daily_backup_plan" {
 # Step 3: Tag your resources
 resource "aws_db_instance" "database" {
   # ... database configuration ...
-  
+
   tags = {
     Name         = "ProductionDB"
     DailyBackup  = "enabled"  # This database will be backed up daily
@@ -243,19 +243,19 @@ resource "aws_db_instance" "database" {
 # Step 1: Create the backup vaults (uses AWS-managed keys by default)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
-  
+
   create_single_vault = false
   vault_name_prefix   = "weekly-archives"
-  
+
   enable_hourly_vault  = false
   enable_daily_vault   = false
   enable_weekly_vault  = true
   enable_monthly_vault = false
   enable_yearly_vault  = false
-  
+
   # Uses AWS-managed keys (aws/backup) by default
   # No need to create or manage KMS keys
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -266,36 +266,36 @@ module "backup_vaults" {
 # Create the backup plan
 module "weekly_backups" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
-  
+
   name                    = "backup_plan"
   plan_prefix             = "weekly-archives"
   create_backup_selection = true
-  
+
   # Simple server selection
   server_selection_tag   = "WeeklyBackup"
   server_selection_value = "true"
-  
+
   # Enable only weekly schedule
   enable_hourly_plan  = false
   enable_daily_plan   = false
   enable_weekly_plan  = true
   enable_monthly_plan = false
   enable_yearly_plan  = false
-  
+
   # Weekly configuration
   weekly_schedule                 = "cron(0 2 ? * 1 *)"  # Every Monday at 2 AM
   weekly_vault_name               = module.backup_vaults.scheduled_vault_names["weekly"]
   weekly_enable_continuous_backup = false
   weekly_start_window             = 60   # 60 minute backup window
   weekly_completion_window        = 360  # Complete within 6 hours
-  
+
   # Production retention
   weekly_retention_days     = 90  # Keep for 90 days
   weekly_cold_storage_after = 30  # Move to cold storage after 30 days
-  
+
   # No DR for weekly (cost optimization)
   enable_weekly_dr_copy = false
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -310,31 +310,31 @@ module "weekly_backups" {
 # Step 1: Create the backup vaults with DR (uses AWS-managed keys)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
-  
+
   # The vault module handles DR providers
   providers = {
     aws    = aws
     aws.dr = aws.dr
   }
-  
+
   create_single_vault = false
   vault_name_prefix   = "compliance-monthly"
-  
+
   # Enable only monthly vault
   enable_hourly_vault  = false
   enable_daily_vault   = false
   enable_weekly_vault  = false
   enable_monthly_vault = true
   enable_yearly_vault  = false
-  
+
   # Enable DR for monthly
   enable_dr               = true
   enable_monthly_dr_vault = true
   dr_vault_name_prefix    = "compliance-monthly-dr"
-  
+
   # Uses AWS-managed keys (aws/backup) in both regions
   # No need to create or manage KMS keys
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -346,39 +346,39 @@ module "backup_vaults" {
 # Step 2: Create the monthly backup plan
 module "monthly_backup_plan" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
-  
+
   name                    = "backup_plan"
   plan_prefix             = "compliance-monthly"
   create_backup_selection = true
-  
+
   # Server selection - tag your servers with: MonthlyBackup = "true"
   server_selection_tag   = "MonthlyBackup"
   server_selection_value = "true"
-  
+
   # Enable only monthly schedule
   enable_hourly_plan  = false
   enable_daily_plan   = false
   enable_weekly_plan  = false
   enable_monthly_plan = true
   enable_yearly_plan  = false
-  
+
   # Monthly configuration
   monthly_schedule                 = "cron(0 1 1 * ? *)"  # 1st of each month at 1 AM
   monthly_vault_name               = module.backup_vaults.scheduled_vault_names["monthly"]
   monthly_enable_continuous_backup = false
   monthly_start_window             = 60   # 60 minute backup window
   monthly_completion_window        = 720  # Complete within 12 hours
-  
+
   # Production retention
   monthly_retention_days     = 365  # Keep for 1 year
   monthly_cold_storage_after = 90   # Move to cold storage after 3 months
-  
+
   # DR copy configuration
   enable_monthly_dr_copy        = true
   monthly_dr_vault_arn          = module.backup_vaults.dr_vault_arns["monthly"]
   monthly_dr_retention_days     = 180  # Keep DR copies for 6 months
   monthly_dr_cold_storage_after = 30   # Move DR to cold storage after 1 month
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -390,7 +390,7 @@ module "monthly_backup_plan" {
 # Step 3: Tag your resources
 resource "aws_s3_bucket" "compliance_data" {
   # ... bucket configuration ...
-  
+
   tags = {
     Name          = "ComplianceData"
     MonthlyBackup = "true"  # This bucket will be backed up monthly
@@ -404,35 +404,35 @@ resource "aws_s3_bucket" "compliance_data" {
 # Step 1: Create the backup vaults with DR (uses AWS-managed keys)
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
-  
+
   # The vault module handles DR providers
   providers = {
     aws    = aws
     aws.dr = aws.dr
   }
-  
+
   create_single_vault = false
   vault_name_prefix   = "long-term-retention"
-  
+
   # Enable only yearly vault
   enable_hourly_vault  = false
   enable_daily_vault   = false
   enable_weekly_vault  = false
   enable_monthly_vault = false
   enable_yearly_vault  = true
-  
+
   # Enable DR for yearly
   enable_dr              = true
   enable_yearly_dr_vault = true
   dr_vault_name_prefix   = "long-term-retention-dr"
-  
+
   # Uses AWS-managed keys (aws/backup) in both regions
   # No need to create or manage KMS keys
-  
+
   # Enable vault lock for compliance
   enable_vault_lock         = true
   yearly_min_retention_days = 2555  # 7 years minimum
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -444,39 +444,39 @@ module "backup_vaults" {
 # Step 2: Create the yearly backup plan
 module "yearly_backup_plan" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
-  
+
   name                    = "backup_plan"
   plan_prefix             = "long-term-retention"
   create_backup_selection = true
-  
+
   # Server selection - tag your servers with: YearlyBackup = "true"
   server_selection_tag   = "YearlyBackup"
   server_selection_value = "true"
-  
+
   # Enable only yearly schedule
   enable_hourly_plan  = false
   enable_daily_plan   = false
   enable_weekly_plan  = false
   enable_monthly_plan = false
   enable_yearly_plan  = true
-  
+
   # Yearly configuration
   yearly_schedule                 = "cron(0 0 1 1 ? *)"  # January 1st at midnight
   yearly_vault_name               = module.backup_vaults.scheduled_vault_names["yearly"]
   yearly_enable_continuous_backup = false
   yearly_start_window             = 60    # 60 minute backup window
   yearly_completion_window        = 1440  # Complete within 24 hours
-  
+
   # Production retention
   yearly_retention_days     = 2555  # Keep for 7 years
   yearly_cold_storage_after = 365   # Move to cold storage after 1 year
-  
+
   # DR copy configuration
   enable_yearly_dr_copy        = true
   yearly_dr_vault_arn          = module.backup_vaults.dr_vault_arns["yearly"]
   yearly_dr_retention_days     = 1825  # Keep DR copies for 5 years
   yearly_dr_cold_storage_after = 180   # Move DR to cold storage after 6 months
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -488,7 +488,7 @@ module "yearly_backup_plan" {
 # Step 3: Tag your resources
 resource "aws_ebs_volume" "archives" {
   # ... volume configuration ...
-  
+
   tags = {
     Name         = "ArchiveVolume"
     YearlyBackup = "true"  # This volume will be backed up yearly
@@ -502,41 +502,41 @@ resource "aws_ebs_volume" "archives" {
 # Step 1: Create all backup vaults with selective DR and KMS keys
 module "backup_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault"
-  
+
   # The vault module handles DR providers
   providers = {
     aws    = aws
     aws.dr = aws.dr
   }
-  
+
   create_single_vault = false
   vault_name_prefix   = "prod-critical"
-  
+
   # Enable all scheduled vaults
   enable_hourly_vault  = true
   enable_daily_vault   = true
   enable_weekly_vault  = true
   enable_monthly_vault = true
   enable_yearly_vault  = true
-  
+
   # Enable DR with selective vault DR
   enable_dr            = true
   dr_vault_name_prefix = "prod-critical-dr"
-  
+
   # Selective DR - only for important schedules
   enable_hourly_dr_vault  = false  # No DR for hourly (too expensive)
   enable_daily_dr_vault   = true   # DR for daily
   enable_weekly_dr_vault  = true   # DR for weekly
   enable_monthly_dr_vault = true   # DR for monthly
   enable_yearly_dr_vault  = true   # DR for yearly
-  
+
   # Uses AWS-managed keys (aws/backup) in both regions
   # No need to create or manage KMS keys
-  
+
   # Vault lock for compliance
   enable_vault_lock         = true
   vault_lock_changeable_for = 3  # 3 days grace period
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -548,39 +548,39 @@ module "backup_vaults" {
 # Step 2: Create comprehensive backup plan with all schedules
 module "comprehensive_backup_plan" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
-  
+
   # Core configuration
   name                    = "backup_plan"
   plan_prefix             = "prod-critical"
   use_individual_plans    = true   # Create separate plans per schedule
   create_backup_selection = true
   enable_s3_backup        = true   # Include S3 backup permissions
-  
+
   # Server selection - tag your servers with: CriticalInfrastructure = "true"
   server_selection_tag   = "CriticalInfrastructure"
   server_selection_value = "true"
-  
+
   # Enable all backup schedules
   enable_hourly_plan  = true
   enable_daily_plan   = true
   enable_weekly_plan  = true
   enable_monthly_plan = true
   enable_yearly_plan  = true
-  
+
   # Reference vault names from vault module
   hourly_vault_name  = module.backup_vaults.scheduled_vault_names["hourly"]
   daily_vault_name   = module.backup_vaults.scheduled_vault_names["daily"]
   weekly_vault_name  = module.backup_vaults.scheduled_vault_names["weekly"]
   monthly_vault_name = module.backup_vaults.scheduled_vault_names["monthly"]
   yearly_vault_name  = module.backup_vaults.scheduled_vault_names["yearly"]
-  
+
   # Hourly configuration (no DR for cost savings)
   hourly_schedule                 = "cron(0 * ? * * *)"  # Every hour
   hourly_retention_days           = 7
   hourly_cold_storage_after       = null
   hourly_enable_continuous_backup = false
   enable_hourly_dr_copy           = false  # No DR for hourly
-  
+
   # Daily configuration with DR
   daily_schedule                 = "cron(0 3 ? * * *)"  # 3 AM daily
   daily_retention_days           = 30
@@ -590,7 +590,7 @@ module "comprehensive_backup_plan" {
   daily_dr_vault_arn             = module.backup_vaults.dr_vault_arns["daily"]
   daily_dr_retention_days        = 14
   daily_dr_cold_storage_after    = null
-  
+
   # Weekly configuration with DR
   weekly_schedule              = "cron(0 2 ? * 1 *)"  # Monday 2 AM
   weekly_retention_days        = 90
@@ -599,7 +599,7 @@ module "comprehensive_backup_plan" {
   weekly_dr_vault_arn          = module.backup_vaults.dr_vault_arns["weekly"]
   weekly_dr_retention_days     = 45
   weekly_dr_cold_storage_after = 14
-  
+
   # Monthly configuration with DR
   monthly_schedule              = "cron(0 1 1 * ? *)"  # 1st at 1 AM
   monthly_retention_days        = 365
@@ -608,7 +608,7 @@ module "comprehensive_backup_plan" {
   monthly_dr_vault_arn          = module.backup_vaults.dr_vault_arns["monthly"]
   monthly_dr_retention_days     = 180
   monthly_dr_cold_storage_after = 30
-  
+
   # Yearly configuration with DR
   yearly_schedule              = "cron(0 0 1 1 ? *)"  # Jan 1st midnight
   yearly_retention_days        = 2555  # 7 years
@@ -617,7 +617,7 @@ module "comprehensive_backup_plan" {
   yearly_dr_vault_arn          = module.backup_vaults.dr_vault_arns["yearly"]
   yearly_dr_retention_days     = 1825  # 5 years
   yearly_dr_cold_storage_after = 180
-  
+
   tags = {
     terraform   = "true"
     created_by  = "Terraform"
@@ -630,7 +630,7 @@ module "comprehensive_backup_plan" {
 # Step 3: Tag your critical infrastructure
 resource "aws_instance" "critical_app" {
   # ... instance configuration ...
-  
+
   tags = {
     Name                   = "CriticalAppServer"
     CriticalInfrastructure = "true"  # Will be backed up by all schedules
@@ -640,7 +640,7 @@ resource "aws_instance" "critical_app" {
 
 resource "aws_db_instance" "critical_db" {
   # ... database configuration ...
-  
+
   tags = {
     Name                   = "CriticalDatabase"
     CriticalInfrastructure = "true"  # Will be backed up by all schedules
@@ -648,6 +648,111 @@ resource "aws_db_instance" "critical_db" {
   }
 }
 ```
+
+### Backup Exclusions
+
+You can exclude specific resources (like EBS volumes) from backups using exclusion tags. This is useful when you have resources that should not be backed up even if they're attached to resources that are included in the backup plan.
+
+```hcl
+# Enable backup exclusions in your backup plan
+module "daily_backup_plan" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_plans"
+
+  name                    = "backup_plan"
+  plan_prefix             = "prod-database"
+  create_backup_selection = true
+
+  # Server selection - include resources with this tag
+  server_selection_tag   = "DailyBackup"
+  server_selection_value = "enabled"
+
+  # Enable backup exclusions
+  enable_backup_exclusions  = true
+  backup_exclusion_tag_key  = "BackupExclude"
+  backup_exclusion_tag_value = "true"
+
+  # Optional: Add additional exclusion tags
+  additional_exclusion_tags = [
+    {
+      key   = "NoBackup"
+      value = "true"
+    },
+    {
+      key   = "TempVolume"
+      value = "true"
+    }
+  ]
+
+  enable_daily_plan    = true
+  daily_schedule       = "cron(0 3 ? * * *)"
+  daily_retention_days = 7
+  daily_vault_name     = module.backup_vaults.scheduled_vault_names["daily"]
+
+  tags = {
+    terraform = "true"
+  }
+}
+
+# Example: EC2 instance with EBS volumes - some excluded from backups
+resource "aws_instance" "database_server" {
+  ami           = "ami-12345678"
+  instance_type = "m5.large"
+
+  tags = {
+    Name        = "DatabaseServer"
+    DailyBackup = "enabled"  # This instance will be backed up
+  }
+}
+
+# Data volume - will be backed up
+resource "aws_ebs_volume" "data" {
+  availability_zone = "us-east-1a"
+  size              = 100
+
+  tags = {
+    Name        = "DatabaseData"
+    DailyBackup = "enabled"  # Will be backed up
+  }
+}
+
+# Temp volume - excluded from backups
+resource "aws_ebs_volume" "temp" {
+  availability_zone = "us-east-1a"
+  size              = 50
+
+  tags = {
+    Name          = "DatabaseTemp"
+    DailyBackup   = "enabled"  # Would normally be backed up
+    BackupExclude = "true"     # But this tag excludes it from backups
+  }
+}
+
+# Cache volume - also excluded
+resource "aws_ebs_volume" "cache" {
+  availability_zone = "us-east-1a"
+  size              = 25
+
+  tags = {
+    Name        = "DatabaseCache"
+    DailyBackup = "enabled"  # Would normally be backed up
+    NoBackup    = "true"     # Excluded via additional_exclusion_tags
+  }
+}
+```
+
+**How Exclusions Work:**
+
+- Resources are first selected based on the inclusion tags (`server_selection_tag`)
+- Then, resources with exclusion tags are filtered out using AWS Backup's `string_not_equals` condition
+- The module automatically adds the required `aws:ResourceTag/` prefix to tag keys
+- This allows fine-grained control over what gets backed up
+- Useful for temporary volumes, cache volumes, or other ephemeral storage
+
+**Important Notes:**
+
+- Tag keys are automatically prefixed with `aws:ResourceTag/` by the module (e.g., `BackupExclude` becomes `aws:ResourceTag/BackupExclude`)
+- You only need to specify the tag name without the prefix in the module configuration
+- The exclusion logic works at the AWS Backup selection level, not at the resource level
 
 ### How to Tag Your Servers
 
@@ -657,11 +762,11 @@ Each backup plan uses a simple tag-based selection system. You need to tag your 
 # Example: Tag servers for different backup plans
 resource "aws_instance" "web_server" {
   # ... instance configuration ...
-  
+
   tags = {
     Name          = "WebServer01"
     Environment   = "Production"
-    
+
     # Backup tags - add the ones you need
     HourlyBackup  = "true"      # Will be backed up by hourly plan
     DailyBackup   = "enabled"   # Will be backed up by daily plan
@@ -674,7 +779,7 @@ resource "aws_instance" "web_server" {
 # Example: Tag RDS database for daily backups only
 resource "aws_db_instance" "main" {
   # ... database configuration ...
-  
+
   tags = {
     Name         = "MainDatabase"
     Environment  = "Production"
@@ -685,7 +790,7 @@ resource "aws_db_instance" "main" {
 # Example: Tag S3 bucket for long-term retention
 resource "aws_s3_bucket" "archives" {
   # ... bucket configuration ...
-  
+
   tags = {
     Name          = "CompanyArchives"
     YearlyBackup  = "true"      # Only yearly backups for archives
@@ -799,6 +904,15 @@ For each schedule type:
 | backup_selection_not_resources | Resource ARNs to exclude | `list(string)` | `[]` | no |
 | backup_selection_conditions | Advanced selection conditions | `list(object)` | `[]` | no |
 
+### Backup Exclusions
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| enable_backup_exclusions | Enable backup exclusions based on tags | `bool` | `false` | no |
+| backup_exclusion_tag_key | Tag key to use for excluding resources from backups | `string` | `"BackupExclude"` | no |
+| backup_exclusion_tag_value | Tag value to match for excluding resources from backups | `string` | `"true"` | no |
+| additional_exclusion_tags | Additional tag conditions to exclude resources from backups | `list(object({key = string, value = string}))` | `[]` | no |
+
 ### Per-Schedule Selection Tags
 
 | Name | Description | Type | Default | Required |
@@ -832,7 +946,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - <info@thinkstack.co>
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
 
@@ -861,6 +975,3 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
-[product-screenshot]: /images/screenshot.webp
-[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
-[Terraform-url]: https://terraform.io

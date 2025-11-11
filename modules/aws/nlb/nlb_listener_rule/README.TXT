@@ -17,8 +17,8 @@ Below are the variables used in the `aws_lb_listener_rule` resource block:
 5. `condition_values`: The path patterns to match. A maximum of 1 can be defined.
 
 ################################ MODULE EXAMPLE ###################################################################
-Here's an example usage of the variables:  Keep in mind, the references to other modules are based on the other 
-resources in this ALB Resource Group.  You will need to have modules set for a listener and a target group for 
+Here's an example usage of the variables:  Keep in mind, the references to other modules are based on the other
+resources in this ALB Resource Group.  You will need to have modules set for a listener and a target group for
 this module to be relevant.
 
 module "listener_rule_example" {
@@ -31,8 +31,8 @@ module "listener_rule_example" {
   condition_values = ["192.0.2.0/24"]
 }
 
-The effect of this NLB listener rule would be that any incoming traffic with a source IP address falling within 
-the range 192.0.2.0/24 (e.g., 192.0.2.1, 192.0.2.100, etc.) would be forwarded to the target group associated 
+The effect of this NLB listener rule would be that any incoming traffic with a source IP address falling within
+the range 192.0.2.0/24 (e.g., 192.0.2.1, 192.0.2.100, etc.) would be forwarded to the target group associated
 with the NLB listener.
 
 ############### CONDITION FIELD AND VALUES ##############################################################################
@@ -41,8 +41,6 @@ The `condition_field` and `condition_values` variables are used to determine how
 
 The `condition_field` variable can be set to 'path-pattern' for path-based routing or 'host-header' for host-based routing.
 
-The effect of this NLB listener rule would be that any incoming traffic with a source IP address falling within 
-the range 192.0.2.0/24 (e.g., 192.0.2.1, 192.0.2.100, etc.) would be forwarded to the target group associated 
+The effect of this NLB listener rule would be that any incoming traffic with a source IP address falling within
+the range 192.0.2.0/24 (e.g., 192.0.2.1, 192.0.2.100, etc.) would be forwarded to the target group associated
 with the NLB listener.
-
-

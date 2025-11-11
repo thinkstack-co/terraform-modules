@@ -30,26 +30,37 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-from reportlab.lib.units import inch
+from string import digits as string_digits
+from string import whitespace as string_whitespace
+
 from reportlab.graphics.barcode.common import Barcode
-from string import digits as string_digits, whitespace as string_whitespace
+from reportlab.lib.units import inch
 from reportlab.lib.utils import asNative
 
 _fim_patterns = {
-    'A' : "||  |  ||",
-    'B' : "| || || |",
-    'C' : "|| | | ||",
-    'D' : "||| | |||",
+    "A": "||  |  ||",
+    "B": "| || || |",
+    "C": "|| | | ||",
+    "D": "||| | |||",
     # XXX There is an E.
     # The below has been seen, but dunno if it is E or not:
     # 'E' : '|||| ||||'
 }
 
 _postnet_patterns = {
-    '1' : "...||",    '2' : "..|.|",    '3' : "..||.",    '4' : ".|..|",
-    '5' : ".|.|.",    '6' : ".||..",    '7' : "|...|",    '8' : "|..|.",
-    '9' : "|.|..",    '0' : "||...",    'S' : "|",
+    "1": "...||",
+    "2": "..|.|",
+    "3": "..||.",
+    "4": ".|..|",
+    "5": ".|.|.",
+    "6": ".||..",
+    "7": "|...|",
+    "8": "|..|.",
+    "9": "|.|..",
+    "0": "||...",
+    "S": "|",
 }
+
 
 class FIM(Barcode):
     """
@@ -91,14 +102,16 @@ class FIM(Barcode):
     USPS Publication 25, A Guide to Business Mail Preparation
     http://new.usps.com/cpim/ftp/pubs/pub25.pdf
     """
-    barWidth = inch * (1.0/32.0)
-    spaceWidth = inch * (1.0/16.0)
-    barHeight = inch * (5.0/8.0)
+
+    barWidth = inch * (1.0 / 32.0)
+    spaceWidth = inch * (1.0 / 16.0)
+    barHeight = inch * (5.0 / 8.0)
     rquiet = inch * (0.25)
-    lquiet = inch * (15.0/32.0)
+    lquiet = inch * (15.0 / 32.0)
     quiet = 0
-    def __init__(self, value='', **args):
-        value = str(value) if isinstance(value,int) else asNative(value)
+
+    def __init__(self, value="", **args):
+        value = str(value) if isinstance(value, int) else asNative(value)
         for k, v in args.items():
             setattr(self, k, v)
 
@@ -106,7 +119,7 @@ class FIM(Barcode):
 
     def validate(self):
         self.valid = 1
-        self.validated = ''
+        self.validated = ""
         for c in self.value:
             if c in string_whitespace:
                 continue
@@ -121,7 +134,7 @@ class FIM(Barcode):
         return self.validated
 
     def decompose(self):
-        self.decomposed = ''
+        self.decomposed = ""
         for c in self.encoded:
             self.decomposed = self.decomposed + _fim_patterns[c]
 
@@ -137,13 +150,14 @@ class FIM(Barcode):
         self._calculate()
         left = self.quiet and self.lquiet or 0
         for c in self.decomposed:
-            if c == '|':
+            if c == "|":
                 self.rect(left, 0.0, self.barWidth, self.barHeight)
             left += self.spaceWidth
         self.drawHumanReadable()
 
     def _humanText(self):
         return self.value
+
 
 class POSTNET(Barcode):
     """
@@ -157,29 +171,31 @@ class POSTNET(Barcode):
     USPS Publication 25, A Guide to Business Mail Preparation
     http://new.usps.com/cpim/ftp/pubs/pub25.pdf
     """
+
     quiet = 0
     shortHeight = inch * 0.050
     barHeight = inch * 0.125
     barWidth = inch * 0.018
     spaceWidth = inch * 0.0275
-    def __init__(self, value='', **args):
-        value = str(value) if isinstance(value,int) else asNative(value)
+
+    def __init__(self, value="", **args):
+        value = str(value) if isinstance(value, int) else asNative(value)
         for k, v in args.items():
             setattr(self, k, v)
 
         Barcode.__init__(self, value)
 
     def validate(self):
-        self.validated = ''
+        self.validated = ""
         self.valid = 1
         count = 0
         for c in self.value:
-            if c in (string_whitespace + '-'):
+            if c in (string_whitespace + "-"):
                 pass
             elif c in string_digits:
                 count = count + 1
                 if count == 6:
-                    self.validated = self.validated + '-'
+                    self.validated = self.validated + "-"
                 self.validated = self.validated + c
             else:
                 self.valid = 0
@@ -196,16 +212,16 @@ class POSTNET(Barcode):
             if c in string_digits:
                 self.encoded = self.encoded + c
                 check = check + int(c)
-            elif c == '-':
+            elif c == "-":
                 pass
             else:
                 raise ValueError("Invalid character in input")
         check = (10 - check) % 10
-        self.encoded = self.encoded + repr(check) + 'S'
+        self.encoded = self.encoded + repr(check) + "S"
         return self.encoded
 
     def decompose(self):
-        self.decomposed = ''
+        self.decomposed = ""
         for c in self.encoded:
             self.decomposed = self.decomposed + _postnet_patterns[c]
         return self.decomposed
@@ -220,7 +236,7 @@ class POSTNET(Barcode):
         left = 0
 
         for c in self.decomposed:
-            if c == '.':
+            if c == ".":
                 h = self.shortHeight
             else:
                 h = self.barHeight

@@ -685,6 +685,17 @@ resource "aws_backup_selection" "multi_plan_selections" {
     key   = var.standard_backup_tag_key
     value = each.value.combo_name
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates backup selection for resources tagged with backup_schedule="hourly"
@@ -701,6 +712,17 @@ resource "aws_backup_selection" "hourly_selection" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -719,6 +741,17 @@ resource "aws_backup_selection" "daily_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates backup selection for resources tagged with backup_schedule="weekly"
@@ -735,6 +768,17 @@ resource "aws_backup_selection" "weekly_selection" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -753,6 +797,17 @@ resource "aws_backup_selection" "monthly_selection" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates backup selection for resources tagged with backup_schedule="yearly"
@@ -769,6 +824,17 @@ resource "aws_backup_selection" "yearly_selection" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -787,6 +853,17 @@ resource "aws_backup_selection" "hourly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "daily_selection_all" {
@@ -799,6 +876,17 @@ resource "aws_backup_selection" "daily_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -813,6 +901,17 @@ resource "aws_backup_selection" "weekly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "monthly_selection_all" {
@@ -826,6 +925,17 @@ resource "aws_backup_selection" "monthly_selection_all" {
     key   = var.standard_backup_tag_key
     value = each.key
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "yearly_selection_all" {
@@ -838,6 +948,17 @@ resource "aws_backup_selection" "yearly_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.standard_backup_tag_key
     value = each.key
+  }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1061,6 +1182,7 @@ resource "aws_backup_plan" "yearly_backup_plan_dr" {
 # Only selects resources with BOTH backup_schedule="hourly" AND add_to_dr="true"
 # These resources get backed up by both regular and DR plans (additive approach)
 # The DR plan includes cross-region copy for disaster recovery
+# Only EC2 instances are copied to DR (creating AMIs), EBS volumes are excluded
 resource "aws_backup_selection" "hourly_dr_selection" {
   count        = var.create_hourly_plan && var.enable_dr && var.hourly_include_in_dr ? 1 : 0
   name         = "hourly-dr-tag-selection"
@@ -1078,12 +1200,29 @@ resource "aws_backup_selection" "hourly_dr_selection" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selection for daily backups
 # Implements dual-tag selection requiring both backup and DR tags
 # Resources must explicitly opt-in to DR with add_to_dr="true"
 # Provides geographic redundancy for critical daily backups
+# Only EC2 instances are copied to DR (creating AMIs), EBS volumes are excluded
 resource "aws_backup_selection" "daily_dr_selection" {
   count        = var.create_daily_plan && var.enable_dr && var.daily_include_in_dr ? 1 : 0
   name         = "daily-dr-tag-selection"
@@ -1101,12 +1240,29 @@ resource "aws_backup_selection" "daily_dr_selection" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selection for weekly backups
 # Selects resources that need both local and cross-region weekly backups
 # Requires explicit DR tagging to prevent unnecessary replication costs
 # Balances RPO requirements with storage costs
+# Only EC2 instances are copied to DR (creating AMIs), EBS volumes are excluded
 resource "aws_backup_selection" "weekly_dr_selection" {
   count        = var.create_weekly_plan && var.enable_dr && var.weekly_include_in_dr ? 1 : 0
   name         = "weekly-dr-tag-selection"
@@ -1124,12 +1280,29 @@ resource "aws_backup_selection" "weekly_dr_selection" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selection for monthly backups
 # Typically used for compliance data requiring multi-region storage
 # Long-term retention with geographic redundancy
 # Only backs up resources explicitly marked for DR
+# Only EC2 instances are copied to DR (creating AMIs), EBS volumes are excluded
 resource "aws_backup_selection" "monthly_dr_selection" {
   count        = var.create_monthly_plan && var.enable_dr && var.monthly_include_in_dr ? 1 : 0
   name         = "monthly-dr-tag-selection"
@@ -1146,6 +1319,22 @@ resource "aws_backup_selection" "monthly_dr_selection" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1169,6 +1358,22 @@ resource "aws_backup_selection" "yearly_dr_selection" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1213,6 +1418,22 @@ resource "aws_backup_selection" "multi_plan_dr_selections" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 # Creates DR backup selections for resources tagged with backup_schedule="all"
@@ -1236,6 +1457,17 @@ resource "aws_backup_selection" "hourly_dr_selection_all" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "daily_dr_selection_all" {
@@ -1254,6 +1486,22 @@ resource "aws_backup_selection" "daily_dr_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1274,6 +1522,22 @@ resource "aws_backup_selection" "weekly_dr_selection_all" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
 }
 
 resource "aws_backup_selection" "monthly_dr_selection_all" {
@@ -1292,6 +1556,22 @@ resource "aws_backup_selection" "monthly_dr_selection_all" {
     type  = "STRINGEQUALS"
     key   = var.dr_tag_key
     value = var.dr_tag_value
+  }
+
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
   }
 }
 
@@ -1312,5 +1592,20 @@ resource "aws_backup_selection" "yearly_dr_selection_all" {
     key   = var.dr_tag_key
     value = var.dr_tag_value
   }
-}
 
+  # Exclude EBS volumes from DR copies - only EC2 instances (AMIs) will be copied
+  not_resources = [
+    "arn:aws:ec2:*:*:volume/*"
+  ]
+
+  # Conditional exclusion of resources with backup_exclude tag
+  dynamic "condition" {
+    for_each = var.enable_backup_exclusions ? [1] : []
+    content {
+      string_not_equals {
+        key   = var.backup_exclusion_tag_key
+        value = var.backup_exclusion_tag_value
+      }
+    }
+  }
+}

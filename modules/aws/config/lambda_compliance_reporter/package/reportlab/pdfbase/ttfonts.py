@@ -1,7 +1,7 @@
-#Copyright ReportLab Europe Ltd. 2000-2017
-#see license.txt for license details
-__version__ = '$Id$'
-__doc__="""TrueType font support
+# Copyright ReportLab Europe Ltd. 2000-2017
+# see license.txt for license details
+__version__ = "$Id$"
+__doc__ = """TrueType font support
 
 This defines classes to represent TrueType fonts.  They know how to calculate
 their own width and how to write themselves into PDF files.  They support
@@ -51,130 +51,148 @@ Oh, and that 14 up there is font size.)
 Canvas and TextObject have special support for dynamic fonts.
 """
 
-from struct import pack, unpack, error as structError
-from fnmatch import fnmatch
-from reportlab.lib.utils import bytestr, isUnicode, char2int, isStr, isBytes
-from reportlab.lib.abag import ABag
-from reportlab.pdfbase import pdfmetrics, pdfdoc
-from reportlab import rl_config
-from reportlab.lib.rl_accel import hex32, add32, calcChecksum, instanceStringWidthTTF, fp_str
-from reportlab.rl_config import register_reset, unShapedFontGlob
+import functools
+import os
+import time
 from collections import namedtuple
+from fnmatch import fnmatch
 from io import BytesIO
-import os, time, functools
+from struct import error as structError
+from struct import pack, unpack
+
+from reportlab import rl_config
+from reportlab.lib.abag import ABag
+from reportlab.lib.rl_accel import add32, calcChecksum, fp_str, hex32, instanceStringWidthTTF
+from reportlab.lib.utils import bytestr, char2int, isBytes, isStr, isUnicode
+from reportlab.pdfbase import pdfdoc, pdfmetrics
+from reportlab.rl_config import register_reset, unShapedFontGlob
 
 try:
     import uharfbuzz
 except:
     uharfbuzz = None
 
+
 class TTFError(pdfdoc.PDFError):
     "TrueType font exception"
     pass
 
-def SUBSETN(n,table=bytes.maketrans(b'0123456789',b'ABCDEFGIJK')):
-    return bytes('%6.6d'%n,'ASCII').translate(table)
+
+def SUBSETN(n, table=bytes.maketrans(b"0123456789", b"ABCDEFGIJK")):
+    return bytes("%6.6d" % n, "ASCII").translate(table)
+
+
 #
 # Helpers
 #
 def makeToUnicodeCMap(fontname, subset):
     """Creates a ToUnicode CMap for a given subset.  See Adobe
     _PDF_Reference (ISBN 0-201-75839-3) for more information."""
-    cmap = [
-        "/CIDInit /ProcSet findresource begin",
-        "12 dict begin",
-        "begincmap",
-        "/CIDSystemInfo",
-        "<< /Registry (%s)" % fontname,
-        "/Ordering (%s)" % fontname,
-        "/Supplement 0",
-        ">> def",
-        "/CMapName /%s def" % fontname,
-        "/CMapType 2 def",
-        "1 begincodespacerange",
-        "<00> <%02X>" % (len(subset) - 1),
-        "endcodespacerange",
-        "%d beginbfchar" % len(subset)
-        ] + ["<%02X> <%04X>" % (i,v) for i,v in enumerate(subset)] + [
-        "endbfchar",
-        "endcmap",
-        "CMapName currentdict /CMap defineresource pop",
-        "end",
-        "end"
+    cmap = (
+        [
+            "/CIDInit /ProcSet findresource begin",
+            "12 dict begin",
+            "begincmap",
+            "/CIDSystemInfo",
+            "<< /Registry (%s)" % fontname,
+            "/Ordering (%s)" % fontname,
+            "/Supplement 0",
+            ">> def",
+            "/CMapName /%s def" % fontname,
+            "/CMapType 2 def",
+            "1 begincodespacerange",
+            "<00> <%02X>" % (len(subset) - 1),
+            "endcodespacerange",
+            "%d beginbfchar" % len(subset),
         ]
-    return '\n'.join(cmap)
+        + ["<%02X> <%04X>" % (i, v) for i, v in enumerate(subset)]
+        + ["endbfchar", "endcmap", "CMapName currentdict /CMap defineresource pop", "end", "end"]
+    )
+    return "\n".join(cmap)
+
 
 def splice(stream, offset, value):
     """Splices the given value into stream at the given offset and
     returns the resulting stream (the original is unchanged)"""
-    return stream[:offset] + value + stream[offset + len(value):]
+    return stream[:offset] + value + stream[offset + len(value) :]
+
 
 def _set_ushort(stream, offset, value):
     """Writes the given unsigned short value into stream at the given
     offset and returns the resulting stream (the original is unchanged)"""
     return splice(stream, offset, pack(">H", value))
+
+
 #
 # TrueType font handling
 #
 
-GF_ARG_1_AND_2_ARE_WORDS        = 1 << 0
-GF_ARGS_ARE_XY_VALUES           = 1 << 1
-GF_ROUND_XY_TO_GRID             = 1 << 2
-GF_WE_HAVE_A_SCALE              = 1 << 3
-GF_RESERVED                     = 1 << 4
-GF_MORE_COMPONENTS              = 1 << 5
-GF_WE_HAVE_AN_X_AND_Y_SCALE     = 1 << 6
-GF_WE_HAVE_A_TWO_BY_TWO         = 1 << 7
-GF_WE_HAVE_INSTRUCTIONS         = 1 << 8
-GF_USE_MY_METRICS               = 1 << 9
-GF_OVERLAP_COMPOUND             = 1 << 10
-GF_SCALED_COMPONENT_OFFSET      = 1 << 11
-GF_UNSCALED_COMPONENT_OFFSET    = 1 << 12
+GF_ARG_1_AND_2_ARE_WORDS = 1 << 0
+GF_ARGS_ARE_XY_VALUES = 1 << 1
+GF_ROUND_XY_TO_GRID = 1 << 2
+GF_WE_HAVE_A_SCALE = 1 << 3
+GF_RESERVED = 1 << 4
+GF_MORE_COMPONENTS = 1 << 5
+GF_WE_HAVE_AN_X_AND_Y_SCALE = 1 << 6
+GF_WE_HAVE_A_TWO_BY_TWO = 1 << 7
+GF_WE_HAVE_INSTRUCTIONS = 1 << 8
+GF_USE_MY_METRICS = 1 << 9
+GF_OVERLAP_COMPOUND = 1 << 10
+GF_SCALED_COMPONENT_OFFSET = 1 << 11
+GF_UNSCALED_COMPONENT_OFFSET = 1 << 12
 
 
-_cached_ttf_dirs={}
+_cached_ttf_dirs = {}
+
+
 def _ttf_dirs(*roots):
-    R = _cached_ttf_dirs.get(roots,None)
+    R = _cached_ttf_dirs.get(roots, None)
     if R is None:
         join = os.path.join
         realpath = os.path.realpath
         R = []
         aR = R.append
         for root in roots:
-            for r, d, f in os.walk(root,followlinks=True):
+            for r, d, f in os.walk(root, followlinks=True):
                 s = realpath(r)
-                if s not in R: aR(s)
+                if s not in R:
+                    aR(s)
                 for s in d:
-                    s = realpath(join(r,s))
-                    if s not in R: aR(s)
+                    s = realpath(join(r, s))
+                    if s not in R:
+                        aR(s)
         _cached_ttf_dirs[roots] = R
     return R
 
+
 def TTFOpenFile(fn):
-    '''Opens a TTF file possibly after searching TTFSearchPath
+    """Opens a TTF file possibly after searching TTFSearchPath
     returns (filename,file)
-    '''
-    from reportlab.lib.utils import rl_isfile, open_for_read
+    """
+    from reportlab.lib.utils import open_for_read, rl_isfile
+
     try:
-        f = open_for_read(fn,'rb')
+        f = open_for_read(fn, "rb")
         return fn, f
     except IOError:
         import os
+
         if not os.path.isabs(fn):
             for D in _ttf_dirs(*rl_config.TTFSearchPath):
-                tfn = os.path.join(D,fn)
+                tfn = os.path.join(D, fn)
                 if rl_isfile(tfn):
-                    f = open_for_read(tfn,'rb')
+                    f = open_for_read(tfn, "rb")
                     return tfn, f
         raise TTFError('Can\'t open file "%s"' % fn)
 
+
 class TTFontParser:
     "Basic TTF file parser"
-    ttfVersions = (0x00010000,0x74727565,0x74746366)
-    ttcVersions = (0x00010000,0x00020000)
-    fileKind='TTF'
+    ttfVersions = (0x00010000, 0x74727565, 0x74746366)
+    ttcVersions = (0x00010000, 0x00020000)
+    fileKind = "TTF"
 
-    def __init__(self, file, validate=0,subfontIndex=0):
+    def __init__(self, file, validate=0, subfontIndex=0):
         """Loads and parses a TrueType font file.  file can be a filename or a
         file object.  If validate is set to a false values, skips checksum
         validation.  This can save time, especially if the font is large.
@@ -186,33 +204,38 @@ class TTFontParser:
             self.readTTCHeader()
             self.getSubfont(subfontIndex)
         else:
-            if self.validate: self.checksumFile()
+            if self.validate:
+                self.checksumFile()
             self.readTableDirectory()
-            self.subfontNameX = b''
+            self.subfontNameX = b""
 
     def readTTCHeader(self):
         self.ttcVersion = self.read_ulong()
-        self.fileKind = 'TTC'
+        self.fileKind = "TTC"
         self.ttfVersions = self.ttfVersions[:-1]
-        if self.ttcVersion not in self.ttcVersions: 
-            raise TTFError('"%s" is not a %s file: can\'t read version 0x%8.8x' %(self.filename,self.fileKind,self.ttcVersion))
+        if self.ttcVersion not in self.ttcVersions:
+            raise TTFError(
+                '"%s" is not a %s file: can\'t read version 0x%8.8x' % (self.filename, self.fileKind, self.ttcVersion)
+            )
         self.numSubfonts = self.read_ulong()
         self.subfontOffsets = []
         a = self.subfontOffsets.append
         for i in range(self.numSubfonts):
             a(self.read_ulong())
 
-    def getSubfont(self,subfontIndex):
-        if self.fileKind!='TTC':
-            raise TTFError('"%s" is not a TTC file: use this method' % (self.filename,self.fileKind))
+    def getSubfont(self, subfontIndex):
+        if self.fileKind != "TTC":
+            raise TTFError('"%s" is not a TTC file: use this method' % (self.filename, self.fileKind))
         try:
             pos = self.subfontOffsets[subfontIndex]
         except IndexError:
-            raise TTFError('TTC file "%s": bad subfontIndex %s not in [0,%d]' % (self.filename,subfontIndex,self.numSubfonts-1))
+            raise TTFError(
+                'TTC file "%s": bad subfontIndex %s not in [0,%d]' % (self.filename, subfontIndex, self.numSubfonts - 1)
+            )
         self.seek(pos)
         self.readHeader()
         self.readTableDirectory()
-        self.subfontNameX = bytestr('-'+str(subfontIndex))
+        self.subfontNameX = bytestr("-" + str(subfontIndex))
 
     def readTableDirectory(self):
         try:
@@ -226,34 +249,35 @@ class TTFontParser:
             self.tables = []
             for n in range(self.numTables):
                 record = {}
-                record['tag'] = self.read_tag()
-                record['checksum'] = self.read_ulong()
-                record['offset'] = self.read_ulong()
-                record['length'] = self.read_ulong()
+                record["tag"] = self.read_tag()
+                record["checksum"] = self.read_ulong()
+                record["offset"] = self.read_ulong()
+                record["length"] = self.read_ulong()
                 self.tables.append(record)
-                self.table[record['tag']] = record
+                self.table[record["tag"]] = record
         except:
             raise TTFError('Corrupt %s file "%s" cannot read Table Directory' % (self.fileKind, self.filename))
-        if self.validate: self.checksumTables()
+        if self.validate:
+            self.checksumTables()
 
     def readHeader(self):
-        '''read the sfnt header at the current position'''
+        """read the sfnt header at the current position"""
         try:
             self.version = version = self.read_ulong()
         except:
-            raise TTFError('"%s" is not a %s file: can\'t read version' %(self.filename,self.fileKind))
+            raise TTFError('"%s" is not a %s file: can\'t read version' % (self.filename, self.fileKind))
 
-        if version==0x4F54544F:
-            raise TTFError('%s file "%s": postscript outlines are not supported'%(self.fileKind,self.filename))
+        if version == 0x4F54544F:
+            raise TTFError('%s file "%s": postscript outlines are not supported' % (self.fileKind, self.filename))
 
         if version not in self.ttfVersions:
-            raise TTFError('Not a recognized TrueType font: version=0x%8.8X' % version)
-        return version==self.ttfVersions[-1]
+            raise TTFError("Not a recognized TrueType font: version=0x%8.8X" % version)
+        return version == self.ttfVersions[-1]
 
-    def readFile(self,f):
-        if not hasattr(self,'_ttf_data'):
-            if hasattr(f,'read'):
-                self.filename = getattr(f,'name','(ttf)')   #good idea Marius
+    def readFile(self, f):
+        if not hasattr(self, "_ttf_data"):
+            if hasattr(f, "read"):
+                self.filename = getattr(f, "name", "(ttf)")  # good idea Marius
                 self._ttf_data = f.read()
             else:
                 self.filename, f = TTFOpenFile(f)
@@ -264,25 +288,31 @@ class TTFontParser:
     def checksumTables(self):
         # Check the checksums for all tables
         for t in self.tables:
-            table = self.get_chunk(t['offset'], t['length'])
+            table = self.get_chunk(t["offset"], t["length"])
             checksum = calcChecksum(table)
-            if t['tag'] == 'head':
-                adjustment = unpack('>l', table[8:8+4])[0]
+            if t["tag"] == "head":
+                adjustment = unpack(">l", table[8 : 8 + 4])[0]
                 checksum = add32(checksum, -adjustment)
-            xchecksum = t['checksum']
+            xchecksum = t["checksum"]
             if xchecksum != checksum:
-                raise TTFError('TTF file "%s": invalid checksum %s table: %s (expected %s)' % (self.filename,hex32(checksum),t['tag'],hex32(xchecksum)))
+                raise TTFError(
+                    'TTF file "%s": invalid checksum %s table: %s (expected %s)'
+                    % (self.filename, hex32(checksum), t["tag"], hex32(xchecksum))
+                )
 
     def checksumFile(self):
         # Check the checksums for the whole file
         checksum = calcChecksum(self._ttf_data)
-        if 0xB1B0AFBA!=checksum:
-            raise TTFError('TTF file "%s": invalid checksum %s (expected 0xB1B0AFBA) len: %d &3: %d' % (self.filename,hex32(checksum),len(self._ttf_data),(len(self._ttf_data)&3)))
+        if 0xB1B0AFBA != checksum:
+            raise TTFError(
+                'TTF file "%s": invalid checksum %s (expected 0xB1B0AFBA) len: %d &3: %d'
+                % (self.filename, hex32(checksum), len(self._ttf_data), (len(self._ttf_data) & 3))
+            )
 
     def get_table_pos(self, tag):
         "Returns the offset and size of a given TTF table."
-        offset = self.table[tag]['offset']
-        length = self.table[tag]['length']
+        offset = self.table[tag]["offset"]
+        length = self.table[tag]["length"]
         return (offset, length)
 
     def seek(self, pos):
@@ -293,7 +323,7 @@ class TTFontParser:
         "Skip the given number of bytes."
         self._pos = self._pos + delta
 
-    def seek_table(self, tag, offset_in_table = 0):
+    def seek_table(self, tag, offset_in_table=0):
         """Moves read pointer to the given offset within a given table and
         returns absolute offset of that position in the file."""
         self._pos = self.get_table_pos(tag)[0] + offset_in_table
@@ -302,46 +332,47 @@ class TTFontParser:
     def read_tag(self):
         "Read a 4-character tag"
         self._pos += 4
-        return str(self._ttf_data[self._pos - 4:self._pos],'utf8')
+        return str(self._ttf_data[self._pos - 4 : self._pos], "utf8")
 
     def get_chunk(self, pos, length):
         "Return a chunk of raw data at given position"
-        return bytes(self._ttf_data[pos:pos+length])
+        return bytes(self._ttf_data[pos : pos + length])
 
     def read_uint8(self):
         self._pos += 1
-        return int(self._ttf_data[self._pos-1])
+        return int(self._ttf_data[self._pos - 1])
 
     def read_ushort(self):
         "Reads an unsigned short"
         self._pos += 2
-        return unpack('>H',self._ttf_data[self._pos-2:self._pos])[0]
+        return unpack(">H", self._ttf_data[self._pos - 2 : self._pos])[0]
 
     def read_ulong(self):
         "Reads an unsigned long"
         self._pos += 4
-        return unpack('>L',self._ttf_data[self._pos - 4:self._pos])[0]
+        return unpack(">L", self._ttf_data[self._pos - 4 : self._pos])[0]
 
     def read_short(self):
         "Reads a signed short"
         self._pos += 2
         try:
-            return unpack('>h',self._ttf_data[self._pos-2:self._pos])[0]
+            return unpack(">h", self._ttf_data[self._pos - 2 : self._pos])[0]
         except structError as error:
             raise TTFError(error)
 
     def get_ushort(self, pos):
         "Return an unsigned short at given position"
-        return unpack('>H',self._ttf_data[pos:pos+2])[0]
+        return unpack(">H", self._ttf_data[pos : pos + 2])[0]
 
     def get_ulong(self, pos):
         "Return an unsigned long at given position"
-        return unpack('>L',self._ttf_data[pos:pos+4])[0]
+        return unpack(">L", self._ttf_data[pos : pos + 4])[0]
 
     def get_table(self, tag):
         "Return the given TTF table"
         pos, length = self.get_table_pos(tag)
-        return self._ttf_data[pos:pos+length]
+        return self._ttf_data[pos : pos + length]
+
 
 class TTFontMaker:
     "Basic TTF file generator"
@@ -352,8 +383,8 @@ class TTFontMaker:
 
     def add(self, tag, data):
         "Adds a table to the TTF file."
-        if tag == 'head':
-            data = splice(data, 8, b'\0\0\0\0')
+        if tag == "head":
+            data = splice(data, 8, b"\0\0\0\0")
         self.tables[tag] = data
 
     def makeStream(self):
@@ -372,79 +403,81 @@ class TTFontMaker:
         rangeShift = numTables * 16 - searchRange
 
         # Header
-        write(pack(">lHHHH", 0x00010000, numTables, searchRange,
-                                 entrySelector, rangeShift))
+        write(pack(">lHHHH", 0x00010000, numTables, searchRange, entrySelector, rangeShift))
 
         # Table directory
         offset = 12 + numTables * 16
-        wStr = lambda x:write(bytes(tag,'latin1'))
+        wStr = lambda x: write(bytes(tag, "latin1"))
         tables_items = list(sorted(tables.items()))
         for tag, data in tables_items:
-            if tag == 'head':
+            if tag == "head":
                 head_start = offset
             checksum = calcChecksum(data)
             wStr(tag)
             write(pack(">LLL", checksum, offset, len(data)))
-            paddedLength = (len(data)+3)&~3
+            paddedLength = (len(data) + 3) & ~3
             offset = offset + paddedLength
 
         # Table data
         for tag, data in tables_items:
             data += b"\0\0\0"
-            write(data[:len(data)&~3])
+            write(data[: len(data) & ~3])
 
         checksum = calcChecksum(stm.getvalue())
         checksum = add32(0xB1B0AFBA, -checksum)
         stm.seek(head_start + 8)
-        write(pack('>L', checksum))
+        write(pack(">L", checksum))
 
         return stm.getvalue()
 
-#this is used in the cmap encoding fmt==2 case
-CMapFmt2SubHeader = namedtuple('CMapFmt2SubHeader', 'firstCode entryCount idDelta idRangeOffset')
+
+# this is used in the cmap encoding fmt==2 case
+CMapFmt2SubHeader = namedtuple("CMapFmt2SubHeader", "firstCode entryCount idDelta idRangeOffset")
+
 
 class TTFNameBytes(bytes):
-    '''class used to return named strings'''
-    def __new__(cls,b,enc='utf8'):
+    """class used to return named strings"""
+
+    def __new__(cls, b, enc="utf8"):
         try:
             ustr = b.decode(enc)
         except:
-            ustr = b.decode('latin1')
-        self = bytes.__new__(cls,ustr.encode('utf8'))
+            ustr = b.decode("latin1")
+        self = bytes.__new__(cls, ustr.encode("utf8"))
         self.ustr = ustr
         return self
-    
+
+
 class TTFontFile(TTFontParser):
     "TTF file parser and generator"
     _agfnc = 0
     _agfnm = {}
 
-    def __init__(self, file, charInfo=1, validate=0,subfontIndex=0):
+    def __init__(self, file, charInfo=1, validate=0, subfontIndex=0):
         """Loads and parses a TrueType font file.
 
         file can be a filename or a file object.  If validate is set to a false
         values, skips checksum validation.  This can save time, especially if
         the font is large.  See TTFontFile.extractInfo for more information.
         """
-        if isStr(subfontIndex): #bytes or unicode
+        if isStr(subfontIndex):  # bytes or unicode
             sfi = 0
             __dict__ = self.__dict__.copy()
             while True:
-                TTFontParser.__init__(self, file, validate=validate,subfontIndex=sfi)
+                TTFontParser.__init__(self, file, validate=validate, subfontIndex=sfi)
                 numSubfonts = self.numSubfonts = self.read_ulong()
                 self.extractInfo(charInfo)
-                if (isBytes(subfontIndex) and subfontIndex==self.name
-                    or subfontIndex==self.name.ustr): #we found it
+                if isBytes(subfontIndex) and subfontIndex == self.name or subfontIndex == self.name.ustr:  # we found it
                     return
                 if not sfi:
                     __dict__.update(dict(_ttf_data=self._ttf_data, filename=self.filename))
                 sfi += 1
-                if sfi>=numSubfonts:
-                    raise ValueError('cannot find %r subfont %r' % (self.filename, subfontIndex))
+                if sfi >= numSubfonts:
+                    raise ValueError("cannot find %r subfont %r" % (self.filename, subfontIndex))
                 self.__dict__.clear()
                 self.__dict__.update(__dict__)
         else:
-            TTFontParser.__init__(self, file, validate=validate,subfontIndex=subfontIndex)
+            TTFontParser.__init__(self, file, validate=validate, subfontIndex=subfontIndex)
             self.extractInfo(charInfo)
 
     def extractInfo(self, charInfo=1):
@@ -452,7 +485,7 @@ class TTFontFile(TTFontParser):
         Extract typographic information from the loaded font file.
 
         The following attributes will be set::
-        
+
             name         PostScript font name
             flags        Font flags
             ascent       Typographic ascender in 1/1000ths of a point
@@ -463,17 +496,17 @@ class TTFontFile(TTFontParser):
             unitsPerEm   Glyph units per em
             italicAngle  Italic angle in degrees ccw
             stemV        stem weight in 1/1000ths of a point (approximate)
-        
+
         If charInfo is true, the following will also be set::
-        
+
             defaultWidth   default glyph width in 1/1000ths of a point
             charWidths     dictionary of character widths for every supported UCS character
                            code
-        
+
         This will only work if the font has a Unicode cmap (platform 3,
         encoding 1, format 4 or platform 0 any encoding format 4).  Setting
         charInfo to false avoids this requirement
-        
+
         """
         # name - Naming table
         name_offset = self.seek_table("name")
@@ -482,7 +515,7 @@ class TTFontFile(TTFontParser):
             raise TTFError("Unknown name table format (%d)" % format)
         numRecords = self.read_ushort()
         string_data_offset = name_offset + self.read_ushort()
-        names = {1:None,2:None,3:None,4:None,6:None}
+        names = {1: None, 2: None, 3: None, 4: None, 6: None}
         K = list(names.keys())
         nameCount = len(names)
         for i in range(numRecords):
@@ -492,26 +525,28 @@ class TTFontFile(TTFontParser):
             nameId = self.read_ushort()
             length = self.read_ushort()
             offset = self.read_ushort()
-            if nameId not in K: continue
+            if nameId not in K:
+                continue
             N = None
-            if platformId == 3 and encodingId == 1 and languageId == 0x409: # Microsoft, Unicode, US English, PS Name
+            if platformId == 3 and encodingId == 1 and languageId == 0x409:  # Microsoft, Unicode, US English, PS Name
                 opos = self._pos
                 try:
                     self.seek(string_data_offset + offset)
                     if length % 2 != 0:
                         raise TTFError("PostScript name is UTF-16BE string of odd length")
-                    N = TTFNameBytes(self.get_chunk(string_data_offset + offset, length),'utf_16_be')
+                    N = TTFNameBytes(self.get_chunk(string_data_offset + offset, length), "utf_16_be")
                 finally:
                     self._pos = opos
-            elif platformId == 1 and encodingId == 0 and languageId == 0: # Macintosh, Roman, English, PS Name
+            elif platformId == 1 and encodingId == 0 and languageId == 0:  # Macintosh, Roman, English, PS Name
                 # According to OpenType spec, if PS name exists, it must exist
                 # both in MS Unicode and Macintosh Roman formats.  Apparently,
                 # you can find live TTF fonts which only have Macintosh format.
-                N = TTFNameBytes(self.get_chunk(string_data_offset + offset, length),'mac_roman')
-            if N and names[nameId]==None:
+                N = TTFNameBytes(self.get_chunk(string_data_offset + offset, length), "mac_roman")
+            if N and names[nameId] == None:
                 names[nameId] = N
                 nameCount -= 1
-                if nameCount==0: break
+                if nameCount == 0:
+                    break
         if names[6] is not None:
             psName = names[6]
         elif names[4] is not None:
@@ -529,28 +564,28 @@ class TTFontFile(TTFontParser):
                 if fn:
                     bfn = os.path.splitext(os.path.basename(fn))[0]
                 if not fn:
-                    psName = bytestr('_RL_%s_%s_TTF' % (time.time(), self.__class__._agfnc))
+                    psName = bytestr("_RL_%s_%s_TTF" % (time.time(), self.__class__._agfnc))
                     self.__class__._agfnc += 1
                 else:
-                    psName = self._agfnm.get(fn,'')
+                    psName = self._agfnm.get(fn, "")
                     if not psName:
                         if bfn:
-                            psName = bytestr('_RL_%s_TTF' % bfn)
+                            psName = bytestr("_RL_%s_TTF" % bfn)
                         else:
-                            psName = bytestr('_RL_%s_%s_TTF' % (time.time(), self.__class__._agfnc))
+                            psName = bytestr("_RL_%s_%s_TTF" % (time.time(), self.__class__._agfnc))
                             self.__class__._agfnc += 1
                         self._agfnm[fn] = psName
             else:
                 raise TTFError("Could not find PostScript font name")
 
-        psName = psName.__class__(psName.replace(b" ", b"-"))  #Dinu Gherman's fix for font names with spaces
+        psName = psName.__class__(psName.replace(b" ", b"-"))  # Dinu Gherman's fix for font names with spaces
 
         for c in psName:
-            if char2int(c)>126 or c in b' [](){}<>/%':
-                raise TTFError("psName=%r contains invalid character %s" % (psName,ascii(c)))
+            if char2int(c) > 126 or c in b" [](){}<>/%":
+                raise TTFError("psName=%r contains invalid character %s" % (psName, ascii(c)))
         self.name = psName
         self.familyName = names[1] or psName
-        self.styleName = names[2] or 'Regular'
+        self.styleName = names[2] or "Regular"
         self.fullName = names[4] or psName
         self.uniqueFontID = names[3] or psName
 
@@ -558,33 +593,33 @@ class TTFontFile(TTFontParser):
         try:
             self.seek_table("head")
         except:
-            raise TTFError('head table not found ttf name=%s' % self.name)
+            raise TTFError("head table not found ttf name=%s" % self.name)
         ver_maj, ver_min = self.read_ushort(), self.read_ushort()
         if ver_maj != 1:
-            raise TTFError('Unknown head table version %d.%04x' % (ver_maj, ver_min))
+            raise TTFError("Unknown head table version %d.%04x" % (ver_maj, ver_min))
         self.fontRevision = self.read_ushort(), self.read_ushort()
 
         self.skip(4)
         magic = self.read_ulong()
         if magic != 0x5F0F3CF5:
-            raise TTFError('Invalid head table magic %04x' % magic)
+            raise TTFError("Invalid head table magic %04x" % magic)
         self.skip(2)
         self.unitsPerEm = unitsPerEm = self.read_ushort()
-        if unitsPerEm==1000:
+        if unitsPerEm == 1000:
             scale = lambda x: x
         else:
             _1000mult = 1000 / unitsPerEm
-            scale = lambda x: x*_1000mult
+            scale = lambda x: x * _1000mult
         self._pdfScale = scale
-        #scale = ((lambda x: x) if unitsPerEm==1000
-                #else (lambda x, unitsPerEm=unitsPerEm: x * (1000 / unitsPerEm)))
+        # scale = ((lambda x: x) if unitsPerEm==1000
+        # else (lambda x, unitsPerEm=unitsPerEm: x * (1000 / unitsPerEm)))
         self.skip(16)
         xMin = self.read_short()
         yMin = self.read_short()
         xMax = self.read_short()
         yMax = self.read_short()
         self.bbox = list(map(scale, [xMin, yMin, xMax, yMax]))
-        self.skip(3*2)
+        self.skip(3 * 2)
         indexToLocFormat = self.read_ushort()
         glyphDataFormat = self.read_ushort()
 
@@ -598,16 +633,16 @@ class TTFontFile(TTFontParser):
             usWeightClass = self.read_ushort()
             self.skip(2)
             fsType = self.read_ushort()
-            if fsType==0x0002 or (fsType & 0x0300):
+            if fsType == 0x0002 or (fsType & 0x0300):
                 subsettingAllowed = os.path.basename(self.filename) not in rl_config.allowTTFSubsetting
-            self.skip(58)   #11*2 + 10 + 4*4 + 4 + 3*2
+            self.skip(58)  # 11*2 + 10 + 4*4 + 4 + 3*2
             sTypoAscender = self.read_short()
             sTypoDescender = self.read_short()
-            self.ascent = scale(sTypoAscender)      # XXX: for some reason it needs to be multiplied by 1.24--1.28
+            self.ascent = scale(sTypoAscender)  # XXX: for some reason it needs to be multiplied by 1.24--1.28
             self.descent = scale(sTypoDescender)
 
             if version > 1:
-                self.skip(16)   #3*2 + 2*4 + 2
+                self.skip(16)  # 3*2 + 2*4 + 2
                 sCapHeight = self.read_short()
                 self.capHeight = scale(sCapHeight)
             else:
@@ -633,18 +668,18 @@ class TTFontFile(TTFontParser):
             # From Apple docs it seems that we do not need to care
             # about the exact version, so if you get this error, you can
             # try to remove this check altogether.
-            raise TTFError('Unknown post table version %d.%04x' % (ver_maj, ver_min))
+            raise TTFError("Unknown post table version %d.%04x" % (ver_maj, ver_min))
         self.italicAngle = self.read_short() + self.read_ushort() / 65536.0
         self.underlinePosition = self.read_short()
         self.underlineThickness = self.read_short()
         isFixedPitch = self.read_ulong()
 
-        self.flags = FF_SYMBOLIC        # All fonts that contain characters
-                                        # outside the original Adobe character
-                                        # set are considered "symbolic".
-        if self.italicAngle!= 0:
+        self.flags = FF_SYMBOLIC  # All fonts that contain characters
+        # outside the original Adobe character
+        # set are considered "symbolic".
+        if self.italicAngle != 0:
             self.flags = self.flags | FF_ITALIC
-        if usWeightClass >= 600:        # FW_REGULAR == 500, FW_SEMIBOLD == 600
+        if usWeightClass >= 600:  # FW_REGULAR == 500, FW_SEMIBOLD == 600
             self.flags = self.flags | FF_FORCEBOLD
         if isFixedPitch:
             self.flags = self.flags | FF_FIXED
@@ -654,24 +689,24 @@ class TTFontFile(TTFontParser):
         self.seek_table("hhea")
         ver_maj, ver_min = self.read_ushort(), self.read_ushort()
         if ver_maj != 1:
-            raise TTFError('Unknown hhea table version %d.%04x' % (ver_maj, ver_min))
+            raise TTFError("Unknown hhea table version %d.%04x" % (ver_maj, ver_min))
         self.skip(28)
         metricDataFormat = self.read_ushort()
         if metricDataFormat != 0:
-            raise TTFError('Unknown horizontal metric data format (%d)' % metricDataFormat)
+            raise TTFError("Unknown horizontal metric data format (%d)" % metricDataFormat)
         numberOfHMetrics = self.read_ushort()
         if numberOfHMetrics == 0:
-            raise TTFError('Number of horizontal metrics is 0')
+            raise TTFError("Number of horizontal metrics is 0")
 
         # maxp - Maximum profile table
         self.seek_table("maxp")
         ver_maj, ver_min = self.read_ushort(), self.read_ushort()
         if ver_maj != 1:
-            raise TTFError('Unknown maxp table version %d.%04x' % (ver_maj, ver_min))
+            raise TTFError("Unknown maxp table version %d.%04x" % (ver_maj, ver_min))
         self.numGlyphs = numGlyphs = self.read_ushort()
         if not subsettingAllowed:
-            if self.numGlyphs>0xFF:
-                raise TTFError('Font does not allow subsetting/embedding (%04X)' % fsType)
+            if self.numGlyphs > 0xFF:
+                raise TTFError("Font does not allow subsetting/embedding (%04X)" % fsType)
             else:
                 self._full_font = True
         else:
@@ -684,13 +719,13 @@ class TTFontFile(TTFontParser):
             return
 
         if glyphDataFormat != 0:
-            raise TTFError('Unknown glyph data format (%d)' % glyphDataFormat)
+            raise TTFError("Unknown glyph data format (%d)" % glyphDataFormat)
 
         # cmap - Character to glyph index mapping table
         cmap_offset = self.seek_table("cmap")
         cmapVersion = self.read_ushort()
         cmapTableCount = self.read_ushort()
-        if cmapTableCount==0 and cmapVersion!=0:
+        if cmapTableCount == 0 and cmapVersion != 0:
             cmapTableCount, cmapVersion = cmapVersion, cmapTableCount
         encoffs = None
         enc = 0
@@ -698,39 +733,39 @@ class TTFontFile(TTFontParser):
             platform = self.read_ushort()
             encoding = self.read_ushort()
             offset = self.read_ulong()
-            if platform==3:
+            if platform == 3:
                 enc = 1
                 encoffs = offset
-            elif platform==1 and encoding==0 and enc!=1:
+            elif platform == 1 and encoding == 0 and enc != 1:
                 enc = 2
                 encoffs = offset
-            elif platform==1 and encoding==1:
+            elif platform == 1 and encoding == 1:
                 enc = 1
                 encoffs = offset
-            elif platform==0 and encoding!=5:
+            elif platform == 0 and encoding != 5:
                 enc = 1
                 encoffs = offset
         if encoffs is None:
-            raise TTFError('could not find a suitable cmap encoding')
+            raise TTFError("could not find a suitable cmap encoding")
         encoffs += cmap_offset
         self.seek(encoffs)
         fmt = self.read_ushort()
         self.charToGlyph = charToGlyph = {}
         self.glyphToChar = glyphToChar = {}
-        if fmt in (13,12,10,8):
-            self.skip(2)    #padding
+        if fmt in (13, 12, 10, 8):
+            self.skip(2)  # padding
             length = self.read_ulong()
             lang = self.read_ulong()
         else:
             length = self.read_ushort()
             lang = self.read_ushort()
-        if fmt==0:
-            T = [self.read_uint8() for i in range(length-6)]
-            for unichar in range(min(256,self.numGlyphs,len(T))):
+        if fmt == 0:
+            T = [self.read_uint8() for i in range(length - 6)]
+            for unichar in range(min(256, self.numGlyphs, len(T))):
                 glyph = T[unichar]
                 charToGlyph[unichar] = glyph
-                glyphToChar.setdefault(glyph,[]).append(unichar)
-        elif fmt==4:
+                glyphToChar.setdefault(glyph, []).append(unichar)
+        elif fmt == 4:
             limit = encoffs + length
             segCount = int(self.read_ushort() / 2.0)
             self.skip(6)
@@ -757,87 +792,90 @@ class TTFontFile(TTFontParser):
                             if glyph != 0:
                                 glyph = (glyph + idDelta[n]) & 0xFFFF
                     charToGlyph[unichar] = glyph
-                    glyphToChar.setdefault(glyph,[]).append(unichar)
-        elif fmt==6:
+                    glyphToChar.setdefault(glyph, []).append(unichar)
+        elif fmt == 6:
             first = self.read_ushort()
             count = self.read_ushort()
-            for glyph in range(first,first+count):
+            for glyph in range(first, first + count):
                 unichar = self.read_ushort()
                 charToGlyph[unichar] = glyph
-                glyphToChar.setdefault(glyph,[]).append(unichar)
-        elif fmt==10:
+                glyphToChar.setdefault(glyph, []).append(unichar)
+        elif fmt == 10:
             first = self.read_ulong()
             count = self.read_ulong()
-            for glyph in range(first,first+count):
+            for glyph in range(first, first + count):
                 unichar = self.read_ushort()
                 charToGlyph[unichar] = glyph
-                glyphToChar.setdefault(glyph,[]).append(unichar)
-        elif fmt==12:
+                glyphToChar.setdefault(glyph, []).append(unichar)
+        elif fmt == 12:
             segCount = self.read_ulong()
             for n in range(segCount):
                 start = self.read_ulong()
                 end = self.read_ulong()
                 inc = self.read_ulong() - start
-                for unichar in range(start,end+1):
+                for unichar in range(start, end + 1):
                     glyph = unichar + inc
                     charToGlyph[unichar] = glyph
-                    glyphToChar.setdefault(glyph,[]).append(unichar)
-        elif fmt==13:
+                    glyphToChar.setdefault(glyph, []).append(unichar)
+        elif fmt == 13:
             segCount = self.read_ulong()
             for n in range(segCount):
                 start = self.read_ulong()
                 end = self.read_ulong()
                 gid = self.read_ulong()
-                for unichar in range(start,end+1):
+                for unichar in range(start, end + 1):
                     charToGlyph[unichar] = gid
-                    glyphToChar.setdefault(gid,[]).append(unichar)
-        elif fmt==2:
-            T = [self.read_ushort() for i in range(256)]    #subheader keys
+                    glyphToChar.setdefault(gid, []).append(unichar)
+        elif fmt == 2:
+            T = [self.read_ushort() for i in range(256)]  # subheader keys
             maxSHK = max(T)
             SH = []
-            for i in range(maxSHK+1):
+            for i in range(maxSHK + 1):
                 firstCode = self.read_ushort()
                 entryCount = self.read_ushort()
                 idDelta = self.read_ushort()
-                idRangeOffset = (self.read_ushort()-(maxSHK-i)*8-2)>>1
-                SH.append(CMapFmt2SubHeader(firstCode,entryCount,idDelta,idRangeOffset))
-            #number of glyph indexes to read. it is the length of the entire subtable minus that bit we've read so far
-            entryCount = (length-(self._pos-(cmap_offset+encoffs)))>>1
+                idRangeOffset = (self.read_ushort() - (maxSHK - i) * 8 - 2) >> 1
+                SH.append(CMapFmt2SubHeader(firstCode, entryCount, idDelta, idRangeOffset))
+            # number of glyph indexes to read. it is the length of the entire subtable minus that bit we've read so far
+            entryCount = (length - (self._pos - (cmap_offset + encoffs))) >> 1
             glyphs = [self.read_short() for i in range(entryCount)]
             last = -1
             for unichar in range(256):
-                if T[unichar]==0:
-                    #Special case, single byte encoding entry, look unichar up in subhead
-                    if last!=-1:
+                if T[unichar] == 0:
+                    # Special case, single byte encoding entry, look unichar up in subhead
+                    if last != -1:
                         glyph = 0
-                    elif (unichar<SH[0].firstCode or unichar>=SH[0].firstCode+SH[0].entryCount or
-                            SH[0].idRangeOffset+(unichar-SH[0].firstCode)>=entryCount):
+                    elif (
+                        unichar < SH[0].firstCode
+                        or unichar >= SH[0].firstCode + SH[0].entryCount
+                        or SH[0].idRangeOffset + (unichar - SH[0].firstCode) >= entryCount
+                    ):
                         glyph = 0
                     else:
-                        glyph = glyphs[SH[0].idRangeOffset+(unichar-SH[0].firstCode)]
-                        if glyph!=0:
+                        glyph = glyphs[SH[0].idRangeOffset + (unichar - SH[0].firstCode)]
+                        if glyph != 0:
                             glyph += SH[0].idDelta
-                    #assume the single byte codes are ascii
-                    if glyph!=0 and glyph<self.numGlyphs:
+                    # assume the single byte codes are ascii
+                    if glyph != 0 and glyph < self.numGlyphs:
                         charToGlyph[unichar] = glyph
-                        glyphToChar.setdefault(glyph,[]).append(unichar)
+                        glyphToChar.setdefault(glyph, []).append(unichar)
                 else:
                     k = T[unichar]
                     for j in range(SH[k].entryCount):
-                        if SH[k].idRangeOffset+j>=entryCount:
+                        if SH[k].idRangeOffset + j >= entryCount:
                             glyph = 0
                         else:
-                            glyph = glyphs[SH[k].idRangeOffset+j]
-                            if glyph!= 0:
+                            glyph = glyphs[SH[k].idRangeOffset + j]
+                            if glyph != 0:
                                 glyph += SH[k].idDelta
-                        if glyph!=0 and glyph<self.numGlyphs:
-                            enc = (unichar<<8)|(j+SH[k].firstCode)
+                        if glyph != 0 and glyph < self.numGlyphs:
+                            enc = (unichar << 8) | (j + SH[k].firstCode)
                             charToGlyph[enc] = glyph
-                            glyphToChar.setdefault(glyph,[]).append(enc)
-                    if last==-1:
+                            glyphToChar.setdefault(glyph, []).append(enc)
+                    if last == -1:
                         last = unichar
         else:
-            raise ValueError('Unsupported cmap encoding format %d' % fmt)
+            raise ValueError("Unsupported cmap encoding format %d" % fmt)
 
         # hmtx - Horizontal metrics table
         # (needs data from hhea, maxp, and cmap tables)
@@ -866,8 +904,9 @@ class TTFontFile(TTFontParser):
                     charWidths[char] = aw
 
         # loca - Index to location
-        if 'loca' not in self.table: raise TTFError('missing location table')
-        self.seek_table('loca')
+        if "loca" not in self.table:
+            raise TTFError("missing location table")
+        self.seek_table("loca")
         self.glyphPos = []
         if indexToLocFormat == 0:
             for n in range(numGlyphs + 1):
@@ -876,13 +915,13 @@ class TTFontFile(TTFontParser):
             for n in range(numGlyphs + 1):
                 self.glyphPos.append(self.read_ulong())
         else:
-            raise TTFError('Unknown location table format (%d)' % indexToLocFormat)
+            raise TTFError("Unknown location table format (%d)" % indexToLocFormat)
         if 0x20 in charToGlyph:
-            charToGlyph[0xa0] = charToGlyph[0x20]
-            charWidths[0xa0] = charWidths[0x20]
-        elif 0xa0 in charToGlyph:
-            charToGlyph[0x20] = charToGlyph[0xa0]
-            charWidths[0x20] = charWidths[0xa0]
+            charToGlyph[0xA0] = charToGlyph[0x20]
+            charWidths[0xA0] = charWidths[0x20]
+        elif 0xA0 in charToGlyph:
+            charToGlyph[0x20] = charToGlyph[0xA0]
+            charWidths[0x20] = charWidths[0xA0]
 
     # Subsetting
 
@@ -895,9 +934,9 @@ class TTFontFile(TTFontParser):
         # glyph values in the new font.
 
         # Start with 0 -> 0: "missing character"
-        glyphMap = [0]                  # new glyph index -> old glyph index
-        glyphSet = {0:0}                # old glyph index -> new glyph index
-        codeToGlyph = {}                # unicode -> new glyph index
+        glyphMap = [0]  # new glyph index -> old glyph index
+        glyphSet = {0: 0}  # old glyph index -> new glyph index
+        codeToGlyph = {}  # unicode -> new glyph index
         for code in subset:
             if code in self.charToGlyph:
                 originalGlyphIdx = self.charToGlyph[code]
@@ -909,14 +948,15 @@ class TTFontFile(TTFontParser):
             codeToGlyph[code] = glyphSet[originalGlyphIdx]
 
         # Also include glyphs that are parts of composite glyphs
-        start = self.get_table_pos('glyf')[0]
+        start = self.get_table_pos("glyf")[0]
         n = 0
         while n < len(glyphMap):
             originalGlyphIdx = glyphMap[n]
             glyphPos = self.glyphPos[originalGlyphIdx]
             glyphLen = self.glyphPos[originalGlyphIdx + 1] - glyphPos
             n += 1
-            if not glyphLen: continue
+            if not glyphLen:
+                continue
             self.seek(start + glyphPos)
             numberOfContours = self.read_short()
             if numberOfContours < 0:
@@ -940,9 +980,8 @@ class TTFontFile(TTFontParser):
                     elif flags & GF_WE_HAVE_A_TWO_BY_TWO:
                         self.skip(8)
 
-
         # The following tables are simply copied from the original
-        for tag in ('name', 'OS/2', 'cvt ', 'fpgm', 'prep'):
+        for tag in ("name", "OS/2", "cvt ", "fpgm", "prep"):
             try:
                 output.add(tag, self.get_table(tag))
             except KeyError:
@@ -952,8 +991,8 @@ class TTFontFile(TTFontParser):
                 pass
 
         # post - PostScript
-        post = b"\x00\x03\x00\x00" + self.get_table('post')[4:16] + b"\x00" * 16
-        output.add('post', post)
+        post = b"\x00\x03\x00\x00" + self.get_table("post")[4:16] + b"\x00" * 16
+        output.add("post", post)
 
         numGlyphs = len(glyphMap)
 
@@ -964,43 +1003,50 @@ class TTFontFile(TTFontParser):
             hmtx.append(int(aw))
             hmtx.append(int(lsb))
 
-        #work out n as 0 or first aw that's the start of a run
-        n = len(hmtx)-2
-        while n and hmtx[n]==hmtx[n-2]:
+        # work out n as 0 or first aw that's the start of a run
+        n = len(hmtx) - 2
+        while n and hmtx[n] == hmtx[n - 2]:
             n -= 2
-        #fails when hmtx[n]!=hmtx[n-2] if there's a run it starts at n+2
+        # fails when hmtx[n]!=hmtx[n-2] if there's a run it starts at n+2
         n += 2
-        numberOfHMetrics = n>>1         #number of full H Metric pairs
-        hmtx = hmtx[:n] + hmtx[n+1::2]  #full pairs + all the trailing lsb's
+        numberOfHMetrics = n >> 1  # number of full H Metric pairs
+        hmtx = hmtx[:n] + hmtx[n + 1 :: 2]  # full pairs + all the trailing lsb's
 
         hmtx = pack(*([">%dH" % len(hmtx)] + hmtx))
-        output.add('hmtx', hmtx)
+        output.add("hmtx", hmtx)
 
         # hhea - Horizontal Header
-        hhea = self.get_table('hhea')
+        hhea = self.get_table("hhea")
         hhea = _set_ushort(hhea, 34, numberOfHMetrics)
-        output.add('hhea', hhea)
+        output.add("hhea", hhea)
 
         # maxp - Maximum Profile
-        maxp = self.get_table('maxp')
+        maxp = self.get_table("maxp")
         maxp = _set_ushort(maxp, 4, numGlyphs)
-        output.add('maxp', maxp)
+        output.add("maxp", maxp)
 
         # cmap - Character to glyph mapping
         # XXX maybe use format 0 if possible, not 6?
         entryCount = len(subset)
         length = 10 + entryCount * 2
-        cmap = [0, 1,           # version, number of tables
-                1, 0, 0,12,     # platform, encoding, offset (hi,lo)
-                6, length, 0,   # format, length, language
-                0,
-                entryCount] + \
-               list(map(codeToGlyph.get, subset))
+        cmap = [
+            0,
+            1,  # version, number of tables
+            1,
+            0,
+            0,
+            12,  # platform, encoding, offset (hi,lo)
+            6,
+            length,
+            0,  # format, length, language
+            0,
+            entryCount,
+        ] + list(map(codeToGlyph.get, subset))
         cmap = pack(*([">%dH" % len(cmap)] + cmap))
-        output.add('cmap', cmap)
+        output.add("cmap", cmap)
 
         # glyf - Glyph data
-        glyphData = self.get_table('glyf')
+        glyphData = self.get_table("glyf")
         offsets = []
         glyf = []
         pos = 0
@@ -1009,15 +1055,15 @@ class TTFontFile(TTFontParser):
             originalGlyphIdx = glyphMap[n]
             glyphPos = self.glyphPos[originalGlyphIdx]
             glyphLen = self.glyphPos[originalGlyphIdx + 1] - glyphPos
-            data = glyphData[glyphPos:glyphPos+glyphLen]
+            data = glyphData[glyphPos : glyphPos + glyphLen]
             # Fix references in composite glyphs
             if glyphLen > 2 and unpack(">h", data[:2])[0] < 0:
                 # composite glyph
                 pos_in_glyph = 10
                 flags = GF_MORE_COMPONENTS
                 while flags & GF_MORE_COMPONENTS:
-                    flags = unpack(">H", data[pos_in_glyph:pos_in_glyph+2])[0]
-                    glyphIdx = unpack(">H", data[pos_in_glyph+2:pos_in_glyph+4])[0]
+                    flags = unpack(">H", data[pos_in_glyph : pos_in_glyph + 2])[0]
+                    glyphIdx = unpack(">H", data[pos_in_glyph + 2 : pos_in_glyph + 4])[0]
                     data = _set_ushort(data, pos_in_glyph + 2, glyphSet[glyphIdx])
                     pos_in_glyph = pos_in_glyph + 4
                     if flags & GF_ARG_1_AND_2_ARE_WORDS:
@@ -1034,29 +1080,29 @@ class TTFontFile(TTFontParser):
             pos = pos + glyphLen
             if pos % 4 != 0:
                 padding = 4 - pos % 4
-                glyf.append(b'\0' * padding)
+                glyf.append(b"\0" * padding)
                 pos = pos + padding
         offsets.append(pos)
-        output.add('glyf', b''.join(glyf))
+        output.add("glyf", b"".join(glyf))
 
         # loca - Index to location
         loca = []
         if (pos + 1) >> 1 > 0xFFFF:
-            indexToLocFormat = 1        # long format
+            indexToLocFormat = 1  # long format
             for offset in offsets:
                 loca.append(offset)
             loca = pack(*([">%dL" % len(loca)] + loca))
         else:
-            indexToLocFormat = 0        # short format
+            indexToLocFormat = 0  # short format
             for offset in offsets:
                 loca.append(offset >> 1)
             loca = pack(*([">%dH" % len(loca)] + loca))
-        output.add('loca', loca)
+        output.add("loca", loca)
 
         # head - Font header
-        head = self.get_table('head')
+        head = self.get_table("head")
         head = _set_ushort(head, 50, indexToLocFormat)
-        output.add('head', head)
+        output.add("head", head)
 
         return output.makeStream()
 
@@ -1066,15 +1112,16 @@ class TTFontFile(TTFontParser):
 #
 
 # PDF font flags (see PDF Reference Guide table 5.19)
-FF_FIXED        = 1 <<  1-1
-FF_SERIF        = 1 <<  2-1
-FF_SYMBOLIC     = 1 <<  3-1
-FF_SCRIPT       = 1 <<  4-1
-FF_NONSYMBOLIC  = 1 <<  6-1
-FF_ITALIC       = 1 <<  7-1
-FF_ALLCAP       = 1 << 17-1
-FF_SMALLCAP     = 1 << 18-1
-FF_FORCEBOLD    = 1 << 19-1
+FF_FIXED = 1 << 1 - 1
+FF_SERIF = 1 << 2 - 1
+FF_SYMBOLIC = 1 << 3 - 1
+FF_SCRIPT = 1 << 4 - 1
+FF_NONSYMBOLIC = 1 << 6 - 1
+FF_ITALIC = 1 << 7 - 1
+FF_ALLCAP = 1 << 17 - 1
+FF_SMALLCAP = 1 << 18 - 1
+FF_FORCEBOLD = 1 << 19 - 1
+
 
 class TTFontFace(TTFontFile, pdfmetrics.TypeFace):
     """TrueType typeface.
@@ -1097,28 +1144,31 @@ class TTFontFace(TTFontFile, pdfmetrics.TypeFace):
 
         fontFile = pdfdoc.PDFStream()
         fontFile.content = self.makeSubset(subset)
-        fontFile.dictionary['Length1'] = len(fontFile.content)
+        fontFile.dictionary["Length1"] = len(fontFile.content)
         if doc.compression:
             fontFile.filters = [pdfdoc.PDFZCompress]
-        fontFileRef = doc.Reference(fontFile, 'fontFile:%s(%s)' % (self.filename, fontname))
+        fontFileRef = doc.Reference(fontFile, "fontFile:%s(%s)" % (self.filename, fontname))
 
-        flags = self.flags & ~ FF_NONSYMBOLIC
+        flags = self.flags & ~FF_NONSYMBOLIC
         flags = flags | FF_SYMBOLIC
 
-        fontDescriptor = pdfdoc.PDFDictionary({
-            'Type': '/FontDescriptor',
-            'Ascent': self.ascent,
-            'CapHeight': self.capHeight,
-            'Descent': self.descent,
-            'Flags': flags,
-            'FontBBox': pdfdoc.PDFArray(self.bbox),
-            'FontName': pdfdoc.PDFName(fontname),
-            'ItalicAngle': self.italicAngle,
-            'StemV': self.stemV,
-            'FontFile2': fontFileRef,
-            'MissingWidth': self.defaultWidth,
-            })
-        return doc.Reference(fontDescriptor, 'fontDescriptor:' + fontname)
+        fontDescriptor = pdfdoc.PDFDictionary(
+            {
+                "Type": "/FontDescriptor",
+                "Ascent": self.ascent,
+                "CapHeight": self.capHeight,
+                "Descent": self.descent,
+                "Flags": flags,
+                "FontBBox": pdfdoc.PDFArray(self.bbox),
+                "FontName": pdfdoc.PDFName(fontname),
+                "ItalicAngle": self.italicAngle,
+                "StemV": self.stemV,
+                "FontFile2": fontFileRef,
+                "MissingWidth": self.defaultWidth,
+            }
+        )
+        return doc.Reference(fontDescriptor, "fontDescriptor:" + fontname)
+
 
 class TTEncoding:
     """Encoding for TrueType fonts (always UTF-8).
@@ -1129,6 +1179,7 @@ class TTEncoding:
 
     def __init__(self):
         self.name = "UTF-8"
+
 
 class TTFont:
     """Represents a TrueType font.
@@ -1146,17 +1197,20 @@ class TTFont:
         canvas.setFont('PostScriptFontName', size)
         canvas.drawString(x, y, "Some text encoded in UTF-8")
     """
+
     class State:
-        namePrefix = 'F'
-        def __init__(self,asciiReadable=None,ttf=None):
-            A = self.assignments = {}   #maps unicode to subset and index
+        namePrefix = "F"
+
+        def __init__(self, asciiReadable=None, ttf=None):
+            A = self.assignments = {}  # maps unicode to subset and index
             self.nextCode = 0
             self.internalName = None
             self.frozen = 0
-            face = getattr(ttf,'face',None)
-            if getattr(face,'_full_font',None):
+            face = getattr(ttf, "face", None)
+            if getattr(face, "_full_font", None):
                 C = set(face.charToGlyph.keys())
-                if 0xa0 in C: C.remove(0xa0)
+                if 0xA0 in C:
+                    C.remove(0xA0)
                 for n in range(256):
                     if n in C:
                         A[n] = n
@@ -1174,9 +1228,9 @@ class TTFont:
                 # Let's add the first 128 unicodes to the 0th subset, so ' '
                 # always has code 32 (for word spacing to work) and the ASCII
                 # output is readable
-                #simple asciiReadable setup
-                subset0 = list(range(32,128))   #assume we have all of ASCII
-                charToGlyph = getattr(face,'charToGlyph',None)
+                # simple asciiReadable setup
+                subset0 = list(range(32, 128))  # assume we have all of ASCII
+                charToGlyph = getattr(face, "charToGlyph", None)
                 if charToGlyph:
                     for n in subset0:
                         if n in charToGlyph:
@@ -1185,17 +1239,17 @@ class TTFont:
                     for n in subset0:
                         A[n] = n
                 A[0] = 0
-                self.subsets = [32*[0] + subset0]
-                self.nextCode = 1   #if doing fillin of [1-31]
-                #self.nextCode = 128 #if not doing fillin
+                self.subsets = [32 * [0] + subset0]
+                self.nextCode = 1  # if doing fillin of [1-31]
+                # self.nextCode = 128 #if not doing fillin
             else:
-                self.subsets = [[0]+[32]*32]
+                self.subsets = [[0] + [32] * 32]
                 A[0] = 0
                 self.nextCode = 1
                 A[32] = 32
 
-    _multiByte = 1      # We want our own stringwidth
-    _dynamicFont = 1    # We want dynamic subsetting
+    _multiByte = 1  # We want our own stringwidth
+    _dynamicFont = 1  # We want dynamic subsetting
 
     def __init__(self, name, filename, validate=0, subfontIndex=0, asciiReadable=None, shapable=True):
         """Loads a TrueType font from filename.
@@ -1207,98 +1261,107 @@ class TTFont:
         self.face = TTFontFace(filename, validate=validate, subfontIndex=subfontIndex)
         self.encoding = TTEncoding()
         from weakref import WeakKeyDictionary
+
         self.state = WeakKeyDictionary()
         if asciiReadable is None:
             asciiReadable = rl_config.ttfAsciiReadable
         self._asciiReadable = asciiReadable
-        self.shapable = shapable and not any((fnmatch(name,_) for _ in unShapedFontGlob))
+        self.shapable = shapable and not any((fnmatch(name, _) for _ in unShapedFontGlob))
 
-    def stringWidth(self,text,size,encoding='utf8'):
-        return instanceStringWidthTTF(self,text,size,encoding)
+    def stringWidth(self, text, size, encoding="utf8"):
+        return instanceStringWidthTTF(self, text, size, encoding)
 
-    def _assignState(self,doc,asciiReadable=None,namePrefix=None):
-        '''convenience function for those wishing to roll their own state properties'''
+    def _assignState(self, doc, asciiReadable=None, namePrefix=None):
+        """convenience function for those wishing to roll their own state properties"""
         if asciiReadable is None:
             asciiReadable = self._asciiReadable
         try:
             state = self.state[doc]
         except KeyError:
-            state = self.state[doc] = TTFont.State(asciiReadable,self)
+            state = self.state[doc] = TTFont.State(asciiReadable, self)
             if namePrefix is not None:
                 state.namePrefix = namePrefix
         return state
 
-    def splitString(self, text, doc, encoding='utf-8'):
+    def splitString(self, text, doc, encoding="utf-8"):
         """Splits text into a number of chunks, each of which belongs to a
         single subset.  Returns a list of tuples (subset, string).  Use subset
         numbers with getSubsetInternalName.  Doc is needed for distinguishing
         subsets when building different documents at the same time."""
         asciiReadable = self._asciiReadable
-        try: state = self.state[doc]
-        except KeyError: state = self.state[doc] = TTFont.State(asciiReadable,self)
-        _31skip = 31 if asciiReadable and state.nextCode<32 else -256
+        try:
+            state = self.state[doc]
+        except KeyError:
+            state = self.state[doc] = TTFont.State(asciiReadable, self)
+        _31skip = 31 if asciiReadable and state.nextCode < 32 else -256
         curSet = -1
         cur = []
         results = []
         if not isUnicode(text):
-            text = text.decode('utf-8')     # encoding defaults to utf-8
+            text = text.decode("utf-8")  # encoding defaults to utf-8
         charToGlyph = self.face.charToGlyph
         assignments = state.assignments
         subsets = state.subsets
-        #reserveTTFNotdef = rl_config.reserveTTFNotdef we ignore this now
-        for code in map(ord,text):
-            if code==0xa0: code = 32    #map nbsp into space
+        # reserveTTFNotdef = rl_config.reserveTTFNotdef we ignore this now
+        for code in map(ord, text):
+            if code == 0xA0:
+                code = 32  # map nbsp into space
             if code in assignments:
                 n = assignments[code]
             elif code not in charToGlyph:
                 n = 0
             else:
                 if state.frozen:
-                    raise pdfdoc.PDFError("Font %s is already frozen, cannot add new character U+%04X" % (self.fontName, code))
+                    raise pdfdoc.PDFError(
+                        "Font %s is already frozen, cannot add new character U+%04X" % (self.fontName, code)
+                    )
                 n = state.nextCode
-                if n&0xFF==32:
+                if n & 0xFF == 32:
                     # make code 32 always be a space character
-                    if n!=32: subsets[n >> 8].append(32)
+                    if n != 32:
+                        subsets[n >> 8].append(32)
                     state.nextCode += 1
                     n = state.nextCode
-                if n>32:
-                    if not(n&0xFF):
-                        subsets.append([0]) #force code 0 in as notdef
+                if n > 32:
+                    if not (n & 0xFF):
+                        subsets.append([0])  # force code 0 in as notdef
                         state.nextCode += 1
                         n = state.nextCode
                     subsets[n >> 8].append(code)
                 else:
-                    if n==_31skip:
-                        #we heve filled in first part of subsets[0] skip past subset[32:127]
-                        #this code will be executed once if asciiReadable
+                    if n == _31skip:
+                        # we heve filled in first part of subsets[0] skip past subset[32:127]
+                        # this code will be executed once if asciiReadable
                         state.nextCode = 127
                     subsets[0][n] = code
                 state.nextCode += 1
                 assignments[code] = n
-                #subsets[n>>8].append(code)
+                # subsets[n>>8].append(code)
             if (n >> 8) != curSet:
                 if cur:
-                    results.append((curSet,bytes(cur)))
-                curSet = (n >> 8)
+                    results.append((curSet, bytes(cur)))
+                curSet = n >> 8
                 cur = []
             cur.append(n & 0xFF)
         if cur:
-            results.append((curSet,bytes(cur)))
+            results.append((curSet, bytes(cur)))
         return results
 
     def getSubsetInternalName(self, subset, doc):
         """Returns the name of a PDF Font object corresponding to a given
         subset of this dynamic font.  Use this function instead of
         PDFDocument.getInternalFontName."""
-        try: state = self.state[doc]
-        except KeyError: state = self.state[doc] = TTFont.State(self._asciiReadable)
+        try:
+            state = self.state[doc]
+        except KeyError:
+            state = self.state[doc] = TTFont.State(self._asciiReadable)
         if subset < 0 or subset >= len(state.subsets):
-            raise IndexError('Subset %d does not exist in font %s' % (subset, self.fontName))
+            raise IndexError("Subset %d does not exist in font %s" % (subset, self.fontName))
         if state.internalName is None:
-            state.internalName = state.namePrefix +repr(len(doc.fontMapping) + 1)
-            doc.fontMapping[self.fontName] = '/' + state.internalName
+            state.internalName = state.namePrefix + repr(len(doc.fontMapping) + 1)
+            doc.fontMapping[self.fontName] = "/" + state.internalName
             doc.delayedFonts.append(self)
-        return '/%s+%d' % (state.internalName, subset)
+        return "/%s+%d" % (state.internalName, subset)
 
     def addObjects(self, doc):
         """Makes  one or more PDF objects to be added to the document.  The
@@ -1308,15 +1371,17 @@ class TTFont:
         This method creates a number of Font and FontDescriptor objects.  Every
         FontDescriptor is a (no more than) 256 character subset of the original
         TrueType font."""
-        try: state = self.state[doc]
-        except KeyError: state = self.state[doc] = TTFont.State(self._asciiReadable)
+        try:
+            state = self.state[doc]
+        except KeyError:
+            state = self.state[doc] = TTFont.State(self._asciiReadable)
         state.frozen = 1
-        for n,subset in enumerate(state.subsets):
+        for n, subset in enumerate(state.subsets):
             internalName = self.getSubsetInternalName(n, doc)[1:]
-            baseFontName = (b''.join((SUBSETN(n),b'+',self.face.name,self.face.subfontNameX))).decode('pdfdoc')
+            baseFontName = (b"".join((SUBSETN(n), b"+", self.face.name, self.face.subfontNameX))).decode("pdfdoc")
 
             pdfFont = pdfdoc.PDFTrueTypeFont()
-            pdfFont.__Comment__ = 'Font %s subset %d' % (self.fontName, n)
+            pdfFont.__Comment__ = "Font %s subset %d" % (self.fontName, n)
             pdfFont.Name = internalName
             pdfFont.BaseFont = baseFontName
 
@@ -1330,23 +1395,23 @@ class TTFont:
             cmapStream.content = makeToUnicodeCMap(baseFontName, subset)
             if doc.compression:
                 cmapStream.filters = [pdfdoc.PDFZCompress]
-            pdfFont.ToUnicode = doc.Reference(cmapStream, 'toUnicodeCMap:' + baseFontName)
+            pdfFont.ToUnicode = doc.Reference(cmapStream, "toUnicodeCMap:" + baseFontName)
 
             pdfFont.FontDescriptor = self.face.addSubsetObjects(doc, baseFontName, subset)
 
             # link it in
             ref = doc.Reference(pdfFont, internalName)
-            fontDict = doc.idToObject['BasicFonts'].dict
+            fontDict = doc.idToObject["BasicFonts"].dict
             fontDict[internalName] = pdfFont
         del self.state[doc]
 
     @property
     def hbFace(self):
-        '''return uharbuzz.Face'''
-        face = getattr(self,'__hbFace__',None)
+        """return uharbuzz.Face"""
+        face = getattr(self, "__hbFace__", None)
         if not face:
             if uharfbuzz is None:
-                raise ValueError('Cannot import uharfbuzz so shaping is not allowed\nplease pip install uharfbuzz')
+                raise ValueError("Cannot import uharfbuzz so shaping is not allowed\nplease pip install uharfbuzz")
             blob = uharfbuzz.Blob(self.face._ttf_data)
             face = self.__hbFace__ = uharfbuzz.Face(blob)
             del blob
@@ -1355,107 +1420,136 @@ class TTFont:
         return face
 
     def hbFont(self, fontSize=10):
-        '''return uharfbuzz Font'''
+        """return uharfbuzz Font"""
         font = uharfbuzz.Font(self.hbFace)
         font.ptem = fontSize
         self.hbAddPrivate = self.__addPrivate
         return font
 
     def __addPrivate(self, name, gid, advance):
-        uchar = self.__hbUnis.get(name,None)
+        uchar = self.__hbUnis.get(name, None)
         if not uchar:
             face = self.face
             uchar = self.__hbPrivate
             while uchar in face.charToGlyph:
                 uchar += 1
-            assert uchar<=0xF800
+            assert uchar <= 0xF800
             self.__hbPrivate = self.__hbUnis[name] = uchar
             face.charToGlyph[uchar] = gid
-            face.glyphToChar.setdefault(gid,[]).append(uchar)
+            face.glyphToChar.setdefault(gid, []).append(uchar)
             face.charWidths[uchar] = advance
         return uchar
 
-    def pdfScale(self,v):
+    def pdfScale(self, v):
         return self.face._pdfScale(v)
 
     def unregister(self):
-        if self.fontName in pdfmetrics._fonts: del pdfmetrics._fonts[self.fontName]
-        if self.face.name in pdfmetrics._dynFaceNames: del pdfmetrics._dynFaceNames[self.face.name]
+        if self.fontName in pdfmetrics._fonts:
+            del pdfmetrics._fonts[self.fontName]
+        if self.face.name in pdfmetrics._dynFaceNames:
+            del pdfmetrics._dynFaceNames[self.face.name]
 
     @property
     def shapable(self):
         return bool(self._shapable and uharfbuzz)
-    
+
     @shapable.setter
-    def shapable(self,v):
+    def shapable(self, v):
         self._shapable = bool(v and uharfbuzz)
 
-#we only expect to use/see these if uharfbuzz is importable
+
+# we only expect to use/see these if uharfbuzz is importable
 class ShapedFragWord(list):
-    '''list class to distinguish frag words that have been shaped'''
+    """list class to distinguish frag words that have been shaped"""
+
     pass
 
-def makeShapedFragWord(w,K=[],V=[]):
+
+def makeShapedFragWord(w, K=[], V=[]):
     klass = w.__class__
-    if klass in K: return V[K.index(klass)]
-    v = ShapedFragWord if klass in (list,ShapedFragWord) else type('ShapedFragWord',(klass,ShapedFragWord),{})
+    if klass in K:
+        return V[K.index(klass)]
+    v = ShapedFragWord if klass in (list, ShapedFragWord) else type("ShapedFragWord", (klass, ShapedFragWord), {})
     V.append(v)
     K.append(klass)
-    if len(K)>=127:
+    if len(K) >= 127:
         K[:] = K[-127:]
         V[:] = V[-127:]
     return v
 
-ShapeData = namedtuple('ShapeData','cluster x_advance y_advance x_offset y_offset width')
+
+ShapeData = namedtuple("ShapeData", "cluster x_advance y_advance x_offset y_offset width")
+
+
 class ShapeData(ShapeData):
     def __repr__(self):
-        return repr(tuple((map(fp_str,self))))
-_sdGuardL = [ShapeData(-1,0,0,0,0,0)]           #for the the end of ShapeData list
-_sdSimple = ShapeData(0x7fffffff,0,0,0,0,0)     #for added simple chars
+        return repr(tuple((map(fp_str, self))))
+
+
+_sdGuardL = [ShapeData(-1, 0, 0, 0, 0, 0)]  # for the the end of ShapeData list
+_sdSimple = ShapeData(0x7FFFFFFF, 0, 0, 0, 0, 0)  # for added simple chars
+
 
 class ShapedStr(str):
     def __new__(cls, s, shapeData=None):
-        self = super().__new__(cls,s)
+        self = super().__new__(cls, s)
         self.__shapeData__ = shapeData
         return self
 
-    def __add__(self,other):
-        return ShapedStr(super().__add__(other),
-                            shapeData=(self.__shapeData__+other.__shapeData__ if isinstance(other,ShapedStr)
-                                else self.__shapeData__+len(other)*[_sdSimple]))
+    def __add__(self, other):
+        return ShapedStr(
+            super().__add__(other),
+            shapeData=(
+                self.__shapeData__ + other.__shapeData__
+                if isinstance(other, ShapedStr)
+                else self.__shapeData__ + len(other) * [_sdSimple]
+            ),
+        )
 
-    def __radd__(self,other):
-        return ShapedStr(str(other)+str(self),
-                            shapeData=(other.__shapeData__+self.__shapeData__ if isinstance(other,ShapedStr)
-                                else len(other)*[_sdSimple]+self.__shapeData__))
+    def __radd__(self, other):
+        return ShapedStr(
+            str(other) + str(self),
+            shapeData=(
+                other.__shapeData__ + self.__shapeData__
+                if isinstance(other, ShapedStr)
+                else len(other) * [_sdSimple] + self.__shapeData__
+            ),
+        )
 
-    def __getitem__(self,i):
+    def __getitem__(self, i):
         s = super().__getitem__(i)
-        if not s: return s  #a simple str
+        if not s:
+            return s  # a simple str
         d = self.__shapeData__[i]
-        return ShapedStr(s,d if isinstance(i,slice) else [d])
+        return ShapedStr(s, d if isinstance(i, slice) else [d])
+
 
 if not uharfbuzz:
+
     def shapeFragWord(w, features=None):
         return w
+
 else:
-    def shapeFragWord(w, features=dict(kern=True,liga=True,dlig=True), force=False):
-        '''take a frag word and return a shaped fragword if uharfbuzz makes any changes
+
+    def shapeFragWord(w, features=dict(kern=True, liga=True, dlig=True), force=False):
+        """take a frag word and return a shaped fragword if uharfbuzz makes any changes
         if no changes are made return the original word
-        '''
-        if isinstance(w,ShapedFragWord): return w
+        """
+        if isinstance(w, ShapedFragWord):
+            return w
         F = []
-        text = ''
+        text = ""
         specials = {}
         for f, s in w[1:]:
-            if hasattr(f,'cbDefn'):
-                specials.setdefault(len(text),[]).append(f)
+            if hasattr(f, "cbDefn"):
+                specials.setdefault(len(text), []).append(f)
                 continue
-            F.extend(len(s)*[f])
+            F.extend(len(s) * [f])
             text += s
-        #if isinstance(text,ShapedStr): breakpoint()
+        # if isinstance(text,ShapedStr): breakpoint()
         ntext = len(text)
-        if not F: return w
+        if not F:
+            return w
         ttfn = F[0].fontName
         ttfs = F[0].fontSize
         ttf = pdfmetrics.getFont(ttfn)
@@ -1482,7 +1576,7 @@ else:
         xpos = 0
         ypos = 0
         shapeDataAppend = [].append
-        for i,(info,pos) in enumerate(zip(infos,positions)):
+        for i, (info, pos) in enumerate(zip(infos, positions)):
             gid = info.codepoint
             name = hbf.glyph_to_string(gid)
             cluster = info.cluster
@@ -1493,17 +1587,17 @@ else:
             f = F[cluster]
             if nf is not f:
                 if nf:
-                    new.append((nf,ShapedStr(ns,shapeData=shapeDataAppend.__self__)))
+                    new.append((nf, ShapedStr(ns, shapeData=shapeDataAppend.__self__)))
                     new0 += newlen
                 nf = f
-                ns = ''
-                newlen = 0  #the new word length
+                ns = ""
+                newlen = 0  # the new word length
                 shapeDataAppend = [].append
                 _ = nf.fontName
-                if _!=ttfn:
+                if _ != ttfn:
                     ttfn = _
                     ttf = pdfmetrics.getFont(ttfn)
-                ttfs = nf.fontSize/1000
+                ttfs = nf.fontSize / 1000
             try:
                 uchar = ttf.face.glyphToChar[gid][0]
             except KeyError:
@@ -1511,55 +1605,62 @@ else:
             ucharWidth = ttf.face.charWidths[uchar]
             uchar = chr(uchar)
             ns += uchar
-            #scale to ensure unitsPerEm == 1000
-            x_advance = ttf.pdfScale(x_advance)     #fontsize related units
+            # scale to ensure unitsPerEm == 1000
+            x_advance = ttf.pdfScale(x_advance)  # fontsize related units
             x_offset = ttf.pdfScale(x_offset)
-            y_advance = ttf.pdfScale(y_advance)     #absolute units
+            y_advance = ttf.pdfScale(y_advance)  # absolute units
             y_offset = ttf.pdfScale(y_offset)
-            if x_advance: newlen += x_advance*ttfs
-            shaped = shaped or (x_offset!=0 or y_offset!=0 
-                                or i>=ntext 
-                                or (text[i]==uchar and x_advance!=ucharWidth))
-            changed = changed or shaped or i>=ntext or text[i]!=uchar or force
+            if x_advance:
+                newlen += x_advance * ttfs
+            shaped = shaped or (
+                x_offset != 0 or y_offset != 0 or i >= ntext or (text[i] == uchar and x_advance != ucharWidth)
+            )
+            changed = changed or shaped or i >= ntext or text[i] != uchar or force
             shapeDataAppend(ShapeData(cluster, x_advance, y_advance, x_offset, y_offset, ucharWidth))
-        if nf:  #we have at least one frag
-            new.append((nf,ShapedStr(ns,shapeData=shapeDataAppend.__self__)))
+        if nf:  # we have at least one frag
+            new.append((nf, ShapedStr(ns, shapeData=shapeDataAppend.__self__)))
             new0 += newlen
-        if not changed: return w
+        if not changed:
+            return w
         if not shaped:
             if changed:
-                #make all the tuples simple
+                # make all the tuples simple
                 new = new.__class__([new[0]] + [tuple(_) for _ in new[1:]])
             else:
                 return w
         if specials:
-            #now we have to re-add the special cbDefn tuples
-            #first find the insertion points
+            # now we have to re-add the special cbDefn tuples
+            # first find the insertion points
             S = []
-            for k,v in specials.items():
-                S.append(((k,k),v))
+            for k, v in specials.items():
+                S.append(((k, k), v))
             for _ in new:
-                S.append(((_[1].__shapeData__[0].cluster,_[1].__shapeData__[-1].cluster),_))
+                S.append(((_[1].__shapeData__[0].cluster, _[1].__shapeData__[-1].cluster), _))
             new[:] = [_[1] for _ in sorted(S)]
-        new.insert(0,new0)
+        new.insert(0, new0)
         return new
 
-def shapeStr(s,fontName,fontSize, force=False):
-    return shapeFragWord([pdfmetrics.stringWidth(s,fontName,fontSize),
-                        (ABag(fontName=fontName,fontSize=fontSize),s)],force=force)[1][1]
 
-def freshTTFont(ttfn, ttfpath,**kwds):
-    '''return a new instance corrsponding to a ttf path'''
+def shapeStr(s, fontName, fontSize, force=False):
+    return shapeFragWord(
+        [pdfmetrics.stringWidth(s, fontName, fontSize), (ABag(fontName=fontName, fontSize=fontSize), s)], force=force
+    )[1][1]
+
+
+def freshTTFont(ttfn, ttfpath, **kwds):
+    """return a new instance corrsponding to a ttf path"""
     try:
         ttf = pdfmetrics.getFont(ttfn)
         ttf.unregister()
     except:
         pass
-    return TTFont(ttfn,ttfpath,**kwds)
+    return TTFont(ttfn, ttfpath, **kwds)
 
-#preserve the initial values here
+
+# preserve the initial values here
 def _reset():
     _cached_ttf_dirs.clear()
+
 
 register_reset(_reset)
 del register_reset
