@@ -11,27 +11,44 @@ The `super-linter.yml` workflow automatically runs linters on your code when you
 
 ### Linters Enabled
 
-The workflow validates the following:
+The workflow **automatically detects and runs ALL available linters** for any code it finds. This includes 50+ linters for:
 
-#### Terraform
+#### Infrastructure as Code
 
-- **terraform fmt**: Checks Terraform formatting
-- **tflint**: Runs TFLint with configuration from `.tflint.hcl`
+- **Terraform**: fmt, tflint (uses `.tflint.hcl`)
+- **Ansible**: ansible-lint
+- **CloudFormation**: cfn-lint
+- **Kubernetes**: kubeval
+- **Docker**: hadolint
 
-#### Python
+#### Programming Languages
 
-- **black**: Code formatting (line-length=120)
-- **flake8**: Style guide enforcement (configured in `.flake8`)
-- **isort**: Import sorting (configured in `.isort.cfg`)
-- **mypy**: Static type checking
-- **pylint**: Code analysis
+- **Python**: black, flake8, isort, mypy, pylint (uses `.flake8`, `.isort.cfg`)
+- **JavaScript/TypeScript**: eslint, prettier, standard
+- **Go**: golangci-lint
+- **Ruby**: rubocop
+- **Java**: checkstyle
+- **C/C++**: cpplint, clang-format
+- **Rust**: rustfmt, clippy
+- **PHP**: phpstan, psalm
+- **Shell/Bash**: shellcheck, shfmt
 
-#### Other Languages
+#### Data & Config Files
 
-- **JSON**: JSON syntax validation
-- **YAML**: YAML syntax validation
-- **Markdown**: Markdown linting
-- **Bash**: Shell script linting and executable validation
+- **JSON**: jsonlint
+- **YAML**: yamllint
+- **XML**: xmllint
+- **TOML**: taplo
+- **Markdown**: markdownlint
+
+#### Security & Quality
+
+- **Gitleaks**: Secret scanning
+- **JSCPD**: Copy-paste detection
+- **SQL**: sqlfluff
+- **Protobuf**: protolint
+
+**Note:** Super-Linter automatically detects which languages are present in your repository and only runs relevant linters.
 
 ### Configuration Files
 
@@ -43,12 +60,24 @@ The linters use the following configuration files in the repository root:
 - `.isort.cfg` - isort configuration
 - `.blackignore` - Files to exclude from Black formatting
 
-### Disabled Linters
+### Disabling Specific Linters (Optional)
 
-The following linters are disabled to avoid duplication or noise:
+All linters are enabled by default. If you need to disable a specific linter, edit `.github/workflows/super-linter.yml` and add:
 
-- **JSCPD**: Copy-paste detection (can be noisy)
-- **Gitleaks**: Secret scanning (handled separately)
+```yaml
+VALIDATE_<LINTER_NAME>: false
+```
+
+For example, to disable copy-paste detection:
+
+```yaml
+VALIDATE_JSCPD: false
+```
+
+Common linters you might want to disable:
+
+- **JSCPD**: Copy-paste detection (can be noisy for similar infrastructure code)
+- **PYTHON_PYLINT**: Can be overly strict (if you prefer flake8 only)
 
 ### Viewing Results
 
