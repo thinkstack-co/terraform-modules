@@ -54,15 +54,13 @@ jobs:
           VALIDATE_PYTHON_MYPY: true
           VALIDATE_PYTHON_PYLINT: true
           VALIDATE_GITLEAKS: true
+          VALIDATE_JSCPD: true
           
           # Terraform-specific settings
           TERRAFORM_TFLINT_CONFIG_FILE: .tflint.hcl
           
           # Python-specific settings (line-length=120 to match pre-commit)
           PYTHON_FLAKE8_CONFIG_FILE: .flake8
-          
-          # Disable linters not needed for this repo
-          VALIDATE_JSCPD: false
           
           # Output settings
           LOG_LEVEL: NOTICE
