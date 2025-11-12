@@ -1,0 +1,72 @@
+---
+name: Super-Linter
+
+# Run on push to any branch and on pull requests
+on:
+  push:
+    branches:
+      - main
+      - v*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  super-lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Full git history needed for super-linter
+          fetch-depth: 0
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter@v7
+        env:
+          # GitHub token for API access
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Validate all code by default
+          VALIDATE_ALL_CODEBASE: true
+          
+          # Set default branch
+          DEFAULT_BRANCH: main
+          
+          # Linter configurations
+          VALIDATE_TERRAFORM_FMT: true
+          VALIDATE_TERRAFORM_TFLINT: true
+          VALIDATE_JSON: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_BASH: true
+          VALIDATE_BASH_EXEC: true
+          VALIDATE_PYTHON_BLACK: true
+          VALIDATE_PYTHON_FLAKE8: true
+          VALIDATE_PYTHON_ISORT: true
+          VALIDATE_PYTHON_MYPY: true
+          VALIDATE_PYTHON_PYLINT: true
+          VALIDATE_GITLEAKS: true
+          
+          # Terraform-specific settings
+          TERRAFORM_TFLINT_CONFIG_FILE: .tflint.hcl
+          
+          # Python-specific settings (line-length=120 to match pre-commit)
+          PYTHON_FLAKE8_CONFIG_FILE: .flake8
+          
+          # Disable linters not needed for this repo
+          VALIDATE_JSCPD: false
+          
+          # Output settings
+          LOG_LEVEL: NOTICE
+          CREATE_LOG_FILE: true
+          
+          # Filter settings - only validate changed files on PRs
+          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package)/.*'
