@@ -2,15 +2,35 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AllowViewAndManageOwnAccount",
+      "Sid": "AllowViewOwnUserInfo",
       "Effect": "Allow",
       "Action": [
-        "iam:GetAccountPasswordPolicy",
         "iam:GetUser",
+        "iam:GetLoginProfile",
+        "iam:GetAccountPasswordPolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:user/${aws:username}"
+      ]
+    },
+    {
+      "Sid": "AllowManageOwnPassword",
+      "Effect": "Allow",
+      "Action": [
         "iam:ChangePassword",
-        "iam:ListVirtualMFADevices",
+        "iam:CreateLoginProfile",
+        "iam:UpdateLoginProfile"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:user/${aws:username}"
+      ]
+    },
+    {
+      "Sid": "AllowListMFADevices",
+      "Effect": "Allow",
+      "Action": [
         "iam:ListMFADevices",
-        "iam:ListUsers"
+        "iam:ListVirtualMFADevices"
       ],
       "Resource": "*"
     },
@@ -20,9 +40,7 @@
       "Action": [
         "iam:CreateVirtualMFADevice",
         "iam:EnableMFADevice",
-        "iam:ResyncMFADevice",
-        "iam:DeactivateMFADevice",
-        "iam:DeleteVirtualMFADevice"
+        "iam:ResyncMFADevice"
       ],
       "Resource": [
         "arn:aws:iam::*:mfa/${aws:username}",
@@ -30,17 +48,57 @@
       ]
     },
     {
-      "Sid": "DenyAllExceptMFASetupIfNoMFA",
+      "Sid": "AllowDeactivateDeleteOwnMFAOnlyWithMFA",
+      "Effect": "Allow",
+      "Action": [
+        "iam:DeactivateMFADevice",
+        "iam:DeleteVirtualMFADevice"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:mfa/${aws:username}",
+        "arn:aws:iam::*:user/${aws:username}"
+      ],
+      "Condition": {
+        "Bool": {
+          "aws:MultiFactorAuthPresent": "true"
+        }
+      }
+    },
+    {
+      "Sid": "AllowAccessToIAMConsole",
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListUsers"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowSTSActions",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetSessionToken",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyAllExceptIAMAndSTSIfNoMFA",
       "Effect": "Deny",
       "NotAction": [
         "iam:GetUser",
+        "iam:GetLoginProfile",
+        "iam:GetAccountPasswordPolicy",
+        "iam:ChangePassword",
+        "iam:CreateLoginProfile",
+        "iam:UpdateLoginProfile",
         "iam:ListMFADevices",
         "iam:ListVirtualMFADevices",
         "iam:CreateVirtualMFADevice",
         "iam:EnableMFADevice",
         "iam:ResyncMFADevice",
+        "iam:ListUsers",
         "sts:GetSessionToken",
-        "iam:ChangePassword"
+        "sts:GetCallerIdentity"
       ],
       "Resource": "*",
       "Condition": {
