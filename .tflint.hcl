@@ -5,13 +5,13 @@
 plugin "terraform" {
   enabled = true
   source  = "github.com/terraform-linters/tflint-ruleset-terraform"
-  version = "0.6.0"
+  version = "0.13.0"
 }
 
 plugin "aws" {
   enabled = true
   source  = "github.com/terraform-linters/tflint-ruleset-aws"
-  version = "0.36.0"
+  version = "0.44.0"
 }
 
 # You can optionally pin a default AWS region for rules that need it.

@@ -41,7 +41,7 @@ variable "disable_api_termination" {
 variable "ebs_optimized" {
   type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
-  default     = false
+  default     = true
   validation {
     condition     = can(regex("^(true|false)$", var.ebs_optimized))
     error_message = "The value must be either true or false."
@@ -94,7 +94,7 @@ variable "key_name" {
 variable "monitoring" {
   type        = bool
   description = "If true, the launched EC2 instance will have detailed monitoring enabled"
-  default     = false
+  default     = true
 }
 
 variable "name" {
