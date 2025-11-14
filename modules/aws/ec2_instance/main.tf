@@ -10,38 +10,12 @@ terraform {
 }
 
 ###########################
-# Data Sources (Conditional)
-###########################
-# These data sources are now CONDITIONAL to avoid redundant API calls.
-
-# Only fetch region from AWS if not passed as a variable (backward compatible)
-data "aws_region" "current" {
-  count = var.aws_region == null ? 1 : 0
-  # count = 0: Variable provided, skip API call (fast path)
-  # count = 1: Variable is null, query AWS (backward compatible path)
-}
-
-# Only fetch account ID from AWS if not passed as a variable (backward compatible)
-data "aws_caller_identity" "current" {
-  count = var.aws_account_id == null ? 1 : 0
-  # count = 0: Variable provided, skip API call (fast path)
-  # count = 1: Variable is null, query AWS (backward compatible path)
-}
-
-###########################
-# Local Values
+# Data Sources
 ###########################
 
-locals {
-  # Use passed aws_region variable if provided, otherwise query from data source
-  # Ternary operator: condition ? true_value : false_value
-  # Note: Using 'id' instead of deprecated 'name' attribute
-  aws_region = var.aws_region != null ? var.aws_region : data.aws_region.current[0].id
+data "aws_region" "current" {}
 
-  # Use passed aws_account_id variable if provided, otherwise query from data source
-  # Ternary operator: condition ? true_value : false_value
-  aws_account_id = var.aws_account_id != null ? var.aws_account_id : data.aws_caller_identity.current[0].account_id
-}
+data "aws_caller_identity" "current" {}
 
 #############################
 # EC2 instance Module
@@ -78,12 +52,12 @@ resource "aws_instance" "ec2" {
     throughput            = var.root_volume_throughput
   }
 
-  source_dest_check      = var.source_dest_check
-  subnet_id              = var.subnet_id
-  tags                   = merge(var.tags, ({ "Name" = var.name }))
-  tenancy                = var.tenancy
+  source_dest_check = var.source_dest_check
+  subnet_id         = var.subnet_id
+  tags              = merge(var.tags, ({ "Name" = var.name }))
+  tenancy           = var.tenancy
   # Only set user_data if user_data_base64 is not provided (prevents base64 warning)
-  user_data              = var.user_data_base64 != "" ? null : (var.user_data != "" ? var.user_data : null)
+  user_data = var.user_data_base64 != "" ? null : (var.user_data != "" ? var.user_data : null)
   # Only set user_data_base64 if explicitly provided
   user_data_base64       = var.user_data_base64 != "" ? var.user_data_base64 : null
   vpc_security_group_ids = var.vpc_security_group_ids
@@ -119,17 +93,11 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   treat_missing_data        = "missing"
 }
 
-# Creating another CloudWatch metric alarm for each instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
   # If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered.
   # If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
-  #
-  # PERFORMANCE OPTIMIZATION: Using local.aws_region instead of data.aws_region.current.name
-  # This allows the region to come from either:
-  #   1. Passed variable (fast, no API call) - local.aws_region uses var.aws_region
-  #   2. Data source query (slow, API call) - local.aws_region uses data.aws_region.current[0].name
-  # The abstraction through locals makes the code work in both scenarios without changing the alarm logic.
-  alarm_actions = contains(local.recover_action_unsupported_instances, var.instance_type) ? [] : ["arn:aws:automate:${local.aws_region}:ec2:recover"]
+
+  alarm_actions = contains(local.recover_action_unsupported_instances, var.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"

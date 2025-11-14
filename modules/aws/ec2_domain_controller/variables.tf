@@ -34,7 +34,7 @@ variable "disable_api_termination" {
 variable "ebs_optimized" {
   type        = bool
   description = "(Optional) If true, the launched EC2 instance will be EBS-optimized. Note that if this is not set on an instance type that is optimized by default then this will show as disabled but if the instance type is optimized by default then there is no need to set this and there is no effect to disabling it. See the EBS Optimized section of the AWS User Guide for more information."
-  default     = false
+  default     = true
   validation {
     condition     = can(regex("true|false", var.ebs_optimized))
     error_message = "The value must be either true or false."

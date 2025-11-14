@@ -1,0 +1,55 @@
+---
+name: Super-Linter
+
+# Run on push to any branch and on pull requests
+on:
+  push:
+    branches:
+      - main
+      - v*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  super-lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Full git history needed for super-linter
+          fetch-depth: 0
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter@v7
+        env:
+          # GitHub token for API access
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Validate all code by default - runs ALL available linters
+          VALIDATE_ALL_CODEBASE: true
+          
+          # Set default branch
+          DEFAULT_BRANCH: main
+          
+          # Configuration files for specific linters
+          TERRAFORM_TFLINT_CONFIG_FILE: .tflint.hcl
+          PYTHON_FLAKE8_CONFIG_FILE: .flake8
+          
+          # Optional: Disable specific linters if needed (uncomment to disable)
+          # VALIDATE_JSCPD: false  # Copy-paste detection can be noisy
+          
+          # Output settings
+          LOG_LEVEL: NOTICE
+          CREATE_LOG_FILE: true
+          
+          # Filter settings - only validate changed files on PRs
+          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package)/.*'

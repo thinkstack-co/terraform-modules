@@ -1,13 +1,13 @@
 variable "port" {
   type        = number
   description = "(Optional) Port on which the load balancer is listening. Not valid for Gateway Load Balancers."
-  default     = 80
+  default     = 443
 }
 
 variable "protocol" {
   type        = string
-  description = "(Optional) The protocol for connections from clients to the load balancer. Valid values are `TCP`, `HTTP`, and `HTTPS`. Defaults to `HTTP`."
-  default     = "HTTP"
+  description = "(Optional) The protocol for connections from clients to the load balancer. Valid values are `TCP`, `HTTP`, and `HTTPS`. Defaults to `HTTPS` for secure-by-default configuration."
+  default     = "HTTPS"
 }
 
 variable "certificate_arn" {
