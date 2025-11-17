@@ -235,6 +235,12 @@ variable "domain_name" {
   description = "(Required) the suffix domain name to use by default when resolving non Fully Qualified Domain Names. In other words, this is what ends up being the search value in the /etc/resolv.conf file."
 }
 
+variable "ntp_servers" {
+  type        = list(string)
+  description = "(Optional) List of NTP servers to configure in the DHCP options set. When null or empty, defaults to using the domain controller private IPs."
+  default     = null
+}
+
 variable "vpc_id" {
   type        = string
   description = "(Required) The ID of the VPC to which we would like to associate a DHCP Options Set."
