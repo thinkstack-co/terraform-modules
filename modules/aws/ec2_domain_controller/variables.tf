@@ -237,8 +237,8 @@ variable "domain_name" {
 
 variable "ntp_servers" {
   type        = list(string)
-  description = "(Optional) List of NTP servers to configure in the DHCP options set. When null or empty, defaults to using the domain controller private IPs."
-  default     = null
+  description = "(Optional) List of NTP servers to configure in the DHCP options set. When empty, defaults to using the domain controller private IPs."
+  default     = []
 }
 
 variable "vpc_id" {
