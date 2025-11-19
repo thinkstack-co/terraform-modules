@@ -40,7 +40,8 @@ resource "aws_config_configuration_recorder" "config" {
     var.enable_ec2_volume_inuse_rule ||
     var.enable_eip_attached_rule ||
     var.enable_rds_storage_encrypted_rule ||
-  var.enable_iam_user_access_key_age_rule) ? 1 : 0
+  var.enable_iam_user_access_key_age_rule ||
+  var.enable_iam_root_access_key_rule) ? 1 : 0
 
   name     = var.config_recorder_name
   role_arn = aws_iam_role.config_role.arn
@@ -55,7 +56,8 @@ resource "aws_config_configuration_recorder" "config" {
       var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [],  # Volume type already potentially included
       var.enable_eip_attached_rule ? ["AWS::EC2::EIP"] : [],
       var.enable_rds_storage_encrypted_rule ? ["AWS::RDS::DBInstance"] : [],
-      var.enable_iam_user_access_key_age_rule ? ["AWS::IAM::User"] : [] # User type already potentially included
+      var.enable_iam_user_access_key_age_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
+      var.enable_iam_root_access_key_rule ? ["AWS::IAM::User"] : []      # User type already potentially included
     ))
   }
 

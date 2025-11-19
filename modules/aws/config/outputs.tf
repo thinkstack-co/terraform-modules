@@ -92,6 +92,13 @@ output "iam_user_access_key_age_rule_arn" {
   value = var.enable_iam_user_access_key_age_rule ? aws_config_config_rule.access_keys_rotated[0].arn : null
 }
 
+output "iam_root_access_key_rule_arn" {
+  description = "The ARN of the IAM root access key check Config rule"
+  # Returns the ARN of the Config rule that checks for root access keys
+  # Only available when enable_iam_root_access_key_rule is true, null otherwise
+  value = var.enable_iam_root_access_key_rule ? aws_config_config_rule.iam_root_access_key_check[0].arn : null
+}
+
 output "config_rules_arns" {
   description = "Map of all Config rules ARNs"
   # Returns a comprehensive map of all enabled Config rules with their ARNs
@@ -107,6 +114,7 @@ output "config_rules_arns" {
     iam_password_policy     = var.enable_iam_password_policy_rule ? aws_config_config_rule.iam_password_policy[0].arn : null
     iam_user_mfa            = var.enable_mfa_for_iam_console_rule ? aws_config_config_rule.mfa_enabled_for_iam_console_access[0].arn : null
     iam-user-access-key-age = var.enable_iam_user_access_key_age_rule ? aws_config_config_rule.access_keys_rotated[0].arn : null
+    iam-root-access-key     = var.enable_iam_root_access_key_rule ? aws_config_config_rule.iam_root_access_key_check[0].arn : null
 
     # S3 security rules
     s3_public_read_prohibited  = var.enable_s3_public_access_rules ? aws_config_config_rule.s3_bucket_public_read_prohibited[0].arn : null
