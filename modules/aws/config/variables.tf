@@ -177,6 +177,12 @@ variable "enable_iam_user_access_key_age_rule" {
   default     = false
 }
 
+variable "enable_iam_root_access_key_rule" {
+  description = "Enable the IAM Root Access Key managed rule."
+  type        = bool
+  default     = false
+}
+
 variable "iam_access_key_max_age" {
   description = "Maximum age in days for IAM user access keys before they are marked as non-compliant"
   type        = number

@@ -234,6 +234,19 @@ resource "aws_config_config_rule" "access_keys_rotated" {
   depends_on = [aws_config_delivery_channel.config]
 }
 
+resource "aws_config_config_rule" "iam_root_access_key_check" {
+  count       = var.enable_iam_root_access_key_rule ? 1 : 0
+  name        = "iam-root-access-key-check"
+  description = "Checks whether the root user access key is available. The rule is compliant if the root user access key does not exist."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
+  }
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
 resource "aws_config_config_rule" "ec2_volume_inuse_check" {
   count       = var.enable_ec2_volume_inuse_rule ? 1 : 0
   name        = "ec2-volume-inuse-check"
