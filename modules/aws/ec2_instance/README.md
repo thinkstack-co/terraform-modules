@@ -85,6 +85,31 @@ module "aws_prod_app" {
 }
 ```
 
+### EC2 Instance with Detailed Monitoring (Optional)
+By default, instances use free basic monitoring (5-min intervals). Set `enable_detailed_monitoring = true` for 1-min intervals (~$2.10/month/instance).
+Alarms automatically adjust their period to match the monitoring mode.
+```
+module "aws_prod_app" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/aws/ec2_instance"
+
+  ami                         = "ami-ffffffff"
+  availability_zone           = module.vpc.availability_zone[0]
+  instance_type               = "m5.xlarge"
+  key_name                    = module.keypair.key_name
+  name                        = "aws_prod_app"
+  subnet_id                   = module.vpc.private_subnet_ids[0]
+  vpc_security_group_ids      = ["sg-ffffffff"]
+  # Optional: enable detailed monitoring for 1-min metric resolution (~$2.10/month/instance)
+  enable_detailed_monitoring = true  # Default: false (basic monitoring, free)
+  tags = {
+    terraform   = "true"
+    created_by  = "YOUR NAME"
+    environment = "prod"
+    role        = "app"
+  }
+}
+```
+
 ### EC2 Instance With Second Attached EBS Volume
 ```
 module "app_server" {

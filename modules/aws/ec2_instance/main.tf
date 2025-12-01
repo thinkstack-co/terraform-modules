@@ -33,7 +33,7 @@ resource "aws_instance" "ec2" {
   instance_type                        = var.instance_type
   ipv6_addresses                       = var.ipv6_addresses
   key_name                             = var.key_name
-  monitoring                           = var.monitoring
+  monitoring                           = var.enable_detailed_monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
 
@@ -90,7 +90,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = var.monitoring ? "60" : "300" # 60s for detailed monitoring, 300s for basic
+  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
@@ -116,7 +116,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = var.monitoring ? "60" : "300" # 60s for detailed monitoring, 300s for basic
+  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"

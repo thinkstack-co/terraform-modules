@@ -91,9 +91,9 @@ variable "key_name" {
   default     = ""
 }
 
-variable "monitoring" {
+variable "enable_detailed_monitoring" {
   type        = bool
-  description = "(Optional) If true, enables detailed monitoring (1-min intervals, ~$2.10/month). If false, uses basic monitoring (5-min intervals, free). Default: false"
+  description = "(Optional) Enables detailed monitoring (1-min intervals, ~$2.10/month/instance). When false, uses basic monitoring (5-min intervals, free). Default: false"
   default     = false
 }
 
