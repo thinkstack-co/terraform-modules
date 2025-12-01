@@ -93,14 +93,16 @@ variable "kms_key_id" {
   }
 }
 
-variable "monitoring" {
+variable "enable_detailed_monitoring" {
   type        = bool
-  description = "(Optional) If true, the launched EC2 instance will have detailed monitoring enabled. (Available since v0.6.0)"
+  description = "(Optional) Enables detailed monitoring (1-min intervals, ~$2.10/month/instance). When false, uses basic monitoring (5-min intervals, free). Default: false"
+  default     = false
+}
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create CloudWatch status check alarms for the instance. Set to false to disable alarms. Default: true"
   default     = true
-  validation {
-    condition     = can(regex("true|false", var.monitoring))
-    error_message = "The value must be either true or false."
-  }
 }
 
 variable "placement_group" {

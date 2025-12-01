@@ -26,7 +26,7 @@ resource "aws_instance" "ec2_instance" {
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
   instance_type                        = var.instance_type
   key_name                             = var.key_name
-  monitoring                           = var.monitoring
+  monitoring                           = var.enable_detailed_monitoring
   placement_group                      = var.placement_group
   private_ip                           = element(var.private_ip, count.index)
 
@@ -88,18 +88,20 @@ resource "aws_vpc_dhcp_options_association" "dc_dns" {
 ###################################################
 # CloudWatch Alarms
 ###################################################
+# Set create_cloudwatch_alarms = false to disable these alarms.
+# Alarm period adjusts based on monitoring mode: 60s for detailed, 300s for basic (to match metric availability).
 
 #####################
 # Status Check Failed Instance Metric
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  count               = var.create_cloudwatch_alarms ? var.number : 0
   actions_enabled     = true
   alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
     InstanceId = element(aws_instance.ec2_instance[*].id, count.index)
@@ -109,11 +111,10 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = "60"
+  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
 
 #####################
@@ -121,12 +122,12 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
+  count               = var.create_cloudwatch_alarms ? var.number : 0
   actions_enabled     = true
   alarm_actions       = ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.number
   datapoints_to_alarm = 2
   dimensions = {
     InstanceId = element(aws_instance.ec2_instance[*].id, count.index)
@@ -136,9 +137,8 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = "60"
+  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
-  #unit                      = var.unit
 }
