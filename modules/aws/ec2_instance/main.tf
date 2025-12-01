@@ -71,7 +71,10 @@ resource "aws_instance" "ec2" {
 # CloudWatch Alarms
 ###################################################
 # Creating a CloudWatch metric alarm for each instance. This alarm triggers if the status check of the instance fails.
+# Set create_cloudwatch_alarms = false to disable these alarms.
+# Alarm period adjusts based on monitoring mode: 60s for detailed, 300s for basic (to match metric availability).
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  count         = var.create_cloudwatch_alarms ? 1 : 0
   alarm_actions = [] # No 'Recover' action for StatusCheckFailed_Instance metric
 
   actions_enabled     = true
@@ -87,13 +90,14 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = "60"
+  period                    = var.monitoring ? "60" : "300" # 60s for detailed monitoring, 300s for basic
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
 }
 
 resource "aws_cloudwatch_metric_alarm" "system" {
+  count = var.create_cloudwatch_alarms ? 1 : 0
   # If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered.
   # If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
 
@@ -112,7 +116,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = "60"
+  period                    = var.monitoring ? "60" : "300" # 60s for detailed monitoring, 300s for basic
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"

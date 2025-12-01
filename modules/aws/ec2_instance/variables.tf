@@ -93,8 +93,8 @@ variable "key_name" {
 
 variable "monitoring" {
   type        = bool
-  description = "If true, the launched EC2 instance will have detailed monitoring enabled"
-  default     = true
+  description = "(Optional) If true, enables detailed monitoring (1-min intervals, ~$2.10/month). If false, uses basic monitoring (5-min intervals, free). Default: false"
+  default     = false
 }
 
 variable "name" {
@@ -220,4 +220,14 @@ variable "root_volume_throughput" {
   description = "Throughput for the root volume of the EC2 instance."
   type        = number
   default     = 125
+}
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create CloudWatch status check alarms for the instance. Set to false to reduce CloudWatch costs. Default: true"
+  default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.create_cloudwatch_alarms))
+    error_message = "The value must be either true or false."
+  }
 }

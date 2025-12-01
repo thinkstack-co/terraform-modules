@@ -55,13 +55,13 @@ output "subnet_id" {
 
 # CloudWatch Alarm Outputs
 output "instance_alarm_id" {
-  description = "ID of the instance status check alarm"
-  value       = aws_cloudwatch_metric_alarm.instance.id
+  description = "ID of the instance status check alarm. Returns null if create_cloudwatch_alarms is false."
+  value       = var.create_cloudwatch_alarms ? aws_cloudwatch_metric_alarm.instance[0].id : null
 }
 
 output "system_alarm_id" {
-  description = "ID of the system status check alarm"
-  value       = aws_cloudwatch_metric_alarm.system.id
+  description = "ID of the system status check alarm. Returns null if create_cloudwatch_alarms is false."
+  value       = var.create_cloudwatch_alarms ? aws_cloudwatch_metric_alarm.system[0].id : null
 }
 
 output "instance_state" {
