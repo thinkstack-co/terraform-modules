@@ -75,7 +75,6 @@ module "example_aws_config" {
   password_reuse_prevention = 24
   password_max_age          = 45
 
-  enable_encrypted_volumes_rule     = true
   enable_ebs_encryption_rule        = true
   enable_s3_public_access_rules     = true
   enable_mfa_for_iam_console_rule   = true
@@ -266,7 +265,7 @@ module "aws_config_all_rules" {
   config_recorder_name = "my-org-recorder"
 
   # Enable specific rules (Explicitly setting defaults for clarity)
-  enable_encrypted_volumes_rule    = true
+  enable_ebs_encryption_rule       = true
   enable_iam_password_policy_rule  = true
   enable_s3_public_access_rules    = true
   enable_mfa_for_iam_console_rule  = true
@@ -357,7 +356,7 @@ _For detailed variable and output descriptions, please refer to the Inputs and O
 | <a name="input_reporter_output_s3_prefix"></a> [reporter\_output\_s3\_prefix](#input\_reporter\_output\_s3\_prefix) | S3 key prefix within the Config bucket where PDF compliance reports will be stored | `string` | `"compliance-reports/"` | no |
 | <a name="input_reporter_lambda_memory_size"></a> [reporter\_lambda\_memory\_size](#input\_reporter\_lambda\_memory\_size) | Memory size (MB) allocated to the compliance reporter Lambda function | `number` | `256` | no |
 | <a name="input_reporter_lambda_timeout"></a> [reporter\_lambda\_timeout](#input\_reporter\_lambda\_timeout) | Timeout (seconds) for the compliance reporter Lambda function | `number` | `120` | no |
-| <a name="input_enable_encrypted_volumes_rule"></a> [enable\_encrypted\_volumes\_rule](#input\_enable\_encrypted\_volumes\_rule) | Enable the `ENCRYPTED_VOLUMES` managed rule | `bool` | `true` | no |
+| <a name="input_enable_ebs_encryption_rule"></a> [enable\_ebs\_encryption\_rule](#input\_enable\_ebs\_encryption\_rule) | Enable the `ENCRYPTED_VOLUMES` managed rule to check if EBS volumes are encrypted | `bool` | `false` | no |
 | <a name="input_enable_iam_password_policy_rule"></a> [enable\_iam\_password\_policy\_rule](#input\_enable\_iam\_password\_policy\_rule) | Enable the `IAM_PASSWORD_POLICY` managed rule | `bool` | `true` | no |
 | <a name="input_enable_s3_public_access_rules"></a> [enable\_s3\_public\_access\_rules](#input\_enable\_s3\_public\_access\_rules) | Enable `S3_BUCKET_PUBLIC_READ_PROHIBITED` and `S3_BUCKET_PUBLIC_WRITE_PROHIBITED` rules | `bool` | `true` | no |
 | <a name="input_enable_mfa_for_iam_console_rule"></a> [enable\_mfa\_for\_iam\_console\_rule](#input\_enable\_mfa\_for\_iam\_console\_rule) | Enable the `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS` rule | `bool` | `true` | no |

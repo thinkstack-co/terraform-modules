@@ -33,7 +33,7 @@ resource "aws_iam_role" "config_role" {
 # AWS Config Configuration Recorder
 # This resource enables AWS Config and defines what resources it records.
 resource "aws_config_configuration_recorder" "config" {
-  count = (var.enable_encrypted_volumes_rule ||
+  count = (var.enable_ebs_encryption_rule ||
     var.enable_iam_password_policy_rule ||
     var.enable_s3_public_access_rules ||
     var.enable_mfa_for_iam_console_rule ||
@@ -49,7 +49,7 @@ resource "aws_config_configuration_recorder" "config" {
   recording_group {
     all_supported = false
     resource_types = distinct(concat(
-      var.enable_encrypted_volumes_rule ? ["AWS::EC2::Volume"] : [],
+      var.enable_ebs_encryption_rule ? ["AWS::EC2::Volume"] : [],
       var.enable_iam_password_policy_rule ? ["AWS::IAM::User"] : [],
       var.enable_s3_public_access_rules ? ["AWS::S3::Bucket"] : [],
       var.enable_mfa_for_iam_console_rule ? ["AWS::IAM::User"] : [], # User type already potentially included

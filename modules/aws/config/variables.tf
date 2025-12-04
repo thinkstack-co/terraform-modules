@@ -121,13 +121,6 @@ variable "glacier_retention_days" {
   default     = 730
 }
 
-# Variable to control the Encrypted Volumes rule (was missing)
-variable "enable_encrypted_volumes_rule" {
-  description = "Enable the Encrypted Volumes managed rule."
-  type        = bool
-  default     = false
-}
-
 variable "enable_ebs_encryption_rule" {
   description = "Enable the EBS Encryption managed rule."
   type        = bool
