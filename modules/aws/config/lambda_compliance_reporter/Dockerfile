@@ -18,10 +18,10 @@
 
 FROM amazonlinux:2023
 
-# Install Python 3.14, pip, and zip
+# Install Python 3.13, pip, and zip
 # hadolint ignore=DL3041
 RUN dnf -y update && \
-    dnf -y install python3.14 python3.14-pip zip && \
+    dnf -y install python3.13 python3.13-pip zip && \
     dnf clean all
 
 WORKDIR /build
@@ -29,5 +29,5 @@ WORKDIR /build
 COPY requirements.txt .
 COPY lambda_function.py .
 
-RUN python3.14 -m pip install --no-cache-dir -r requirements.txt -t . && \
+RUN python3.13 -m pip install --no-cache-dir -r requirements.txt -t . && \
     zip -r9 /build/lambda_package.zip .

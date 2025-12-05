@@ -497,7 +497,7 @@ resource "aws_lambda_function" "compliance_reporter" {
   description   = "Generates compliance reports from AWS Config rule evaluations"
   role          = aws_iam_role.reporter_lambda_role[0].arn
   handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.14"
+  runtime       = "python3.13"
   timeout       = var.reporter_lambda_timeout
   memory_size   = var.reporter_lambda_memory_size
 
