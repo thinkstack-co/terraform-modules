@@ -332,22 +332,49 @@ resource "aws_route" "workspaces_default_route_fw" {
   route_table_id         = element(aws_route_table.workspaces_route_table[*].id, count.index)
 }
 
+# S3 Gateway endpoint - enable separately if needed for SSM agent installation or general S3 access
 resource "aws_vpc_endpoint" "s3" {
   count        = var.enable_s3_endpoint ? 1 : 0
   vpc_id       = aws_vpc.vpc.id
   service_name = local.service_name
+  tags         = merge(tomap({ Name = "${var.name}-s3-endpoint" }), var.tags)
 }
 
+# S3 endpoint route table associations for all subnet types
 resource "aws_vpc_endpoint_route_table_association" "private_s3" {
   count           = var.enable_s3_endpoint ? length(var.private_subnets_list) : 0
-  vpc_endpoint_id = aws_vpc_endpoint.s3[count.index]
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
   route_table_id  = element(aws_route_table.private_route_table[*].id, count.index)
 }
 
 resource "aws_vpc_endpoint_route_table_association" "public_s3" {
   count           = var.enable_s3_endpoint ? length(var.public_subnets_list) : 0
-  vpc_endpoint_id = aws_vpc_endpoint.s3[count.index]
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
   route_table_id  = aws_route_table.public_route_table.id
+}
+
+resource "aws_vpc_endpoint_route_table_association" "db_s3" {
+  count           = var.enable_s3_endpoint ? length(var.db_subnets_list) : 0
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+  route_table_id  = element(aws_route_table.db_route_table[*].id, count.index)
+}
+
+resource "aws_vpc_endpoint_route_table_association" "dmz_s3" {
+  count           = var.enable_s3_endpoint ? length(var.dmz_subnets_list) : 0
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+  route_table_id  = element(aws_route_table.dmz_route_table[*].id, count.index)
+}
+
+resource "aws_vpc_endpoint_route_table_association" "mgmt_s3" {
+  count           = var.enable_s3_endpoint ? length(var.mgmt_subnets_list) : 0
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+  route_table_id  = element(aws_route_table.mgmt_route_table[*].id, count.index)
+}
+
+resource "aws_vpc_endpoint_route_table_association" "workspaces_s3" {
+  count           = var.enable_s3_endpoint ? length(var.workspaces_subnets_list) : 0
+  vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
+  route_table_id  = element(aws_route_table.workspaces_route_table[*].id, count.index)
 }
 
 resource "aws_route_table_association" "private" {
