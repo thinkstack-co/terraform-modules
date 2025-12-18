@@ -77,7 +77,7 @@ The module supports:
 ```hcl
 # First, create the resource group
 module "resource_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
 
   name     = "my-resource-group"
   location = "eastus"
@@ -90,7 +90,7 @@ module "resource_group" {
 
 # Then, create the VNet
 module "vnet" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/vnet"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vnet"
 
   name                = "my-vnet"
   location            = "eastus"
@@ -115,7 +115,7 @@ module "vnet" {
 
 ```hcl
 module "vnet" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/vnet"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vnet"
 
   # Resource Group (must exist)
   resource_group_name = "my-vnet-rg"
@@ -171,7 +171,7 @@ module "vnet" {
 
 ```hcl
 module "vnet" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/vnet"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vnet"
 
   # Use existing resource group
   resource_group_name = "existing-rg"

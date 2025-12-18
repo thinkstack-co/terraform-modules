@@ -61,13 +61,13 @@ variable "hourly_enable_continuous_backup" {
 variable "hourly_start_window" {
   description = "Start window in minutes for hourly backups"
   type        = number
-  default     = 180
+  default     = 720
 }
 
 variable "hourly_completion_window" {
   description = "Completion window in minutes for hourly backups"
   type        = number
-  default     = 360
+  default     = 1440
 }
 
 variable "hourly_cold_storage_after" {
@@ -140,13 +140,13 @@ variable "daily_enable_continuous_backup" {
 variable "daily_start_window" {
   description = "Start window in minutes for daily backups"
   type        = number
-  default     = 180
+  default     = 720
 }
 
 variable "daily_completion_window" {
   description = "Completion window in minutes for daily backups"
   type        = number
-  default     = 360
+  default     = 1440
 }
 
 variable "daily_cold_storage_after" {
@@ -219,13 +219,13 @@ variable "weekly_enable_continuous_backup" {
 variable "weekly_start_window" {
   description = "Start window in minutes for weekly backups"
   type        = number
-  default     = 180
+  default     = 720
 }
 
 variable "weekly_completion_window" {
   description = "Completion window in minutes for weekly backups"
   type        = number
-  default     = 360
+  default     = 1440
 }
 
 variable "weekly_cold_storage_after" {
@@ -298,13 +298,13 @@ variable "monthly_enable_continuous_backup" {
 variable "monthly_start_window" {
   description = "Start window in minutes for monthly backups"
   type        = number
-  default     = 180
+  default     = 720
 }
 
 variable "monthly_completion_window" {
   description = "Completion window in minutes for monthly backups"
   type        = number
-  default     = 360
+  default     = 1440
 }
 
 variable "monthly_cold_storage_after" {
@@ -377,13 +377,13 @@ variable "yearly_enable_continuous_backup" {
 variable "yearly_start_window" {
   description = "Start window in minutes for yearly backups"
   type        = number
-  default     = 180
+  default     = 720
 }
 
 variable "yearly_completion_window" {
   description = "Completion window in minutes for yearly backups"
   type        = number
-  default     = 360
+  default     = 1440
 }
 
 variable "yearly_cold_storage_after" {

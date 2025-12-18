@@ -68,7 +68,7 @@ The module supports:
 
 ```hcl
 module "resource_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
 
   name     = "my-resource-group"
   location = "eastus"
@@ -84,7 +84,7 @@ module "resource_group" {
 
 ```hcl
 module "network_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
 
   name     = "network-resources-rg"
   location = "eastus"
@@ -97,7 +97,7 @@ module "network_rg" {
 }
 
 module "compute_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
 
   name     = "compute-resources-rg"
   location = "eastus"
@@ -114,7 +114,7 @@ module "compute_rg" {
 
 ```hcl
 module "eastus_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
 
   name     = "eastus-resources-rg"
   location = "eastus"
@@ -126,7 +126,7 @@ module "eastus_rg" {
 }
 
 module "westus_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
 
   name     = "westus-resources-rg"
   location = "westus2"
