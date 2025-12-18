@@ -29,7 +29,7 @@ variable "customer_short_name" {
   default     = ""
 
   validation {
-    condition     = var.is_management_host_pool || length(trim(var.customer_short_name)) > 0
+    condition     = var.is_management_host_pool || length(trimspace(var.customer_short_name)) > 0
     error_message = "customer_short_name must be set when is_management_host_pool is false."
   }
 }
