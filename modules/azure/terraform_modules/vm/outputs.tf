@@ -17,9 +17,19 @@ output "private_ip_address" {
   value       = azurerm_network_interface.vm.private_ip_address
 }
 
+output "public_ip_address_id" {
+  description = "Resource ID of the Public IP associated with the VM (if assigned)"
+  value       = var.public_ip_address_id
+}
+
 output "public_ip_address" {
   description = "Public IP address of the virtual machine (if assigned)"
-  value       = var.public_ip_address_id != null ? azurerm_network_interface.vm.ip_configuration[0].public_ip_address_id : null
+  value       = length(data.azurerm_public_ip.vm) > 0 ? data.azurerm_public_ip.vm[0].ip_address : null
+}
+
+output "public_ip_fqdn" {
+  description = "Public IP DNS FQDN of the virtual machine (if assigned and a DNS label is set)"
+  value       = length(data.azurerm_public_ip.vm) > 0 ? data.azurerm_public_ip.vm[0].fqdn : null
 }
 
 output "network_interface_id" {

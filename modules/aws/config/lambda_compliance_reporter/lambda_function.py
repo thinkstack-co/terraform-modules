@@ -10,6 +10,34 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
+def build_table_style(
+    header_background,
+    row_backgrounds,
+    header_align="CENTER",
+    body_align="LEFT",
+):
+    # Helper to keep common ReportLab table styling in one place (reduces duplication).
+    return [
+        ("BACKGROUND", (0, 0), (-1, 0), header_background),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("ALIGN", (0, 0), (-1, -1), body_align),
+        ("ALIGN", (0, 0), (-1, 0), header_align),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+        (
+            "ROWBACKGROUNDS",
+            (0, 1),
+            (-1, -1),
+            row_backgrounds,
+        ),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOX", (0, 0), (-1, -1), 1, colors.gray),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+    ]
+
+
 def lookup_iam_username_by_id(user_id):
     """
     Given the internal IAM UserId (AIDA…), return the console username
@@ -311,22 +339,15 @@ def lambda_handler(event, context):
         rules_summary_table.setStyle(
             TableStyle(
                 [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4a5568")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("ALIGN", (0, 0), (-1, 0), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 0), (-1, -1), 10),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                    (
-                        "ROWBACKGROUNDS",
-                        (0, 1),
-                        (-1, -1),
-                        [colors.whitesmoke, colors.HexColor("#edf2f7")],
+                    *build_table_style(
+                        header_background=colors.HexColor("#4a5568"),
+                        row_backgrounds=[colors.whitesmoke, colors.HexColor("#edf2f7")],
+                        header_align="CENTER",
+                        body_align="LEFT",
                     ),
                     ("ALIGN", (0, 1), (1, -1), "LEFT"),
                     ("ALIGN", (2, 1), (2, -1), "CENTER"),  # Center-align status column
-                    # Add special styling for status cells
+                    # Special styling for status cells
                     *[
                         ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightgreen)
                         for i, row in enumerate(rules_summary_data[1:])
@@ -342,9 +363,6 @@ def lambda_handler(event, context):
                         for i, row in enumerate(rules_summary_data[1:])
                         if row[2].text == "N/A"
                     ],
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("BOX", (0, 0), (-1, -1), 1, colors.gray),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
                 ]
             )
         )
@@ -375,23 +393,12 @@ def lambda_handler(event, context):
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(
             TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#b71c1c")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 0), (-1, -1), 10),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                    (
-                        "ROWBACKGROUNDS",
-                        (0, 1),
-                        (-1, -1),
-                        [colors.whitesmoke, colors.HexColor("#ffeaea")],
-                    ),
-                    ("BOX", (0, 0), (-1, -1), 1, colors.gray),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
-                ]
+                build_table_style(
+                    header_background=colors.HexColor("#b71c1c"),
+                    row_backgrounds=[colors.whitesmoke, colors.HexColor("#ffeaea")],
+                    header_align="CENTER",
+                    body_align="LEFT",
+                )
             )
         )
         elements.append(noncomp_table)

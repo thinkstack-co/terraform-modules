@@ -130,6 +130,42 @@ module "linux_vm" {
 }
 ```
 
+### VM with Public IP (Azure EIP Equivalent)
+
+```hcl
+module "public_ip" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/public_ip"
+
+  name                = "pip-web-01"
+  resource_group_name = "production-rg"
+  location            = "eastus"
+
+  sku               = "Standard"
+  allocation_method = "Static"
+}
+
+module "linux_vm_with_public_ip" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+
+  name                = "web-server-03"
+  resource_group_name = "production-rg"
+  location            = "eastus"
+  vm_size             = "Standard_D2s_v3"
+  os_type             = "Linux"
+
+  subnet_id = azurerm_subnet.main.id
+
+  # Attach the Public IP to the VM's NIC
+  public_ip_address_id = module.public_ip.id
+
+  admin_username                  = "azureuser"
+  disable_password_authentication = true
+  ssh_public_key                  = file("~/.ssh/id_rsa.pub")
+
+  os_version = "ubuntu-22.04"
+}
+```
+
 ### Basic Linux VM Example (Manual Image Configuration)
 
 ```hcl
@@ -565,7 +601,9 @@ module "advanced_vm" {
 | vm_id | ID of the virtual machine |
 | vm_name | Name of the virtual machine |
 | private_ip_address | Private IP address of the virtual machine |
+| public_ip_address_id | Resource ID of the Public IP associated with the VM (if assigned) |
 | public_ip_address | Public IP address of the virtual machine (if assigned) |
+| public_ip_fqdn | Public IP DNS FQDN of the virtual machine (if assigned and a DNS label is set) |
 | network_interface_id | ID of the network interface |
 | availability_zone | Availability zone of the virtual machine |
 | os_disk_id | ID of the OS disk |

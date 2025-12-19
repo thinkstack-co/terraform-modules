@@ -37,6 +37,25 @@ locals {
 
   # Use passed location variable if provided, otherwise query from resource group
   location = var.location != null ? var.location : data.azurerm_resource_group.vm[0].location
+
+  # Extract Public IP name/resource group from the resource ID so we can look up details.
+  # Example ID:
+  # /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Network/publicIPAddresses/<name>
+  public_ip_id_parts = var.public_ip_address_id != null ? split("/", var.public_ip_address_id) : []
+
+  public_ip_resource_group_name = var.public_ip_address_id != null && can(index(local.public_ip_id_parts, "resourceGroups")) ? local.public_ip_id_parts[index(local.public_ip_id_parts, "resourceGroups") + 1] : null
+  public_ip_name                = var.public_ip_address_id != null && can(index(local.public_ip_id_parts, "publicIPAddresses")) ? local.public_ip_id_parts[index(local.public_ip_id_parts, "publicIPAddresses") + 1] : null
+}
+
+###########################
+# Data Sources (Conditional)
+###########################
+
+data "azurerm_public_ip" "vm" {
+  count = var.public_ip_address_id != null && local.public_ip_resource_group_name != null && local.public_ip_name != null ? 1 : 0
+
+  name                = local.public_ip_name
+  resource_group_name = local.public_ip_resource_group_name
 }
 
 #############################
