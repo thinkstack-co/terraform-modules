@@ -208,21 +208,19 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_route_table" "public_route_table" {
-  count            = local.create_public_subnets ? 1 : 0
   propagating_vgws = var.public_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-public", var.name) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
 resource "aws_route" "public_default_route" {
-  count                  = local.create_public_subnets ? 1 : 0
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.igw.id
-  route_table_id         = aws_route_table.public_route_table[0].id
+  route_table_id         = aws_route_table.public_route_table.id
 }
 
 resource "aws_eip" "nateip" {
-  count  = local.create_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.public_subnets_list)) : 0
+  count  = local.create_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
   domain = "vpc"
 }
 
@@ -230,7 +228,7 @@ resource "aws_nat_gateway" "natgw" {
   depends_on = [aws_internet_gateway.igw]
 
   allocation_id = element(aws_eip.nateip[*].id, (var.single_nat_gateway ? 0 : count.index))
-  count         = local.create_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.public_subnets_list)) : 0
+  count         = local.create_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.azs)) : 0
   subnet_id     = element(aws_subnet.public_subnets[*].id, (var.single_nat_gateway ? 0 : count.index))
 }
 
@@ -239,105 +237,105 @@ resource "aws_nat_gateway" "natgw" {
 ###########################
 
 resource "aws_route_table" "private_route_table" {
-  count            = local.create_private_subnets ? length(var.private_subnets_list) : 0
+  count            = local.create_private_subnets ? length(var.azs) : 0
   propagating_vgws = var.private_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
 resource "aws_route" "private_default_route_natgw" {
-  count                  = local.create_private_subnets && local.create_nat_gateway ? length(var.private_subnets_list) : 0
+  count                  = local.create_private_subnets && local.create_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
   route_table_id         = element(aws_route_table.private_route_table[*].id, count.index)
 }
 
 resource "aws_route" "private_default_route_fw" {
-  count                  = local.create_private_subnets && var.enable_firewall ? length(var.private_subnets_list) : 0
+  count                  = local.create_private_subnets && var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
   route_table_id         = element(aws_route_table.private_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "db_route_table" {
-  count            = local.create_db_subnets ? length(var.db_subnets_list) : 0
+  count            = local.create_db_subnets ? length(var.azs) : 0
   propagating_vgws = var.db_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-db-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
 resource "aws_route" "db_default_route_natgw" {
-  count                  = local.create_db_subnets && local.create_nat_gateway ? length(var.db_subnets_list) : 0
+  count                  = local.create_db_subnets && local.create_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
   route_table_id         = element(aws_route_table.db_route_table[*].id, count.index)
 }
 
 resource "aws_route" "db_default_route_fw" {
-  count                  = local.create_db_subnets && var.enable_firewall ? length(var.db_subnets_list) : 0
+  count                  = local.create_db_subnets && var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
   route_table_id         = element(aws_route_table.db_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "dmz_route_table" {
-  count            = local.create_dmz_subnets ? length(var.dmz_subnets_list) : 0
+  count            = local.create_dmz_subnets ? length(var.azs) : 0
   propagating_vgws = var.dmz_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
 resource "aws_route" "dmz_default_route_natgw" {
-  count                  = local.create_dmz_subnets && local.create_nat_gateway ? length(var.dmz_subnets_list) : 0
+  count                  = local.create_dmz_subnets && local.create_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
   route_table_id         = element(aws_route_table.dmz_route_table[*].id, count.index)
 }
 
 resource "aws_route" "dmz_default_route_fw" {
-  count                  = local.create_dmz_subnets && var.enable_firewall ? length(var.dmz_subnets_list) : 0
+  count                  = local.create_dmz_subnets && var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_dmz_network_interface_id, count.index)
   route_table_id         = element(aws_route_table.dmz_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "mgmt_route_table" {
-  count            = local.create_mgmt_subnets ? length(var.mgmt_subnets_list) : 0
+  count            = local.create_mgmt_subnets ? length(var.azs) : 0
   propagating_vgws = var.mgmt_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
 resource "aws_route" "mgmt_default_route_natgw" {
-  count                  = local.create_mgmt_subnets && local.create_nat_gateway ? length(var.mgmt_subnets_list) : 0
+  count                  = local.create_mgmt_subnets && local.create_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
   route_table_id         = element(aws_route_table.mgmt_route_table[*].id, count.index)
 }
 
 resource "aws_route" "mgmt_default_route_fw" {
-  count                  = local.create_mgmt_subnets && var.enable_firewall ? length(var.mgmt_subnets_list) : 0
+  count                  = local.create_mgmt_subnets && var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
   route_table_id         = element(aws_route_table.mgmt_route_table[*].id, count.index)
 }
 
 resource "aws_route_table" "workspaces_route_table" {
-  count            = local.create_workspaces_subnets ? length(var.workspaces_subnets_list) : 0
+  count            = local.create_workspaces_subnets ? length(var.azs) : 0
   propagating_vgws = var.workspaces_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
 resource "aws_route" "workspaces_default_route_natgw" {
-  count                  = local.create_workspaces_subnets && local.create_nat_gateway ? length(var.workspaces_subnets_list) : 0
+  count                  = local.create_workspaces_subnets && local.create_nat_gateway ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = element(aws_nat_gateway.natgw[*].id, count.index)
   route_table_id         = element(aws_route_table.workspaces_route_table[*].id, count.index)
 }
 
 resource "aws_route" "workspaces_default_route_fw" {
-  count                  = local.create_workspaces_subnets && var.enable_firewall ? length(var.workspaces_subnets_list) : 0
+  count                  = local.create_workspaces_subnets && var.enable_firewall ? length(var.azs) : 0
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = element(var.fw_network_interface_id, count.index)
   route_table_id         = element(aws_route_table.workspaces_route_table[*].id, count.index)
@@ -361,7 +359,7 @@ resource "aws_vpc_endpoint_route_table_association" "private_s3" {
 resource "aws_vpc_endpoint_route_table_association" "public_s3" {
   count           = var.enable_s3_endpoint && local.create_public_subnets ? length(var.public_subnets_list) : 0
   vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
-  route_table_id  = aws_route_table.public_route_table[0].id
+  route_table_id  = aws_route_table.public_route_table.id
 }
 
 resource "aws_vpc_endpoint_route_table_association" "db_s3" {
@@ -396,7 +394,7 @@ resource "aws_route_table_association" "private" {
 
 resource "aws_route_table_association" "public" {
   count          = local.create_public_subnets ? length(var.public_subnets_list) : 0
-  route_table_id = aws_route_table.public_route_table[0].id
+  route_table_id = aws_route_table.public_route_table.id
   subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
 }
 
