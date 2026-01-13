@@ -183,6 +183,18 @@ variable "tags" {
   default     = {}
 }
 
+variable "exclude_root_volume_snapshot" {
+  type        = bool
+  description = "(Optional) When true, exclude selected tag keys from the root EBS volume tags to prevent the root volume from being selected separately by tag-based backup workflows. Instance tags are unchanged."
+  default     = false
+}
+
+variable "root_volume_excluded_tag_keys" {
+  type        = list(string)
+  description = "(Optional) Tag keys to remove from root EBS volume tags when exclude_root_volume_snapshot is true."
+  default     = []
+}
+
 variable "tenancy" {
   type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."

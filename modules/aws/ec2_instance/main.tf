@@ -17,6 +17,13 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
+locals {
+  # Exclude specific tag keys from the root volume to avoid selecting the root EBS volume separately in tag-based backup workflows.
+  root_volume_tags = var.exclude_root_volume_snapshot ? {
+    for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
+  } : var.tags
+}
+
 #############################
 # EC2 instance Module
 #############################
@@ -45,7 +52,7 @@ resource "aws_instance" "ec2" {
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
-    tags                  = merge(var.tags, ({ "Name" = var.name }))
+    tags                  = merge(local.root_volume_tags, ({ "Name" = var.name }))
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
     iops                  = var.root_volume_iops
