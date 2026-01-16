@@ -209,6 +209,20 @@ variable "tags" {
   }
 }
 
+# Control whether backup selection tags are removed from root volume tags.
+variable "exclude_root_volume_snapshot" {
+  type        = bool
+  description = "(Optional) When true, exclude selected tag keys from the root EBS volume tags to prevent the root volume from being selected separately by tag-based backup workflows. Instance tags are unchanged."
+  default     = false
+}
+
+# Tag keys to remove from the root volume when exclude_root_volume_snapshot is enabled.
+variable "root_volume_excluded_tag_keys" {
+  type        = list(string)
+  description = "(Optional) Tag keys to remove from root EBS volume tags when exclude_root_volume_snapshot is true."
+  default     = []
+}
+
 variable "user_data" {
   type        = string
   description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."

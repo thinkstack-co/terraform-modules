@@ -13,6 +13,13 @@ terraform {
 ###########################
 data "aws_region" "current" {}
 
+locals {
+  # Remove backup selection tags from root volume tags when exclude_root_volume_snapshot is enabled.
+  root_volume_tags = var.exclude_root_volume_snapshot ? {
+    for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
+  } : var.tags
+}
+
 ###########################
 # EC2 Instance
 ###########################
@@ -54,7 +61,7 @@ resource "aws_instance" "ec2_instance" {
   tags              = merge(var.tags, ({ "Name" = format("%s%01d", var.name, count.index + 1) }))
   user_data         = var.user_data
   volume_tags = merge(
-    var.tags,
+    local.root_volume_tags, # Use filtered tags when excluding root volume backup tags.
     ({ "Name" = format("%s%01d", var.name, count.index + 1) }),
     ({ "os_drive" = "c" })
   )
