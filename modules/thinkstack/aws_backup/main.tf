@@ -393,6 +393,85 @@ resource "aws_backup_selection" "all_ec2" {
 }
 
 ###############################################################
-# Backup Notifications
+# Backup Audits
 ###############################################################
-# To be added
+
+# S3 Bucket for Backup Reports
+resource "aws_s3_bucket" "backup_reports" {
+  bucket_prefix = "aws-backup-audit-reports"
+  tags          = var.tags
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "bucket_config" {
+  bucket = aws_s3_bucket.backup_reports.id
+
+  rule {
+    id     = "Transition to IA and Glacier"
+    status = "Enabled"
+
+    expiration {
+      days = 365
+    }
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+  }
+}
+
+# Data source to get AWS account ID
+data "aws_caller_identity" "current" {}
+
+# S3 Bucket Policy for Backup Reports
+resource "aws_s3_bucket_policy" "backup_reports_policy" {
+  bucket = aws_s3_bucket.backup_reports.bucket
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/reports.backup.amazonaws.com/AWSServiceRoleForBackupReports"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.backup_reports.bucket}/*",
+      "Condition": {
+        "StringEquals": {
+          "s3:x-amz-acl": "bucket-owner-full-control"
+        }
+      }
+    }
+  ]
+}
+POLICY
+}
+
+# AWS Backup Report Plan
+resource "aws_backup_report_plan" "daily_backup_report" {
+  name        = "daily_backup_report"
+  description = "Daily backup job report"
+
+  report_delivery_channel {
+    formats = [
+      "CSV",
+      "JSON"
+    ]
+    s3_bucket_name = aws_s3_bucket.backup_reports.bucket
+  }
+
+  report_setting {
+    report_template = "BACKUP_JOB_REPORT"
+  }
+
+  tags = {
+    "Name"    = "Daily Backup Report Plan"
+    terraform = true
+  }
+}
