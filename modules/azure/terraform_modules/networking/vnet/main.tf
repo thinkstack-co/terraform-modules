@@ -133,7 +133,7 @@ resource "azurerm_subnet" "public_subnets" {
 }
 
 resource "azurerm_subnet" "db_subnets" {
-  count                = length(var.db_subnets_list)
+  count                = var.enable_db_subnets ? length(var.db_subnets_list) : 0
   name                 = format("%s-subnet-db-%s", var.name, count.index + 1)
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -200,7 +200,7 @@ resource "azurerm_route_table" "private_route_table" {
 
 # DB Route Tables
 resource "azurerm_route_table" "db_route_table" {
-  count               = length(var.db_subnets_list)
+  count               = var.enable_db_subnets ? length(var.db_subnets_list) : 0
   name                = format("%s-rt-db-%s", var.name, count.index + 1)
   location            = var.location
   resource_group_name = local.resource_group_name
@@ -220,7 +220,7 @@ resource "azurerm_subnet_nat_gateway_association" "private_nat" {
 
 # Associate NAT Gateway with DB Subnets
 resource "azurerm_subnet_nat_gateway_association" "db_nat" {
-  count          = var.enable_nat_gateway ? length(var.db_subnets_list) : 0
+  count          = var.enable_nat_gateway && var.enable_db_subnets ? length(var.db_subnets_list) : 0
   subnet_id      = azurerm_subnet.db_subnets[count.index].id
   nat_gateway_id = var.single_nat_gateway ? azurerm_nat_gateway.nat[0].id : azurerm_nat_gateway.nat[count.index % length(azurerm_nat_gateway.nat)].id
 }
@@ -241,7 +241,7 @@ resource "azurerm_subnet_route_table_association" "public" {
 }
 
 resource "azurerm_subnet_route_table_association" "db" {
-  count          = length(var.db_subnets_list)
+  count          = var.enable_db_subnets ? length(var.db_subnets_list) : 0
   subnet_id      = azurerm_subnet.db_subnets[count.index].id
   route_table_id = azurerm_route_table.db_route_table[count.index].id
 }

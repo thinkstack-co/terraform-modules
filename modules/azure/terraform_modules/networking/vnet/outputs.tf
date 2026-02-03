@@ -63,17 +63,17 @@ output "public_subnet_address_prefixes" {
 
 output "db_subnet_ids" {
   description = "List of IDs of database subnets"
-  value       = azurerm_subnet.db_subnets[*].id
+  value       = var.enable_db_subnets ? azurerm_subnet.db_subnets[*].id : []
 }
 
 output "db_subnet_names" {
   description = "List of names of database subnets"
-  value       = azurerm_subnet.db_subnets[*].name
+  value       = var.enable_db_subnets ? azurerm_subnet.db_subnets[*].name : []
 }
 
 output "db_subnet_address_prefixes" {
   description = "List of address prefixes of database subnets"
-  value       = azurerm_subnet.db_subnets[*].address_prefixes
+  value       = var.enable_db_subnets ? azurerm_subnet.db_subnets[*].address_prefixes : []
 }
 
 
@@ -157,7 +157,7 @@ output "private_route_table_ids" {
 
 output "db_route_table_ids" {
   description = "List of IDs of database route tables"
-  value       = azurerm_route_table.db_route_table[*].id
+  value       = var.enable_db_subnets ? azurerm_route_table.db_route_table[*].id : []
 }
 
 

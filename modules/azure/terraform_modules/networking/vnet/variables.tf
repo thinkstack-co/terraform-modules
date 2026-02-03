@@ -55,19 +55,25 @@ variable "dns_servers" {
 variable "private_subnets_list" {
   type        = list(string)
   description = "A list of private subnets inside the VNet."
-  default     = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
+  default     = ["10.100.1.0/24"]
 }
 
 variable "public_subnets_list" {
   type        = list(string)
   description = "A list of public subnets inside the VNet."
-  default     = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
+  default     = ["10.100.2.0/24"]
+}
+
+variable "enable_db_subnets" {
+  description = "(Optional) Enable creation of database subnets."
+  type        = bool
+  default     = false
 }
 
 variable "db_subnets_list" {
   type        = list(string)
   description = "A list of database subnets inside the VNet."
-  default     = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+  default     = ["10.100.11.0/24"]
 }
 
 ###########################
@@ -95,7 +101,7 @@ variable "_validate_subnet_prefixes" {
       for cidr in concat(
         var.private_subnets_list,
         var.public_subnets_list,
-        var.db_subnets_list
+        var.enable_db_subnets ? var.db_subnets_list : []
       ) : tonumber(regex("[0-9]+$", cidr)) == 24
     ])
     error_message = "All subnet CIDRs must be /24."
@@ -103,13 +109,13 @@ variable "_validate_subnet_prefixes" {
 }
 
 variable "_validate_subnet_counts" {
-  description = "(Internal) Enforces two subnets per AZ (4 total) for private, public, and db subnets."
+  description = "(Internal) Enforces one subnet for private/public and optional single DB subnet when enabled."
   type        = bool
   default     = true
 
   validation {
-    condition = length(var.private_subnets_list) == 4 && length(var.public_subnets_list) == 4 && length(var.db_subnets_list) == 4
-    error_message = "private_subnets_list, public_subnets_list, and db_subnets_list must each contain exactly four /24 subnets (two per AZ)."
+    condition = length(var.private_subnets_list) == 1 && length(var.public_subnets_list) == 1 && (var.enable_db_subnets ? length(var.db_subnets_list) == 1 : length(var.db_subnets_list) <= 1)
+    error_message = "private_subnets_list and public_subnets_list must each contain exactly one /24 subnet. If enable_db_subnets is true, db_subnets_list must contain exactly one /24 subnet."
   }
 }
 

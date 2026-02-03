@@ -58,7 +58,7 @@ This Terraform module creates a comprehensive Azure Virtual Network (VNet) infra
 The module supports:
 
 - **Virtual Network**: Configurable address space with custom DNS servers
-- **Multiple Subnet Types**: Private, Public, and Database subnets (4 /24s each for two AZs)
+- **Multiple Subnet Types**: Private and Public subnets (one /24 each), plus optional Database subnets
 - **Service Subnets**: Optional GatewaySubnet, AzureApplicationGatewaySubnet, and AzureFirewallSubnet created in the last /24s of the VNet
 - **NAT Gateway**: Optional NAT Gateway for outbound internet connectivity from private subnets
 - **Route Tables**: Separate route tables for each subnet type with automatic associations
@@ -99,9 +99,8 @@ module "vnet" {
   resource_group_name = module.resource_group.name
   vnet_address_space  = "10.100.0.0/16"
 
-  private_subnets_list = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
-  public_subnets_list  = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
-  db_subnets_list      = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+  private_subnets_list = ["10.100.1.0/24"]
+  public_subnets_list  = ["10.100.2.0/24"]
 
   enable_vpn_subnet                 = true
   enable_application_gateway_subnet = true
@@ -133,10 +132,11 @@ module "vnet" {
   vnet_address_space = "10.100.0.0/16"
   dns_servers        = ["10.100.0.4", "10.100.0.5"]
 
-  # Subnets (two per AZ, 2 AZs total)
-  private_subnets_list = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
-  public_subnets_list  = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
-  db_subnets_list      = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+  # Subnets (one per subnet group)
+  private_subnets_list = ["10.100.1.0/24"]
+  public_subnets_list  = ["10.100.2.0/24"]
+  enable_db_subnets    = true
+  db_subnets_list      = ["10.100.11.0/24"]
 
   enable_vpn_subnet                 = true
   enable_application_gateway_subnet = true
@@ -147,10 +147,7 @@ module "vnet" {
   service_endpoints        = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
 
   # NAT Gateway
-  enable_nat_gateway         = true
-  single_nat_gateway         = false
-  nat_gateway_idle_timeout   = 10
-  nat_gateway_zones          = ["1", "2", "3"]
+  enable_nat_gateway = true
 
   # Flow Logs
   enable_flow_logs                     = true
@@ -187,16 +184,16 @@ module "vnet" {
   name               = "my-vnet"
   vnet_address_space = "10.100.0.0/16"
 
-  private_subnets_list = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
-  public_subnets_list  = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
-  db_subnets_list      = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+  private_subnets_list = ["10.100.1.0/24"]
+  public_subnets_list  = ["10.100.2.0/24"]
+  enable_db_subnets    = true
+  db_subnets_list      = ["10.100.11.0/24"]
 
   enable_vpn_subnet                 = true
   enable_application_gateway_subnet = true
   enable_firewall_subnet            = true
 
   enable_nat_gateway = true
-  single_nat_gateway = true  # Use single NAT Gateway for cost savings
 
   # Use existing Network Watcher
   enable_flow_logs                    = true
@@ -219,9 +216,10 @@ module "vnet" {
 - `enable_vpn_subnet` - (Optional) Create a GatewaySubnet in the last /24 of the VNet. Default is `false`.
 - `enable_application_gateway_subnet` - (Optional) Create AzureApplicationGatewaySubnet in the last /24s of the VNet. Default is `false`.
 - `enable_firewall_subnet` - (Optional) Create AzureFirewallSubnet in the last /24s of the VNet. Default is `false`.
-- `private_subnets_list` - (Optional) List of private subnets inside the VNet (exactly four /24s).
-- `public_subnets_list` - (Optional) List of public subnets inside the VNet (exactly four /24s).
-- `db_subnets_list` - (Optional) List of database subnets inside the VNet (exactly four /24s).
+- `private_subnets_list` - (Optional) List of private subnets inside the VNet (exactly one /24).
+- `public_subnets_list` - (Optional) List of public subnets inside the VNet (exactly one /24).
+- `enable_db_subnets` - (Optional) Enable creation of database subnets. Default is `false`.
+- `db_subnets_list` - (Optional) List of database subnets inside the VNet (exactly one /24 when enabled).
 - `enable_nat_gateway` - (Optional) Enable NAT gateways in private subnets. Default is `true`.
 - `enable_flow_logs` - (Optional) Enable VNet flow logs. Default is `true`.
 - `tags` - (Optional) A mapping of tags to assign to resources.
@@ -295,10 +293,7 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 │                                                              │
 │  ┌────────────────┐               ┌──────────────────────┐ │
 │  │ Public Subnets │               │ Private Subnets      │ │
-│  │ 10.100.201.0/24│               │ 10.100.1.0/24        │ │
-│  │ 10.100.202.0/24│               │ 10.100.2.0/24        │ │
-│  │ 10.100.203.0/24│               │ 10.100.3.0/24        │ │
-│  │ 10.100.204.0/24│               │ 10.100.4.0/24        │ │
+│  │ 10.100.2.0/24  │               │ 10.100.1.0/24        │ │
 │  └────────┬───────┘               └────────┬────────────┘ │
 │           │                                │               │
 │           │                      ┌────────▼───────┐        │
@@ -306,13 +301,10 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 │           │                      │  (per subnet)  │        │
 │           │                      └────────┬───────┘        │
 │           │                                │               │
-│  ┌────────▼───────┐                        │               │
-│  │   DB Subnets   │                        │               │
+│  ┌────────▼────────────┐                   │               │
+│  │ DB Subnets (opt)    │                   │               │
 │  │ 10.100.11.0/24 │                        │               │
-│  │ 10.100.12.0/24 │                        │               │
-│  │ 10.100.13.0/24 │                        │               │
-│  │ 10.100.14.0/24 │                        │               │
-│  └────────────────┘                        │               │
+│  └────────────────────┘                   │               │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
                            │
@@ -326,9 +318,9 @@ The module uses a standardized IP allocation scheme within the default `10.100.0
 
 | Subnet Type | IP Range | Purpose |
 | --- | --- | --- |
-| **Private** | `10.100.1.0/24` - `10.100.4.0/24` | Application servers, workloads |
-| **Database** | `10.100.11.0/24` - `10.100.14.0/24` | Database servers |
-| **Public** | `10.100.201.0/24` - `10.100.204.0/24` | Load balancers, public endpoints |
+| **Private** | `10.100.1.0/24` | Application servers, workloads |
+| **Database** | `10.100.11.0/24` (optional) | Database servers |
+| **Public** | `10.100.2.0/24` | Load balancers, public endpoints |
 
 This allocation scheme:
 
