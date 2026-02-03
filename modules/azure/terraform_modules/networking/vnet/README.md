@@ -56,8 +56,10 @@
 This Terraform module creates a comprehensive Azure Virtual Network (VNet) infrastructure that mirrors the structure and functionality of the AWS VPC module. It provides enterprise-grade networking capabilities for Azure cloud deployments.
 
 The module supports:
+
 - **Virtual Network**: Configurable address space with custom DNS servers
-- **Multiple Subnet Types**: Private, Public, DMZ, Database, Management, and Workspaces subnets
+- **Multiple Subnet Types**: Private, Public, and Database subnets (4 /24s each for two AZs)
+- **Service Subnets**: Optional GatewaySubnet, AzureApplicationGatewaySubnet, and AzureFirewallSubnet created in the last /24s of the VNet
 - **NAT Gateway**: Optional NAT Gateway for outbound internet connectivity from private subnets
 - **Route Tables**: Separate route tables for each subnet type with automatic associations
 - **Service Endpoints**: Optional Azure service endpoints for private connectivity
@@ -77,7 +79,7 @@ The module supports:
 ```hcl
 # First, create the resource group
 module "resource_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/core/resource_group"
 
   name     = "my-resource-group"
   location = "eastus"
@@ -90,15 +92,20 @@ module "resource_group" {
 
 # Then, create the VNet
 module "vnet" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vnet"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/networking/vnet"
 
   name                = "my-vnet"
   location            = "eastus"
   resource_group_name = module.resource_group.name
-  vnet_address_space  = "10.0.0.0/16"
+  vnet_address_space  = "10.100.0.0/16"
 
-  private_subnets_list = ["10.0.1.0/24", "10.0.2.0/24"]
-  public_subnets_list  = ["10.0.201.0/24", "10.0.202.0/24"]
+  private_subnets_list = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
+  public_subnets_list  = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
+  db_subnets_list      = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+
+  enable_vpn_subnet                 = true
+  enable_application_gateway_subnet = true
+  enable_firewall_subnet            = true
 
   enable_nat_gateway = true
   enable_flow_logs   = false
@@ -115,7 +122,7 @@ module "vnet" {
 
 ```hcl
 module "vnet" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vnet"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/networking/vnet"
 
   # Resource Group (must exist)
   resource_group_name = "my-vnet-rg"
@@ -126,13 +133,14 @@ module "vnet" {
   vnet_address_space = "10.100.0.0/16"
   dns_servers        = ["10.100.0.4", "10.100.0.5"]
 
-  # Subnets
-  private_subnets_list    = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]
-  public_subnets_list     = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24"]
-  dmz_subnets_list        = ["10.100.101.0/24", "10.100.102.0/24", "10.100.103.0/24"]
-  db_subnets_list         = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24"]
-  mgmt_subnets_list       = ["10.100.61.0/24", "10.100.62.0/24", "10.100.63.0/24"]
-  workspaces_subnets_list = ["10.100.21.0/24", "10.100.22.0/24", "10.100.23.0/24"]
+  # Subnets (two per AZ, 2 AZs total)
+  private_subnets_list = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
+  public_subnets_list  = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
+  db_subnets_list      = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+
+  enable_vpn_subnet                 = true
+  enable_application_gateway_subnet = true
+  enable_firewall_subnet            = true
 
   # Service Endpoints
   enable_service_endpoints = true
@@ -141,7 +149,6 @@ module "vnet" {
   # NAT Gateway
   enable_nat_gateway         = true
   single_nat_gateway         = false
-  enable_dmz_nat             = false
   nat_gateway_idle_timeout   = 10
   nat_gateway_zones          = ["1", "2", "3"]
 
@@ -171,17 +178,22 @@ module "vnet" {
 
 ```hcl
 module "vnet" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vnet"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/networking/vnet"
 
   # Use existing resource group
   resource_group_name = "existing-rg"
   location            = "eastus"
 
   name               = "my-vnet"
-  vnet_address_space = "10.50.0.0/16"
+  vnet_address_space = "10.100.0.0/16"
 
-  private_subnets_list = ["10.50.1.0/24", "10.50.2.0/24"]
-  public_subnets_list  = ["10.50.201.0/24", "10.50.202.0/24"]
+  private_subnets_list = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
+  public_subnets_list  = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
+  db_subnets_list      = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
+
+  enable_vpn_subnet                 = true
+  enable_application_gateway_subnet = true
+  enable_firewall_subnet            = true
 
   enable_nat_gateway = true
   single_nat_gateway = true  # Use single NAT Gateway for cost savings
@@ -200,15 +212,19 @@ module "vnet" {
 
 ### Argument Reference
 
-* `name` - (Required) Name to be tagged on all resources as an identifier.
-* `resource_group_name` - (Required) The name of an existing resource group in which to create the VNet.
-* `location` - (Optional) The Azure region where resources will be created. Default is `eastus`.
-* `vnet_address_space` - (Optional) The address space for the Virtual Network. Default is `10.100.0.0/16`.
-* `private_subnets_list` - (Optional) List of private subnets inside the VNet.
-* `public_subnets_list` - (Optional) List of public subnets inside the VNet.
-* `enable_nat_gateway` - (Optional) Enable NAT gateways in private subnets. Default is `true`.
-* `enable_flow_logs` - (Optional) Enable VNet flow logs. Default is `true`.
-* `tags` - (Optional) A mapping of tags to assign to resources.
+- `name` - (Required) Name to be tagged on all resources as an identifier.
+- `resource_group_name` - (Required) The name of an existing resource group in which to create the VNet.
+- `location` - (Optional) The Azure region where resources will be created. Default is `eastus`.
+- `vnet_address_space` - (Optional) The address space for the Virtual Network. Must be /16 in size. Default is `10.100.0.0/16`.
+- `enable_vpn_subnet` - (Optional) Create a GatewaySubnet in the last /24 of the VNet. Default is `false`.
+- `enable_application_gateway_subnet` - (Optional) Create AzureApplicationGatewaySubnet in the last /24s of the VNet. Default is `false`.
+- `enable_firewall_subnet` - (Optional) Create AzureFirewallSubnet in the last /24s of the VNet. Default is `false`.
+- `private_subnets_list` - (Optional) List of private subnets inside the VNet (exactly four /24s).
+- `public_subnets_list` - (Optional) List of public subnets inside the VNet (exactly four /24s).
+- `db_subnets_list` - (Optional) List of database subnets inside the VNet (exactly four /24s).
+- `enable_nat_gateway` - (Optional) Enable NAT gateways in private subnets. Default is `true`.
+- `enable_flow_logs` - (Optional) Enable VNet flow logs. Default is `true`.
+- `tags` - (Optional) A mapping of tags to assign to resources.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -216,20 +232,20 @@ module "vnet" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| --- | --- |
 | terraform | >= 1.0.0 |
 | azurerm | >= 3.0.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| --- | --- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
 | Name | Type | Documentation |
-|------|------|--------------|
+| --- | --- | --- |
 | [azurerm_virtual_network](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview) |
 | [azurerm_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-manage-subnet) |
 | [azurerm_network_security_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview) |
@@ -239,49 +255,25 @@ module "vnet" {
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- INPUTS -->
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | Name to be tagged on all resources as an identifier | `string` | n/a | yes |
-| resource_group_name | The name of an existing resource group | `string` | n/a | yes |
-| location | The Azure region where resources will be created | `string` | `"eastus"` | no |
-| vnet_address_space | The address space for the Virtual Network | `string` | `"10.100.0.0/16"` | no |
-| dns_servers | List of DNS servers to use for the VNet | `list(string)` | `[]` | no |
-| private_subnets_list | List of private subnets inside the VNet | `list(string)` | `["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]` | no |
-| public_subnets_list | List of public subnets inside the VNet | `list(string)` | `["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24"]` | no |
-| dmz_subnets_list | List of DMZ subnets inside the VNet | `list(string)` | `["10.100.101.0/24", "10.100.102.0/24", "10.100.103.0/24"]` | no |
-| db_subnets_list | List of database subnets inside the VNet | `list(string)` | `["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24"]` | no |
-| mgmt_subnets_list | List of management subnets inside the VNet | `list(string)` | `["10.100.251.0/24", "10.100.252.0/24", "10.100.253.0/24"]` | no |
-| workspaces_subnets_list | List of workspaces subnets inside the VNet | `list(string)` | `["10.100.21.0/24", "10.100.22.0/24", "10.100.23.0/24"]` | no |
-| enable_service_endpoints | Enable service endpoints on private subnets | `bool` | `false` | no |
-| service_endpoints | List of service endpoints to enable | `list(string)` | `["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]` | no |
-| enable_nat_gateway | Enable NAT gateways in private subnets | `bool` | `true` | no |
-| single_nat_gateway | Use only a single shared NAT Gateway | `bool` | `false` | no |
-| enable_dmz_nat | Enable NAT gateway for DMZ subnets | `bool` | `false` | no |
-| nat_gateway_idle_timeout | Idle timeout in minutes for NAT Gateway | `number` | `4` | no |
-| nat_gateway_zones | List of availability zones for NAT Gateway | `list(string)` | `[]` | no |
-| enable_flow_logs | Enable VNet flow logs | `bool` | `true` | no |
-| create_network_watcher | Create a new Network Watcher | `bool` | `false` | no |
-| flow_logs_retention_days | Number of days to retain flow logs | `number` | `90` | no |
-| enable_traffic_analytics | Enable traffic analytics for flow logs | `bool` | `false` | no |
-| traffic_analytics_interval | Traffic analytics interval in minutes | `number` | `60` | no |
-| tags | A mapping of tags to assign to resources | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` | no |
-
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| --- | --- |
 | vnet_id | The ID of the Virtual Network |
 | vnet_name | The name of the Virtual Network |
 | vnet_address_space | The address space of the Virtual Network |
 | private_subnet_ids | List of IDs of private subnets |
 | public_subnet_ids | List of IDs of public subnets |
-| dmz_subnet_ids | List of IDs of DMZ subnets |
 | db_subnet_ids | List of IDs of database subnets |
-| mgmt_subnet_ids | List of IDs of management subnets |
-| workspaces_subnet_ids | List of IDs of workspaces subnets |
+| vpn_gateway_subnet_id | ID of the VPN GatewaySubnet |
+| vpn_gateway_subnet_name | Name of the VPN GatewaySubnet |
+| vpn_gateway_subnet_address_prefix | Address prefix of the VPN GatewaySubnet |
+| application_gateway_subnet_id | ID of the AzureApplicationGatewaySubnet |
+| application_gateway_subnet_name | Name of the AzureApplicationGatewaySubnet |
+| application_gateway_subnet_address_prefix | Address prefix of the AzureApplicationGatewaySubnet |
+| firewall_subnet_id | ID of the AzureFirewallSubnet |
+| firewall_subnet_name | Name of the AzureFirewallSubnet |
+| firewall_subnet_address_prefix | Address prefix of the AzureFirewallSubnet |
 | nat_gateway_ids | List of IDs of NAT Gateways |
 | nat_gateway_public_ips | List of public IP addresses of NAT Gateways |
 | public_route_table_id | ID of the public route table |
@@ -301,24 +293,26 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 │                      Virtual Network                         │
 │                    (10.100.0.0/16)                          │
 │                                                              │
-│  ┌────────────────┐  ┌────────────────┐  ┌──────────────┐ │
-│  │ Public Subnets │  │  DMZ Subnets   │  │ Private      │ │
-│  │ 10.100.201.0/24│  │ 10.100.101.0/24│  │ Subnets      │ │
-│  │ 10.100.202.0/24│  │ 10.100.102.0/24│  │ 10.100.1.0/24│ │
-│  │ 10.100.203.0/24│  │ 10.100.103.0/24│  │ 10.100.2.0/24│ │
-│  └────────┬───────┘  └────────┬───────┘  └──────┬───────┘ │
-│           │                   │                  │          │
-│           │                   │         ┌────────▼───────┐ │
-│           │                   │         │  NAT Gateway   │ │
-│           │                   │         │  (per subnet)  │ │
-│           │                   │         └────────┬───────┘ │
-│           │                   │                  │          │
-│  ┌────────▼───────┐  ┌────────▼───────┐  ┌──────▼───────┐ │
-│  │   DB Subnets   │  │  Mgmt Subnets  │  │ Workspaces   │ │
-│  │ 10.100.11.0/24 │  │ 10.100.251.0/24│  │ Subnets      │ │
-│  │ 10.100.12.0/24 │  │ 10.100.252.0/24│  │ 10.100.21.0/24│ │
-│  │ 10.100.13.0/24 │  │ 10.100.253.0/24│  │ 10.100.22.0/24│ │
-│  └────────────────┘  └────────────────┘  └──────────────┘ │
+│  ┌────────────────┐               ┌──────────────────────┐ │
+│  │ Public Subnets │               │ Private Subnets      │ │
+│  │ 10.100.201.0/24│               │ 10.100.1.0/24        │ │
+│  │ 10.100.202.0/24│               │ 10.100.2.0/24        │ │
+│  │ 10.100.203.0/24│               │ 10.100.3.0/24        │ │
+│  │ 10.100.204.0/24│               │ 10.100.4.0/24        │ │
+│  └────────┬───────┘               └────────┬────────────┘ │
+│           │                                │               │
+│           │                      ┌────────▼───────┐        │
+│           │                      │  NAT Gateway   │        │
+│           │                      │  (per subnet)  │        │
+│           │                      └────────┬───────┘        │
+│           │                                │               │
+│  ┌────────▼───────┐                        │               │
+│  │   DB Subnets   │                        │               │
+│  │ 10.100.11.0/24 │                        │               │
+│  │ 10.100.12.0/24 │                        │               │
+│  │ 10.100.13.0/24 │                        │               │
+│  │ 10.100.14.0/24 │                        │               │
+│  └────────────────┘                        │               │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
                            │
@@ -331,15 +325,13 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 The module uses a standardized IP allocation scheme within the default `10.100.0.0/16` VNet to prevent overlaps:
 
 | Subnet Type | IP Range | Purpose |
-|-------------|----------|---------|
-| **Private** | `10.100.1.0/24` - `10.100.3.0/24` | Application servers, workloads |
-| **Database** | `10.100.11.0/24` - `10.100.13.0/24` | Database servers |
-| **Workspaces** | `10.100.21.0/24` - `10.100.23.0/24` | Virtual desktops, user workspaces |
-| **DMZ** | `10.100.101.0/24` - `10.100.103.0/24` | Internet-facing resources |
-| **Public** | `10.100.201.0/24` - `10.100.203.0/24` | Load balancers, public endpoints |
-| **Management** | `10.100.251.0/24` - `10.100.253.0/24` | Bastion hosts, jump boxes |
+| --- | --- | --- |
+| **Private** | `10.100.1.0/24` - `10.100.4.0/24` | Application servers, workloads |
+| **Database** | `10.100.11.0/24` - `10.100.14.0/24` | Database servers |
+| **Public** | `10.100.201.0/24` - `10.100.204.0/24` | Load balancers, public endpoints |
 
 This allocation scheme:
+
 - Provides clear separation between subnet types
 - Leaves room for expansion within each category
 - Prevents IP address overlap
@@ -354,6 +346,7 @@ This allocation scheme:
 - **NAT Gateway Costs**: NAT Gateways incur costs. Use `single_nat_gateway = true` for development environments to reduce costs.
 - **Service Endpoints**: Service endpoints are free but only work for Azure services. For on-premises connectivity, consider Azure Private Link.
 - **Traffic Analytics**: Requires a Log Analytics workspace and incurs additional costs.
+- **CIDR Rules**: VNet CIDR must be /16 and all subnets must be /24.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -367,7 +360,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - [info@thinkstack.co](mailto:info@thinkstack.co)
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
 
@@ -376,9 +369,9 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -396,6 +389,3 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
-[product-screenshot]: /images/screenshot.webp
-[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
-[Terraform-url]: https://terraform.io

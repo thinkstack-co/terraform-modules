@@ -54,6 +54,7 @@
 This Terraform module creates and manages Azure Resource Groups. Resource groups are fundamental organizational units in Azure that act as logical containers for resources deployed within an Azure subscription. All Azure resources must belong to a resource group.
 
 The module supports:
+
 - Resource group creation with custom naming
 - Location/region specification
 - Resource tagging for organization and cost tracking
@@ -68,7 +69,7 @@ The module supports:
 
 ```hcl
 module "resource_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/core/resource_group"
 
   name     = "my-resource-group"
   location = "eastus"
@@ -84,7 +85,7 @@ module "resource_group" {
 
 ```hcl
 module "network_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/core/resource_group"
 
   name     = "network-resources-rg"
   location = "eastus"
@@ -97,7 +98,7 @@ module "network_rg" {
 }
 
 module "compute_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/core/resource_group"
 
   name     = "compute-resources-rg"
   location = "eastus"
@@ -114,7 +115,7 @@ module "compute_rg" {
 
 ```hcl
 module "eastus_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/core/resource_group"
 
   name     = "eastus-resources-rg"
   location = "eastus"
@@ -126,7 +127,7 @@ module "eastus_rg" {
 }
 
 module "westus_rg" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/core/resource_group"
 
   name     = "westus-resources-rg"
   location = "westus2"
@@ -140,9 +141,9 @@ module "westus_rg" {
 
 ### Argument Reference
 
-* `name` - (Required) The name of the resource group. Must be unique within the Azure subscription.
-* `location` - (Optional) The Azure region where the resource group will be created. Default is `eastus`.
-* `tags` - (Optional) A mapping of tags to assign to the resource group.
+- `name` - (Required) The name of the resource group. Must be unique within the Azure subscription.
+- `location` - (Optional) The Azure region where the resource group will be created. Default is `eastus`.
+- `tags` - (Optional) A mapping of tags to assign to the resource group.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -150,20 +151,20 @@ module "westus_rg" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| --- | --- |
 | terraform | >= 1.0.0 |
 | azurerm | >= 3.0.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| --- | --- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
 | Name | Type | Documentation |
-|------|------|--------------|
+| --- | --- | --- |
 | [azurerm_resource_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -172,7 +173,7 @@ module "westus_rg" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| --- | --- | --- | --- | :---: |
 | name | The name of the resource group. Must be unique within the Azure subscription | `string` | n/a | yes |
 | location | The Azure region where the resource group will be created | `string` | `"eastus"` | no |
 | tags | A mapping of tags to assign to the resource group | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` | no |
@@ -180,7 +181,7 @@ module "westus_rg" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| --- | --- |
 | id | The ID of the resource group |
 | name | The name of the resource group |
 | location | The location of the resource group |
@@ -197,7 +198,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - [info@thinkstack.co](mailto:info@thinkstack.co)
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
 
@@ -206,9 +207,9 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -226,6 +227,3 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
-[product-screenshot]: /images/screenshot.webp
-[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
-[Terraform-url]: https://terraform.io

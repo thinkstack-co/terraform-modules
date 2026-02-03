@@ -1,4 +1,4 @@
-# Azure Public IP Terraform Module
+# Azure Public IP Terraform Module (Compute Wrapper)
 
 <a name="readme-top"></a>
 
@@ -19,7 +19,7 @@
 
 <h3 align="center">Azure Public IP Module</h3>
   <p align="center">
-    This module creates an Azure Public IP address (the closest equivalent to an AWS Elastic IP).
+    This module is a compute wrapper for the networking/public_ip module to keep the public IP available in compute context.
     <br />
     <a href="https://github.com/thinkstack-co/terraform-modules"><strong>Explore the docs »</strong></a>
     <br />
@@ -43,7 +43,6 @@
     <li><a href="#resources">Resources</a></li>
     <li><a href="#inputs">Inputs</a></li>
     <li><a href="#outputs">Outputs</a></li>
-    <li><a href="#notes">Notes</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -52,50 +51,19 @@
 
 ## Overview
 
-This Terraform module provisions an Azure Public IP address using `azurerm_public_ip`.
-
-In AWS, an Elastic IP is a static public IPv4 address that can be associated to certain resources. In Azure, the closest equivalent is a **Standard** SKU Public IP with **Static** allocation.
+This wrapper module delegates to `networking/public_ip` and exposes the same interface for compute-related use cases.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage
 
-### Basic Example
-
-```hcl
-module "resource_group" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/resource_group"
-
-  name     = "rg-network"
-  location = "eastus"
-}
-
-module "public_ip" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/public_ip"
-
-  name                = "pip-nat-01"
-  resource_group_name = module.resource_group.name
-  location            = "eastus"
-
-  tags = {
-    terraform   = "true"
-    created_by  = "Terraform"
-    environment = "dev"
-  }
-}
-```
-
-### Example with DNS Label (FQDN)
-
 ```hcl
 module "public_ip" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/public_ip"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/public_ip"
 
-  name                = "pip-app-01"
+  name                = "pip-web-01"
   resource_group_name = "rg-network"
   location            = "eastus"
-
-  domain_name_label = "myapp-eastus-01"
 }
 ```
 
@@ -104,28 +72,28 @@ module "public_ip" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| --- | --- |
 | terraform | >= 1.0.0 |
 | azurerm | >= 3.0.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| --- | --- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
 | Name | Type | Documentation |
-|------|------|--------------|
-| [azurerm_public_ip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource | [Azure Documentation](https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses) |
+| --- | --- | --- |
+| [module.public_ip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | module | Delegates to networking/public_ip |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| --- | --- | --- | --- | :---: |
 | name | Name of the Public IP resource | `string` | n/a | yes |
 | resource_group_name | The name of an existing resource group | `string` | n/a | yes |
 | location | The Azure region where resources will be created | `string` | `"eastus"` | no |
@@ -139,18 +107,11 @@ module "public_ip" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| --- | --- |
 | id | The ID of the Public IP |
 | name | The name of the Public IP |
 | ip_address | The allocated public IP address |
 | fqdn | The DNS FQDN assigned to the Public IP (if domain_name_label is set) |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Notes
-
-- **Azure vs AWS**: Azure Public IPs can be attached to different resources (e.g., NAT Gateway, Load Balancer frontend, Firewall). The module creates the IP only; association is done by the consuming module.
-- **Standard SKU**: For production and for most "EIP-like" use cases, prefer `sku = "Standard"` with `allocation_method = "Static"`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -66,7 +66,7 @@
 ### Basic Example - Create and Attach a Data Disk
 ```hcl
 module "app_server_data_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                 = "app-server-data-disk"
   location             = "eastus"
@@ -89,7 +89,7 @@ module "app_server_data_disk" {
 ### Premium SSD with Zone
 ```hcl
 module "db_server_data_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                 = "db-server-data-disk"
   location             = "eastus"
@@ -113,7 +113,7 @@ module "db_server_data_disk" {
 ### Ultra SSD with Custom IOPS and Throughput
 ```hcl
 module "high_performance_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                 = "high-perf-data-disk"
   location             = "eastus"
@@ -139,7 +139,7 @@ module "high_performance_disk" {
 ### Disk with Encryption Set
 ```hcl
 module "encrypted_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                   = "encrypted-data-disk"
   location               = "eastus"
@@ -162,7 +162,7 @@ module "encrypted_disk" {
 ### Shared Disk (Multi-Attach)
 ```hcl
 module "shared_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                 = "cluster-shared-disk"
   location             = "eastus"
@@ -187,7 +187,7 @@ module "shared_disk" {
 ### Create Disk from Snapshot
 ```hcl
 module "restored_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                 = "restored-data-disk"
   location             = "eastus"
@@ -210,7 +210,7 @@ module "restored_disk" {
 ### Disk Without Attachment (Standalone)
 ```hcl
 module "standalone_disk" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/managed_disk"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/managed_disk"
 
   name                 = "backup-data-disk"
   location             = "eastus"
@@ -285,7 +285,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ------ | ------------- |
 | <a name="output_id"></a> [id](#output\_id) | The ID of the Managed Disk. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the Managed Disk. |
 | <a name="output_disk_size_gb"></a> [disk\_size\_gb](#output\_disk\_size\_gb) | The size of the Managed Disk in GB. |

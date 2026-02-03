@@ -20,6 +20,20 @@ data "azurerm_client_config" "current" {}
 
 locals {
   resource_group_name = var.resource_group_name
+  # Calculate the VNet prefix length for VPN subnet derivation
+  vnet_prefix_length = tonumber(regex("[0-9]+$", var.vnet_address_space))
+  # Calculate the additional bits needed to reach /24
+  vpn_subnet_newbits = 24 - local.vnet_prefix_length
+  # Select the last /24 in the VNet address space
+  service_subnet_total = pow(2, local.vpn_subnet_newbits)
+  # Select the last /24s for service subnets when enabled
+  vpn_subnet_index = var.enable_vpn_subnet ? local.service_subnet_total - 1 : null
+  app_gateway_subnet_index = var.enable_application_gateway_subnet ? local.service_subnet_total - 1 - (var.enable_vpn_subnet ? 1 : 0) : null
+  firewall_subnet_index = var.enable_firewall_subnet ? local.service_subnet_total - 1 - (var.enable_vpn_subnet ? 1 : 0) - (var.enable_application_gateway_subnet ? 1 : 0) : null
+  # Compute the service subnet CIDRs when enabled
+  vpn_gateway_subnet_cidr = var.enable_vpn_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.vpn_subnet_index) : null
+  app_gateway_subnet_cidr = var.enable_application_gateway_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.app_gateway_subnet_index) : null
+  firewall_subnet_cidr = var.enable_firewall_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.firewall_subnet_index) : null
 }
 
 ###########################
@@ -74,6 +88,33 @@ resource "azurerm_network_security_group" "service_endpoints_nsg" {
 # Subnets
 ###########################
 
+# Dedicated VPN Gateway subnet (GatewaySubnet)
+resource "azurerm_subnet" "vpn_gateway_subnet" {
+  count                = var.enable_vpn_subnet ? 1 : 0
+  name                 = "GatewaySubnet"
+  resource_group_name  = local.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [local.vpn_gateway_subnet_cidr]
+}
+
+# Dedicated Application Gateway subnet (AzureApplicationGatewaySubnet)
+resource "azurerm_subnet" "application_gateway_subnet" {
+  count                = var.enable_application_gateway_subnet ? 1 : 0
+  name                 = "AzureApplicationGatewaySubnet"
+  resource_group_name  = local.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [local.app_gateway_subnet_cidr]
+}
+
+# Dedicated Firewall subnet (AzureFirewallSubnet)
+resource "azurerm_subnet" "firewall_subnet" {
+  count                = var.enable_firewall_subnet ? 1 : 0
+  name                 = "AzureFirewallSubnet"
+  resource_group_name  = local.resource_group_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [local.firewall_subnet_cidr]
+}
+
 resource "azurerm_subnet" "private_subnets" {
   count                = length(var.private_subnets_list)
   name                 = format("%s-subnet-private-%s", var.name, count.index + 1)
@@ -91,14 +132,6 @@ resource "azurerm_subnet" "public_subnets" {
   address_prefixes     = [var.public_subnets_list[count.index]]
 }
 
-resource "azurerm_subnet" "dmz_subnets" {
-  count                = length(var.dmz_subnets_list)
-  name                 = format("%s-subnet-dmz-%s", var.name, count.index + 1)
-  resource_group_name  = local.resource_group_name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.dmz_subnets_list[count.index]]
-}
-
 resource "azurerm_subnet" "db_subnets" {
   count                = length(var.db_subnets_list)
   name                 = format("%s-subnet-db-%s", var.name, count.index + 1)
@@ -106,22 +139,6 @@ resource "azurerm_subnet" "db_subnets" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.db_subnets_list[count.index]]
   service_endpoints    = var.enable_service_endpoints ? ["Microsoft.Sql"] : []
-}
-
-resource "azurerm_subnet" "mgmt_subnets" {
-  count                = length(var.mgmt_subnets_list)
-  name                 = format("%s-subnet-mgmt-%s", var.name, count.index + 1)
-  resource_group_name  = local.resource_group_name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.mgmt_subnets_list[count.index]]
-}
-
-resource "azurerm_subnet" "workspaces_subnets" {
-  count                = length(var.workspaces_subnets_list)
-  name                 = format("%s-subnet-workspaces-%s", var.name, count.index + 1)
-  resource_group_name  = local.resource_group_name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.workspaces_subnets_list[count.index]]
 }
 
 ###########################
@@ -190,33 +207,6 @@ resource "azurerm_route_table" "db_route_table" {
   tags                = var.tags
 }
 
-# DMZ Route Tables
-resource "azurerm_route_table" "dmz_route_table" {
-  count               = length(var.dmz_subnets_list)
-  name                = format("%s-rt-dmz-%s", var.name, count.index + 1)
-  location            = var.location
-  resource_group_name = local.resource_group_name
-  tags                = var.tags
-}
-
-# Management Route Tables
-resource "azurerm_route_table" "mgmt_route_table" {
-  count               = length(var.mgmt_subnets_list)
-  name                = format("%s-rt-mgmt-%s", var.name, count.index + 1)
-  location            = var.location
-  resource_group_name = local.resource_group_name
-  tags                = var.tags
-}
-
-# Workspaces Route Tables
-resource "azurerm_route_table" "workspaces_route_table" {
-  count               = length(var.workspaces_subnets_list)
-  name                = format("%s-rt-workspaces-%s", var.name, count.index + 1)
-  location            = var.location
-  resource_group_name = local.resource_group_name
-  tags                = var.tags
-}
-
 ###########################
 # Route Table Associations
 ###########################
@@ -236,25 +226,6 @@ resource "azurerm_subnet_nat_gateway_association" "db_nat" {
 }
 
 # Associate NAT Gateway with DMZ Subnets
-resource "azurerm_subnet_nat_gateway_association" "dmz_nat" {
-  count          = var.enable_nat_gateway && var.enable_dmz_nat ? length(var.dmz_subnets_list) : 0
-  subnet_id      = azurerm_subnet.dmz_subnets[count.index].id
-  nat_gateway_id = var.single_nat_gateway ? azurerm_nat_gateway.nat[0].id : azurerm_nat_gateway.nat[count.index % length(azurerm_nat_gateway.nat)].id
-}
-
-# Associate NAT Gateway with Management Subnets
-resource "azurerm_subnet_nat_gateway_association" "mgmt_nat" {
-  count          = var.enable_nat_gateway ? length(var.mgmt_subnets_list) : 0
-  subnet_id      = azurerm_subnet.mgmt_subnets[count.index].id
-  nat_gateway_id = var.single_nat_gateway ? azurerm_nat_gateway.nat[0].id : azurerm_nat_gateway.nat[count.index % length(azurerm_nat_gateway.nat)].id
-}
-
-# Associate NAT Gateway with Workspaces Subnets
-resource "azurerm_subnet_nat_gateway_association" "workspaces_nat" {
-  count          = var.enable_nat_gateway ? length(var.workspaces_subnets_list) : 0
-  subnet_id      = azurerm_subnet.workspaces_subnets[count.index].id
-  nat_gateway_id = var.single_nat_gateway ? azurerm_nat_gateway.nat[0].id : azurerm_nat_gateway.nat[count.index % length(azurerm_nat_gateway.nat)].id
-}
 
 # Associate Route Tables with Subnets
 resource "azurerm_subnet_route_table_association" "private" {
@@ -275,23 +246,6 @@ resource "azurerm_subnet_route_table_association" "db" {
   route_table_id = azurerm_route_table.db_route_table[count.index].id
 }
 
-resource "azurerm_subnet_route_table_association" "dmz" {
-  count          = length(var.dmz_subnets_list)
-  subnet_id      = azurerm_subnet.dmz_subnets[count.index].id
-  route_table_id = azurerm_route_table.dmz_route_table[count.index].id
-}
-
-resource "azurerm_subnet_route_table_association" "mgmt" {
-  count          = length(var.mgmt_subnets_list)
-  subnet_id      = azurerm_subnet.mgmt_subnets[count.index].id
-  route_table_id = azurerm_route_table.mgmt_route_table[count.index].id
-}
-
-resource "azurerm_subnet_route_table_association" "workspaces" {
-  count          = length(var.workspaces_subnets_list)
-  subnet_id      = azurerm_subnet.workspaces_subnets[count.index].id
-  route_table_id = azurerm_route_table.workspaces_route_table[count.index].id
-}
 
 ###########################
 # Network Watcher (for Flow Logs)

@@ -60,20 +60,6 @@ output "public_subnet_address_prefixes" {
   value       = azurerm_subnet.public_subnets[*].address_prefixes
 }
 
-output "dmz_subnet_ids" {
-  description = "List of IDs of DMZ subnets"
-  value       = azurerm_subnet.dmz_subnets[*].id
-}
-
-output "dmz_subnet_names" {
-  description = "List of names of DMZ subnets"
-  value       = azurerm_subnet.dmz_subnets[*].name
-}
-
-output "dmz_subnet_address_prefixes" {
-  description = "List of address prefixes of DMZ subnets"
-  value       = azurerm_subnet.dmz_subnets[*].address_prefixes
-}
 
 output "db_subnet_ids" {
   description = "List of IDs of database subnets"
@@ -90,34 +76,50 @@ output "db_subnet_address_prefixes" {
   value       = azurerm_subnet.db_subnets[*].address_prefixes
 }
 
-output "mgmt_subnet_ids" {
-  description = "List of IDs of management subnets"
-  value       = azurerm_subnet.mgmt_subnets[*].id
+
+output "vpn_gateway_subnet_id" {
+  description = "ID of the VPN GatewaySubnet (if created)"
+  value       = var.enable_vpn_subnet ? azurerm_subnet.vpn_gateway_subnet[0].id : null
 }
 
-output "mgmt_subnet_names" {
-  description = "List of names of management subnets"
-  value       = azurerm_subnet.mgmt_subnets[*].name
+output "vpn_gateway_subnet_name" {
+  description = "Name of the VPN GatewaySubnet (if created)"
+  value       = var.enable_vpn_subnet ? azurerm_subnet.vpn_gateway_subnet[0].name : null
 }
 
-output "mgmt_subnet_address_prefixes" {
-  description = "List of address prefixes of management subnets"
-  value       = azurerm_subnet.mgmt_subnets[*].address_prefixes
+output "vpn_gateway_subnet_address_prefix" {
+  description = "Address prefix of the VPN GatewaySubnet (if created)"
+  value       = var.enable_vpn_subnet ? azurerm_subnet.vpn_gateway_subnet[0].address_prefixes[0] : null
 }
 
-output "workspaces_subnet_ids" {
-  description = "List of IDs of workspaces subnets"
-  value       = azurerm_subnet.workspaces_subnets[*].id
+output "application_gateway_subnet_id" {
+  description = "ID of the AzureApplicationGatewaySubnet (if created)"
+  value       = var.enable_application_gateway_subnet ? azurerm_subnet.application_gateway_subnet[0].id : null
 }
 
-output "workspaces_subnet_names" {
-  description = "List of names of workspaces subnets"
-  value       = azurerm_subnet.workspaces_subnets[*].name
+output "application_gateway_subnet_name" {
+  description = "Name of the AzureApplicationGatewaySubnet (if created)"
+  value       = var.enable_application_gateway_subnet ? azurerm_subnet.application_gateway_subnet[0].name : null
 }
 
-output "workspaces_subnet_address_prefixes" {
-  description = "List of address prefixes of workspaces subnets"
-  value       = azurerm_subnet.workspaces_subnets[*].address_prefixes
+output "application_gateway_subnet_address_prefix" {
+  description = "Address prefix of the AzureApplicationGatewaySubnet (if created)"
+  value       = var.enable_application_gateway_subnet ? azurerm_subnet.application_gateway_subnet[0].address_prefixes[0] : null
+}
+
+output "firewall_subnet_id" {
+  description = "ID of the AzureFirewallSubnet (if created)"
+  value       = var.enable_firewall_subnet ? azurerm_subnet.firewall_subnet[0].id : null
+}
+
+output "firewall_subnet_name" {
+  description = "Name of the AzureFirewallSubnet (if created)"
+  value       = var.enable_firewall_subnet ? azurerm_subnet.firewall_subnet[0].name : null
+}
+
+output "firewall_subnet_address_prefix" {
+  description = "Address prefix of the AzureFirewallSubnet (if created)"
+  value       = var.enable_firewall_subnet ? azurerm_subnet.firewall_subnet[0].address_prefixes[0] : null
 }
 
 ###########################
@@ -158,20 +160,6 @@ output "db_route_table_ids" {
   value       = azurerm_route_table.db_route_table[*].id
 }
 
-output "dmz_route_table_ids" {
-  description = "List of IDs of DMZ route tables"
-  value       = azurerm_route_table.dmz_route_table[*].id
-}
-
-output "mgmt_route_table_ids" {
-  description = "List of IDs of management route tables"
-  value       = azurerm_route_table.mgmt_route_table[*].id
-}
-
-output "workspaces_route_table_ids" {
-  description = "List of IDs of workspaces route tables"
-  value       = azurerm_route_table.workspaces_route_table[*].id
-}
 
 ###########################
 # Network Security Group

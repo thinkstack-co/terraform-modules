@@ -24,6 +24,24 @@ variable "vnet_address_space" {
   default     = "10.100.0.0/16"
 }
 
+variable "enable_vpn_subnet" {
+  description = "(Optional) Create a dedicated GatewaySubnet in the last /24 of the VNet address space."
+  type        = bool
+  default     = false
+}
+
+variable "enable_application_gateway_subnet" {
+  description = "(Optional) Create a dedicated AzureApplicationGatewaySubnet in the last /24s of the VNet address space."
+  type        = bool
+  default     = false
+}
+
+variable "enable_firewall_subnet" {
+  description = "(Optional) Create a dedicated AzureFirewallSubnet in the last /24s of the VNet address space."
+  type        = bool
+  default     = false
+}
+
 variable "dns_servers" {
   description = "(Optional) List of DNS servers to use for the VNet. If empty, Azure default DNS is used."
   type        = list(string)
@@ -37,37 +55,62 @@ variable "dns_servers" {
 variable "private_subnets_list" {
   type        = list(string)
   description = "A list of private subnets inside the VNet."
-  default     = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24"]
+  default     = ["10.100.1.0/24", "10.100.2.0/24", "10.100.3.0/24", "10.100.4.0/24"]
 }
 
 variable "public_subnets_list" {
   type        = list(string)
   description = "A list of public subnets inside the VNet."
-  default     = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24"]
-}
-
-variable "dmz_subnets_list" {
-  type        = list(string)
-  description = "A list of DMZ subnets inside the VNet."
-  default     = ["10.100.101.0/24", "10.100.102.0/24", "10.100.103.0/24"]
+  default     = ["10.100.201.0/24", "10.100.202.0/24", "10.100.203.0/24", "10.100.204.0/24"]
 }
 
 variable "db_subnets_list" {
   type        = list(string)
   description = "A list of database subnets inside the VNet."
-  default     = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24"]
+  default     = ["10.100.11.0/24", "10.100.12.0/24", "10.100.13.0/24", "10.100.14.0/24"]
 }
 
-variable "mgmt_subnets_list" {
-  type        = list(string)
-  description = "A list of management subnets inside the VNet."
-  default     = ["10.100.251.0/24", "10.100.252.0/24", "10.100.253.0/24"]
+###########################
+# CIDR Validation
+###########################
+
+variable "_validate_vnet_prefix" {
+  description = "(Internal) Enforces that the VNet is /16."
+  type        = bool
+  default     = true
+
+  validation {
+    condition     = tonumber(regex("[0-9]+$", var.vnet_address_space)) == 16
+    error_message = "vnet_address_space must be /16 (e.g., 10.100.0.0/16)."
+  }
 }
 
-variable "workspaces_subnets_list" {
-  type        = list(string)
-  description = "A list of workspaces subnets inside the VNet."
-  default     = ["10.100.21.0/24", "10.100.22.0/24", "10.100.23.0/24"]
+variable "_validate_subnet_prefixes" {
+  description = "(Internal) Enforces that all subnets are /24."
+  type        = bool
+  default     = true
+
+  validation {
+    condition = alltrue([
+      for cidr in concat(
+        var.private_subnets_list,
+        var.public_subnets_list,
+        var.db_subnets_list
+      ) : tonumber(regex("[0-9]+$", cidr)) == 24
+    ])
+    error_message = "All subnet CIDRs must be /24."
+  }
+}
+
+variable "_validate_subnet_counts" {
+  description = "(Internal) Enforces two subnets per AZ (4 total) for private, public, and db subnets."
+  type        = bool
+  default     = true
+
+  validation {
+    condition = length(var.private_subnets_list) == 4 && length(var.public_subnets_list) == 4 && length(var.db_subnets_list) == 4
+    error_message = "private_subnets_list, public_subnets_list, and db_subnets_list must each contain exactly four /24 subnets (two per AZ)."
+  }
 }
 
 ###########################
@@ -99,12 +142,6 @@ variable "enable_nat_gateway" {
 variable "single_nat_gateway" {
   type        = bool
   description = "(Optional) A boolean flag to enable/disable use of only a single shared NAT Gateway across all private networks. Defaults False."
-  default     = false
-}
-
-variable "enable_dmz_nat" {
-  type        = bool
-  description = "(Optional) A boolean flag to enable/disable NAT gateway for DMZ subnets. Defaults False."
   default     = false
 }
 

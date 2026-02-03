@@ -98,7 +98,7 @@ You can still use manual image configuration by specifying `source_image_publish
 
 ```hcl
 module "linux_vm" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/vm"
 
   name                = "web-server-01"
   resource_group_name = "production-rg"
@@ -134,7 +134,7 @@ module "linux_vm" {
 
 ```hcl
 module "public_ip" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/public_ip"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/public_ip"
 
   name                = "pip-web-01"
   resource_group_name = "production-rg"
@@ -145,7 +145,7 @@ module "public_ip" {
 }
 
 module "linux_vm_with_public_ip" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/vm"
 
   name                = "web-server-03"
   resource_group_name = "production-rg"
@@ -170,7 +170,7 @@ module "linux_vm_with_public_ip" {
 
 ```hcl
 module "linux_vm_manual" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/vm"
 
   name                = "web-server-02"
   resource_group_name = "production-rg"
@@ -209,7 +209,7 @@ module "linux_vm_manual" {
 
 ```hcl
 module "windows_vm" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/vm"
 
   name                = "app-server-01"
   resource_group_name = "production-rg"
@@ -248,7 +248,7 @@ module "windows_vm" {
 
 ```hcl
 module "windows_2025_vm" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/vm"
 
   name                = "app-server-02"
   resource_group_name = "production-rg"
@@ -288,7 +288,7 @@ module "windows_2025_vm" {
 ```hcl
 # This example demonstrates all available features and configuration options
 module "advanced_vm" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/vm"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/compute/vm"
 
   ###########################
   # Required Arguments
