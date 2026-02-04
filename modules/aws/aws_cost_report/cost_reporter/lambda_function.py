@@ -104,6 +104,8 @@ def get_resource_type(usage_type):
     return "Other"
 
 
+# Pylint: PDF rendering is intentionally monolithic for layout clarity.
+# pylint: disable=too-many-locals,too-many-statements
 def generate_pdf(cost_data, start, end, outfile):
     pdf = FPDF()
     # patch missing attribute
@@ -115,7 +117,8 @@ def generate_pdf(cost_data, start, end, outfile):
     pdf.cell(0, 10, f"Customer: {CUSTOMER_IDENTIFIER}", ln=1, align="C")
     try:
         acct = sts.get_caller_identity()["Account"]
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
+        # Pylint: broader exception keeps report generation resilient.
         acct = "Unknown"
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 8, f"AWS Account ID: {acct}", ln=1, align="C")
@@ -190,7 +193,9 @@ def generate_pdf(cost_data, start, end, outfile):
     pdf.output(outfile)
 
 
-def lambda_handler(event, context):
+# Pylint: Lambda handler is intentionally monolithic for report layout.
+# pylint: disable=too-many-locals,too-many-statements
+def lambda_handler(_event, _context):
     start, end = get_time_period()
     detailed_costs = fetch_detailed_costs(start, end)
 

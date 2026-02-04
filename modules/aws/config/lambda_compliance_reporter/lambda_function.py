@@ -54,8 +54,6 @@ def lookup_iam_username_by_id(user_id):
 
 
 def get_account_info():
-    import os
-
     sts = boto3.client("sts")
     org = boto3.client("organizations")
     account_id = sts.get_caller_identity()["Account"]
@@ -64,7 +62,7 @@ def get_account_info():
         response = org.describe_account(AccountId=account_id)
         account_name = response["Account"]["Name"]
         return account_name, account_id
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"ERROR: Failed to fetch Organizations account name: {e}")
     # 2. Try environment variable
     account_env = os.environ.get("ACCOUNT_DISPLAY_NAME")
@@ -75,7 +73,7 @@ def get_account_info():
     try:
         aliases = iam.list_account_aliases().get("AccountAliases", [])
         alias = aliases[0] if aliases else "N/A"
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         alias = "N/A"
     return alias, account_id
 
@@ -105,7 +103,8 @@ def get_non_compliant_resources(rule_name):
     paginator = config.get_paginator("get_compliance_details_by_config_rule")
 
     for page in paginator.paginate(
-        ConfigRuleName=rule_name, ComplianceTypes=["NON_COMPLIANT"]
+        ConfigRuleName=rule_name,
+        ComplianceTypes=["NON_COMPLIANT"],
     ):
         for result in page["EvaluationResults"]:
             res = result["EvaluationResultIdentifier"]["EvaluationResultQualifier"]
@@ -154,7 +153,7 @@ def get_resource_name_from_tag(arn_or_id):
             for tag in resource.get("Tags", []):
                 if tag["Key"] == "Name":
                     return tag["Value"]
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
     return arn_or_id
 
@@ -164,11 +163,13 @@ def get_iam_user_name(user_id):
     try:
         response = iam.get_user(UserName=user_id)
         return response["User"]["UserName"]
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         return user_id
 
 
-def lambda_handler(event, context):
+# Pylint: Lambda handler is intentionally monolithic for report layout.
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def lambda_handler(_event, _context):
     """
     AWS Lambda entry point to generate a compliance report for AWS Config rules
     and upload the report as a PDF to S3.
@@ -221,9 +222,7 @@ def lambda_handler(event, context):
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
-    insufficient_data_count = sum(
-        1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
-    )
+    insufficient_data_count = sum(1 for v in compliance.values() if v == "INSUFFICIENT_DATA")
 
     # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
     for rule_name, status in compliance.items():
@@ -248,9 +247,7 @@ def lambda_handler(event, context):
                         # For other resources, try to use the Name tag if present
                         display_name = get_resource_name_from_tag(arn)
 
-                    non_compliant_section.append(
-                        [display_name, res["ResourceType"], arn]
-                    )
+                    non_compliant_section.append([display_name, res["ResourceType"], arn])
 
     # ── DEBUG FINAL ROWS ──
     print("DEBUG final non_compliant_section:", non_compliant_section)
@@ -329,7 +326,8 @@ def lambda_handler(event, context):
                     Paragraph(rule_name, small_style),
                     Paragraph(description, desc_style),
                     Paragraph(
-                        status, small_style
+                        status,
+                        small_style,
                     ),  # Status will be styled separately below
                 ]
             )
@@ -369,7 +367,10 @@ def lambda_handler(event, context):
         elements.append(rules_summary_table)
     else:
         elements.append(
-            Paragraph("<i>No AWS Config rules configured.</i>", normal_style)
+            Paragraph(
+                "<i>No AWS Config rules configured.</i>",
+                normal_style,
+            )
         )
     elements.append(Spacer(1, 18))
 
@@ -386,9 +387,7 @@ def lambda_handler(event, context):
             ]
         ]
         for name, rtype, arn in non_compliant_section:
-            table_data.append(
-                [Paragraph(name, normal_style), Paragraph(rtype, normal_style)]
-            )
+            table_data.append([Paragraph(name, normal_style), Paragraph(rtype, normal_style)])
 
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(
@@ -405,7 +404,10 @@ def lambda_handler(event, context):
 
     else:
         elements.append(
-            Paragraph("<i>No non-compliant resources found.</i>", normal_style)
+            Paragraph(
+                "<i>No non-compliant resources found.</i>",
+                normal_style,
+            )
         )
 
     doc.build(elements)
@@ -424,7 +426,10 @@ def lambda_handler(event, context):
         f"compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
     )
     s3.put_object(
-        Bucket=bucket, Key=key, Body=buffer.getvalue(), ContentType="application/pdf"
+        Bucket=bucket,
+        Key=key,
+        Body=buffer.getvalue(),
+        ContentType="application/pdf",
     )
 
     return {

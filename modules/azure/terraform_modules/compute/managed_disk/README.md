@@ -76,7 +76,7 @@ module "app_server_data_disk" {
   virtual_machine_id   = azurerm_windows_virtual_machine.app_server.id
   lun                  = 0
   caching              = "ReadWrite"
-  
+
   tags = {
     Name        = "app-server-data-disk"
     terraform   = "true"
@@ -100,7 +100,7 @@ module "db_server_data_disk" {
   virtual_machine_id   = azurerm_windows_virtual_machine.db_server.id
   lun                  = 0
   caching              = "None"  # Recommended for database workloads
-  
+
   tags = {
     Name        = "db-server-data-disk"
     terraform   = "true"
@@ -126,7 +126,7 @@ module "high_performance_disk" {
   virtual_machine_id   = azurerm_windows_virtual_machine.high_perf_server.id
   lun                  = 0
   caching              = "None"  # Ultra disks only support None caching
-  
+
   tags = {
     Name        = "high-perf-data-disk"
     terraform   = "true"
@@ -149,7 +149,7 @@ module "encrypted_disk" {
   disk_encryption_set_id = azurerm_disk_encryption_set.example.id
   virtual_machine_id     = azurerm_windows_virtual_machine.secure_server.id
   lun                    = 0
-  
+
   tags = {
     Name        = "encrypted-data-disk"
     terraform   = "true"
@@ -171,10 +171,10 @@ module "shared_disk" {
   disk_size_gb         = 256
   max_shares           = 2  # Allow 2 VMs to attach simultaneously
   zone                 = "1"
-  
+
   # For shared disks, attach separately to each VM
   virtual_machine_id = null  # Don't auto-attach
-  
+
   tags = {
     Name        = "cluster-shared-disk"
     terraform   = "true"
@@ -197,7 +197,7 @@ module "restored_disk" {
   source_resource_id   = azurerm_snapshot.example.id
   virtual_machine_id   = azurerm_windows_virtual_machine.restored_server.id
   lun                  = 0
-  
+
   tags = {
     Name            = "restored-data-disk"
     terraform       = "true"
@@ -217,10 +217,10 @@ module "standalone_disk" {
   resource_group_name  = "my-resource-group"
   storage_account_type = "Standard_LRS"
   disk_size_gb         = 1024
-  
+
   # No attachment - disk will be created but not attached to any VM
   virtual_machine_id = null
-  
+
   tags = {
     Name        = "backup-data-disk"
     terraform   = "true"

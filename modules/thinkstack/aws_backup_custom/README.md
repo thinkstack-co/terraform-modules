@@ -235,7 +235,7 @@ module "aws_backup_custom" {
   # Enable daily and weekly backups
   create_daily_plan   = true
   create_weekly_plan  = true
-  
+
   # Enable backup exclusions feature
   enable_backup_exclusions  = true
   backup_exclusion_tag_key  = "backup_exclude"  # Default
@@ -254,7 +254,7 @@ module "aws_backup_custom" {
 resource "aws_instance" "database_server" {
   ami           = "ami-12345678"
   instance_type = "m5.xlarge"
-  
+
   tags = {
     Name            = "database-server"
     backup_schedule = "daily"  # Instance will be backed up
@@ -265,7 +265,7 @@ resource "aws_instance" "database_server" {
 resource "aws_ebs_volume" "root_volume" {
   availability_zone = "us-east-1a"
   size              = 100
-  
+
   tags = {
     Name = "database-root"
     # No backup_exclude tag - will be included
@@ -276,7 +276,7 @@ resource "aws_ebs_volume" "root_volume" {
 resource "aws_ebs_volume" "data_volume" {
   availability_zone = "us-east-1a"
   size              = 500
-  
+
   tags = {
     Name = "database-data"
     # No backup_exclude tag - will be included
@@ -287,7 +287,7 @@ resource "aws_ebs_volume" "data_volume" {
 resource "aws_ebs_volume" "temp_volume" {
   availability_zone = "us-east-1a"
   size              = 200
-  
+
   tags = {
     Name           = "database-temp"
     backup_exclude = "true"  # This volume will be EXCLUDED

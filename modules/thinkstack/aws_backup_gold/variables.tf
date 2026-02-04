@@ -209,4 +209,3 @@ variable "yearly_dr_retention_days" {
   type        = number
   default     = 2555
 }
-

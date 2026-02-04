@@ -139,9 +139,9 @@ variable "os_disk_size_gb" {
 variable "os_version" {
   type        = string
   description = <<-EOT
-    (Optional) Simplified OS version selection. When provided, automatically sets source_image_publisher, 
+    (Optional) Simplified OS version selection. When provided, automatically sets source_image_publisher,
     source_image_offer, and source_image_sku. If not provided, you must specify those variables manually.
-    
+
     Supported Windows versions:
     - "2025-datacenter" - Windows Server 2025 Datacenter
     - "2025-datacenter-core" - Windows Server 2025 Datacenter Core
@@ -151,7 +151,7 @@ variable "os_version" {
     - "2019-datacenter" - Windows Server 2019 Datacenter
     - "2019-datacenter-core" - Windows Server 2019 Datacenter Core
     - "2016-datacenter" - Windows Server 2016 Datacenter
-    
+
     Supported Linux versions:
     - "ubuntu-22.04" - Ubuntu 22.04 LTS
     - "ubuntu-20.04" - Ubuntu 20.04 LTS
@@ -349,7 +349,7 @@ variable "tags" {
 # These variables are optional performance optimizations to reduce redundant Azure API calls.
 # When multiple module instances are deployed, each module traditionally queries Azure for
 # subscription information independently, resulting in duplicate API calls.
-# 
+#
 # By passing these values as variables from the root module (which queries once), we can:
 # - Reduce API calls significantly in large deployments
 # - Improve terraform plan/apply speed
@@ -364,19 +364,19 @@ variable "azure_subscription_id" {
   type        = string
   description = <<-EOT
     (Optional) Azure subscription ID to use instead of querying via data source.
-    
-    PERFORMANCE OPTIMIZATION: Pass this value from the root module to avoid redundant 
-    Azure API calls. In deployments with many module instances, this can reduce plan time 
+
+    PERFORMANCE OPTIMIZATION: Pass this value from the root module to avoid redundant
+    Azure API calls. In deployments with many module instances, this can reduce plan time
     and eliminate duplicate API calls.
-    
+
     Example in root module:
       data "azurerm_subscription" "current" {}
-      
+
       module "vm" {
         source                 = "..."
         azure_subscription_id  = data.azurerm_subscription.current.subscription_id  # Pass once, reuse everywhere
       }
-    
+
     If not provided, the module will query Azure directly (backward compatible).
   EOT
   default     = null

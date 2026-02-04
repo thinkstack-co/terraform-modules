@@ -86,7 +86,8 @@ variable "_validate_vnet_prefix" {
   default     = true
 
   validation {
-    condition     = tonumber(regex("[0-9]+$", var.vnet_address_space)) == 16
+    # Only validate when the internal flag is enabled.
+    condition     = var._validate_vnet_prefix ? tonumber(regex("[0-9]+$", var.vnet_address_space)) == 16 : true
     error_message = "vnet_address_space must be /16 (e.g., 10.100.0.0/16)."
   }
 }
@@ -97,13 +98,14 @@ variable "_validate_subnet_prefixes" {
   default     = true
 
   validation {
-    condition = alltrue([
+    # Only validate when the internal flag is enabled.
+    condition = var._validate_subnet_prefixes ? alltrue([
       for cidr in concat(
         var.private_subnets_list,
         var.public_subnets_list,
         var.enable_db_subnets ? var.db_subnets_list : []
       ) : tonumber(regex("[0-9]+$", cidr)) == 24
-    ])
+    ]) : true
     error_message = "All subnet CIDRs must be /24."
   }
 }
@@ -114,7 +116,8 @@ variable "_validate_subnet_counts" {
   default     = true
 
   validation {
-    condition = length(var.private_subnets_list) == 1 && length(var.public_subnets_list) == 1 && (var.enable_db_subnets ? length(var.db_subnets_list) == 1 : length(var.db_subnets_list) <= 1)
+    # Only validate when the internal flag is enabled.
+    condition = var._validate_subnet_counts ? length(var.private_subnets_list) == 1 && length(var.public_subnets_list) == 1 && (var.enable_db_subnets ? length(var.db_subnets_list) == 1 : length(var.db_subnets_list) <= 1) : true
     error_message = "private_subnets_list and public_subnets_list must each contain exactly one /24 subnet. If enable_db_subnets is true, db_subnets_list must contain exactly one /24 subnet."
   }
 }

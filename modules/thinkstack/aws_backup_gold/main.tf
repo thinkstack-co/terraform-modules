@@ -184,4 +184,3 @@ resource "aws_backup_selection" "gold_tag_selection" {
     value = var.selection_tag_value
   }
 }
-

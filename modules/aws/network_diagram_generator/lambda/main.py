@@ -68,7 +68,9 @@ def get_instances(ec2):  # ec2: boto3 EC2 client
     return ec2.describe_instances()["Reservations"]
 
 
-def lambda_handler(event, context):  # AWS Lambda entry point
+# Pylint: Lambda handler is intentionally compact for diagram generation.
+# pylint: disable=too-many-locals
+def lambda_handler(_event, _context):  # AWS Lambda entry point
     """Render and upload an AWS network diagram.
 
     Steps:
