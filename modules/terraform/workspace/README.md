@@ -114,13 +114,13 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_tfe"></a> [tfe](#requirement\_tfe) | >=0.42.0 |
+| <a name="requirement_tfe"></a> [tfe](#requirement\_tfe) | >=0.61.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_tfe"></a> [tfe](#provider\_tfe) | >=0.42.0 |
+| <a name="provider_tfe"></a> [tfe](#provider\_tfe) | >=0.61.0 |
 
 ## Modules
 
