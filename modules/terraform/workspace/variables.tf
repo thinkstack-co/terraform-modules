@@ -136,6 +136,12 @@ variable "oauth_token_id" {
   type        = string
 }
 
+variable "parallelism" {
+  description = "(Optional) The number of concurrent operations Terraform will run during plan and apply. Set this higher (e.g. 50) for larger environments to speed up runs. Set to null to use Terraform's default of 10."
+  type        = number
+  default     = null
+}
+
 ##############################
 # Terraform Team Access/Permissions
 ##############################

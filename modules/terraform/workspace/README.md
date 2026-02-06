@@ -2,7 +2,6 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
 
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
@@ -17,7 +16,6 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +39,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,10 +56,11 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
 ## Usage
+
 ### Simple Example
+
 ```
 module "client_prod_security" {
     source           = "github.com/thinkstack-co/terraform-modules//modules/terraform/workspace"
@@ -85,6 +83,22 @@ variable "thinkstack_workspace_permissions_mapping" {
         "security_read"  = {"id" = "team-fdsahfkdsnalka40", "access" = "read"}
         "security_write" = {"id" = "team-fjdkslajfdsa0140", "access" = "write"}
     }
+}
+```
+
+### With Parallelism for Larger Environments
+
+```
+module "client_prod_terraform" {
+    source           = "github.com/thinkstack-co/terraform-modules//modules/terraform/workspace"
+
+    identifier        = "github-repo/client_prod_terraform"
+    name              = "client_prod_terraform"
+    oauth_token_id    = var.github_oauth_token_id
+    organization      = var.organization
+    terraform_version = "~>1.4.0"
+    parallelism       = 50
+    permission_map    = var.workspace_permissions_mapping
 }
 ```
 
@@ -117,7 +131,10 @@ No modules.
 | Name | Type |
 |------|------|
 | [tfe_team_access.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/team_access) | resource |
+| [tfe_variable.parallelism_apply](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) | resource |
+| [tfe_variable.parallelism_plan](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) | resource |
 | [tfe_workspace.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/workspace) | resource |
+| [tfe_workspace_settings.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/workspace_settings) | resource |
 
 ## Inputs
 
@@ -137,6 +154,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | (Required) Name of the workspace. | `string` | n/a | yes |
 | <a name="input_oauth_token_id"></a> [oauth\_token\_id](#input\_oauth\_token\_id) | (Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe\_oauth\_client resource. | `string` | n/a | yes |
 | <a name="input_organization"></a> [organization](#input\_organization) | (Required) Name of the organization. | `string` | n/a | yes |
+| <a name="input_parallelism"></a> [parallelism](#input\_parallelism) | (Optional) The number of concurrent operations Terraform will run during plan and apply. Set this higher (e.g. 50) for larger environments to speed up runs. Set to null to use Terraform's default of 10. | `number` | `null` | no |
 | <a name="input_permission_map"></a> [permission\_map](#input\_permission\_map) | (Required) The permissions map which maps the team\_id to the permission access level. Exampe: 'terraform\_all\_admin = {id = team-fdsa5122q6rwYXP, access = admin}' | `map(any)` | n/a | yes |
 | <a name="input_queue_all_runs"></a> [queue\_all\_runs](#input\_queue\_all\_runs) | (Optional) Whether the workspace should start automatically performing runs immediately after its creation. Defaults to true. When set to false, runs triggered by a webhook (such as a commit in VCS) will not be queued until at least one run has been manually queued. Note: This default differs from the Terraform Cloud API default, which is false. The provider uses true as any workspace provisioned with false would need to then have a run manually queued out-of-band before accepting webhooks. | `bool` | `true` | no |
 | <a name="input_remote_state_consumer_ids"></a> [remote\_state\_consumer\_ids](#input\_remote\_state\_consumer\_ids) | (Optional) The set of workspace IDs set as explicit remote state consumers for the given workspace. | `list(string)` | `null` | no |
@@ -162,18 +180,14 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
 ## Contact
 
-Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
+Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - <info@thinkstack.co>
 
 Project Link: [https://github.com/thinkstack-co/terraform-modules](https://github.com/thinkstack-co/terraform-modules)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
@@ -182,7 +196,6 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 * [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -198,6 +211,3 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [license-url]: https://github.com/thinkstack-co/terraform-modules/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/thinkstack/
-[product-screenshot]: /images/screenshot.webp
-[Terraform.io]: https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform
-[Terraform-url]: https://terraform.io
