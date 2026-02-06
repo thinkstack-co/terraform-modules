@@ -90,10 +90,10 @@ variable "structured_run_output_enabled" {
   default     = true
 }
 
-variable "terraform_version" {
+variable "default_terraform_version" {
   description = "(Optional) The version of Terraform to use for this workspace. This can be either an exact version or a version constraint (like ~> 1.0.0); if you specify a constraint, the workspace will always use the newest release that meets that constraint. Defaults to the latest available version."
   type        = string
-  default     = "~>1.4.0"
+  default     = "~>1.9.0"
 }
 
 variable "trigger_prefixes" {
