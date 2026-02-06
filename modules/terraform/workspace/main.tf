@@ -24,7 +24,7 @@ resource "tfe_workspace" "this" {
   speculative_enabled           = var.speculative_enabled
   ssh_key_id                    = var.ssh_key_id
   structured_run_output_enabled = var.structured_run_output_enabled
-  terraform_version             = var.default_terraform_version
+  terraform_version             = var.terraform_version
   trigger_prefixes              = var.trigger_prefixes
   tag_names                     = var.tag_names
   working_directory             = var.working_directory
