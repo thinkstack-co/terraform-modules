@@ -235,13 +235,6 @@ resource "azurerm_monitor_metric_alert" "vm_availability" {
     aggregation      = "Average"
     operator         = "LessThan"
     threshold        = 1
-
-    # Alert if VM is unavailable for 2 consecutive 1-minute periods
-    dimension {
-      name     = "VMName"
-      operator = "Include"
-      values   = [var.name]
-    }
   }
 
   frequency   = "PT1M"
