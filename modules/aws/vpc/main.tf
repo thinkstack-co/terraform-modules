@@ -27,12 +27,13 @@ locals {
   create_nat_gateway        = var.enable_nat_gateway && local.create_public_subnets
 
   # Apply route propagation only when explicitly enabled at the module level.
-  effective_public_propagating_vgws     = var.enable_route_table_propagation ? var.public_propagating_vgws : []
-  effective_private_propagating_vgws    = var.enable_route_table_propagation ? var.private_propagating_vgws : []
-  effective_db_propagating_vgws         = var.enable_route_table_propagation ? var.db_propagating_vgws : []
-  effective_dmz_propagating_vgws        = var.enable_route_table_propagation ? var.dmz_propagating_vgws : []
-  effective_mgmt_propagating_vgws       = var.enable_route_table_propagation ? var.mgmt_propagating_vgws : []
-  effective_workspaces_propagating_vgws = var.enable_route_table_propagation ? var.workspaces_propagating_vgws : []
+  # Null means "do not manage this argument" so external propagation resources can own it.
+  effective_public_propagating_vgws     = var.enable_route_table_propagation ? var.public_propagating_vgws : null
+  effective_private_propagating_vgws    = var.enable_route_table_propagation ? var.private_propagating_vgws : null
+  effective_db_propagating_vgws         = var.enable_route_table_propagation ? var.db_propagating_vgws : null
+  effective_dmz_propagating_vgws        = var.enable_route_table_propagation ? var.dmz_propagating_vgws : null
+  effective_mgmt_propagating_vgws       = var.enable_route_table_propagation ? var.mgmt_propagating_vgws : null
+  effective_workspaces_propagating_vgws = var.enable_route_table_propagation ? var.workspaces_propagating_vgws : null
 }
 
 ###########################
