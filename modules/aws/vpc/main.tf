@@ -25,6 +25,14 @@ locals {
   create_workspaces_subnets = !var.workspaces_subnet_disabled && length(var.workspaces_subnets_list) > 0
   create_ssm_vpc_endpoints  = var.enable_ssm_vpc_endpoints && local.create_private_subnets
   create_nat_gateway        = var.enable_nat_gateway && local.create_public_subnets
+
+  # Apply route propagation only when explicitly enabled at the module level.
+  effective_public_propagating_vgws     = var.enable_route_table_propagation ? var.public_propagating_vgws : []
+  effective_private_propagating_vgws    = var.enable_route_table_propagation ? var.private_propagating_vgws : []
+  effective_db_propagating_vgws         = var.enable_route_table_propagation ? var.db_propagating_vgws : []
+  effective_dmz_propagating_vgws        = var.enable_route_table_propagation ? var.dmz_propagating_vgws : []
+  effective_mgmt_propagating_vgws       = var.enable_route_table_propagation ? var.mgmt_propagating_vgws : []
+  effective_workspaces_propagating_vgws = var.enable_route_table_propagation ? var.workspaces_propagating_vgws : []
 }
 
 ###########################
@@ -208,7 +216,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_route_table" "public_route_table" {
-  propagating_vgws = var.public_propagating_vgws
+  propagating_vgws = local.effective_public_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-public", var.name) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -238,7 +246,7 @@ resource "aws_nat_gateway" "natgw" {
 
 resource "aws_route_table" "private_route_table" {
   count            = local.create_private_subnets ? length(var.azs) : 0
-  propagating_vgws = var.private_propagating_vgws
+  propagating_vgws = local.effective_private_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -259,7 +267,7 @@ resource "aws_route" "private_default_route_fw" {
 
 resource "aws_route_table" "db_route_table" {
   count            = local.create_db_subnets ? length(var.azs) : 0
-  propagating_vgws = var.db_propagating_vgws
+  propagating_vgws = local.effective_db_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-db-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -280,7 +288,7 @@ resource "aws_route" "db_default_route_fw" {
 
 resource "aws_route_table" "dmz_route_table" {
   count            = local.create_dmz_subnets ? length(var.azs) : 0
-  propagating_vgws = var.dmz_propagating_vgws
+  propagating_vgws = local.effective_dmz_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -301,7 +309,7 @@ resource "aws_route" "dmz_default_route_fw" {
 
 resource "aws_route_table" "mgmt_route_table" {
   count            = local.create_mgmt_subnets ? length(var.azs) : 0
-  propagating_vgws = var.mgmt_propagating_vgws
+  propagating_vgws = local.effective_mgmt_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }
@@ -322,7 +330,7 @@ resource "aws_route" "mgmt_default_route_fw" {
 
 resource "aws_route_table" "workspaces_route_table" {
   count            = local.create_workspaces_subnets ? length(var.azs) : 0
-  propagating_vgws = var.workspaces_propagating_vgws
+  propagating_vgws = local.effective_workspaces_propagating_vgws
   tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, element(var.azs, count.index)) }))
   vpc_id           = aws_vpc.vpc.id
 }

@@ -30,6 +30,12 @@ variable "customer_name" {
   default     = ""
 }
 
+variable "record_all_resource_types" {
+  description = "When true, the Config recorder records ALL supported resource types (including global resources). Required for accounts enrolled in Security Hub. When false, only resource types tied to enabled Config rules are recorded."
+  type        = bool
+  default     = true
+}
+
 variable "account_display_name" {
   description = "Optional: The IAM account alias or display name to use in compliance reports if Organizations API is unavailable."
   type        = string

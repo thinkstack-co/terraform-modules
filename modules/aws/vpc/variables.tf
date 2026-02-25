@@ -139,6 +139,13 @@ variable "single_nat_gateway" {
 # Route Tables and Associations
 ###########################
 
+# Toggle to enable or disable VGW route propagation across all route tables.
+variable "enable_route_table_propagation" {
+  type        = bool
+  description = "Enable or disable route propagation (propagating_vgws) for all route tables in this module."
+  default     = true
+}
+
 variable "db_propagating_vgws" {
   type        = list(string)
   description = "A list of VGWs the db route table should propagate."
