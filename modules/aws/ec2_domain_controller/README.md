@@ -200,6 +200,7 @@ No modules.
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | (Optional) Amazon Resource Name (ARN) of the KMS Key to use when encrypting the volume. Must be configured to perform drift detection. | `string` | `null` | no |
 | <a name="input_monitoring"></a> [monitoring](#input\_monitoring) | (Optional) If true, the launched EC2 instance will have detailed monitoring enabled. (Available since v0.6.0) | `bool` | `true` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the instance. Used in tags for resources. | `string` | n/a | yes |
+| <a name="input_ntp_servers"></a> [ntp\_servers](#input\_ntp\_servers) | (Optional) List of NTP servers to configure for the DHCP options. Provide the IP addresses as strings. | `list(string)` | `null` | no |
 | <a name="input_number"></a> [number](#input\_number) | (Optional) The number of instances and supporting resources to create. This allows high availability configurations. Default is 2. | `number` | `2` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | (Optional) Placement Group to start the instance in. | `string` | `null` | no |
 | <a name="input_private_ip"></a> [private\_ip](#input\_private\_ip) | (Required) Private IP address(es) to associate with the instance(s) in a VPC. | `list(string)` | n/a | yes |
