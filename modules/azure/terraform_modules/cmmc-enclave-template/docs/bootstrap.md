@@ -70,7 +70,7 @@ az ad app federated-credential create \
   --parameters '{
     "name": "github-main",
     "issuer": "https://token.actions.githubusercontent.com",
-    "subject": "repo:NetworkCoverage/cmmc-<customer>-enclave:ref:refs/heads/main",
+    "subject": "repo:thinkstack-co/cmmc-<customer>-enclave:ref:refs/heads/main",
     "audiences": ["api://AzureADTokenExchange"]
   }'
 
@@ -80,7 +80,7 @@ az ad app federated-credential create \
   --parameters '{
     "name": "github-pr",
     "issuer": "https://token.actions.githubusercontent.com",
-    "subject": "repo:NetworkCoverage/cmmc-<customer>-enclave:pull_request",
+    "subject": "repo:thinkstack-co/cmmc-<customer>-enclave:pull_request",
     "audiences": ["api://AzureADTokenExchange"]
   }'
 ```
@@ -130,13 +130,13 @@ az role assignment create \
 
 ```bash
 # Create customer repo
-gh repo create NetworkCoverage/cmmc-<customer>-enclave --private
+gh repo create thinkstack-co/cmmc-<customer>-enclave --private
 
 # Set GitHub secrets for OIDC
-gh secret set AZURE_CLIENT_ID --body "<appId>" --repo NetworkCoverage/cmmc-<customer>-enclave
-gh secret set AZURE_TENANT_ID --body "<tenant-id>" --repo NetworkCoverage/cmmc-<customer>-enclave
-gh secret set AZURE_SUBSCRIPTION_ID --body "<subscription-id>" --repo NetworkCoverage/cmmc-<customer>-enclave
-gh secret set TF_VAR_vm_admin_password --body "<password>" --repo NetworkCoverage/cmmc-<customer>-enclave
+gh secret set AZURE_CLIENT_ID --body "<appId>" --repo thinkstack-co/cmmc-<customer>-enclave
+gh secret set AZURE_TENANT_ID --body "<tenant-id>" --repo thinkstack-co/cmmc-<customer>-enclave
+gh secret set AZURE_SUBSCRIPTION_ID --body "<subscription-id>" --repo thinkstack-co/cmmc-<customer>-enclave
+gh secret set TF_VAR_vm_admin_password --body "<password>" --repo thinkstack-co/cmmc-<customer>-enclave
 ```
 
 ---

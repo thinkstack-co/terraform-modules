@@ -28,7 +28,7 @@ terraform apply -target=module.session_hosts
 
 ```hcl
 module "session_hosts" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/08-session-hosts?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/08-session-hosts?ref=v2.9.2"
 
   resource_group_name     = azurerm_resource_group.avd.name
   location                = var.location

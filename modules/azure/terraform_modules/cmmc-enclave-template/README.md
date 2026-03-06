@@ -68,7 +68,7 @@ Before using this library, ensure the following are in place for the target cust
 This library uses **semantic versioning** via git tags. Customer repos must always pin a specific version using `?ref=`:
 
 ```hcl
-source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/02-mgmt-vnet?ref=v1.0.0"
+source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/02-mgmt-vnet?ref=v2.9.2"
 ```
 
 Pinning to a tag ensures customer deployments are not affected by changes to this library until explicitly upgraded. Never use `?ref=main` in production.
@@ -91,7 +91,7 @@ Before creating a customer repo, complete the one-time setup documented in [`doc
 ### 1. Create the customer repo
 
 ```bash
-gh repo create NetworkCoverage/cmmc-<customer>-enclave --private
+gh repo create thinkstack-co/cmmc-<customer>-enclave --private
 cd cmmc-<customer>-enclave
 ```
 

@@ -6,10 +6,10 @@ This directory shows how a customer-specific deployment repo should be structure
 
 ## How to Use
 
-1. Create a new private repo: `gh repo create NetworkCoverage/cmmc-<customer>-enclave --private`
+1. Create a new private repo: `gh repo create thinkstack-co/cmmc-<customer>-enclave --private`
 2. Copy the files in this directory into the new repo as a starting point
 3. Update `backend.tf` with the customer's state storage account details
-4. Update `?ref=v1.0.0` in all module `source` strings to pin the desired template version
+4. Update `?ref=v2.9.2` in all module `source` strings to pin the desired template version
 5. Copy `terraform.tfvars.example` to `terraform.tfvars`, fill in values
 6. Set `TF_VAR_vm_admin_password` as an environment variable or GitHub secret
 7. Complete bootstrap steps: see [`docs/bootstrap.md`](../../docs/bootstrap.md)

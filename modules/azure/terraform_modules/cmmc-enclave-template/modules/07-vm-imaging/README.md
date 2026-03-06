@@ -30,7 +30,7 @@ Terraform does not manage image versions. Populate them via:
 
 ```hcl
 module "vm_imaging" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/07-vm-imaging?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/07-vm-imaging?ref=v2.9.2"
 
   resource_group_name = azurerm_resource_group.imaging.name
   location            = var.location

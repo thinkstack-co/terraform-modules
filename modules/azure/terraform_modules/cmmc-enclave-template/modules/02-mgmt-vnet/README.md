@@ -16,7 +16,7 @@ Deploys the management virtual network including Azure Firewall Premium, Azure B
 
 ```hcl
 module "mgmt_vnet" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/02-mgmt-vnet?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/02-mgmt-vnet?ref=v2.9.2"
 
   resource_group_name = azurerm_resource_group.mgmt.name
   location            = var.location

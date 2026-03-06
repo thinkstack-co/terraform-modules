@@ -14,7 +14,7 @@ Deploys a Premium Azure Storage account for FSLogix user profile containers with
 
 ```hcl
 module "storage" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/06-storage?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/06-storage?ref=v2.9.2"
 
   resource_group_name  = azurerm_resource_group.storage.name
   location             = var.location

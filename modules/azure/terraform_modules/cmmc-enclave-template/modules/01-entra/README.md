@@ -21,7 +21,7 @@ Creates Entra ID security groups, PIM eligibility schedules, subscription-level 
 
 ```hcl
 module "entra" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/01-entra?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/01-entra?ref=v2.9.2"
 
   tenant_id       = var.tenant_id
   subscription_id = var.subscription_id

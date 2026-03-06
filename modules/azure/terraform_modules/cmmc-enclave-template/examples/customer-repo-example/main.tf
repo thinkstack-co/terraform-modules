@@ -52,7 +52,7 @@ resource "azurerm_resource_group" "imaging" {
 # ---------------------------------------------------------------------------
 
 module "entra" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/01-entra?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/01-entra?ref=v2.9.2"
 
   tenant_id       = var.tenant_id
   subscription_id = var.subscription_id
@@ -66,7 +66,7 @@ module "entra" {
 # ---------------------------------------------------------------------------
 
 module "mgmt_vnet" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/02-mgmt-vnet?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/02-mgmt-vnet?ref=v2.9.2"
 
   resource_group_name = azurerm_resource_group.mgmt.name
   location            = var.location
@@ -81,7 +81,7 @@ module "mgmt_vnet" {
 # ---------------------------------------------------------------------------
 
 module "prod_vnet" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/03-prod-vnet?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/03-prod-vnet?ref=v2.9.2"
 
   resource_group_name      = azurerm_resource_group.prod.name
   location                 = var.location
@@ -101,7 +101,7 @@ module "prod_vnet" {
 # ---------------------------------------------------------------------------
 
 module "appgate_sdp" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/04-appgate-sdp?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp?ref=v2.9.2"
 
   resource_group_name = azurerm_resource_group.ztna.name
   location            = var.location
@@ -120,7 +120,7 @@ module "appgate_sdp" {
 # ---------------------------------------------------------------------------
 
 module "avd" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/05-avd?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/05-avd?ref=v2.9.2"
 
   resource_group_name        = azurerm_resource_group.avd.name
   location                   = var.location
@@ -139,7 +139,7 @@ module "avd" {
 # ---------------------------------------------------------------------------
 
 module "storage" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/06-storage?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/06-storage?ref=v2.9.2"
 
   resource_group_name  = azurerm_resource_group.storage.name
   location             = var.location
@@ -157,7 +157,7 @@ module "storage" {
 # ---------------------------------------------------------------------------
 
 module "vm_imaging" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/07-vm-imaging?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/07-vm-imaging?ref=v2.9.2"
 
   resource_group_name = azurerm_resource_group.imaging.name
   location            = var.location
@@ -172,7 +172,7 @@ module "vm_imaging" {
 # ---------------------------------------------------------------------------
 
 module "session_hosts" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/08-session-hosts?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/08-session-hosts?ref=v2.9.2"
 
   resource_group_name     = azurerm_resource_group.avd.name
   location                = var.location
@@ -197,7 +197,7 @@ module "session_hosts" {
 # ---------------------------------------------------------------------------
 
 module "intune" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/09-intune?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/09-intune?ref=v2.9.2"
 
   tenant_id        = var.tenant_id
   target_group_ids = [module.entra.sspr_group_id]

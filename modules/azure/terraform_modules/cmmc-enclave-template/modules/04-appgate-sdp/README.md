@@ -68,7 +68,7 @@ After VMs are deployed, run the Appgate configuration scripts (from the `azure-r
 
 ```hcl
 module "appgate_sdp" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/04-appgate-sdp?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp?ref=v2.9.2"
 
   resource_group_name = azurerm_resource_group.ztna.name
   location            = var.location

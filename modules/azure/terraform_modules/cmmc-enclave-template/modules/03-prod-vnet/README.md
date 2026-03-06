@@ -13,7 +13,7 @@ Deploys the production virtual network with customer subnets, bidirectional VNet
 
 ```hcl
 module "prod_vnet" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/03-prod-vnet?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/03-prod-vnet?ref=v2.9.2"
 
   resource_group_name      = azurerm_resource_group.prod.name
   location                 = var.location

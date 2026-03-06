@@ -22,7 +22,7 @@ This module uses the `hashicorp/microsoft365` provider which calls MS Graph Beta
 
 ```hcl
 module "intune" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/09-intune?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/09-intune?ref=v2.9.2"
 
   tenant_id        = var.tenant_id
   target_group_ids = [module.entra.sspr_group_id]

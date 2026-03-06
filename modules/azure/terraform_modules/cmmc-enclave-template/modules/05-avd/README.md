@@ -25,7 +25,7 @@ terraform apply -target=module.avd.azurerm_virtual_desktop_host_pool_registratio
 
 ```hcl
 module "avd" {
-  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/05-avd?ref=v1.0.0"
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/05-avd?ref=v2.9.2"
 
   resource_group_name        = azurerm_resource_group.avd.name
   location                   = var.location
