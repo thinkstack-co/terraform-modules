@@ -1,0 +1,137 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
+
+locals {
+  fslogix_unc_path = "\\\\${var.fslogix_storage_account}.file.core.usgovcloudapi.net\\${var.fslogix_share_name}"
+}
+
+# ---------------------------------------------------------------------------
+# Network Interfaces
+# ---------------------------------------------------------------------------
+
+resource "azurerm_network_interface" "session_host" {
+  count               = var.host_count
+  name                = "${var.customer_name}-avd-${format("%02d", count.index + 1)}-nic"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
+
+  ip_configuration {
+    name                          = "ipconfig1"
+    subnet_id                     = var.subnet_id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Session Host VMs — Windows 11, Trusted Launch, Entra-joined
+# ---------------------------------------------------------------------------
+
+resource "azurerm_windows_virtual_machine" "session_host" {
+  count               = var.host_count
+  name                = "${var.customer_name}-avd-${format("%02d", count.index + 1)}"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  size                = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  tags                = var.tags
+
+  network_interface_ids = [azurerm_network_interface.session_host[count.index].id]
+
+  # Trusted Launch (UEFI + vTPM)
+  vtpm_enabled        = true
+  secure_boot_enabled = true
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = var.os_disk_type
+    disk_size_gb         = 128
+  }
+
+  source_image_id = "${var.gallery_image_id}/versions/${var.image_version}"
+
+  # Windows Client licensing for AVD
+  license_type = "Windows_Client"
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Entra ID Join Extension
+# ---------------------------------------------------------------------------
+
+resource "azurerm_virtual_machine_extension" "aad_login" {
+  count                = var.host_count
+  name                 = "AADLoginForWindows"
+  virtual_machine_id   = azurerm_windows_virtual_machine.session_host[count.index].id
+  publisher            = "Microsoft.Azure.ActiveDirectory"
+  type                 = "AADLoginForWindows"
+  type_handler_version = "2.0"
+
+  settings = jsonencode({
+    mdmId = ""
+  })
+
+  tags = var.tags
+}
+
+# ---------------------------------------------------------------------------
+# AVD Agent Registration Extension
+# ---------------------------------------------------------------------------
+
+resource "azurerm_virtual_machine_extension" "avd_dsc" {
+  count                = var.host_count
+  name                 = "Microsoft.PowerShell.DSC"
+  virtual_machine_id   = azurerm_windows_virtual_machine.session_host[count.index].id
+  publisher            = "Microsoft.Powershell"
+  type                 = "DSC"
+  type_handler_version = "2.73"
+
+  settings = jsonencode({
+    modulesUrl            = "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_1.0.02714.442.zip"
+    configurationFunction = "Configuration.ps1\\AddSessionHost"
+    properties = {
+      HostPoolName        = split("/", var.host_pool_id)[8]
+      RegistrationInfoToken = var.registration_token
+      AadJoin             = true
+    }
+  })
+
+  depends_on = [azurerm_virtual_machine_extension.aad_login]
+  tags       = var.tags
+}
+
+# ---------------------------------------------------------------------------
+# FSLogix Configuration via Custom Script Extension
+# ---------------------------------------------------------------------------
+
+resource "azurerm_virtual_machine_extension" "fslogix" {
+  count                = var.host_count
+  name                 = "FSLogixSetup"
+  virtual_machine_id   = azurerm_windows_virtual_machine.session_host[count.index].id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+
+  protected_settings = jsonencode({
+    commandToExecute = join(" ", [
+      "powershell -ExecutionPolicy Unrestricted -Command",
+      "\"New-Item -Path 'HKLM:\\SOFTWARE\\FSLogix\\Profiles' -Force;",
+      "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\FSLogix\\Profiles' -Name 'Enabled' -Value 1;",
+      "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\FSLogix\\Profiles' -Name 'VHDLocations' -Value '${local.fslogix_unc_path}';",
+      "net use ${local.fslogix_unc_path} /user:AZURE\\${var.fslogix_storage_account} '${var.fslogix_storage_key}' /persistent:yes\"",
+    ])
+  })
+
+  depends_on = [azurerm_virtual_machine_extension.aad_login]
+  tags       = var.tags
+}

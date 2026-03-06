@@ -1,0 +1,52 @@
+# Module: 02-mgmt-vnet
+
+Deploys the management virtual network including Azure Firewall Premium, Azure Bastion, route tables, and Log Analytics workspaces.
+
+## Resources Created
+
+- Management VNet (172.16.0.0/16 default) with 4 subnets
+- Azure Firewall Premium with IDPS in Alert mode, DNS proxy, web category filtering
+- 2 public IPs for Azure Firewall
+- Azure Bastion (Standard, 2 scale units) with file copy and tunneling
+- Route table routing 0.0.0.0/0 through firewall (applied to ZTNA + Mgmt-AVD subnets)
+- 2 Log Analytics workspaces (VNet + Firewall), 30-day retention
+- Diagnostic settings for VNet and Firewall
+
+## Usage
+
+```hcl
+module "mgmt_vnet" {
+  source = "github.com/NetworkCoverage/cmmc-enclave-template//modules/02-mgmt-vnet?ref=v1.0.0"
+
+  resource_group_name = azurerm_resource_group.mgmt.name
+  location            = var.location
+  tags                = local.common_tags
+}
+```
+
+## Inputs
+
+| Name | Type | Default | Description |
+|---|---|---|---|
+| `resource_group_name` | string | required | Resource group name |
+| `location` | string | required | Azure Government region |
+| `mgmt_vnet_cidr` | string | `172.16.0.0/16` | Management VNet address space |
+| `firewall_subnet_cidr` | string | `172.16.0.0/26` | AzureFirewallSubnet CIDR |
+| `bastion_subnet_cidr` | string | `172.16.0.64/26` | AzureBastionSubnet CIDR |
+| `ztna_subnet_cidr` | string | `172.16.0.128/26` | ZTNA subnet CIDR |
+| `mgmt_avd_subnet_cidr` | string | `172.16.0.192/26` | Management AVD subnet CIDR |
+| `log_retention_days` | number | `30` | Log Analytics retention days |
+| `tags` | map(string) | `{}` | Resource tags |
+
+## Outputs
+
+| Name | Description |
+|---|---|
+| `vnet_id` | Management VNet resource ID |
+| `vnet_name` | Management VNet name |
+| `subnet_ids` | Map of subnet name → resource ID |
+| `firewall_private_ip` | Firewall private IP (used for routing) |
+| `firewall_public_ip` | Firewall primary public IP |
+| `firewall_policy_id` | Firewall policy ID (for adding rule collection groups) |
+| `log_analytics_workspace_id` | Shared Log Analytics workspace ID |
+| `log_analytics_workspace_key` | Shared Log Analytics workspace key (sensitive) |

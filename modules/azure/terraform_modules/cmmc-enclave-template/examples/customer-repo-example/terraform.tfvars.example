@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------------------
+# terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and fill in values for your deployment.
+# NEVER commit terraform.tfvars — it is gitignored.
+# Sensitive values (vm_admin_password) should be set via:
+#   export TF_VAR_vm_admin_password="<password>"
+# ---------------------------------------------------------------------------
+
+tenant_id        = "00000000-0000-0000-0000-000000000000"
+subscription_id  = "00000000-0000-0000-0000-000000000000"
+customer_name    = "acme"
+location         = "usgovarizona"
+
+# Storage account name must be globally unique, 3-24 lowercase alphanumeric
+storage_account_name = "acmefslogix001"
+
+# IPs allowed to SSH to Appgate Controller/Gateway
+admin_source_ips = ["203.0.113.10/32"]
+
+# Entra ID UPNs for initial Global Admin group members
+admin_upns = ["admin@acme.onmicrosoft.us"]
+
+# Networking
+mgmt_vnet_cidr = "172.16.0.0/16"
+prod_vnet_cidr = "172.17.0.0/16"
+
+# AVD
+session_host_count      = 5
+vm_size                 = "Standard_D4s_v5"
+vm_admin_username       = "avdadmin"
+customer_host_pool_type = "Pooled"
+customer_max_sessions   = 10
+
+# Storage
+fslogix_share_size_gb = 512
+
+# Tagging
+environment = "production"
+
+# vm_admin_password — set via environment variable:
+# export TF_VAR_vm_admin_password="YourStrongPassword123!"
