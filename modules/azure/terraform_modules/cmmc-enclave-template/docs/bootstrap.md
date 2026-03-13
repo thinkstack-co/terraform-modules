@@ -50,9 +50,11 @@ az role assignment create \
   --scope /subscriptions/<subscription-id>
 
 # Cloud Application Administrator — for Entra ID app registrations
+# Uses unified RBAC API (works even if the role has never been activated in the tenant)
 az rest --method POST \
-  --uri "https://graph.microsoft.us/v1.0/directoryRoles/roleTemplateId=158c047a-c907-4556-b7ef-446551a6b5f7/members/\$ref" \
-  --body "{\"@odata.id\": \"https://graph.microsoft.us/v1.0/directoryObjects/$SP_OBJECT_ID\"}"
+  --uri "https://graph.microsoft.us/v1.0/roleManagement/directory/roleAssignments" \
+  --headers "Content-Type=application/json" \
+  --body "{\"principalId\": \"$SP_OBJECT_ID\", \"roleDefinitionId\": \"158c047a-c907-4556-b7ef-446551a6b5f7\", \"directoryScopeId\": \"/\"}"
 ```
 
 ---
@@ -87,7 +89,30 @@ az ad app federated-credential create \
 
 ---
 
-## Step 4: Create Remote State Storage
+## Step 4: Register Resource Providers
+
+New Azure Government subscriptions require resource providers to be registered before use.
+Azure returns a misleading `SubscriptionNotFound` error if you skip this step.
+
+```bash
+az provider register --namespace Microsoft.Storage
+az provider register --namespace Microsoft.Network
+az provider register --namespace Microsoft.Compute
+az provider register --namespace Microsoft.KeyVault
+az provider register --namespace Microsoft.DesktopVirtualization
+az provider register --namespace Microsoft.RecoveryServices
+
+# Wait for all to reach Registered state (~1 min each)
+for ns in Microsoft.Storage Microsoft.Network Microsoft.Compute Microsoft.KeyVault Microsoft.DesktopVirtualization Microsoft.RecoveryServices; do
+  echo "$ns: $(az provider show --namespace $ns --query registrationState -o tsv)"
+done
+```
+
+Re-run the check until all show `Registered` before proceeding.
+
+---
+
+## Step 5: Create Remote State Storage
 
 ```bash
 # Resource group
@@ -109,12 +134,14 @@ az storage account blob-service-properties update \
   --account-name "<customer>tfstate001" \
   --resource-group "<customer>-tfstate-rg" \
   --enable-versioning true \
+  --enable-delete-retention true \
   --delete-retention-days 90
 
 # Create state container
 az storage container create \
   --name tfstate \
-  --account-name "<customer>tfstate001"
+  --account-name "<customer>tfstate001" \
+  --auth-mode login
 
 # Grant SP access to state storage
 az role assignment create \
@@ -126,7 +153,7 @@ az role assignment create \
 
 ---
 
-## Step 5: Configure GitHub Repository
+## Step 6: Configure GitHub Repository
 
 ```bash
 # Create customer repo
@@ -141,7 +168,7 @@ gh secret set TF_VAR_vm_admin_password --body "<password>" --repo thinkstack-co/
 
 ---
 
-## Step 6: Configure GitHub Environments
+## Step 7: Configure GitHub Environments
 
 1. Go to the customer repo → Settings → Environments
 2. Create environment `cmmc-production`
@@ -151,7 +178,7 @@ gh secret set TF_VAR_vm_admin_password --body "<password>" --repo thinkstack-co/
 
 ---
 
-## Step 7: Update backend.tf
+## Step 8: Update backend.tf
 
 In the customer repo's `backend.tf`, replace placeholder values:
 
@@ -175,6 +202,7 @@ terraform {
 - [ ] Azure Government cloud set and logged in
 - [ ] Service principal created with Contributor + User Access Administrator + Cloud Application Administrator
 - [ ] OIDC federated credentials configured for `main` branch and pull requests
+- [ ] Resource providers registered (Storage, Network, Compute, KeyVault, DesktopVirtualization, RecoveryServices)
 - [ ] State storage account created (Standard GRS, blob versioning, soft delete 90d)
 - [ ] SP granted Storage Blob Data Contributor on state storage account
 - [ ] GitHub repo created with AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, TF_VAR_vm_admin_password secrets
