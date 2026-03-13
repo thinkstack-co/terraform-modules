@@ -12,7 +12,7 @@ az login
 
 # List all Appgate images
 az vm image list \
-  --publisher appgate \
+  --publisher cyxtera \
   --all \
   --location usgovarizona \
   --output table
@@ -36,13 +36,13 @@ Add to `modules/04-appgate-sdp/main.tf`:
 
 ```hcl
 resource "azurerm_marketplace_agreement" "appgate_ctl" {
-  publisher = "appgate"
+  publisher = "cyxtera"
   offer     = "<offer-from-step-1>"
   plan      = "<sku-from-step-1>"
 }
 
 resource "azurerm_marketplace_agreement" "appgate_gw" {
-  publisher = "appgate"
+  publisher = "cyxtera"
   offer     = "<offer-from-step-1-gateway>"
   plan      = "<sku-from-step-1-gateway>"
 }
@@ -58,7 +58,7 @@ In each VM resource, set:
 
 ```hcl
 source_image_reference {
-  publisher = "appgate"
+  publisher = "cyxtera"
   offer     = "<offer>"
   sku       = "<sku>"
   version   = "latest"
@@ -67,7 +67,7 @@ source_image_reference {
 plan {
   name      = "<sku>"
   product   = "<offer>"
-  publisher = "appgate"
+  publisher = "cyxtera"
 }
 ```
 

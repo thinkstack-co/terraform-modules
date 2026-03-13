@@ -1,8 +1,6 @@
 # Module: 04-appgate-sdp
 
-Deploys Appgate SDP Zero Trust Network Access infrastructure. Key Vault, SSH key generation, and firewall DNAT rules are fully implemented. **Controller and Gateway VMs are stubbed** pending marketplace image availability verification in Azure Government.
-
-> See [`docs/appgate-image.md`](../../docs/appgate-image.md) for image verification and VM implementation steps.
+Deploys Appgate SDP Zero Trust Network Access infrastructure. Key Vault, SSH key generation, and firewall DNAT rules are fully implemented. **Controller and Gateway VMs are stubbed** — uncomment them in `main.tf` to deploy.
 
 ## Resources Created (Implemented)
 
@@ -17,52 +15,39 @@ Deploys Appgate SDP Zero Trust Network Access infrastructure. Key Vault, SSH key
 - Appgate SDP Controller VM (`azurerm_linux_virtual_machine`)
 - Appgate SDP Gateway VM (`azurerm_linux_virtual_machine`)
 - Public IPs and NICs for Controller and Gateway
-- `azurerm_marketplace_agreement` (if marketplace image available)
+- `azurerm_marketplace_agreement` for `cyxtera:appgatesdp-vm:v6_6_gov_vm`
 - Appgate OIDC application registration (`azuread_application`)
 
 ## Completing the Module
 
-### Step 1: Verify marketplace image availability
+### Step 1: Accept the marketplace agreement
 
-```bash
-az cloud set --name AzureUSGovernment
-az login
-az vm image list --publisher appgate --all --location usgovarizona --output table
+The image is confirmed available in Azure Government (`cyxtera:appgatesdp-vm:v6_6_gov_vm:6.6.0`). Accept the agreement before deploying:
+
+```hcl
+resource "azurerm_marketplace_agreement" "appgate" {
+  publisher = "cyxtera"
+  offer     = "appgatesdp-vm"
+  plan      = "v6_6_gov_vm"
+}
 ```
 
-### Step 2a: If marketplace image is available
+### Step 2: Uncomment VM resources
 
-1. Accept the marketplace agreement:
-
-   ```hcl
-   resource "azurerm_marketplace_agreement" "appgate" {
-     publisher = "appgate"
-     offer     = "<offer-from-step-1>"
-     plan      = "<sku-from-step-1>"
-   }
-   ```
-
-2. Uncomment the VM resources in `main.tf` and set the correct `source_image_reference` and `plan {}` block.
-
-### Step 2b: If marketplace image is NOT available
-
-1. Obtain the VHD from the Appgate vendor
-2. Upload to a storage account in Azure Government
-3. Create an `azurerm_image` resource from the VHD URI
-4. Reference `azurerm_image.appgate.id` in `source_image_id` (no `plan {}` block needed)
+Uncomment the VM resources in `main.tf` — `source_image_reference` and `plan {}` are already populated with the correct values.
 
 ## Post-Deployment Configuration
 
-After VMs are deployed, run the Appgate configuration scripts (from the `azure-resource-manager` repo) in this order:
+After VMs are deployed, run the scripts in `./scripts/` in this order:
 
-1. `provision-appgate.sh` — initial installation
-2. `seed-controller.sh` — initialize controller
-3. `seed-gateway.sh` — initialize gateway
-4. `create-oidc-idp.sh` — OIDC identity provider setup
-5. `create-client-profile.sh` — client profiles
-6. `create-tunnel-policy.sh` — tunnel policies
-7. `create-full-tunnel-entitlement.sh` — entitlements
-8. `enable-full-tunnel-default-site.sh` — default site routing
+1. `./scripts/provision-appgate.sh` — orchestrates all steps below end-to-end
+2. `./scripts/seed-controller.sh` — initialize controller
+3. `./scripts/seed-gateway.sh` — initialize gateway
+4. `./scripts/enable-full-tunnel-default-site.sh` — default site routing
+5. `./scripts/create-oidc-idp.sh` — OIDC identity provider setup
+6. `./scripts/create-full-tunnel-entitlement.sh` — entitlements
+7. `./scripts/create-tunnel-policy.sh` — tunnel policies
+8. `./scripts/create-client-profile.sh` — client profiles
 
 ## Usage
 

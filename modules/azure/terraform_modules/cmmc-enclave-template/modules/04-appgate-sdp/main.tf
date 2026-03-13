@@ -159,21 +159,13 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
 # ---------------------------------------------------------------------------
 # TODO: Appgate Controller VM
 #
-# Before implementing, verify marketplace image availability:
-#   az vm image list --publisher appgate --all --location usgovarizona
+# Marketplace image confirmed available in usgovarizona:
+#   Publisher: cyxtera  |  Offer: appgatesdp-vm  |  SKU: v6_6_gov_vm  |  Version: 6.6.0
 #
-# If available (marketplace):
+# To deploy:
 #   - Uncomment the resources below
-#   - Add azurerm_marketplace_agreement resource
-#   - Set image_reference to the marketplace offer/sku
-#   - Add plan {} block to the VM resource
-#
-# If unavailable (vendor VHD):
-#   - Obtain VHD from Appgate vendor
-#   - Upload to Azure Government storage account
-#   - Create azurerm_image from VHD URI
-#   - Reference azurerm_image.appgate.id in source_image_id
-#   - Remove plan {} block
+#   - Add azurerm_marketplace_agreement resource for cyxtera:appgatesdp-vm:v6_6_gov_vm
+#   - Update source_image_reference and plan {} blocks with values above
 #
 # See docs/appgate-image.md for detailed instructions.
 # ---------------------------------------------------------------------------
@@ -223,19 +215,18 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
 #     disk_size_gb         = 128
 #   }
 
-#   # TODO: Set correct image reference after marketplace verification
-#   # source_image_reference {
-#   #   publisher = "appgate"
-#   #   offer     = "appgate-sdp-controller"
-#   #   sku       = "appgate-sdp-controller"
-#   #   version   = "latest"
-#   # }
+#   source_image_reference {
+#     publisher = "cyxtera"
+#     offer     = "appgatesdp-vm"
+#     sku       = "v6_6_gov_vm"
+#     version   = "6.6.0"
+#   }
 
-#   # plan {
-#   #   name      = "appgate-sdp-controller"
-#   #   product   = "appgate-sdp-controller"
-#   #   publisher = "appgate"
-#   # }
+#   plan {
+#     name      = "v6_6_gov_vm"
+#     product   = "appgatesdp-vm"
+#     publisher = "cyxtera"
+#   }
 # }
 
 # ---------------------------------------------------------------------------
