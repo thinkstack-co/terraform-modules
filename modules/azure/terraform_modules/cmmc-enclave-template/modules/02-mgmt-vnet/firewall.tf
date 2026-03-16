@@ -33,7 +33,9 @@ resource "azurerm_firewall_policy" "mgmt" {
 }
 
 # ---------------------------------------------------------------------------
-# Firewall Policy Rule Collection Group — Web Categories
+# Firewall Policy Rule Collection Group — FQDN-based rules
+# NOTE: Web category filtering is not reliably supported in Azure Government.
+# Rules use explicit FQDN tags instead.
 # ---------------------------------------------------------------------------
 
 resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
@@ -42,12 +44,12 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
   priority           = 200
 
   application_rule_collection {
-    name     = "AllowBusinessWebCategories"
+    name     = "AllowMicrosoftServices"
     priority = 100
     action   = "Allow"
 
     rule {
-      name = "AllowBusinessCategories"
+      name = "AllowWindowsUpdate"
       protocols {
         type = "Https"
         port = 443
@@ -57,51 +59,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         port = 80
       }
       source_addresses      = ["*"]
-      destination_fqdn_tags = []
-      web_categories = [
-        "Business",
-        "Education",
-        "Finance",
-        "JobSearch",
-        "News",
-        "ProfessionalNetworking",
-        "SearchEnginesAndPortals",
-        "ComputerAndInternetInfo",
-        "InformationTechnology",
-        "HealthAndMedicine",
-        "Government",
-      ]
-    }
-  }
-
-  application_rule_collection {
-    name     = "DenyRestrictedWebCategories"
-    priority = 200
-    action   = "Deny"
-
-    rule {
-      name = "DenyRestrictedCategories"
-      protocols {
-        type = "Https"
-        port = 443
-      }
-      protocols {
-        type = "Http"
-        port = 80
-      }
-      source_addresses = ["*"]
-      web_categories = [
-        "Gambling",
-        "Hacking",
-        "IllegalSoftware",
-        "ImageSharing",
-        "PeerToPeer",
-        "AdultContent",
-        "Violence",
-        "Weapons",
-        "ChildAbuseImages",
-        "CriminalActivity",
-      ]
+      destination_fqdn_tags = ["WindowsUpdate", "WindowsDiagnostics", "MicrosoftActiveProtectionService"]
     }
   }
 }
@@ -139,6 +97,5 @@ resource "azurerm_monitor_diagnostic_setting" "firewall" {
   enabled_log { category = "AzureFirewallApplicationRule" }
   enabled_log { category = "AzureFirewallNetworkRule" }
   enabled_log { category = "AzureFirewallDnsProxy" }
-  enabled_log { category = "AzureFirewallIDPSSignature" }
   enabled_metric { category = "AllMetrics" }
 }
