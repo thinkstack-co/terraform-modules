@@ -15,7 +15,7 @@ resource "msgraph_resource" "bitlocker" {
   url         = "deviceManagement/configurationPolicies"
   api_version = "beta"
 
-  response_export_values = ["id"]
+  response_export_values = { id = "id" }
 
   body = jsonencode({
     name         = "CMMC - BitLocker Encryption"
@@ -99,7 +99,7 @@ resource "msgraph_resource" "defender" {
   url         = "deviceManagement/configurationPolicies"
   api_version = "beta"
 
-  response_export_values = ["id"]
+  response_export_values = { id = "id" }
 
   body = jsonencode({
     name         = "CMMC - Windows Defender Antivirus"
@@ -183,7 +183,7 @@ resource "msgraph_resource" "firewall" {
   url         = "deviceManagement/configurationPolicies"
   api_version = "beta"
 
-  response_export_values = ["id"]
+  response_export_values = { id = "id" }
 
   body = jsonencode({
     name         = "CMMC - Windows Firewall"
@@ -255,7 +255,7 @@ resource "msgraph_resource" "compliance_windows" {
   url         = "deviceManagement/compliancePolicies"
   api_version = "beta"
 
-  response_export_values = ["id"]
+  response_export_values = { id = "id" }
 
   body = jsonencode({
     name        = "CMMC - Windows Device Compliance"
