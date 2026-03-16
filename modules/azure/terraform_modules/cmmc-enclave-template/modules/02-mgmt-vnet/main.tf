@@ -83,4 +83,5 @@ resource "azurerm_subnet" "mgmt_avd" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.mgmt.name
   address_prefixes     = [var.mgmt_avd_subnet_cidr]
+  service_endpoints    = ["Microsoft.Storage"]
 }

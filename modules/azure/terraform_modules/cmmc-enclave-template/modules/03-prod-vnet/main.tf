@@ -41,7 +41,6 @@ resource "azurerm_monitor_diagnostic_setting" "prod_vnet" {
   target_resource_id         = azurerm_virtual_network.prod.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.prod.id
 
-  enabled_log { category = "VMProtectionAlerts" }
   enabled_metric { category = "AllMetrics" }
 }
 

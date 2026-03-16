@@ -33,17 +33,19 @@ locals {
 }
 
 resource "azuread_group" "pim_eligible" {
-  for_each         = local.pim_groups
-  display_name     = "${var.customer_name} - ${each.value}"
-  security_enabled = true
-  mail_enabled     = false
+  for_each             = local.pim_groups
+  display_name         = "${var.customer_name} - ${each.value}"
+  security_enabled     = true
+  mail_enabled         = false
+  assignable_to_role   = true
 }
 
 resource "azuread_group" "rbac" {
-  for_each         = local.rbac_groups
-  display_name     = "${var.customer_name} - ${each.value}"
-  security_enabled = true
-  mail_enabled     = false
+  for_each             = local.rbac_groups
+  display_name         = "${var.customer_name} - ${each.value}"
+  security_enabled     = true
+  mail_enabled         = false
+  assignable_to_role   = true
 }
 
 # ---------------------------------------------------------------------------
