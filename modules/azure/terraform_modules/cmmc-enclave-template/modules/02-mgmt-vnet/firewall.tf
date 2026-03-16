@@ -66,7 +66,6 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         "News",
         "ProfessionalNetworking",
         "SearchEnginesAndPortals",
-        "ComputerAndInternetSecurity",
         "ComputerAndInternetInfo",
         "InformationTechnology",
         "HealthAndMedicine",
@@ -140,7 +139,6 @@ resource "azurerm_monitor_diagnostic_setting" "firewall" {
   enabled_log { category = "AzureFirewallApplicationRule" }
   enabled_log { category = "AzureFirewallNetworkRule" }
   enabled_log { category = "AzureFirewallDnsProxy" }
-  enabled_log { category = "AzureFirewallThreatIntel" }
   enabled_log { category = "AzureFirewallIDPSSignature" }
   enabled_metric { category = "AllMetrics" }
 }
