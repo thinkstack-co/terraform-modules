@@ -12,7 +12,7 @@ terraform {
 }
 
 locals {
-  name_prefix = "mgmt-${var.location}"
+  name_prefix = substr(replace(var.resource_group_name, "-rg", ""), 0, 12)
 }
 
 # ---------------------------------------------------------------------------
