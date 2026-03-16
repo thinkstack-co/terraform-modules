@@ -7,9 +7,10 @@ This guide describes the recommended sequence for deploying the CMMC enclave. Mo
 ## Prerequisites
 
 - Bootstrap complete (see [bootstrap.md](bootstrap.md))
-- Customer repo created with `versions.tf`, `providers.tf`, `backend.tf`, `main.tf`, and `terraform.tfvars`
-- Secrets set as TFC workspace variables or GitHub secrets (`ARM_CLIENT_ID`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_CLIENT_SECRET` or OIDC equivalent)
-- `vm_admin_password` set as a sensitive TFC variable
+- Customer repo created with `versions.tf`, `providers.tf`, `backend.tf`, `main.tf`
+- TFC workspace created, connected to the repo (VCS-driven), and all variables set:
+  - Terraform variables: `customer_name`, `storage_account_name`, `location`, `environment`, `admin_upns`, `admin_source_ips`, `vm_admin_password` (sensitive)
+  - Environment variables: `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_ENVIRONMENT` (all sensitive)
 
 ---
 

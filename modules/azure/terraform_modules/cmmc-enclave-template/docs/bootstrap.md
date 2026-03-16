@@ -153,44 +153,48 @@ az role assignment create \
 
 ---
 
-## Step 6: Configure GitHub Repository
+## Step 6: Create TFC Workspace and Set Variables
 
-```bash
-# Create customer repo
-gh repo create thinkstack-co/cmmc-<customer>-enclave --private
+1. In HCP Terraform, create a new workspace connected to the customer repo (VCS-driven workflow)
+2. Set the working directory to the repo root (leave blank if `main.tf` is at root)
+3. Under **Variables**, add the following:
 
-# Set GitHub secrets for OIDC
-gh secret set AZURE_CLIENT_ID --body "<appId>" --repo thinkstack-co/cmmc-<customer>-enclave
-gh secret set AZURE_TENANT_ID --body "<tenant-id>" --repo thinkstack-co/cmmc-<customer>-enclave
-gh secret set AZURE_SUBSCRIPTION_ID --body "<subscription-id>" --repo thinkstack-co/cmmc-<customer>-enclave
-gh secret set TF_VAR_vm_admin_password --body "<password>" --repo thinkstack-co/cmmc-<customer>-enclave
-```
+**Terraform variables:**
+
+| Key | Value | Sensitive |
+| --- | --- | --- |
+| `customer_name` | `<customer>` | No |
+| `storage_account_name` | `<customer>fslogix001` | No |
+| `location` | `usgovarizona` | No |
+| `environment` | `production` | No |
+| `admin_upns` | `["<admin-upn>"]` (HCL) | No |
+| `admin_source_ips` | `["<ip>/32"]` (HCL) | No |
+| `vm_admin_password` | `<password>` | **Yes** |
+
+**Environment variables** (all sensitive):
+
+| Key | Value |
+| --- | --- |
+| `ARM_CLIENT_ID` | `<appId>` |
+| `ARM_CLIENT_SECRET` | `<password from SP creation>` |
+| `ARM_TENANT_ID` | `<tenant-id>` |
+| `ARM_SUBSCRIPTION_ID` | `<subscription-id>` |
+| `ARM_ENVIRONMENT` | `usgovernment` |
 
 ---
 
-## Step 7: Configure GitHub Environments
+## Step 7: Configure backend.tf
 
-1. Go to the customer repo → Settings → Environments
-2. Create environment `cmmc-production`
-3. Add required reviewers (minimum 2: Network Coverage admin + customer IT contact)
-4. Restrict deployments to `main` branch only
-5. Create environment `cmmc-plan` (no reviewers required — for PR plan previews)
-
----
-
-## Step 8: Update backend.tf
-
-In the customer repo's `backend.tf`, replace placeholder values:
+In the customer repo's `backend.tf`, set the TFC organization and workspace name:
 
 ```hcl
 terraform {
-  backend "azurerm" {
-    environment          = "usgovernment"
-    resource_group_name  = "<customer>-tfstate-rg"
-    storage_account_name = "<customer>tfstate001"
-    container_name       = "tfstate"
-    key                  = "cmmc-enclave.tfstate"
-    use_oidc             = true
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "thinkstack-co"
+    workspaces {
+      name = "<customer>_azure_cmmc_infrastructure"
+    }
   }
 }
 ```
@@ -201,10 +205,8 @@ terraform {
 
 - [ ] Azure Government cloud set and logged in
 - [ ] Service principal created with Contributor + User Access Administrator + Cloud Application Administrator
-- [ ] OIDC federated credentials configured for `main` branch and pull requests
 - [ ] Resource providers registered (Storage, Network, Compute, KeyVault, DesktopVirtualization, RecoveryServices)
-- [ ] State storage account created (Standard GRS, blob versioning, soft delete 90d)
-- [ ] SP granted Storage Blob Data Contributor on state storage account
-- [ ] GitHub repo created with AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, TF_VAR_vm_admin_password secrets
-- [ ] GitHub Environments configured (cmmc-production with required reviewers, cmmc-plan)
-- [ ] backend.tf updated in customer repo
+- [ ] TFC workspace created and connected to customer repo (VCS-driven)
+- [ ] TFC Terraform variables set (customer_name, storage_account_name, location, environment, admin_upns, admin_source_ips, vm_admin_password)
+- [ ] TFC environment variables set (ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID, ARM_ENVIRONMENT)
+- [ ] backend.tf updated in customer repo with TFC org and workspace name

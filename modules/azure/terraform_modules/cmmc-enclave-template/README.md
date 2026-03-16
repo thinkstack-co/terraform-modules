@@ -50,7 +50,7 @@ Dependency chain:
 ```
 
 > **Note on 04-appgate-sdp:** The Appgate SDP VM resources are stubbed pending marketplace image availability verification in Azure Government. Key Vault and firewall rules are fully implemented. See [`docs/appgate-image.md`](docs/appgate-image.md).
-
+>
 > **Note on 09-intune:** Disabled — `microsoft/msgraph ~> 0.3.0` does not support Azure Government OIDC (`InvalidCloudInstance`). Re-enable when a Gov-compatible provider version is available.
 
 ---
@@ -186,9 +186,14 @@ terraform {
 }
 ```
 
-### 6. Set variable values
+### 6. Set variable values in TFC
 
-Copy `examples/customer-repo-example/variables.tf` and set values via TFC workspace variables or a local `terraform.tfvars`. Secrets (passwords, keys) must be injected via environment variables or TFC sensitive variables — never committed.
+In the TFC workspace → **Variables**, add:
+
+- **Terraform variables**: `customer_name`, `storage_account_name`, `location`, `environment`, `admin_upns` (HCL), `admin_source_ips` (HCL), `vm_admin_password` (sensitive)
+- **Environment variables** (all sensitive): `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_ENVIRONMENT` = `usgovernment`
+
+Never commit secrets to the repo. See the full variable reference in [`examples/customer-repo-example/README.md`](examples/customer-repo-example/README.md).
 
 ---
 

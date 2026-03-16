@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------
-# Required — must be provided in terraform.tfvars
+# Required — set as Terraform variables in the TFC workspace
 # -------------------------------------------------------------------------
 
 variable "customer_name" {
