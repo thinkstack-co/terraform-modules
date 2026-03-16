@@ -183,6 +183,8 @@ resource "azurerm_virtual_desktop_scaling_plan" "customer" {
     hostpool_id          = azurerm_virtual_desktop_host_pool.customer.id
     scaling_plan_enabled = true
   }
+
+  depends_on = [azurerm_role_assignment.power_on_off]
 }
 
 # ---------------------------------------------------------------------------
