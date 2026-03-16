@@ -1,6 +1,6 @@
 # Module: 09-intune
 
-Deploys Intune device configuration and compliance policies via the `microsoft365` Terraform provider (MS Graph API).
+Deploys Intune device configuration and compliance policies via the `microsoft/msgraph` Terraform provider (MS Graph API).
 
 ## Resources Created
 
@@ -12,7 +12,11 @@ Deploys Intune device configuration and compliance policies via the `microsoft36
 
 ## Provider Notes
 
-This module uses the `hashicorp/microsoft365` provider which calls MS Graph Beta endpoints. The Settings Catalog policy payloads embed Graph API JSON directly. If you need to customize these policies:
+This module uses the `microsoft/msgraph` provider (`~> 0.3.0`), which calls MS Graph Beta endpoints via generic `msgraph_resource` and `msgraph_resource_action` resources. The Settings Catalog policy payloads embed Graph API JSON directly in the `body` attribute. Policy IDs are extracted via `response_export_values = ["id"]`.
+
+Assignments use a single `msgraph_resource_action` per policy (targeting the `/assign` action), which replaces all assignments in one call — consistent with the Graph API's replace-all semantics.
+
+If you need to customize these policies:
 
 1. Configure the policy manually in Intune at https://intune.microsoft.us
 2. Export the settings via Graph API: `GET /beta/deviceManagement/configurationPolicies/{id}/settings`
