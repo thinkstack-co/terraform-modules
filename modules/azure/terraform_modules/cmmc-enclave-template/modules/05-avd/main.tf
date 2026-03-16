@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.53"
+    }
   }
 }
 
@@ -129,11 +133,15 @@ resource "azurerm_role_assignment" "avd_user" {
   principal_id         = var.avd_users_group_id
 }
 
-# Power On Off Contributor at resource group scope for scaling plan
+# Power On Off Contributor — must be assigned to the AVD first-party service principal
+data "azuread_service_principal" "avd" {
+  application_id = "9cdead84-a844-4324-93f2-b2e6bb768d07" # Windows Virtual Desktop
+}
+
 resource "azurerm_role_assignment" "power_on_off" {
   scope                = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group_name}"
   role_definition_name = "Desktop Virtualization Power On Off Contributor"
-  principal_id         = data.azurerm_client_config.current.object_id
+  principal_id         = data.azuread_service_principal.avd.object_id
 }
 
 data "azurerm_client_config" "current" {}
