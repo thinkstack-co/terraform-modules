@@ -1,8 +1,6 @@
 provider "azurerm" {
-  environment     = "usgovernment"
-  use_oidc        = true
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
+  environment = "usgovernment"
+  use_oidc    = true
 
   features {
     key_vault {
@@ -21,15 +19,13 @@ provider "azurerm" {
 provider "azuread" {
   environment = "usgovernment"
   use_oidc    = true
-  tenant_id   = var.tenant_id
+}
+
+provider "azapi" {
+  environment = "usgovernment"
+  use_oidc    = true
 }
 
 provider "tls" {}
 
 provider "random" {}
-
-provider "microsoft365" {
-  tenant_id   = var.tenant_id
-  environment = "usgov"
-  use_oidc    = true
-}

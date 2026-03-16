@@ -18,7 +18,8 @@ This library codifies the Network Coverage CMMC GCC High deployment standard int
 - Azure Firewall Premium with IDPS
 - Appgate SDP (Zero Trust Network Access)
 - Azure Virtual Desktop (AVD) with FSLogix
-- Microsoft Intune device management
+- Azure Image Builder (golden image pipeline)
+- Microsoft Intune device management (pending Azure Gov provider support)
 
 ---
 
@@ -27,26 +28,30 @@ This library codifies the Network Coverage CMMC GCC High deployment standard int
 ```text
 Customer Repo
 └── main.tf
-    ├── module "entra"          → 01-entra        (Identity & access)
-    ├── module "mgmt_vnet"      → 02-mgmt-vnet    (Firewall, Bastion, routing)
-    ├── module "prod_vnet"      → 03-prod-vnet    (Customer VNet, peering)
-    ├── module "appgate_sdp"    → 04-appgate-sdp  (ZTNA — partial, see note)
-    ├── module "avd"            → 05-avd          (Host pools, workspaces)
-    ├── module "storage"        → 06-storage      (FSLogix + backup)
-    ├── module "vm_imaging"     → 07-vm-imaging   (Compute gallery)
-    ├── module "session_hosts"  → 08-session-hosts (AVD VMs)
-    └── module "intune"         → 09-intune       (Device policies)
+    ├── module "entra"               → 01-entra        (Identity & access)
+    ├── module "mgmt_vnet"           → 02-mgmt-vnet    (Firewall, Bastion, routing)
+    ├── module "prod_vnet"           → 03-prod-vnet    (Customer VNet, peering)
+    ├── module "appgate_sdp"         → 04-appgate-sdp  (ZTNA — partial, see note)
+    ├── module "avd"                 → 05-avd          (Host pools, workspaces)
+    ├── module "storage"             → 06-storage      (FSLogix + backup)
+    ├── module "vm_imaging"          → 07-vm-imaging   (Compute gallery)
+    ├── module "session_hosts_mgmt"  → 08-session-hosts (Mgmt AVD VMs)
+    ├── module "session_hosts_prod"  → 08-session-hosts (Prod AVD VMs)
+    ├── module "image_builder"       → 10-image-builder (AIB pipeline)
+    └── module "intune"              → 09-intune       (Device policies — disabled)
 
 Dependency chain:
 01 → 02 → 03 ──┐
            04 ──┤
-                ├→ 05 → 08
-                ├→ 06 ──┘
-                └→ 07
-                   09 (independent, depends on 01)
+                ├→ 05 → 08a (mgmt)
+                ├→ 06      → 08b (prod)
+                └→ 07 → 10
+                   09 (disabled — Azure Gov OIDC not yet supported)
 ```
 
 > **Note on 04-appgate-sdp:** The Appgate SDP VM resources are stubbed pending marketplace image availability verification in Azure Government. Key Vault and firewall rules are fully implemented. See [`docs/appgate-image.md`](docs/appgate-image.md).
+
+> **Note on 09-intune:** Disabled — `microsoft/msgraph ~> 0.3.0` does not support Azure Government OIDC (`InvalidCloudInstance`). Re-enable when a Gov-compatible provider version is available.
 
 ---
 
@@ -95,7 +100,7 @@ gh repo create thinkstack-co/cmmc-<customer>-enclave --private
 cd cmmc-<customer>-enclave
 ```
 
-### 2. Create `providers.tf`
+### 2. Create `versions.tf`
 
 ```hcl
 terraform {
@@ -117,18 +122,20 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.6"
     }
-    microsoft365 = {
-      source  = "hashicorp/microsoft365"
-      version = "~> 1.0"
+    azapi = {
+      source  = "azure/azapi"
+      version = "~> 2.0"
     }
   }
 }
+```
 
+### 3. Create `providers.tf`
+
+```hcl
 provider "azurerm" {
-  environment     = "usgovernment"
-  use_oidc        = true
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
+  environment = "usgovernment"
+  use_oidc    = true
   features {
     key_vault {
       purge_soft_delete_on_destroy    = false
@@ -146,50 +153,49 @@ provider "azurerm" {
 provider "azuread" {
   environment = "usgovernment"
   use_oidc    = true
-  tenant_id   = var.tenant_id
+}
+
+provider "azapi" {
+  environment = "usgovernment"
+  use_oidc    = true
 }
 
 provider "tls" {}
 provider "random" {}
-
-provider "microsoft365" {
-  tenant_id   = var.tenant_id
-  environment = "usgov"
-  use_oidc    = true
-}
 ```
 
-### 3. Reference modules
+> **Note:** Do not set `tenant_id` or `subscription_id` in provider blocks. These are resolved automatically from `ARM_TENANT_ID` and `ARM_SUBSCRIPTION_ID` environment variables (set as TFC workspace variables or GitHub secrets). Use `data "azurerm_client_config" "current"` in `main.tf` to reference them in module calls.
+
+### 4. Reference modules
 
 Copy [`examples/customer-repo-example/main.tf`](examples/customer-repo-example/main.tf) as a starting point and update `?ref=` tags to the desired version.
 
-### 4. Configure backend
+### 5. Configure backend
 
-Create `backend.tf` pointing to the state storage account created during bootstrap:
+Create `backend.tf` pointing to the remote state backend:
 
 ```hcl
 terraform {
-  backend "azurerm" {
-    environment          = "usgovernment"
-    resource_group_name  = "<customer>-tfstate-rg"
-    storage_account_name = "<customer>tfstate001"
-    container_name       = "tfstate"
-    key                  = "cmmc-enclave.tfstate"
-    use_oidc             = true
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "<your-tfc-org>"
+    workspaces {
+      name = "<customer>_azure_cmmc_infrastructure"
+    }
   }
 }
 ```
 
-### 5. Set variable values
+### 6. Set variable values
 
-Copy `examples/customer-repo-example/terraform.tfvars.example` to `terraform.tfvars` and fill in values. Secrets (passwords, keys) are injected via `TF_VAR_` environment variables or pulled from a Key Vault data source — never committed.
+Copy `examples/customer-repo-example/variables.tf` and set values via TFC workspace variables or a local `terraform.tfvars`. Secrets (passwords, keys) must be injected via environment variables or TFC sensitive variables — never committed.
 
 ---
 
 ## Module Reference
 
 | Module | Purpose | Key Inputs | Key Outputs |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | [01-entra](modules/01-entra/) | Entra ID groups, PIM, conditional access | `tenant_id`, `customer_name`, `admin_upns` | Group IDs, CA policy IDs |
 | [02-mgmt-vnet](modules/02-mgmt-vnet/) | Management VNet, Firewall Premium, Bastion | `resource_group_name`, `location`, `mgmt_vnet_cidr` | `vnet_id`, `firewall_private_ip`, `subnet_ids` |
 | [03-prod-vnet](modules/03-prod-vnet/) | Production VNet, peering to mgmt | `mgmt_vnet_id`, `firewall_private_ip` | `vnet_id`, `subnet_ids` |
@@ -198,7 +204,8 @@ Copy `examples/customer-repo-example/terraform.tfvars.example` to `terraform.tfv
 | [06-storage](modules/06-storage/) | FSLogix storage, backup vault | `allowed_subnet_ids`, `customer_name` | `fslogix_unc_path`, `storage_account_key` |
 | [07-vm-imaging](modules/07-vm-imaging/) | Azure Compute Gallery, image definitions | `gallery_name`, `image_definitions` | `gallery_id`, `image_definition_ids` |
 | [08-session-hosts](modules/08-session-hosts/) | Entra-joined AVD session host VMs | `host_pool_id`, `registration_token`, `gallery_image_id` | `vm_ids`, `private_ips` |
-| [09-intune](modules/09-intune/) | BitLocker, Defender, Firewall, compliance policies | `tenant_id`, `target_group_ids` | Policy IDs |
+| [09-intune](modules/09-intune/) | BitLocker, Defender, Firewall, compliance policies (**disabled — Azure Gov OIDC unsupported**) | `tenant_id`, `target_group_ids` | Policy IDs |
+| [10-image-builder](modules/10-image-builder/) | Azure Image Builder — Win11 Multi-Session + M365 Apps golden image | `gallery_image_definition_id`, `subscription_id` | `template_name`, `template_id` |
 
 ---
 
@@ -212,9 +219,10 @@ Follow the numbered module sequence. Each step depends on the previous:
 4. **[04-appgate-sdp](modules/04-appgate-sdp/)** — ZTNA (parallel with 03)
 5. **[05-avd](modules/05-avd/)** — Host pools and workspaces
 6. **[06-storage](modules/06-storage/)** — FSLogix storage (parallel with 05)
-7. **[07-vm-imaging](modules/07-vm-imaging/)** — Image gallery (parallel with 05)
-8. **[08-session-hosts](modules/08-session-hosts/)** — Session host VMs
-9. **[09-intune](modules/09-intune/)** — Device policies (can run after 01)
+7. **[07-vm-imaging](modules/07-vm-imaging/) + [10-image-builder](modules/10-image-builder/)** — Image gallery + AIB template
+8. **Trigger image build** — `az image builder run` (manual, ~60-90 min)
+9. **[08-session-hosts](modules/08-session-hosts/)** — Mgmt + prod session host VMs (requires gallery image)
+10. **[09-intune](modules/09-intune/)** — Device policies (disabled pending Azure Gov provider support)
 
 See [`docs/deployment-order.md`](docs/deployment-order.md) for full detail and `-target` commands.
 

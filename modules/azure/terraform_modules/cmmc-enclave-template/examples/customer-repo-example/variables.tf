@@ -2,24 +2,24 @@
 # Required — must be provided in terraform.tfvars
 # -------------------------------------------------------------------------
 
-variable "tenant_id" {
-  description = "Entra ID tenant ID."
-  type        = string
-}
-
-variable "subscription_id" {
-  description = "Azure Government subscription ID."
-  type        = string
-}
-
 variable "customer_name" {
   description = "Short customer identifier used in resource naming (e.g., 'acme')."
   type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]{1,20}$", var.customer_name))
+    error_message = "customer_name must be 1-20 lowercase alphanumeric characters or hyphens."
+  }
 }
 
 variable "storage_account_name" {
-  description = "Globally unique name for the FSLogix storage account (max 24 lowercase alphanumeric chars)."
+  description = "Globally unique name for the FSLogix storage account (max 24 lowercase alphanumeric chars, no hyphens)."
   type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9]{3,24}$", var.storage_account_name))
+    error_message = "storage_account_name must be 3-24 lowercase alphanumeric characters (no hyphens)."
+  }
 }
 
 variable "admin_source_ips" {
@@ -60,8 +60,14 @@ variable "prod_vnet_cidr" {
   default     = "172.17.0.0/16"
 }
 
+variable "mgmt_session_host_count" {
+  description = "Number of management AVD session host VMs."
+  type        = number
+  default     = 2
+}
+
 variable "session_host_count" {
-  description = "Number of AVD session host VMs."
+  description = "Number of production AVD session host VMs."
   type        = number
   default     = 5
 }

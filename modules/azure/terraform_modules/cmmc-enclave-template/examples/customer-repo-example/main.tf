@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 locals {
   common_tags = {
     customer    = var.customer_name
@@ -54,8 +56,8 @@ resource "azurerm_resource_group" "imaging" {
 module "entra" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/01-entra?ref=v2.9.2"
 
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
+  tenant_id       = data.azurerm_client_config.current.tenant_id
+  subscription_id = data.azurerm_client_config.current.subscription_id
   customer_name   = var.customer_name
   admin_upns      = var.admin_upns
   tags            = local.common_tags
@@ -105,7 +107,7 @@ module "appgate_sdp" {
 
   resource_group_name = azurerm_resource_group.ztna.name
   location            = var.location
-  tenant_id           = var.tenant_id
+  tenant_id           = data.azurerm_client_config.current.tenant_id
   ztna_subnet_id      = module.mgmt_vnet.subnet_ids["ztna"]
   firewall_policy_id  = module.mgmt_vnet.firewall_policy_id
   firewall_public_ip  = module.mgmt_vnet.firewall_public_ip
@@ -141,13 +143,13 @@ module "avd" {
 module "storage" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/06-storage?ref=v2.9.2"
 
-  resource_group_name  = azurerm_resource_group.storage.name
-  location             = var.location
-  customer_name        = var.customer_name
-  storage_account_name = var.storage_account_name
-  allowed_subnet_ids   = [module.mgmt_vnet.subnet_ids["mgmt_avd"]]
+  resource_group_name   = azurerm_resource_group.storage.name
+  location              = var.location
+  customer_name         = var.customer_name
+  storage_account_name  = var.storage_account_name
+  allowed_subnet_ids    = [module.mgmt_vnet.subnet_ids["mgmt_avd"], module.prod_vnet.subnet_ids[0]]
   fslogix_share_size_gb = var.fslogix_share_size_gb
-  tags                 = local.common_tags
+  tags                  = local.common_tags
 
   depends_on = [module.mgmt_vnet, azurerm_resource_group.storage]
 }
@@ -168,21 +170,21 @@ module "vm_imaging" {
 }
 
 # ---------------------------------------------------------------------------
-# 08 - Session Hosts: AVD VMs, Entra Join, FSLogix
+# 08a - Session Hosts (Mgmt): AVD VMs for management host pool
 # ---------------------------------------------------------------------------
 
-module "session_hosts" {
+module "session_hosts_mgmt" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/08-session-hosts?ref=v2.9.2"
 
   resource_group_name     = azurerm_resource_group.avd.name
   location                = var.location
-  customer_name           = var.customer_name
-  host_count              = var.session_host_count
+  customer_name           = "${var.customer_name}-mgmt"
+  host_count              = var.mgmt_session_host_count
   vm_size                 = var.vm_size
   subnet_id               = module.mgmt_vnet.subnet_ids["mgmt_avd"]
   gallery_image_id        = module.vm_imaging.image_definition_ids["win11-multisession"]
-  host_pool_id            = module.avd.customer_host_pool_id
-  registration_token      = module.avd.customer_registration_token
+  host_pool_id            = module.avd.mgmt_host_pool_id
+  registration_token      = module.avd.mgmt_registration_token
   fslogix_storage_account = module.storage.storage_account_name
   fslogix_storage_key     = module.storage.storage_account_key
   admin_username          = var.vm_admin_username
@@ -193,15 +195,49 @@ module "session_hosts" {
 }
 
 # ---------------------------------------------------------------------------
-# 09 - Intune: Device Config + Compliance Policies
+# 08b - Session Hosts (Prod): AVD VMs for customer host pool
 # ---------------------------------------------------------------------------
 
-module "intune" {
-  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/09-intune?ref=v2.9.2"
+module "session_hosts_prod" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/08-session-hosts?ref=v2.9.2"
 
-  tenant_id        = var.tenant_id
-  target_group_ids = [module.entra.sspr_group_id]
-  tags             = local.common_tags
+  resource_group_name     = azurerm_resource_group.avd.name
+  location                = var.location
+  customer_name           = "${var.customer_name}-prod"
+  host_count              = var.session_host_count
+  vm_size                 = var.vm_size
+  subnet_id               = module.prod_vnet.subnet_ids[0]
+  gallery_image_id        = module.vm_imaging.image_definition_ids["win11-multisession"]
+  host_pool_id            = module.avd.customer_host_pool_id
+  registration_token      = module.avd.customer_registration_token
+  fslogix_storage_account = module.storage.storage_account_name
+  fslogix_storage_key     = module.storage.storage_account_key
+  admin_username          = var.vm_admin_username
+  admin_password          = var.vm_admin_password
+  tags                    = local.common_tags
 
-  depends_on = [module.entra]
+  depends_on = [module.avd, module.storage, module.vm_imaging, module.prod_vnet]
+}
+
+# ---------------------------------------------------------------------------
+# 09 - Intune: Device Config + Compliance Policies
+# DISABLED: microsoft/msgraph ~> 0.3.0 does not support Azure Government OIDC.
+# Re-enable when a Gov-compatible provider version is available.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# 10 - Image Builder: Win11 Multi-Session + M365 Apps → Compute Gallery
+# ---------------------------------------------------------------------------
+
+module "image_builder" {
+  source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/10-image-builder?ref=v2.9.2"
+
+  resource_group_name         = azurerm_resource_group.imaging.name
+  location                    = var.location
+  customer_name               = var.customer_name
+  subscription_id             = data.azurerm_client_config.current.subscription_id
+  gallery_image_definition_id = module.vm_imaging.image_definition_ids["win11-multisession"]
+  tags                        = local.common_tags
+
+  depends_on = [module.vm_imaging, azurerm_resource_group.imaging]
 }

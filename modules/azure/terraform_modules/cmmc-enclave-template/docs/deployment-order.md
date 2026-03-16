@@ -7,9 +7,9 @@ This guide describes the recommended sequence for deploying the CMMC enclave. Mo
 ## Prerequisites
 
 - Bootstrap complete (see [bootstrap.md](bootstrap.md))
-- Customer repo created with `providers.tf`, `backend.tf`, `main.tf`, and `terraform.tfvars`
-- Secrets set as environment variables or GitHub secrets
-- At least one gallery image version available in the Compute Gallery (required for session hosts)
+- Customer repo created with `versions.tf`, `providers.tf`, `backend.tf`, `main.tf`, and `terraform.tfvars`
+- Secrets set as TFC workspace variables or GitHub secrets (`ARM_CLIENT_ID`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_CLIENT_SECRET` or OIDC equivalent)
+- `vm_admin_password` set as a sensitive TFC variable
 
 ---
 
@@ -28,7 +28,7 @@ terraform validate
 terraform plan -out=tfplan
 ```
 
-Review the plan output. Expected resource count: ~80-100 resources depending on session host count.
+Review the plan output. Expected resource count: ~90-110 resources depending on session host count.
 
 ### Step 3: Deploy in Stages (Recommended for First Deployment)
 
@@ -48,20 +48,38 @@ terraform apply \
   -target=module.prod_vnet \
   -target=module.appgate_sdp
 
-# Stage 4: AVD + Storage + Imaging (parallel)
+# Stage 4: AVD + Storage + Imaging + Image Builder (parallel)
 terraform apply \
   -target=azurerm_resource_group.avd \
   -target=azurerm_resource_group.storage \
   -target=azurerm_resource_group.imaging \
   -target=module.avd \
   -target=module.storage \
-  -target=module.vm_imaging
+  -target=module.vm_imaging \
+  -target=module.image_builder
 
-# Stage 5: Session hosts (must run within 2 hours of Stage 4)
-terraform apply -target=module.session_hosts
+# Stage 5: Trigger image build (manual — ~60-90 min)
+az image builder run \
+  --name <customer>-aib-win11-m365 \
+  --resource-group <customer>-imaging-rg \
+  --no-wait
 
-# Stage 6: Intune policies
-terraform apply -target=module.intune
+# Monitor until runState = Succeeded
+az image builder show \
+  --name <customer>-aib-win11-m365 \
+  --resource-group <customer>-imaging-rg \
+  --query "lastRunStatus" \
+  --output table
+
+# Stage 6: Session hosts — deploy AFTER image build completes
+#          Must run within 2 hours of Stage 4 (registration token expiry)
+terraform apply \
+  -target=module.session_hosts_mgmt \
+  -target=module.session_hosts_prod
+
+# Stage 7: Intune policies (DISABLED — Azure Gov OIDC not supported)
+# Re-enable module "intune" in main.tf when a compatible provider is available
+# terraform apply -target=module.intune
 ```
 
 ### Step 4: Full Apply (Subsequent Deployments)
@@ -85,8 +103,27 @@ terraform apply \
   -target=module.avd.azurerm_virtual_desktop_host_pool_registration_info.customer
 
 # Then immediately apply session hosts
-terraform apply -target=module.session_hosts
+terraform apply \
+  -target=module.session_hosts_mgmt \
+  -target=module.session_hosts_prod
 ```
+
+---
+
+## Image Build Notes
+
+The image build (Stage 5) is intentionally outside Terraform. The `10-image-builder` module provisions the AIB template; the build must be triggered manually after `terraform apply`. This decouples the ~60-90 minute build from the Terraform apply cycle.
+
+To rebuild the image after the initial build (e.g., for monthly patching):
+
+```bash
+az image builder run \
+  --name <customer>-aib-win11-m365 \
+  --resource-group <customer>-imaging-rg \
+  --no-wait
+```
+
+A new image version is created in the gallery each time the build runs. Session hosts will use the latest version on next deployment.
 
 ---
 
@@ -109,19 +146,22 @@ terraform apply -target=module.session_hosts
 
 - [ ] Host pools visible in Azure Virtual Desktop admin center
 - [ ] Workspaces and application groups associated correctly
-- [ ] Session hosts show as Available in host pool
+- [ ] Session hosts show as Available in host pool (mgmt + prod)
 
 ### Storage
 
-- [ ] Storage account accessible from Mgmt-AVD subnet
+- [ ] Storage account accessible from mgmt-avd and prod-avd subnets
 - [ ] `fslogixprofiles` share exists
 - [ ] Backup policy applied, protection status: Protected
 
+### Image Builder
+
+- [ ] AIB template `<customer>-aib-win11-m365` visible in Azure portal (resource group: `<customer>-imaging-rg`)
+- [ ] After build: image version appears in `<customer>Gallery/win11-multisession`
+
 ### Intune
 
-- [ ] Configuration policies visible in Intune portal (intune.microsoft.us)
-- [ ] Policies assigned to target groups
-- [ ] Session hosts enrolled and compliant
+- [ ] (Pending Azure Gov provider support) Configuration policies visible in Intune portal (intune.microsoft.us)
 
 ---
 

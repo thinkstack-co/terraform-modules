@@ -10,6 +10,12 @@ Deploys Intune device configuration and compliance policies via the `microsoft/m
 - Device compliance policy (antivirus, Defender, firewall, BitLocker)
 - Group assignments for all policies
 
+## Azure Government Status
+
+> **This module is currently disabled for Azure Government deployments.**
+>
+> `microsoft/msgraph ~> 0.3.0` returns `InvalidCloudInstance` when authenticating via OIDC against Azure Government endpoints. Comment out `module "intune"` in the customer repo `main.tf` until a Gov-compatible provider version is available. Track provider support at the [msgraph provider releases](https://github.com/microsoft/terraform-provider-msgraph/releases).
+
 ## Provider Notes
 
 This module uses the `microsoft/msgraph` provider (`~> 0.3.0`), which calls MS Graph Beta endpoints via generic `msgraph_resource` and `msgraph_resource_action` resources. The Settings Catalog policy payloads embed Graph API JSON directly in the `body` attribute. Policy IDs are extracted via `response_export_values = ["id"]`.
@@ -18,7 +24,7 @@ Assignments use a single `msgraph_resource_action` per policy (targeting the `/a
 
 If you need to customize these policies:
 
-1. Configure the policy manually in Intune at https://intune.microsoft.us
+1. Configure the policy manually in Intune at <https://intune.microsoft.us>
 2. Export the settings via Graph API: `GET /beta/deviceManagement/configurationPolicies/{id}/settings`
 3. Replace the `settings` JSON in `main.tf`
 
@@ -36,7 +42,7 @@ module "intune" {
 ## Inputs
 
 | Name | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `tenant_id` | string | required | Entra ID tenant ID |
 | `target_group_ids` | list(string) | required | Groups to assign policies to |
 | `bitlocker_encryption_method` | string | `xtsAes128` | `xtsAes128` or `xtsAes256` |
@@ -46,7 +52,7 @@ module "intune" {
 ## Outputs
 
 | Name | Description |
-|---|---|
+| --- | --- |
 | `bitlocker_policy_id` | BitLocker policy ID |
 | `defender_policy_id` | Defender policy ID |
 | `firewall_policy_id` | Firewall policy ID |

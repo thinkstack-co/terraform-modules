@@ -38,7 +38,17 @@ output "key_vault_name" {
   value       = module.appgate_sdp.key_vault_name
 }
 
-output "session_host_names" {
-  description = "AVD session host VM names."
-  value       = module.session_hosts.vm_names
+output "session_host_mgmt_names" {
+  description = "Management AVD session host VM names."
+  value       = module.session_hosts_mgmt.vm_names
+}
+
+output "session_host_prod_names" {
+  description = "Production AVD session host VM names."
+  value       = module.session_hosts_prod.vm_names
+}
+
+output "image_builder_template_name" {
+  description = "AIB image template name. Use with 'az image builder run' to trigger a build."
+  value       = module.image_builder.template_name
 }
