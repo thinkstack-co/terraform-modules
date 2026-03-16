@@ -34,7 +34,7 @@ resource "azurerm_shared_image" "definitions" {
   hyper_v_generation  = each.value.hyper_v_generation
 
   trusted_launch_enabled      = each.value.trusted_launch_enabled
-  accelerated_network_support = each.value.accelerated_network_enabled ? "True" : "False"
+  #accelerated_network_support = each.value.accelerated_network_enabled ? "True" : "False"
 
   identifier {
     publisher = each.value.publisher
