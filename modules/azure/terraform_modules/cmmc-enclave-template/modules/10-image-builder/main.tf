@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    azapi = {
+      source  = "azure/azapi"
+      version = "~> 2.0"
+    }
   }
 }
 
@@ -35,74 +39,88 @@ resource "azurerm_role_assignment" "aib_contributor" {
 # Image Template — Win11 Multi-Session + Windows Update + M365 Apps
 # ---------------------------------------------------------------------------
 
-resource "azurerm_image_builder_template" "win11_m365" {
-  name                     = "${local.name_prefix}-win11-m365"
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  build_timeout_in_minutes = 120
+resource "azapi_resource" "aib_template" {
+  type      = "Microsoft.VirtualMachineImages/imageTemplates@2024-02-01"
+  name      = "${local.name_prefix}-win11-m365"
+  location  = var.location
+  parent_id = "/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}"
 
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.aib.id]
   }
 
-  # Windows 11 Multi-Session (AVD-optimized) base image
-  source {
-    type      = "PlatformImage"
-    publisher = "MicrosoftWindowsDesktop"
-    offer     = "windows-11"
-    sku       = var.source_image_sku
-    version   = "latest"
-  }
+  body = {
+    properties = {
+      buildTimeoutInMinutes = 120
 
-  # Step 1: Apply all Windows Updates
-  customize {
-    type            = "WindowsUpdate"
-    search_criteria = "IsInstalled=0"
-    filters         = ["exclude:$_.Title -like '*Preview*'"]
-    update_limit    = 40
-  }
+      vmProfile = {
+        vmSize       = "Standard_D4s_v3"
+        osDiskSizeGB = 127
+      }
 
-  # Step 2: Install M365 Apps via Office Deployment Tool
-  customize {
-    type = "PowerShell"
-    name = "InstallM365Apps"
-    inline = [
-      "Write-Host 'Downloading Office Deployment Tool...'",
-      "$odtPath = 'C:\\Windows\\Temp\\odt'",
-      "New-Item -ItemType Directory -Path $odtPath -Force | Out-Null",
-      "$odtExe = Join-Path $odtPath 'officedeploymenttool.exe'",
-      "Invoke-WebRequest -Uri 'https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe' -OutFile $odtExe",
-      "Start-Process -FilePath $odtExe -ArgumentList \"/quiet /extract:$odtPath\" -Wait",
-      "@'",
-      "<Configuration>",
-      "  <Add OfficeClientEdition=\"64\" Channel=\"Current\">",
-      "    <Product ID=\"O365ProPlusRetail\">",
-      "      <Language ID=\"en-us\" />",
-      "      <ExcludeApp ID=\"Teams\" />",
-      "      <ExcludeApp ID=\"Groove\" />",
-      "      <ExcludeApp ID=\"Lync\" />",
-      "    </Product>",
-      "  </Add>",
-      "  <Property Name=\"SharedComputerLicensing\" Value=\"1\" />",
-      "  <Property Name=\"PinIconsToTaskbar\" Value=\"FALSE\" />",
-      "  <Display Level=\"None\" AcceptEULA=\"TRUE\" />",
-      "  <Updates Enabled=\"TRUE\" />",
-      "</Configuration>",
-      "'@ | Set-Content -Path (Join-Path $odtPath 'config.xml')",
-      "Write-Host 'Installing M365 Apps...'",
-      "Start-Process -FilePath (Join-Path $odtPath 'setup.exe') -ArgumentList \"/configure $(Join-Path $odtPath 'config.xml')\" -Wait",
-      "Write-Host 'M365 Apps installation complete.'",
-    ]
-  }
+      # Windows 11 Multi-Session (AVD-optimized) base image
+      source = {
+        type      = "PlatformImage"
+        publisher = "MicrosoftWindowsDesktop"
+        offer     = "windows-11"
+        sku       = var.source_image_sku
+        version   = "latest"
+      }
 
-  # Distribute the finished image as a new version in the Compute Gallery
-  distribute {
-    type                 = "SharedImageVersion"
-    gallery_image_id     = var.gallery_image_definition_id
-    replication_regions  = [var.location]
-    run_output_name      = "win11-m365-output"
-    storage_account_type = "Standard_LRS"
+      customize = [
+        # Step 1: Apply all Windows Updates
+        {
+          type           = "WindowsUpdate"
+          searchCriteria = "IsInstalled=0"
+          filters        = ["exclude:$_.Title -like '*Preview*'"]
+          updateLimit    = 40
+        },
+        # Step 2: Install M365 Apps via Office Deployment Tool
+        {
+          type = "PowerShell"
+          name = "InstallM365Apps"
+          inline = [
+            "Write-Host 'Downloading Office Deployment Tool...'",
+            "$odtPath = 'C:\\Windows\\Temp\\odt'",
+            "New-Item -ItemType Directory -Path $odtPath -Force | Out-Null",
+            "$odtExe = Join-Path $odtPath 'officedeploymenttool.exe'",
+            "Invoke-WebRequest -Uri 'https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe' -OutFile $odtExe",
+            "Start-Process -FilePath $odtExe -ArgumentList \"/quiet /extract:$odtPath\" -Wait",
+            "@'",
+            "<Configuration>",
+            "  <Add OfficeClientEdition=\"64\" Channel=\"Current\">",
+            "    <Product ID=\"O365ProPlusRetail\">",
+            "      <Language ID=\"en-us\" />",
+            "      <ExcludeApp ID=\"Teams\" />",
+            "      <ExcludeApp ID=\"Groove\" />",
+            "      <ExcludeApp ID=\"Lync\" />",
+            "    </Product>",
+            "  </Add>",
+            "  <Property Name=\"SharedComputerLicensing\" Value=\"1\" />",
+            "  <Property Name=\"PinIconsToTaskbar\" Value=\"FALSE\" />",
+            "  <Display Level=\"None\" AcceptEULA=\"TRUE\" />",
+            "  <Updates Enabled=\"TRUE\" />",
+            "</Configuration>",
+            "'@ | Set-Content -Path (Join-Path $odtPath 'config.xml')",
+            "Write-Host 'Installing M365 Apps...'",
+            "Start-Process -FilePath (Join-Path $odtPath 'setup.exe') -ArgumentList \"/configure $(Join-Path $odtPath 'config.xml')\" -Wait",
+            "Write-Host 'M365 Apps installation complete.'",
+          ]
+        }
+      ]
+
+      distribute = [
+        {
+          type               = "SharedImage"
+          galleryImageId     = var.gallery_image_definition_id
+          runOutputName      = "win11-m365-output"
+          replicationRegions = [var.location]
+          storageAccountType = "Standard_LRS"
+          artifactTags       = {}
+        }
+      ]
+    }
   }
 
   tags = var.tags

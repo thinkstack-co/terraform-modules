@@ -10,10 +10,10 @@ output "identity_principal_id" {
 
 output "template_name" {
   description = "Name of the AIB image template (use with 'az image builder run')."
-  value       = azurerm_image_builder_template.win11_m365.name
+  value       = azapi_resource.aib_template.name
 }
 
 output "template_id" {
   description = "Resource ID of the AIB image template."
-  value       = azurerm_image_builder_template.win11_m365.id
+  value       = azapi_resource.aib_template.id
 }

@@ -135,7 +135,7 @@ resource "azurerm_role_assignment" "avd_user" {
 
 # Power On Off Contributor — must be assigned to the AVD first-party service principal
 data "azuread_service_principal" "avd" {
-  application_id = "9cdead84-a844-4324-93f2-b2e6bb768d07" # Windows Virtual Desktop
+  client_id = "9cdead84-a844-4324-93f2-b2e6bb768d07" # Windows Virtual Desktop
 }
 
 resource "azurerm_role_assignment" "power_on_off" {
