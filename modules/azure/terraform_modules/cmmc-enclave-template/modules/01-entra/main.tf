@@ -112,7 +112,7 @@ data "azuread_directory_role_templates" "all" {}
 locals {
   role_template_map = {
     for t in data.azuread_directory_role_templates.all.role_templates :
-    t.display_name => t.template_id
+    t.display_name => t.object_id
   }
 }
 
