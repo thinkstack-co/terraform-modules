@@ -46,6 +46,12 @@ variable "gateway_vm_size" {
   default     = "Standard_B2s"
 }
 
+variable "deploy_vms" {
+  description = "Deploy Appgate Controller and Gateway VMs. Set false until marketplace plan access is confirmed for the subscription."
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Tags applied to all resources."
   type        = map(string)

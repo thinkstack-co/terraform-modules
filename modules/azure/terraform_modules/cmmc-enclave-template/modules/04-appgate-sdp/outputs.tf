@@ -9,21 +9,21 @@ output "key_vault_name" {
 }
 
 output "controller_private_ip" {
-  description = "Private IP of the Appgate SDP Controller VM."
-  value       = azurerm_network_interface.controller.private_ip_address
+  description = "Private IP of the Appgate SDP Controller VM. Null when deploy_vms = false."
+  value       = var.deploy_vms ? azurerm_network_interface.controller[0].private_ip_address : null
 }
 
 output "gateway_private_ip" {
-  description = "Private IP of the Appgate SDP Gateway VM."
-  value       = azurerm_network_interface.gateway.private_ip_address
+  description = "Private IP of the Appgate SDP Gateway VM. Null when deploy_vms = false."
+  value       = var.deploy_vms ? azurerm_network_interface.gateway[0].private_ip_address : null
 }
 
 output "controller_fqdn" {
-  description = "FQDN of the Appgate SDP Controller public IP."
-  value       = azurerm_public_ip.controller.fqdn
+  description = "FQDN of the Appgate SDP Controller public IP. Null when deploy_vms = false."
+  value       = var.deploy_vms ? azurerm_public_ip.controller[0].fqdn : null
 }
 
 output "gateway_fqdn" {
-  description = "FQDN of the Appgate SDP Gateway public IP."
-  value       = azurerm_public_ip.gateway.fqdn
+  description = "FQDN of the Appgate SDP Gateway public IP. Null when deploy_vms = false."
+  value       = var.deploy_vms ? azurerm_public_ip.gateway[0].fqdn : null
 }
