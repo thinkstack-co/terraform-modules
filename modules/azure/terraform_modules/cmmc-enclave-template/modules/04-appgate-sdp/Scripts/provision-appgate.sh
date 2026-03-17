@@ -3,8 +3,8 @@
 set -euo pipefail
 
 # Ensure correct number of arguments
-if [ "$#" -ne 7 ]; then
-  echo "Usage: $0 <customershortname> <adminpass> <controllerdnsname> <controllerprivateip> <gatewaydnsname> <tenantid> <audienceclientid>"
+if [ "$#" -ne 6 ]; then
+  echo "Usage: $0 <customershortname> <adminpass> <fqdn> <privateip> <tenantid> <audienceclientid>"
   exit 1
 fi
 
@@ -12,11 +12,10 @@ fi
 customershortname="$1"
 adminpass="$2"
 encodedpass=$(printf "%s" "$adminpass" | base64)
-controllerdnsname="$3"
-controllerprivateip="$4"
-gatewaydnsname="$5"
-tenantid="$6"
-audienceclientid="$7"
+fqdn="$3"
+privateip="$4"
+tenantid="$5"
+audienceclientid="$6"
 
 # Log setup
 timestamp=$(date +%Y%m%d-%H%M%S)
@@ -42,12 +41,11 @@ for script in "${required_scripts[@]}"; do
 done
 
 echo "Running from: $(hostname)"
-echo "Target Controller: $controllerdnsname"
-echo "Target Gateway: $gatewaydnsname"
+echo "Target appliance: $fqdn ($privateip)"
 echo "Logging to: $logfile"
 
 echo "[1/7] Seeding controller..."
-ssh -i ./ctl.pem cz@"$controllerdnsname" bash -s -- "$customershortname" "$encodedpass" "$controllerdnsname" < ./seed-controller.sh
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$customershortname" "$encodedpass" "$fqdn" < ./seed-controller.sh
 
 echo "Checking for controller health..."
 
@@ -56,7 +54,7 @@ interval=5
 elapsed=0
 
 while true; do
-  status=$(ssh -i ./ctl.pem cz@"$controllerdnsname" "sudo cz-config status | jq -r .roles.controller.status" 2>/dev/null || echo "unavailable")
+  status=$(ssh -i ./appgate.pem cz@"$fqdn" "sudo cz-config status | jq -r .roles.controller.status" 2>/dev/null || echo "unavailable")
 
   if [[ "$status" == "healthy" ]]; then
     echo "Controller is healthy. Proceeding to seed gateway..."
@@ -73,27 +71,27 @@ while true; do
   ((elapsed += interval))
 done
 
-echo "[2/7] Seeding gateway..."
-ssh -i ./gw.pem cz@"$gatewaydnsname" bash -s -- "$customershortname" "$encodedpass" "$controllerprivateip" "$gatewaydnsname" < ./seed-gateway.sh
+echo "[2/7] Seeding gateway (same appliance)..."
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$customershortname" "$encodedpass" "$privateip" "$fqdn" < ./seed-gateway.sh
 sleep 5
 
 echo "[3/7] Enabling full tunnel routing on default site..."
-ssh -i ./ctl.pem cz@"$controllerdnsname" bash -s -- "$encodedpass" "$controllerdnsname" < ./enable-full-tunnel-default-site.sh
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$encodedpass" "$fqdn" < ./enable-full-tunnel-default-site.sh
 sleep 5
 
 echo "[4/7] Creating OIDC identity provider..."
-ssh -i ./ctl.pem cz@"$controllerdnsname" bash -s -- "$encodedpass" "$controllerdnsname" "$tenantid" "$audienceclientid" < ./create-oidc-idp.sh
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$encodedpass" "$fqdn" "$tenantid" "$audienceclientid" < ./create-oidc-idp.sh
 sleep 5
 
 echo "[5/7] Creating full tunnel entitlement..."
-ssh -i ./ctl.pem cz@"$controllerdnsname" bash -s -- "$encodedpass" "$controllerdnsname" < ./create-full-tunnel-entitlement.sh
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$encodedpass" "$fqdn" < ./create-full-tunnel-entitlement.sh
 sleep 5
 
 echo "[6/7] Creating policy for full tunnel entitlement..."
-ssh -i ./ctl.pem cz@"$controllerdnsname" bash -s -- "$encodedpass" "$controllerdnsname" < ./create-tunnel-policy.sh
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$encodedpass" "$fqdn" < ./create-tunnel-policy.sh
 sleep 5
 
 echo "[7/7] Creating client profile..."
-ssh -i ./ctl.pem cz@"$controllerdnsname" bash -s -- "$encodedpass" "$controllerdnsname" < ./create-client-profile.sh
+ssh -i ./appgate.pem cz@"$fqdn" bash -s -- "$encodedpass" "$fqdn" < ./create-client-profile.sh
 
 echo "All steps completed successfully."

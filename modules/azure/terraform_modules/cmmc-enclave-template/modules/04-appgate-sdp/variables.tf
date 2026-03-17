@@ -35,19 +35,13 @@ variable "source_admin_ips" {
 }
 
 variable "controller_vm_size" {
-  description = "VM size for the Appgate SDP Controller."
-  type        = string
-  default     = "Standard_B2s"
-}
-
-variable "gateway_vm_size" {
-  description = "VM size for the Appgate SDP Gateway."
+  description = "VM size for the Appgate SDP combined appliance (controller + gateway)."
   type        = string
   default     = "Standard_B2s"
 }
 
 variable "deploy_vms" {
-  description = "Deploy Appgate Controller and Gateway VMs. Set false until marketplace plan access is confirmed for the subscription."
+  description = "Deploy Appgate combined VM. Set false until marketplace plan access is confirmed for the subscription."
   type        = bool
   default     = false
 }

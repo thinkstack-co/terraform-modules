@@ -112,6 +112,7 @@ module "appgate_sdp" {
   firewall_policy_id  = module.mgmt_vnet.firewall_policy_id
   firewall_public_ip  = module.mgmt_vnet.firewall_public_ip
   source_admin_ips    = var.admin_source_ips
+  deploy_vms          = false
   tags                = local.common_tags
 
   depends_on = [module.mgmt_vnet, azurerm_resource_group.ztna]
