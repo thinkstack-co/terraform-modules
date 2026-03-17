@@ -64,7 +64,6 @@ resource "azurerm_key_vault_secret" "controller_key" {
 # ---------------------------------------------------------------------------
 
 resource "azurerm_marketplace_agreement" "appgate" {
-  count     = var.deploy_vms ? 1 : 0
   publisher = "cyxtera"
   offer     = "appgatesdp-vm"
   plan      = "v6_6_gov_vm"
@@ -135,7 +134,7 @@ resource "azurerm_linux_virtual_machine" "controller" {
     publisher = "cyxtera"
   }
 
-  depends_on = [azurerm_marketplace_agreement.appgate[0]]
+  depends_on = [azurerm_marketplace_agreement.appgate]
 }
 
 # ---------------------------------------------------------------------------

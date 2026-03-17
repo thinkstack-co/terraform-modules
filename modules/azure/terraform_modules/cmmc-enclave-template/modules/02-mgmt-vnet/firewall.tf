@@ -62,6 +62,44 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
       destination_fqdn_tags = ["WindowsUpdate", "WindowsDiagnostics", "MicrosoftActiveProtectionService"]
     }
   }
+
+  application_rule_collection {
+    name     = "AllowEntraIDAndAVD"
+    priority = 200
+    action   = "Allow"
+
+    rule {
+      name = "AllowEntraIDJoin"
+      protocols {
+        type = "Https"
+        port = 443
+      }
+      source_addresses = ["*"]
+      destination_fqdns = [
+        "login.microsoftonline.us",
+        "enterpriseregistration.microsoftonline.us",
+        "device.login.microsoftonline.us",
+        "graph.microsoft.us",
+        "autologon.microsoft.us",
+        "management.usgovcloudapi.net",
+        "pas.windows.net",
+      ]
+    }
+
+    rule {
+      name = "AllowAVDServices"
+      protocols {
+        type = "Https"
+        port = 443
+      }
+      source_addresses = ["*"]
+      destination_fqdns = [
+        "*.wvd.microsoft.us",
+        "kms.core.usgovcloudapi.net",
+        "wvdportalstorageblob.blob.core.windows.net",
+      ]
+    }
+  }
 }
 
 # ---------------------------------------------------------------------------
