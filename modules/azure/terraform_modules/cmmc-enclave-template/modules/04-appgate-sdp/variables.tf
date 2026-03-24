@@ -37,13 +37,13 @@ variable "source_admin_ips" {
 variable "controller_vm_size" {
   description = "VM size for the Appgate SDP Controller."
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_B2ls_v2"
 }
 
 variable "gateway_vm_size" {
   description = "VM size for the Appgate SDP Gateway."
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_B2ls_v2"
 }
 
 variable "deploy_vms" {

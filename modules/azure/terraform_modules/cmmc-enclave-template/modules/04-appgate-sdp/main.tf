@@ -79,7 +79,7 @@ resource "azurerm_key_vault_secret" "gateway_key" {
 resource "azurerm_marketplace_agreement" "appgate" {
   publisher = "cyxtera"
   offer     = "appgatesdp-vm"
-  plan      = "v6_6_vm"
+  plan      = "v6_5_vm"
 }
 
 # ---------------------------------------------------------------------------
@@ -137,12 +137,12 @@ resource "azurerm_linux_virtual_machine" "controller" {
   source_image_reference {
     publisher = "cyxtera"
     offer     = "appgatesdp-vm"
-    sku       = "v6_6_vm"
-    version   = "6.6.0"
+    sku       = "v6_5_vm"
+    version   = "6.5.4"
   }
 
   plan {
-    name      = "v6_6_vm"
+    name      = "v6_5_vm"
     product   = "appgatesdp-vm"
     publisher = "cyxtera"
   }
@@ -205,12 +205,12 @@ resource "azurerm_linux_virtual_machine" "gateway" {
   source_image_reference {
     publisher = "cyxtera"
     offer     = "appgatesdp-vm"
-    sku       = "v6_6_vm"
-    version   = "6.6.0"
+    sku       = "v6_5_vm"
+    version   = "6.5.4"
   }
 
   plan {
-    name      = "v6_6_vm"
+    name      = "v6_5_vm"
     product   = "appgatesdp-vm"
     publisher = "cyxtera"
   }
