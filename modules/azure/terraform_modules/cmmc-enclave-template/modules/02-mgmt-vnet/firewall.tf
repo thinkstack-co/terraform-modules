@@ -76,6 +76,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
       }
       source_addresses = ["*"]
       destination_fqdns = [
+        # Azure Government AAD endpoints
         "login.microsoftonline.us",
         "enterpriseregistration.microsoftonline.us",
         "device.login.microsoftonline.us",
@@ -83,6 +84,10 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         "autologon.microsoft.us",
         "management.usgovcloudapi.net",
         "pas.windows.net",
+        # Commercial endpoints required for initial tenant discovery/redirect
+        "enterpriseregistration.windows.net",
+        "login.microsoftonline.com",
+        "login.windows.net",
       ]
     }
 
