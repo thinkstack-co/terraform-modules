@@ -17,6 +17,10 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
+data "aws_ec2_instance_type" "this" {
+  instance_type = var.instance_type
+}
+
 locals {
   # Exclude specific tag keys from the root volume to avoid selecting the root EBS volume separately in tag-based backup workflows.
   root_volume_tags = var.exclude_root_volume_snapshot ? {
@@ -105,10 +109,8 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   count = var.create_cloudwatch_alarms ? 1 : 0
-  # If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered.
-  # If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
-
-  alarm_actions = contains(local.recover_action_unsupported_instances, var.instance_type) ? [] : ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
+  # Dynamically check if the instance type supports EC2 auto-recovery via the aws_ec2_instance_type data source.
+  alarm_actions = data.aws_ec2_instance_type.this.auto_recovery_supported ? ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"] : []
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
