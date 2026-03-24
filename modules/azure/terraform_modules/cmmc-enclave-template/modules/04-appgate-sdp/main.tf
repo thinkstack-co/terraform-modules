@@ -16,10 +16,15 @@ locals {
 }
 
 # ---------------------------------------------------------------------------
-# SSH Key Pair — single combined Controller+Gateway VM
+# SSH Key Pairs for Controller and Gateway
 # ---------------------------------------------------------------------------
 
 resource "tls_private_key" "controller" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "tls_private_key" "gateway" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
@@ -59,6 +64,14 @@ resource "azurerm_key_vault_secret" "controller_key" {
   depends_on = [azurerm_key_vault_access_policy.terraform_sp]
 }
 
+resource "azurerm_key_vault_secret" "gateway_key" {
+  name         = "ag-gw-private-key"
+  value        = tls_private_key.gateway.private_key_pem
+  key_vault_id = azurerm_key_vault.appgate.id
+
+  depends_on = [azurerm_key_vault_access_policy.terraform_sp]
+}
+
 # ---------------------------------------------------------------------------
 # Marketplace Agreement — cyxtera Appgate SDP
 # ---------------------------------------------------------------------------
@@ -70,7 +83,7 @@ resource "azurerm_marketplace_agreement" "appgate" {
 }
 
 # ---------------------------------------------------------------------------
-# Appgate Combined Controller + Gateway VM
+# Appgate Controller VM
 # ---------------------------------------------------------------------------
 
 resource "azurerm_public_ip" "controller" {
@@ -138,6 +151,74 @@ resource "azurerm_linux_virtual_machine" "controller" {
 }
 
 # ---------------------------------------------------------------------------
+# Appgate Gateway VM
+# ---------------------------------------------------------------------------
+
+resource "azurerm_public_ip" "gateway" {
+  count               = var.deploy_vms ? 1 : 0
+  name                = "${local.name_prefix}-ag-gw-pip-1"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  domain_name_label   = "${local.name_prefix}-ag-gw"
+  tags                = var.tags
+}
+
+resource "azurerm_network_interface" "gateway" {
+  count               = var.deploy_vms ? 1 : 0
+  name                = "${local.name_prefix}-ag-gw-nic-1"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
+
+  ip_configuration {
+    name                          = "ipconfig1"
+    subnet_id                     = var.ztna_subnet_id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.gateway[0].id
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "gateway" {
+  count               = var.deploy_vms ? 1 : 0
+  name                = "${local.name_prefix}-ag-gw-1"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  size                = var.gateway_vm_size
+  admin_username      = "appgate"
+  tags                = var.tags
+
+  network_interface_ids = [azurerm_network_interface.gateway[0].id]
+
+  admin_ssh_key {
+    username   = "appgate"
+    public_key = tls_private_key.gateway.public_key_openssh
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+    disk_size_gb         = 128
+  }
+
+  source_image_reference {
+    publisher = "cyxtera"
+    offer     = "appgatesdp-vm"
+    sku       = "v6_6_vm"
+    version   = "6.6.0"
+  }
+
+  plan {
+    name      = "v6_6_vm"
+    product   = "appgatesdp-vm"
+    publisher = "cyxtera"
+  }
+
+  depends_on = [azurerm_marketplace_agreement.appgate]
+}
+
+# ---------------------------------------------------------------------------
 # Firewall DNAT + Network Rules for Appgate SDP
 # ---------------------------------------------------------------------------
 
@@ -152,8 +233,9 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
     priority = 100
     action   = "Dnat"
 
+    # Controller rules
     rule {
-      name                = "combined-admin-ui"
+      name                = "ctl-admin-ui"
       protocols           = ["TCP"]
       source_addresses    = var.source_admin_ips
       destination_address = var.firewall_public_ip
@@ -163,7 +245,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
     }
 
     rule {
-      name                = "combined-https"
+      name                = "ctl-https"
       protocols           = ["TCP"]
       source_addresses    = ["*"]
       destination_address = var.firewall_public_ip
@@ -173,12 +255,33 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
     }
 
     rule {
-      name                = "combined-ssh"
+      name                = "ctl-ssh"
       protocols           = ["TCP"]
       source_addresses    = var.source_admin_ips
       destination_address = var.firewall_public_ip
       destination_ports   = ["22"]
       translated_address  = azurerm_network_interface.controller[0].private_ip_address
+      translated_port     = "22"
+    }
+
+    # Gateway rules
+    rule {
+      name                = "gw-https"
+      protocols           = ["TCP"]
+      source_addresses    = ["*"]
+      destination_address = var.firewall_public_ip
+      destination_ports   = ["8444"]
+      translated_address  = azurerm_network_interface.gateway[0].private_ip_address
+      translated_port     = "443"
+    }
+
+    rule {
+      name                = "gw-ssh"
+      protocols           = ["TCP"]
+      source_addresses    = var.source_admin_ips
+      destination_address = var.firewall_public_ip
+      destination_ports   = ["8022"]
+      translated_address  = azurerm_network_interface.gateway[0].private_ip_address
       translated_port     = "22"
     }
   }
