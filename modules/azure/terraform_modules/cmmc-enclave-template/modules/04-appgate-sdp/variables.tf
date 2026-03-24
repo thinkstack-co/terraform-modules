@@ -1,3 +1,8 @@
+variable "customer_name" {
+  description = "Customer name used for Entra ID app registration display names."
+  type        = string
+}
+
 variable "resource_group_name" {
   description = "Name of the resource group to deploy into."
   type        = string

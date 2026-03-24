@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 3.0"
+    }
     tls = {
       source  = "hashicorp/tls"
       version = "~> 4.0"
@@ -302,10 +306,42 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
 }
 
 # ---------------------------------------------------------------------------
-# TODO: Appgate OIDC Application Registration
+# Appgate OIDC Application Registration (Entra ID)
 # ---------------------------------------------------------------------------
 
-# resource "azuread_application" "appgate_oidc" {
-#   display_name = "${var.customer_name} - Appgate OIDC"
-#   ...
-# }
+resource "azuread_application" "appgate_oidc" {
+  display_name            = "${var.customer_name} - Appgate OIDC"
+  group_membership_claims = ["SecurityGroup"]
+
+  public_client {
+    redirect_uris = ["appgate://oidccallback"]
+  }
+
+  required_resource_access {
+    resource_app_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph
+
+    resource_access {
+      id   = "37f7f235-527c-4136-accd-4a02d197296e" # openid
+      type = "Scope"
+    }
+
+    resource_access {
+      id   = "14dad69e-099b-42c9-810b-d002981feec1" # profile
+      type = "Scope"
+    }
+
+    resource_access {
+      id   = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d6" # email
+      type = "Scope"
+    }
+
+    resource_access {
+      id   = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182" # offline_access
+      type = "Scope"
+    }
+  }
+}
+
+resource "azuread_service_principal" "appgate_oidc" {
+  client_id = azuread_application.appgate_oidc.client_id
+}
