@@ -98,7 +98,7 @@ resource "azurerm_virtual_machine_extension" "avd_dsc" {
   type_handler_version = "2.73"
 
   settings = jsonencode({
-    modulesUrl            = "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_1.0.02714.442.zip"
+    modulesUrl            = "https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip"
     configurationFunction = "Configuration.ps1\\AddSessionHost"
     properties = {
       HostPoolName        = split("/", var.host_pool_id)[8]
