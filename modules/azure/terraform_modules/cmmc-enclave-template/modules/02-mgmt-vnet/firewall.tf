@@ -97,6 +97,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         "*.wvd.microsoft.us",
         "kms.core.usgovcloudapi.net",
         "wvdportalstorageblob.blob.core.windows.net",
+        "raw.githubusercontent.com",
       ]
     }
   }
