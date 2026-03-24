@@ -66,7 +66,7 @@ resource "azurerm_key_vault_secret" "controller_key" {
 resource "azurerm_marketplace_agreement" "appgate" {
   publisher = "cyxtera"
   offer     = "appgatesdp-vm"
-  plan      = "v6_6_gov_vm"
+  plan      = "v6_6_vm"
 }
 
 # ---------------------------------------------------------------------------
@@ -124,12 +124,12 @@ resource "azurerm_linux_virtual_machine" "controller" {
   source_image_reference {
     publisher = "cyxtera"
     offer     = "appgatesdp-vm"
-    sku       = "v6_6_gov_vm"
+    sku       = "v6_6_vm"
     version   = "6.6.0"
   }
 
   plan {
-    name      = "v6_6_gov_vm"
+    name      = "v6_6_vm"
     product   = "appgatesdp-vm"
     publisher = "cyxtera"
   }
