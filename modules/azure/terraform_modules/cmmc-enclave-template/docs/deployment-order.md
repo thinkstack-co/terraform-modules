@@ -78,9 +78,11 @@ terraform apply \
   -target=module.session_hosts_mgmt \
   -target=module.session_hosts_prod
 
-# Stage 7: Intune policies (DISABLED — Azure Gov OIDC not supported)
-# Re-enable module "intune" in main.tf when a compatible provider is available
-# terraform apply -target=module.intune
+# Stage 7: Intune policies — deploy via Cloud Shell (Terraform disabled for Azure Gov)
+# See: docs/intune-cloud-shell.md
+GROUP_ID=$(az ad group list --display-name "<customer>-avd-users" --query "[0].id" -o tsv)
+./deploy-intune-policies.sh --group-id "$GROUP_ID"
+# Re-enable module "intune" in main.tf when a Gov-compatible provider is available
 ```
 
 ### Step 4: Full Apply (Subsequent Deployments)
@@ -162,7 +164,9 @@ A new image version is created in the gallery each time the build runs. Session 
 
 ### Intune
 
-- [ ] (Pending Azure Gov provider support) Configuration policies visible in Intune portal (intune.microsoft.us)
+- [ ] `deploy-intune-policies.sh` run successfully (see [docs/intune-cloud-shell.md](intune-cloud-shell.md))
+- [ ] 4 CMMC policies visible in Intune portal (`https://intune.microsoft.us`) — Configuration (3) + Compliance (1)
+- [ ] Each policy assigned to target group
 
 ---
 

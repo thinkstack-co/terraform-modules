@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# remove-intune-policies.sh
+#
+# Deletes the CMMC Intune policies created by deploy-intune-policies.sh.
+# Finds policies by display name and prompts for confirmation before deleting.
+#
+# Run from Azure Cloud Shell authenticated to the target tenant.
+#
+# Usage:
+#   ./remove-intune-policies.sh
+
+set -euo pipefail
+
+GRAPH="https://graph.microsoft.us/beta"
+
+CONFIG_POLICY_NAMES=(
+  "CMMC - BitLocker Encryption"
+  "CMMC - Windows Defender Antivirus"
+  "CMMC - Windows Firewall"
+)
+
+COMPLIANCE_POLICY_NAMES=(
+  "CMMC - Windows Device Compliance"
+)
+
+# ---------------------------------------------------------------------------
+# Verify Azure Government environment
+# ---------------------------------------------------------------------------
+
+ENVIRONMENT=$(az account show --query "environmentName" -o tsv 2>/dev/null || true)
+if [[ "$ENVIRONMENT" != "AzureUSGovernment" ]]; then
+  echo "Error: Azure CLI is not targeting AzureUSGovernment (current: '${ENVIRONMENT}')." >&2
+  echo "Run: az cloud set --name AzureUSGovernment && az login" >&2
+  exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Discover policies to delete
+# ---------------------------------------------------------------------------
+
+declare -A TO_DELETE_CONFIG
+declare -A TO_DELETE_COMPLIANCE
+
+echo "Searching for CMMC policies..."
+echo ""
+
+for name in "${CONFIG_POLICY_NAMES[@]}"; do
+  encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$name\"))")
+  id=$(az rest --method GET \
+    --url "${GRAPH}/deviceManagement/configurationPolicies?\$filter=name+eq+'${encoded}'" \
+    --query "value[0].id" -o tsv 2>/dev/null || echo "")
+  if [[ -n "$id" ]]; then
+    TO_DELETE_CONFIG["$name"]="$id"
+    echo "  [found] $name  ($id)"
+  else
+    echo "  [not found] $name"
+  fi
+done
+
+for name in "${COMPLIANCE_POLICY_NAMES[@]}"; do
+  encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$name\"))")
+  id=$(az rest --method GET \
+    --url "${GRAPH}/deviceManagement/compliancePolicies?\$filter=name+eq+'${encoded}'" \
+    --query "value[0].id" -o tsv 2>/dev/null || echo "")
+  if [[ -n "$id" ]]; then
+    TO_DELETE_COMPLIANCE["$name"]="$id"
+    echo "  [found] $name  ($id)"
+  else
+    echo "  [not found] $name"
+  fi
+done
+
+TOTAL=$(( ${#TO_DELETE_CONFIG[@]} + ${#TO_DELETE_COMPLIANCE[@]} ))
+
+if [[ $TOTAL -eq 0 ]]; then
+  echo ""
+  echo "No CMMC policies found. Nothing to delete."
+  exit 0
+fi
+
+echo ""
+echo "$TOTAL policy(s) will be deleted."
+read -r -p "Confirm deletion? [y/N] " confirm
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+  echo "Aborted."
+  exit 0
+fi
+
+echo ""
+
+# ---------------------------------------------------------------------------
+# Delete configuration policies
+# ---------------------------------------------------------------------------
+
+for name in "${!TO_DELETE_CONFIG[@]}"; do
+  id="${TO_DELETE_CONFIG[$name]}"
+  echo "Deleting configuration policy: $name ($id)"
+  az rest --method DELETE \
+    --url "${GRAPH}/deviceManagement/configurationPolicies/${id}" 2>/dev/null
+  echo "  Deleted."
+done
+
+# ---------------------------------------------------------------------------
+# Delete compliance policies
+# ---------------------------------------------------------------------------
+
+for name in "${!TO_DELETE_COMPLIANCE[@]}"; do
+  id="${TO_DELETE_COMPLIANCE[$name]}"
+  echo "Deleting compliance policy: $name ($id)"
+  az rest --method DELETE \
+    --url "${GRAPH}/deviceManagement/compliancePolicies/${id}" 2>/dev/null
+  echo "  Deleted."
+done
+
+echo ""
+echo "Done. $TOTAL policy(s) deleted."

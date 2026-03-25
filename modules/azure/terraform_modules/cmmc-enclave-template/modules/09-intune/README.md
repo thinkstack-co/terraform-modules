@@ -16,6 +16,25 @@ Deploys Intune device configuration and compliance policies via the `microsoft/m
 >
 > `microsoft/msgraph ~> 0.3.0` returns `InvalidCloudInstance` when authenticating via OIDC against Azure Government endpoints. Comment out `module "intune"` in the customer repo `main.tf` until a Gov-compatible provider version is available. Track provider support at the [msgraph provider releases](https://github.com/microsoft/terraform-provider-msgraph/releases).
 
+## Cloud Shell Alternative
+
+Since this module cannot be used in Azure Government, deploy the same policies via `az rest` from Azure Cloud Shell using the scripts in `scripts/`.
+
+See the full runbook: [docs/intune-cloud-shell.md](../../docs/intune-cloud-shell.md)
+
+Quick start:
+
+```bash
+GROUP_ID=$(az ad group list --display-name "<customer>-avd-users" --query "[0].id" -o tsv)
+./scripts/deploy-intune-policies.sh --group-id "$GROUP_ID"
+```
+
+To remove policies:
+
+```bash
+./scripts/remove-intune-policies.sh
+```
+
 ## Provider Notes
 
 This module uses the `microsoft/msgraph` provider (`~> 0.3.0`), which calls MS Graph Beta endpoints via generic `msgraph_resource` and `msgraph_resource_action` resources. The Settings Catalog policy payloads embed Graph API JSON directly in the `body` attribute. Policy IDs are extracted via `response_export_values = ["id"]`.
