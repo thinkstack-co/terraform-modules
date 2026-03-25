@@ -111,6 +111,18 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         "ecs.office.com",
         "clients.config.office.net",
         "mobile.events.data.microsoft.com",
+        # Azure Monitor / Geneva monitoring (required for MonitoringAgentCheck)
+        "*.monitoring.core.usgovcloudapi.net",
+        # Microsoft Defender AV
+        "mdav.us.endpoint.security.microsoft.com",
+        # Certificate validation (OCSP/CRL)
+        "ocsp.digicert.com",
+        "crl3.digicert.com",
+        "crl2.microsoft.com",
+        "oneocsp.microsoft.com",
+        # General Microsoft
+        "go.microsoft.com",
+        "www.microsoft.com",
       ]
     }
   }
