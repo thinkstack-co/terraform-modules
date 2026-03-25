@@ -312,7 +312,10 @@ resource "azuread_application" "appgate_oidc" {
   group_membership_claims = ["SecurityGroup"]
 
   public_client {
-    redirect_uris = ["appgate://oidccallback"]
+    redirect_uris = [
+      "appgate://oidccallback",
+      "http://localhost:29001/oidc",
+    ]
   }
 
   required_resource_access {
