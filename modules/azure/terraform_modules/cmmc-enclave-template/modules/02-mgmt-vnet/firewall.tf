@@ -100,6 +100,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
       source_addresses = ["*"]
       destination_fqdns = [
         "*.wvd.microsoft.us",
+        "*.wvd.azure.us",
         "kms.core.usgovcloudapi.net",
         "wvdportalstorageblob.blob.core.windows.net",
         "raw.githubusercontent.com",
