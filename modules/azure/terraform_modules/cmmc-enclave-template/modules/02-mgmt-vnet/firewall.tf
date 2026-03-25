@@ -104,6 +104,13 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         "kms.core.usgovcloudapi.net",
         "wvdportalstorageblob.blob.core.windows.net",
         "raw.githubusercontent.com",
+        # AVD agent upgrade packages (Azure Government blob storage)
+        "*.blob.core.usgovcloudapi.net",
+        # Office / Teams on session hosts
+        "fs.microsoft.com",
+        "ecs.office.com",
+        "clients.config.office.net",
+        "mobile.events.data.microsoft.com",
       ]
     }
   }
