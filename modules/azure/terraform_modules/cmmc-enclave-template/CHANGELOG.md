@@ -7,6 +7,31 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [v2.9.2] - 2026-03-25
+
+### Added
+
+- **`04-appgate-sdp`**: Separate Controller and Gateway VMs (was single combined appliance). Each VM has a dedicated NIC on the ZTNA subnet. No VM public IPs — all client traffic routes through Azure Firewall DNAT.
+- **`04-appgate-sdp`**: DNS labels on Azure Firewall PIPs — PIP[0] for controller, PIP[1] for gateway. Resolves asymmetric routing caused by UDR + VM-owned public IPs. Azure Firewall auto-SNATs DNAT flows, ensuring symmetric routing.
+- **`04-appgate-sdp`**: UDP DNAT rules for SPA (port 443 UDP) on both controller and gateway PIPs. Fixes WolfSSL -308 / SPA knock drop caused by TCP-only DNAT rules.
+- **`04-appgate-sdp`**: `gateway_firewall_public_ip` input variable — second firewall PIP for gateway DNAT destination.
+- **`04-appgate-sdp`**: Entra ID OIDC app registration (`azuread_application.appgate_oidc`) with `http://localhost:29001/oidc` redirect URI for PKCE flow compatibility.
+- **`02-mgmt-vnet`**: `appgate_controller_dns_label` and `appgate_gateway_dns_label` optional input variables for firewall PIP DNS labels.
+- **`02-mgmt-vnet`**: `firewall_public_ip_2` and `firewall_public_ip_fqdns` outputs.
+- **`docs/appgate-configuration.md`**: New post-deployment Appgate configuration guide covering seeding, `networking.hosts` requirement, OIDC setup, and client connectivity.
+
+### Changed
+
+- **`04-appgate-sdp`**: Marketplace plan updated to `cyxtera:appgatesdp-vm:v6_5_vm` (version `6.5.4`), confirmed available in Azure Government (`usgovarizona`). Previous plan `v6_6_gov_vm` is a private offer unavailable in the commercial Government marketplace.
+- **`04-appgate-sdp`**: `controller_vm_size` and `gateway_vm_size` defaults changed from `Standard_B2s` to `Standard_B2ls_v2`.
+- **`04-appgate-sdp`**: Gateway SSH firewall rule moved from PIP[0] port 8022 to PIP[1] port 22 (gateway has its own dedicated PIP).
+
+### Removed
+
+- **`04-appgate-sdp`**: `azurerm_public_ip.controller` and `azurerm_public_ip.gateway` resources removed. Public IP DNS labels are now on the firewall PIPs.
+
+---
+
 ## [Unreleased]
 
 ### Added

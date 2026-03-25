@@ -168,26 +168,19 @@ A new image version is created in the gallery each time the build runs. Session 
 
 ## Appgate SDP Post-Deployment
 
-If Appgate VMs have been deployed (after completing module 04), run the configuration scripts:
+After `terraform apply` with `deploy_vms = true` in the `04-appgate-sdp` module, complete the following steps manually. See the full guide: [docs/appgate-configuration.md](appgate-configuration.md)
 
-```bash
-# From Azure Cloud Shell or a machine with connectivity to the ZTNA subnet
+**Key sequence:**
 
-# 1. Provision Appgate on Controller
-ssh -i <ctl-private-key> appgate@<ctl-public-ip> < scripts/provision-appgate.sh
+1. **Retrieve SSH keys** from Key Vault (`ag-ctl-private-key`, `ag-gw-private-key`)
+2. **Seed Controller** via Azure Bastion SSH — run `cz-config setup` with admin password and controller FQDN
+3. **Set `networking.hosts`** on the gateway appliance config via controller API — maps controller FQDN to private IP in `cz-coredns`. Required because the ZTNA subnet UDR routes all VM traffic through Azure Firewall; without this entry, the gateway hairpins through the firewall and fails with asymmetric routing → TCP RST
+4. **Seed Gateway** — apply exported seed from controller API, wait for `appliance_ready`
+5. **Configure OIDC identity provider** in controller admin UI (`:8443`) — issuer: `https://login.microsoftonline.us/<tenant-id>/v2.0`
+6. **Grant admin consent** for the Entra OIDC app at `portal.azure.us`
+7. **Create client profile, policies, entitlements** in controller admin UI
 
-# 2. Seed Controller
-bash scripts/seed-controller.sh <ctl-private-ip>
+**Admin access:**
 
-# 3. Seed Gateway
-bash scripts/seed-gateway.sh <gw-private-ip>
-
-# 4. Configure OIDC identity provider
-bash scripts/create-oidc-idp.sh
-
-# 5. Configure client profiles, policies, entitlements
-bash scripts/create-client-profile.sh
-bash scripts/create-tunnel-policy.sh
-bash scripts/create-full-tunnel-entitlement.sh
-bash scripts/enable-full-tunnel-default-site.sh
-```
+- Controller admin UI: `https://<customer>-ztna-ag-ctl.<region>.cloudapp.usgovcloudapi.net:8443`
+- SSH access: via Azure Bastion tunnel or firewall DNAT (port 22 on each firewall PIP)

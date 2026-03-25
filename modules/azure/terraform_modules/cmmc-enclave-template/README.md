@@ -31,7 +31,7 @@ Customer Repo
     ├── module "entra"               → 01-entra        (Identity & access)
     ├── module "mgmt_vnet"           → 02-mgmt-vnet    (Firewall, Bastion, routing)
     ├── module "prod_vnet"           → 03-prod-vnet    (Customer VNet, peering)
-    ├── module "appgate_sdp"         → 04-appgate-sdp  (ZTNA — partial, see note)
+    ├── module "appgate_sdp"         → 04-appgate-sdp  (ZTNA — Controller + Gateway VMs)
     ├── module "avd"                 → 05-avd          (Host pools, workspaces)
     ├── module "storage"             → 06-storage      (FSLogix + backup)
     ├── module "vm_imaging"          → 07-vm-imaging   (Compute gallery)
@@ -49,7 +49,7 @@ Dependency chain:
                    09 (disabled — Azure Gov OIDC not yet supported)
 ```
 
-> **Note on 04-appgate-sdp:** The Appgate SDP VM resources are stubbed pending marketplace image availability verification in Azure Government. Key Vault and firewall rules are fully implemented. See [`docs/appgate-image.md`](docs/appgate-image.md).
+> **Note on 04-appgate-sdp:** Marketplace image `cyxtera:appgatesdp-vm:v6_5_vm` is confirmed available in Azure Government. Controller and Gateway VMs deploy with `deploy_vms = true`. Post-deployment configuration is required — see [`docs/appgate-configuration.md`](docs/appgate-configuration.md).
 >
 > **Note on 09-intune:** Disabled — `microsoft/msgraph ~> 0.3.0` does not support Azure Government OIDC (`InvalidCloudInstance`). Re-enable when a Gov-compatible provider version is available.
 
@@ -202,9 +202,9 @@ Never commit secrets to the repo. See the full variable reference in [`examples/
 | Module | Purpose | Key Inputs | Key Outputs |
 | --- | --- | --- | --- |
 | [01-entra](modules/01-entra/) | Entra ID groups, PIM, conditional access | `tenant_id`, `customer_name`, `admin_upns` | Group IDs, CA policy IDs |
-| [02-mgmt-vnet](modules/02-mgmt-vnet/) | Management VNet, Firewall Premium, Bastion | `resource_group_name`, `location`, `mgmt_vnet_cidr` | `vnet_id`, `firewall_private_ip`, `subnet_ids` |
+| [02-mgmt-vnet](modules/02-mgmt-vnet/) | Management VNet, Firewall Premium, Bastion | `resource_group_name`, `location`, `mgmt_vnet_cidr`, `appgate_controller_dns_label`, `appgate_gateway_dns_label` | `vnet_id`, `firewall_private_ip`, `firewall_public_ip`, `firewall_public_ip_2`, `subnet_ids` |
 | [03-prod-vnet](modules/03-prod-vnet/) | Production VNet, peering to mgmt | `mgmt_vnet_id`, `firewall_private_ip` | `vnet_id`, `subnet_ids` |
-| [04-appgate-sdp](modules/04-appgate-sdp/) | ZTNA — Key Vault + firewall rules (VMs stubbed) | `ztna_subnet_id`, `firewall_policy_id` | `key_vault_id` |
+| [04-appgate-sdp](modules/04-appgate-sdp/) | ZTNA — Controller + Gateway VMs, Key Vault, OIDC app, Firewall DNAT rules | `ztna_subnet_id`, `firewall_policy_id`, `firewall_public_ip`, `gateway_firewall_public_ip` | `controller_fqdn`, `gateway_fqdn`, `oidc_client_id`, `key_vault_id` |
 | [05-avd](modules/05-avd/) | AVD host pools, workspaces, scaling | `log_analytics_workspace_id`, `avd_users_group_id` | Host pool IDs, registration tokens |
 | [06-storage](modules/06-storage/) | FSLogix storage, backup vault | `allowed_subnet_ids`, `customer_name` | `fslogix_unc_path`, `storage_account_key` |
 | [07-vm-imaging](modules/07-vm-imaging/) | Azure Compute Gallery, image definitions | `gallery_name`, `image_definitions` | `gallery_id`, `image_definition_ids` |
