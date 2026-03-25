@@ -49,3 +49,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "appgate_controller_dns_label" {
+  description = "DNS label for firewall PIP[0] (Appgate controller FQDN). Null if not deploying Appgate."
+  type        = string
+  default     = null
+}
+
+variable "appgate_gateway_dns_label" {
+  description = "DNS label for firewall PIP[1] (Appgate gateway FQDN). Null if not deploying Appgate."
+  type        = string
+  default     = null
+}

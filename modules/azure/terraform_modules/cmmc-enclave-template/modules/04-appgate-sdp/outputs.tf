@@ -19,8 +19,8 @@ output "controller_private_ip" {
 }
 
 output "controller_fqdn" {
-  description = "FQDN of the Appgate SDP Controller public IP. Null when deploy_vms = false."
-  value       = var.deploy_vms ? azurerm_public_ip.controller[0].fqdn : null
+  description = "FQDN of the Appgate SDP Controller (via firewall PIP). Null when deploy_vms = false."
+  value       = var.deploy_vms ? "${local.name_prefix}-ag-ctl.${var.location}.cloudapp.usgovcloudapi.net" : null
 }
 
 output "gateway_private_ip" {
@@ -29,6 +29,6 @@ output "gateway_private_ip" {
 }
 
 output "gateway_fqdn" {
-  description = "FQDN of the Appgate SDP Gateway public IP. Null when deploy_vms = false."
-  value       = var.deploy_vms ? azurerm_public_ip.gateway[0].fqdn : null
+  description = "FQDN of the Appgate SDP Gateway (via firewall PIP). Null when deploy_vms = false."
+  value       = var.deploy_vms ? "${local.name_prefix}-ag-gw.${var.location}.cloudapp.usgovcloudapi.net" : null
 }

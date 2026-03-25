@@ -9,6 +9,7 @@ resource "azurerm_public_ip" "firewall" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = count.index == 0 ? var.appgate_controller_dns_label : var.appgate_gateway_dns_label
   tags                = var.tags
 }
 

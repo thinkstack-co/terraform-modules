@@ -53,3 +53,13 @@ output "firewall_log_analytics_workspace_id" {
   description = "Resource ID of the firewall-specific Log Analytics workspace."
   value       = azurerm_log_analytics_workspace.firewall.id
 }
+
+output "firewall_public_ip_2" {
+  description = "Second public IP address of the Azure Firewall (Appgate gateway FQDN)."
+  value       = azurerm_public_ip.firewall[1].ip_address
+}
+
+output "firewall_public_ip_fqdns" {
+  description = "FQDNs for both firewall public IPs. Index 0 = controller, 1 = gateway. Null if no DNS label set."
+  value       = azurerm_public_ip.firewall[*].fqdn
+}

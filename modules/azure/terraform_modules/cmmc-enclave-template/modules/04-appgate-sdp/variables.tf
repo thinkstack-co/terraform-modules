@@ -30,7 +30,12 @@ variable "firewall_policy_id" {
 }
 
 variable "firewall_public_ip" {
-  description = "Primary public IP of the Azure Firewall for DNAT destination."
+  description = "Primary public IP of the Azure Firewall (controller DNAT destination)."
+  type        = string
+}
+
+variable "gateway_firewall_public_ip" {
+  description = "Second public IP of the Azure Firewall (gateway DNAT destination)."
   type        = string
 }
 

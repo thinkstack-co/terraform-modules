@@ -90,17 +90,6 @@ resource "azurerm_marketplace_agreement" "appgate" {
 # Appgate Controller VM
 # ---------------------------------------------------------------------------
 
-resource "azurerm_public_ip" "controller" {
-  count               = var.deploy_vms ? 1 : 0
-  name                = "${local.name_prefix}-ag-ctl-pip-1"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-  domain_name_label   = "${local.name_prefix}-ag-ctl"
-  tags                = var.tags
-}
-
 resource "azurerm_network_interface" "controller" {
   count               = var.deploy_vms ? 1 : 0
   name                = "${local.name_prefix}-ag-ctl-nic-1"
@@ -112,7 +101,6 @@ resource "azurerm_network_interface" "controller" {
     name                          = "ipconfig1"
     subnet_id                     = var.ztna_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.controller[0].id
   }
 }
 
@@ -158,17 +146,6 @@ resource "azurerm_linux_virtual_machine" "controller" {
 # Appgate Gateway VM
 # ---------------------------------------------------------------------------
 
-resource "azurerm_public_ip" "gateway" {
-  count               = var.deploy_vms ? 1 : 0
-  name                = "${local.name_prefix}-ag-gw-pip-1"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-  domain_name_label   = "${local.name_prefix}-ag-gw"
-  tags                = var.tags
-}
-
 resource "azurerm_network_interface" "gateway" {
   count               = var.deploy_vms ? 1 : 0
   name                = "${local.name_prefix}-ag-gw-nic-1"
@@ -180,7 +157,6 @@ resource "azurerm_network_interface" "gateway" {
     name                          = "ipconfig1"
     subnet_id                     = var.ztna_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.gateway[0].id
   }
 }
 
@@ -237,7 +213,8 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
     priority = 100
     action   = "Dnat"
 
-    # Controller rules
+    # ── Controller (firewall PIP[0] / var.firewall_public_ip) ────────────
+
     rule {
       name                = "ctl-admin-ui"
       protocols           = ["TCP"]
@@ -249,8 +226,18 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
     }
 
     rule {
-      name                = "ctl-https"
+      name                = "ctl-https-tcp"
       protocols           = ["TCP"]
+      source_addresses    = ["*"]
+      destination_address = var.firewall_public_ip
+      destination_ports   = ["443"]
+      translated_address  = azurerm_network_interface.controller[0].private_ip_address
+      translated_port     = "443"
+    }
+
+    rule {
+      name                = "ctl-spa-udp"
+      protocols           = ["UDP"]
       source_addresses    = ["*"]
       destination_address = var.firewall_public_ip
       destination_ports   = ["443"]
@@ -268,13 +255,24 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
       translated_port     = "22"
     }
 
-    # Gateway rules
+    # ── Gateway (firewall PIP[1] / var.gateway_firewall_public_ip) ───────
+
     rule {
-      name                = "gw-https"
+      name                = "gw-https-tcp"
       protocols           = ["TCP"]
       source_addresses    = ["*"]
-      destination_address = var.firewall_public_ip
-      destination_ports   = ["8444"]
+      destination_address = var.gateway_firewall_public_ip
+      destination_ports   = ["443"]
+      translated_address  = azurerm_network_interface.gateway[0].private_ip_address
+      translated_port     = "443"
+    }
+
+    rule {
+      name                = "gw-spa-udp"
+      protocols           = ["UDP"]
+      source_addresses    = ["*"]
+      destination_address = var.gateway_firewall_public_ip
+      destination_ports   = ["443"]
       translated_address  = azurerm_network_interface.gateway[0].private_ip_address
       translated_port     = "443"
     }
@@ -283,8 +281,8 @@ resource "azurerm_firewall_policy_rule_collection_group" "appgate" {
       name                = "gw-ssh"
       protocols           = ["TCP"]
       source_addresses    = var.source_admin_ips
-      destination_address = var.firewall_public_ip
-      destination_ports   = ["8022"]
+      destination_address = var.gateway_firewall_public_ip
+      destination_ports   = ["22"]
       translated_address  = azurerm_network_interface.gateway[0].private_ip_address
       translated_port     = "22"
     }
