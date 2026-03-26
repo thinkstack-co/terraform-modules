@@ -102,6 +102,10 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
       destination_fqdns = [
         "*.wvd.microsoft.us",
         "*.wvd.azure.us",
+        # Explicit RD Gateway endpoints (Azure Front Door — DNS proxy may not
+        # resolve these via the *.wvd.azure.us wildcard chain reliably)
+        "afdfp-rdgateway-r0.wvd.azure.us",
+        "afdfp-rdgateway-r1.wvd.azure.us",
         "kms.core.usgovcloudapi.net",
         "wvdportalstorageblob.blob.core.windows.net",
         "raw.githubusercontent.com",
@@ -121,10 +125,26 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
         "crl3.digicert.com",
         "crl2.microsoft.com",
         "oneocsp.microsoft.com",
-        # General Microsoft
+        # General Microsoft / Windows App UI
         "go.microsoft.com",
         "www.microsoft.com",
+        "aka.ms",
+        "res.cdn.office.net",
       ]
+    }
+  }
+
+  network_rule_collection {
+    name     = "AllowAVDShortpath"
+    priority = 300
+    action   = "Allow"
+
+    rule {
+      name                  = "AllowRDPShortpathUDP"
+      protocols             = ["UDP"]
+      source_addresses      = ["*"]
+      destination_fqdns     = ["*.wvd.azure.us"]
+      destination_ports     = ["443", "3478"]
     }
   }
 }
