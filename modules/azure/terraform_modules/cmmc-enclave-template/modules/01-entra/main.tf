@@ -17,18 +17,18 @@ terraform {
 
 locals {
   pim_groups = {
-    service_desk        = "Service Desk"
-    compliance          = "Compliance"
-    security_operations = "Security Operations"
-    security_engineering = "Security Engineering"
-    escalation_engineers = "Escalation Engineers"
-    global_admin        = "Global Admin"
+    service_desk         = "Service Desk PIM Eligible Role Assignments"
+    compliance           = "Compliance PIM Eligible Role Assignments"
+    security_operations  = "Security Operations PIM Eligible Role Assignments"
+    security_engineering = "Security Engineering PIM Eligible Role Assignments"
+    escalation_engineers = "Escalation Engineers PIM Eligible Role Assignments"
+    global_admin         = "Global Admin PIM Eligible Role Assignments"
   }
 
   rbac_groups = {
-    owner           = "Owner"
-    contributor     = "Contributor"
-    billing_reader  = "Billing Reader"
+    owner          = "Owner RBAC Role Assignments"
+    contributor    = "Contributor RBAC Role Assignments"
+    billing_reader = "Billing Reader RBAC Role Assignments"
   }
 }
 
@@ -364,7 +364,7 @@ resource "azuread_conditional_access_policy" "avd_reauthentication" {
 # ---------------------------------------------------------------------------
 
 resource "azuread_group" "sspr" {
-  display_name     = "${var.customer_name} - SSPR Users"
+  display_name     = "${var.customer_name} - Self Service Password Reset Enabled"
   security_enabled = true
   mail_enabled     = false
 

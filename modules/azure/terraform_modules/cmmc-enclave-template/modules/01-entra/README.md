@@ -50,7 +50,7 @@ Creates Entra ID security groups, PIM eligibility schedules, subscription-level 
 | Require MFA for All Users | enabled | MFA required for all US sign-ins; excludes MFA exempt group and `var.mfa_exempt_group_ids` |
 | Block Sign-ins Outside United States | enabled | Blocks all sign-ins from outside the US named location |
 | Block Legacy Authentication | enabled | Blocks Exchange ActiveSync and other legacy clients |
-| Block access outside Zero Trust Network | report-only | Blocks all apps (except Appgate OIDC) from outside the Secure Enclave IP |
+| Block access outside Zero Trust Network | report-only | Blocks all apps from outside the Secure Enclave IP named location |
 | Block non-AVD cloud apps on ZTNA unless using AVD | report-only | Blocks non-AVD apps from non-AVD devices outside ZTNA |
 | Enforce periodic reauthentication for AVD cloud apps | report-only | 1-hour sign-in frequency for AVD app IDs |
 

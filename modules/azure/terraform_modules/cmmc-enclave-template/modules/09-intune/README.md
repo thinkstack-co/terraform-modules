@@ -48,16 +48,28 @@ See the full runbook: [docs/intune-cloud-shell.md](../../docs/intune-cloud-shell
 Quick start:
 
 ```bash
+# Set these two values for the customer
+CUSTOMER_PREFIX="owi"           # customer_name used in Terraform (e.g. "owi")
+CUSTOMER_DISPLAY_NAME="Overwatch Imaging"
+
+TENANT_ID=$(az account show --query tenantId -o tsv)
+
 ./scripts/deploy-intune-policies.sh \
   --tenant-id "$TENANT_ID" \
-  --customer-name "Acme Corp" \
-  --avd-host-group-id "$(az ad group show --group '<customer> - All Azure Virtual Desktop Hosts' --query id -o tsv)" \
-  --all-users-group-id "$(az ad group show --group '<customer> - All Users' --query id -o tsv)" \
-  --all-windows-devices-group-id "$(az ad group show --group '<customer> - All Windows 10 and Later Devices' --query id -o tsv)" \
-  --group-id "<cmmc-baseline-group-id>"
+  --customer-name "$CUSTOMER_DISPLAY_NAME" \
+  --avd-host-group-id "$(az ad group show --group "$CUSTOMER_PREFIX - All Azure Virtual Desktop Hosts" --query id -o tsv)" \
+  --all-users-group-id "$(az ad group show --group "$CUSTOMER_PREFIX - All Users" --query id -o tsv)" \
+  --all-windows-devices-group-id "$(az ad group show --group "$CUSTOMER_PREFIX - All Windows 10 and Later Devices" --query id -o tsv)" \
+  --group-id "$(az ad group show --group "$CUSTOMER_PREFIX - Self Service Password Reset Enabled" --query id -o tsv)"
 ```
 
-Optionally add `--gpu-vm-group-id <id>` to deploy the GPU acceleration policy.
+Optionally add the GPU acceleration policy:
+
+```bash
+  --gpu-vm-group-id "$(az ad group show --group "$CUSTOMER_PREFIX - GPU-optimized Azure VMs" --query id -o tsv)"
+```
+
+`--group-id` is repeatable — pass it multiple times to target additional CMMC baseline groups.
 
 To remove all policies:
 
