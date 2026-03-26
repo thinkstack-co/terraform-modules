@@ -17,10 +17,23 @@ CONFIG_POLICY_NAMES=(
   "CMMC - BitLocker Encryption"
   "CMMC - Windows Defender Antivirus"
   "CMMC - Windows Firewall"
+  "Configure device and resource redirection"
+  "Configure GPU acceleration for Azure Virtual Desktop"
+  "Configure OneDrive settings"
+  "Configure Windows NTP client"
+  "Disable password reveal"
+  "Enable Azure Information Protection add-in for sensitivity labeling"
+  "Enable interactive logon banner"
+  "Enable screen capture protection"
 )
 
 COMPLIANCE_POLICY_NAMES=(
   "CMMC - Windows Device Compliance"
+)
+
+DEVICE_CONFIG_POLICY_NAMES=(
+  "Set lock screen inactivity timer"
+  "Set password policy"
 )
 
 # ---------------------------------------------------------------------------
@@ -40,8 +53,9 @@ fi
 
 declare -A TO_DELETE_CONFIG
 declare -A TO_DELETE_COMPLIANCE
+declare -A TO_DELETE_DEVICE_CONFIG
 
-echo "Searching for CMMC policies..."
+echo "Searching for Intune policies..."
 echo ""
 
 for name in "${CONFIG_POLICY_NAMES[@]}"; do
@@ -70,7 +84,20 @@ for name in "${COMPLIANCE_POLICY_NAMES[@]}"; do
   fi
 done
 
-TOTAL=$(( ${#TO_DELETE_CONFIG[@]} + ${#TO_DELETE_COMPLIANCE[@]} ))
+for name in "${DEVICE_CONFIG_POLICY_NAMES[@]}"; do
+  encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$name\"))")
+  id=$(az rest --method GET \
+    --url "${GRAPH}/deviceManagement/deviceConfigurations?\$filter=displayName+eq+'${encoded}'" \
+    --query "value[0].id" -o tsv 2>/dev/null || echo "")
+  if [[ -n "$id" ]]; then
+    TO_DELETE_DEVICE_CONFIG["$name"]="$id"
+    echo "  [found] $name  ($id)"
+  else
+    echo "  [not found] $name"
+  fi
+done
+
+TOTAL=$(( ${#TO_DELETE_CONFIG[@]} + ${#TO_DELETE_COMPLIANCE[@]} + ${#TO_DELETE_DEVICE_CONFIG[@]} ))
 
 if [[ $TOTAL -eq 0 ]]; then
   echo ""
@@ -109,6 +136,18 @@ for name in "${!TO_DELETE_COMPLIANCE[@]}"; do
   echo "Deleting compliance policy: $name ($id)"
   az rest --method DELETE \
     --url "${GRAPH}/deviceManagement/compliancePolicies/${id}" 2>/dev/null
+  echo "  Deleted."
+done
+
+# ---------------------------------------------------------------------------
+# Delete device configuration policies (legacy endpoint)
+# ---------------------------------------------------------------------------
+
+for name in "${!TO_DELETE_DEVICE_CONFIG[@]}"; do
+  id="${TO_DELETE_DEVICE_CONFIG[$name]}"
+  echo "Deleting device configuration policy: $name ($id)"
+  az rest --method DELETE \
+    --url "${GRAPH}/deviceManagement/deviceConfigurations/${id}" 2>/dev/null
   echo "  Deleted."
 done
 

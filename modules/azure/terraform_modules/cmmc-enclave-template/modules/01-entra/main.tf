@@ -80,12 +80,16 @@ locals {
       "Global Reader",
     ]
     security_engineering = [
+      "Cloud Application Administrator",
+      "Cloud App Security Administrator",
       "Security Administrator",
       "Global Reader",
     ]
     escalation_engineers = [
+      "Cloud App Security Operator",
       "Security Administrator",
-      "User Administrator",
+      "Intune Administrator",
+      "Authentication Administrator",
       "Global Reader",
     ]
     global_admin = [
@@ -169,12 +173,16 @@ resource "azuread_conditional_access_policy" "require_mfa" {
   conditions {
     users {
       included_users  = ["All"]
-      excluded_groups = var.mfa_exempt_group_ids
+      excluded_groups = concat([azuread_group.mfa_exempt.object_id], var.mfa_exempt_group_ids)
     }
     applications {
       included_applications = ["All"]
     }
     client_app_types = ["all"]
+    locations {
+      included_locations = [azuread_named_location.us_only.id]
+      excluded_locations = []
+    }
   }
 
   grant_controls {
@@ -236,6 +244,125 @@ resource "azuread_conditional_access_policy" "block_legacy_auth" {
 }
 
 # ---------------------------------------------------------------------------
+# Named location — Secure Enclave
+# ---------------------------------------------------------------------------
+
+resource "azuread_named_location" "secure_enclave" {
+  display_name = "${var.customer_name} - Secure Enclave"
+  ip {
+    ip_ranges = [for ip in var.secure_enclave_ips : "${ip}/32"]
+    trusted   = true
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Conditional Access: Block access outside Zero Trust Network
+# ---------------------------------------------------------------------------
+
+resource "azuread_conditional_access_policy" "block_outside_ztna" {
+  display_name = "${var.customer_name} - Block access outside Zero Trust Network"
+  state        = "enabledForReportingButNotEnforced"
+
+  conditions {
+    users {
+      included_users = ["All"]
+      excluded_users = var.excluded_user_ids
+    }
+    applications {
+      included_applications = ["All"]
+      excluded_applications = [var.appgate_oidc_application_id]
+    }
+    client_app_types = ["all"]
+    locations {
+      included_locations = ["All"]
+      excluded_locations = [azuread_named_location.secure_enclave.id]
+    }
+  }
+
+  grant_controls {
+    operator          = "OR"
+    built_in_controls = ["block"]
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Conditional Access: Block non-AVD cloud apps on ZTNA unless using AVD
+# ---------------------------------------------------------------------------
+
+resource "azuread_conditional_access_policy" "block_non_avd_outside_ztna" {
+  display_name = "${var.customer_name} - Block non-AVD cloud apps on ZTNA unless using AVD"
+  state        = "enabledForReportingButNotEnforced"
+
+  conditions {
+    users {
+      included_users = ["All"]
+      excluded_users = var.excluded_user_ids
+    }
+    applications {
+      included_applications = ["All"]
+      excluded_applications = [
+        "a4a365df-50f1-4397-bc59-1a1564b8bb9c", # Microsoft Remote Desktop
+        "270efc09-cd0d-444b-a71f-39af4910ec45", # Windows Cloud Login
+        "9cdead84-a844-4324-93f2-b2e6bb768d07", # Azure Virtual Desktop
+        "a85cf173-4192-42f8-81fa-777a763e6e2c", # Azure Virtual Desktop Client
+        var.appgate_oidc_application_id,
+      ]
+    }
+    client_app_types = ["all"]
+    devices {
+      filter {
+        mode = "exclude"
+        rule = "device.displayName -startsWith \"avd\" -and device.manufacturer -eq \"Microsoft Corporation\" -and device.model -eq \"Virtual Machine\""
+      }
+    }
+  }
+
+  grant_controls {
+    operator          = "OR"
+    built_in_controls = ["block"]
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Conditional Access: Enforce periodic reauthentication for AVD cloud apps
+# ---------------------------------------------------------------------------
+
+resource "azuread_conditional_access_policy" "avd_reauthentication" {
+  display_name = "${var.customer_name} - Enforce periodic reauthentication for AVD cloud apps"
+  state        = "enabledForReportingButNotEnforced"
+
+  conditions {
+    users {
+      included_users = ["All"]
+      excluded_users = var.excluded_user_ids
+    }
+    applications {
+      included_applications = [
+        "9cdead84-a844-4324-93f2-b2e6bb768d07", # Azure Virtual Desktop
+        "a4a365df-50f1-4397-bc59-1a1564b8bb9c", # Microsoft Remote Desktop
+        "270efc09-cd0d-444b-a71f-39af4910ec45", # Windows Cloud Login
+      ]
+    }
+    client_app_types = ["all"]
+  }
+
+  grant_controls {
+    operator          = "OR"
+    built_in_controls = ["mfa"]
+  }
+
+  session_controls {
+    sign_in_frequency {
+      authentication_type = "primaryAndSecondaryAuthentication"
+      frequency_interval  = "timeBased"
+      enabled             = true
+      type                = "hours"
+      value               = 1
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------
 # Dynamic group for SSPR
 # ---------------------------------------------------------------------------
 
@@ -246,6 +373,75 @@ resource "azuread_group" "sspr" {
 
   dynamic_membership {
     enabled = true
+    rule    = "((user.companyName -eq \"${var.customer_name}\") or (user.companyName -eq \"${var.msp_company_name}\")) and (user.accountEnabled -eq true)"
+  }
+}
+
+# ---------------------------------------------------------------------------
+# MFA exempt group
+# ---------------------------------------------------------------------------
+
+resource "azuread_group" "mfa_exempt" {
+  display_name     = "${var.customer_name} - Multifactor Authentication Exempt"
+  security_enabled = true
+  mail_enabled     = false
+}
+
+# ---------------------------------------------------------------------------
+# Additional dynamic groups
+# ---------------------------------------------------------------------------
+
+resource "azuread_group" "all_users" {
+  display_name     = "${var.customer_name} - All Users"
+  security_enabled = true
+  mail_enabled     = false
+
+  dynamic_membership {
+    enabled = true
+    rule    = "(user.accountEnabled -eq true)"
+  }
+}
+
+resource "azuread_group" "licensed_users" {
+  display_name     = "${join(" | ", var.license_name)} Licensed Users"
+  security_enabled = true
+  mail_enabled     = false
+
+  dynamic_membership {
+    enabled = true
     rule    = "(user.companyName -eq \"${var.customer_name}\") and (user.accountEnabled -eq true)"
+  }
+}
+
+resource "azuread_group" "all_windows_devices" {
+  display_name     = "${var.customer_name} - All Windows 10 and Later Devices"
+  security_enabled = true
+  mail_enabled     = false
+
+  dynamic_membership {
+    enabled = true
+    rule    = "(device.accountEnabled -eq True) and (device.deviceOSType -eq \"Windows\") and ((device.deviceOSVersion -startsWith \"10.0.1\") or (device.deviceOSVersion -startsWith \"10.0.2\"))"
+  }
+}
+
+resource "azuread_group" "avd_hosts" {
+  display_name     = "${var.customer_name} - All Azure Virtual Desktop Hosts"
+  security_enabled = true
+  mail_enabled     = false
+
+  dynamic_membership {
+    enabled = true
+    rule    = "(device.accountEnabled -eq True) and ((device.displayName -startsWith \"avd\") or (device.displayName -startsWith \"cad-avd\") or (device.displayName -startsWith \"mgmt-avd\"))"
+  }
+}
+
+resource "azuread_group" "gpu_vms" {
+  display_name     = "${var.customer_name} - GPU-optimized Azure VMs"
+  security_enabled = true
+  mail_enabled     = false
+
+  dynamic_membership {
+    enabled = true
+    rule    = "(device.accountEnabled -eq True) and (device.displayName -startsWith \"cad-avd\")"
   }
 }
