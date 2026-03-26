@@ -367,6 +367,7 @@ resource "azuread_group" "sspr" {
   display_name     = "${var.customer_name} - Self Service Password Reset Enabled"
   security_enabled = true
   mail_enabled     = false
+  types            = ["DynamicMembership"]
 
   dynamic_membership {
     enabled = true
@@ -392,6 +393,7 @@ resource "azuread_group" "all_users" {
   display_name     = "${var.customer_name} - All Users"
   security_enabled = true
   mail_enabled     = false
+  types            = ["DynamicMembership"]
 
   dynamic_membership {
     enabled = true
@@ -403,6 +405,7 @@ resource "azuread_group" "licensed_users" {
   display_name     = "${join(" | ", var.license_name)} Licensed Users"
   security_enabled = true
   mail_enabled     = false
+  types            = ["DynamicMembership"]
 
   dynamic_membership {
     enabled = true
@@ -414,6 +417,7 @@ resource "azuread_group" "all_windows_devices" {
   display_name     = "${var.customer_name} - All Windows 10 and Later Devices"
   security_enabled = true
   mail_enabled     = false
+  types            = ["DynamicMembership"]
 
   dynamic_membership {
     enabled = true
@@ -425,6 +429,7 @@ resource "azuread_group" "avd_hosts" {
   display_name     = "${var.customer_name} - All Azure Virtual Desktop Hosts"
   security_enabled = true
   mail_enabled     = false
+  types            = ["DynamicMembership"]
 
   dynamic_membership {
     enabled = true
@@ -436,6 +441,7 @@ resource "azuread_group" "gpu_vms" {
   display_name     = "${var.customer_name} - GPU-optimized Azure VMs"
   security_enabled = true
   mail_enabled     = false
+  types            = ["DynamicMembership"]
 
   dynamic_membership {
     enabled = true
