@@ -86,7 +86,6 @@ module "entra" {
 | `subscription_id` | string | required | Azure subscription ID for RBAC assignments |
 | `customer_name` | string | required | Customer name used in group and policy display names |
 | `license_name` | list(string) | required | License name(s) for the Licensed Users dynamic group |
-| `appgate_oidc_application_id` | string | required | App ID of the Appgate OIDC application; excluded from ZTNA CA policies |
 | `secure_enclave_ips` | list(string) | required | IPv4 addresses for the Secure Enclave trusted named location |
 | `admin_upns` | list(string) | `[]` | UPNs to add as initial members of the Global Admin PIM group |
 | `mfa_exempt_group_ids` | list(string) | `[]` | Additional group IDs excluded from the Require MFA CA policy |

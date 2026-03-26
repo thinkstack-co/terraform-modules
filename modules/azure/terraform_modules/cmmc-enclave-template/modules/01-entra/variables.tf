@@ -36,11 +36,6 @@ variable "msp_company_name" {
   default     = "Network Coverage"
 }
 
-variable "appgate_oidc_application_id" {
-  description = "App ID of the Appgate OIDC application, excluded from ZTNA CA policies."
-  type        = string
-}
-
 variable "secure_enclave_ips" {
   description = "IPv4 addresses for the Secure Enclave trusted named location."
   type        = list(string)

@@ -270,7 +270,6 @@ resource "azuread_conditional_access_policy" "block_outside_ztna" {
     }
     applications {
       included_applications = ["All"]
-      excluded_applications = [var.appgate_oidc_application_id]
     }
     client_app_types = ["all"]
     locations {
@@ -307,7 +306,6 @@ resource "azuread_conditional_access_policy" "block_non_avd_outside_ztna" {
         "270efc09-cd0d-444b-a71f-39af4910ec45", # Windows Cloud Login
         "9cdead84-a844-4324-93f2-b2e6bb768d07", # Azure Virtual Desktop
         "a85cf173-4192-42f8-81fa-777a763e6e2c", # Azure Virtual Desktop Client
-        var.appgate_oidc_application_id,
       ]
     }
     client_app_types = ["all"]
