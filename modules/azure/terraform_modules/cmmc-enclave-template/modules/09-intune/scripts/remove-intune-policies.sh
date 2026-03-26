@@ -14,7 +14,6 @@ set -euo pipefail
 GRAPH="https://graph.microsoft.us/beta"
 
 CONFIG_POLICY_NAMES=(
-  "CMMC - BitLocker Encryption"
   "CMMC - Windows Defender Antivirus"
   "CMMC - Windows Firewall"
   "Configure device and resource redirection"
@@ -32,6 +31,7 @@ COMPLIANCE_POLICY_NAMES=(
 )
 
 DEVICE_CONFIG_POLICY_NAMES=(
+  "CMMC - BitLocker Encryption"
   "Set lock screen inactivity timer"
   "Set password policy"
 )

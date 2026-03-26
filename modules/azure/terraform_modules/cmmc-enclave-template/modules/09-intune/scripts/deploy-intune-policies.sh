@@ -164,33 +164,58 @@ assign_device_config_policy() {
 # ---------------------------------------------------------------------------
 
 echo "==> 1. BitLocker Configuration Policy"
-BITLOCKER_ID=$(find_config_policy "CMMC - BitLocker Encryption")
+BITLOCKER_ID=$(find_device_config_policy "CMMC - BitLocker Encryption")
 
 if [[ -n "$BITLOCKER_ID" ]]; then
   echo "    Already exists (ID: $BITLOCKER_ID) — skipping."
 else
   BITLOCKER_BODY=$(cat <<EOF
 {
-  "name": "CMMC - BitLocker Encryption",
+  "@odata.type": "#microsoft.graph.windows10EndpointProtectionConfiguration",
+  "displayName": "CMMC - BitLocker Encryption",
   "description": "Enforces BitLocker ${ENCRYPTION_METHOD} encryption on OS and fixed drives.",
-  "platforms": "windows10",
-  "technologies": "mdm",
-  "settings": [
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_bitlocker_requiredeviceencryption","choiceSettingValue":{"value":"device_vendor_msft_bitlocker_requiredeviceencryption_1","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_bitlocker_encryptionmethodbydrivetype_systemdrivesencryptiontype","choiceSettingValue":{"value":"device_vendor_msft_bitlocker_encryptionmethodbydrivetype_systemdrivesencryptiontype_${ENCRYPTION_METHOD}","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_bitlocker_encryptionmethodbydrivetype_fixeddrivesencryptiontype","choiceSettingValue":{"value":"device_vendor_msft_bitlocker_encryptionmethodbydrivetype_fixeddrivesencryptiontype_${ENCRYPTION_METHOD}","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_bitlocker_systemdrivesrecoveryoptions_osrecoverykeyusage","choiceSettingValue":{"value":"device_vendor_msft_bitlocker_systemdrivesrecoveryoptions_osrecoverykeyusage_2","children":[]}}}
-  ]
+  "bitLockerEncryptDevice": true,
+  "bitLockerAllowStandardUserEncryption": true,
+  "bitLockerDisableWarningForOtherDiskEncryption": true,
+  "bitLockerSystemDrivePolicy": {
+    "encryptionMethod": "${ENCRYPTION_METHOD}",
+    "startupAuthenticationRequired": false,
+    "startupAuthenticationBlockWithoutTpmChip": false,
+    "startupAuthenticationTpmUsage": "blocked",
+    "startupAuthenticationTpmPinUsage": "blocked",
+    "startupAuthenticationTpmKeyUsage": "blocked",
+    "startupAuthenticationTpmPinAndKeyUsage": "blocked",
+    "prebootRecoveryEnableMessageAndUrl": false,
+    "recoveryOptions": null
+  },
+  "bitLockerFixedDrivePolicy": {
+    "encryptionMethod": "${ENCRYPTION_METHOD}",
+    "requireEncryptionForWriteAccess": false,
+    "recoveryOptions": {
+      "blockDataRecoveryAgent": false,
+      "recoveryPasswordUsage": "allowed",
+      "recoveryKeyUsage": "allowed",
+      "hideRecoveryOptions": true,
+      "enableRecoveryInformationSaveToStore": true,
+      "recoveryInformationToStore": "passwordAndKey",
+      "enableBitLockerAfterRecoveryInformationToStore": true
+    }
+  },
+  "bitLockerRemovableDrivePolicy": {
+    "blockCrossOrganizationWriteAccess": false,
+    "encryptionMethod": "aesCbc128",
+    "requireEncryptionForWriteAccess": false
+  }
 }
 EOF
 )
   BITLOCKER_ID=$(az rest --method POST \
-    --url "${GRAPH}/deviceManagement/configurationPolicies" \
+    --url "${GRAPH}/deviceManagement/deviceConfigurations" \
     --headers "Content-Type=application/json" \
     --body "$BITLOCKER_BODY" \
     --query "id" -o tsv)
   echo "    Created (ID: $BITLOCKER_ID)"
-  assign_config_policy "$BITLOCKER_ID" "$AVD_HOST_GROUP_ID"
+  assign_device_config_policy "$BITLOCKER_ID" "$AVD_HOST_GROUP_ID"
   echo "    Assigned to AVD hosts."
 fi
 
