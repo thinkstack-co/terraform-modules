@@ -29,7 +29,8 @@
 #   --encryption-method             BitLocker encryption: xtsAes128 (default) or xtsAes256
 #   --grace-period-hours            Hours before non-compliant devices are blocked (default: 0)
 
-set -euo pipefail
+set -uo pipefail
+POLICY_ERRORS=()
 
 GRAPH="https://graph.microsoft.us/beta"
 ENCRYPTION_METHOD="xtsAes128"
@@ -209,14 +210,19 @@ else
 }
 EOF
 )
-  BITLOCKER_ID=$(az rest --method POST \
+  if BITLOCKER_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/deviceConfigurations" \
     --headers "Content-Type=application/json" \
     --body "$BITLOCKER_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $BITLOCKER_ID)"
-  assign_device_config_policy "$BITLOCKER_ID" "$AVD_HOST_GROUP_ID"
-  echo "    Assigned to AVD hosts."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $BITLOCKER_ID)"
+    assign_device_config_policy "$BITLOCKER_ID" "$AVD_HOST_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to AVD hosts."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("CMMC - BitLocker Encryption")
+    BITLOCKER_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -236,21 +242,26 @@ else
   "platforms": "windows10",
   "technologies": "mdm",
   "settings": [
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_defender_allowrealtimemonitoring","choiceSettingValue":{"value":"device_vendor_msft_defender_allowrealtimemonitoring_1","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_defender_allowcloudprotection","choiceSettingValue":{"value":"device_vendor_msft_defender_allowcloudprotection_1","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_defender_allowbehaviormonitoring","choiceSettingValue":{"value":"device_vendor_msft_defender_allowbehaviormonitoring_1","children":[]}}}
+    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_policy_config_defender_allowrealtimemonitoring","choiceSettingValue":{"value":"device_vendor_msft_policy_config_defender_allowrealtimemonitoring_1","children":[]}}},
+    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_policy_config_defender_allowcloudprotection","choiceSettingValue":{"value":"device_vendor_msft_policy_config_defender_allowcloudprotection_1","children":[]}}},
+    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_policy_config_defender_allowbehaviormonitoring","choiceSettingValue":{"value":"device_vendor_msft_policy_config_defender_allowbehaviormonitoring_1","children":[]}}}
   ]
 }
 EOF
 )
-  DEFENDER_ID=$(az rest --method POST \
+  if DEFENDER_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$DEFENDER_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $DEFENDER_ID)"
-  assign_config_policy "$DEFENDER_ID" "${GROUP_IDS[@]}"
-  echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $DEFENDER_ID)"
+    assign_config_policy "$DEFENDER_ID" "${GROUP_IDS[@]}" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("CMMC - Windows Defender Antivirus")
+    DEFENDER_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -277,14 +288,19 @@ else
 }
 EOF
 )
-  FIREWALL_ID=$(az rest --method POST \
+  if FIREWALL_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$FIREWALL_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $FIREWALL_ID)"
-  assign_config_policy "$FIREWALL_ID" "${GROUP_IDS[@]}"
-  echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $FIREWALL_ID)"
+    assign_config_policy "$FIREWALL_ID" "${GROUP_IDS[@]}" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("CMMC - Windows Firewall")
+    FIREWALL_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -312,17 +328,23 @@ else
 }
 EOF
 )
-  COMPLIANCE_ID=$(az rest --method POST \
+  if COMPLIANCE_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/compliancePolicies" \
     --headers "Content-Type=application/json" \
     --body "$COMPLIANCE_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $COMPLIANCE_ID)"
-  az rest --method POST \
-    --url "${GRAPH}/deviceManagement/compliancePolicies/${COMPLIANCE_ID}/assign" \
-    --headers "Content-Type=application/json" \
-    --body "{\"assignments\": $(build_assignments "${GROUP_IDS[@]}")}" > /dev/null
-  echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $COMPLIANCE_ID)"
+    az rest --method POST \
+      --url "${GRAPH}/deviceManagement/compliancePolicies/${COMPLIANCE_ID}/assign" \
+      --headers "Content-Type=application/json" \
+      --body "{\"assignments\": $(build_assignments "${GROUP_IDS[@]}")}" > /dev/null \
+      || echo "    WARNING: Assignment failed."
+    echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("CMMC - Windows Device Compliance")
+    COMPLIANCE_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -353,14 +375,19 @@ else
 }
 EOF
 )
-  RDP_REDIR_ID=$(az rest --method POST \
+  if RDP_REDIR_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$RDP_REDIR_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $RDP_REDIR_ID)"
-  assign_config_policy "$RDP_REDIR_ID" "$AVD_HOST_GROUP_ID"
-  echo "    Assigned to AVD hosts."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $RDP_REDIR_ID)"
+    assign_config_policy "$RDP_REDIR_ID" "$AVD_HOST_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to AVD hosts."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Configure device and resource redirection")
+    RDP_REDIR_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -390,14 +417,19 @@ else
 }
 EOF
 )
-    GPU_ACCEL_ID=$(az rest --method POST \
+    if GPU_ACCEL_ID=$(az rest --method POST \
       --url "${GRAPH}/deviceManagement/configurationPolicies" \
       --headers "Content-Type=application/json" \
       --body "$GPU_ACCEL_BODY" \
-      --query "id" -o tsv)
-    echo "    Created (ID: $GPU_ACCEL_ID)"
-    assign_config_policy "$GPU_ACCEL_ID" "$GPU_VM_GROUP_ID"
-    echo "    Assigned to GPU VMs."
+      --query "id" -o tsv); then
+      echo "    Created (ID: $GPU_ACCEL_ID)"
+      assign_config_policy "$GPU_ACCEL_ID" "$GPU_VM_GROUP_ID" || echo "    WARNING: Assignment failed."
+      echo "    Assigned to GPU VMs."
+    else
+      echo "    ERROR: Creation failed (see above)."
+      POLICY_ERRORS+=("Configure GPU acceleration for Azure Virtual Desktop")
+      GPU_ACCEL_ID="<failed>"
+    fi
   fi
 fi
 
@@ -430,14 +462,19 @@ else
 }
 EOF
 )
-  ONEDRIVE_ID=$(az rest --method POST \
+  if ONEDRIVE_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$ONEDRIVE_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $ONEDRIVE_ID)"
-  assign_config_policy "$ONEDRIVE_ID" "$AVD_HOST_GROUP_ID"
-  echo "    Assigned to AVD hosts."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $ONEDRIVE_ID)"
+    assign_config_policy "$ONEDRIVE_ID" "$AVD_HOST_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to AVD hosts."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Configure OneDrive settings")
+    ONEDRIVE_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -460,14 +497,19 @@ else
 }
 EOF
 )
-  NTP_ID=$(az rest --method POST \
+  if NTP_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$NTP_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $NTP_ID)"
-  assign_config_policy "$NTP_ID" "$AVD_HOST_GROUP_ID"
-  echo "    Assigned to AVD hosts."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $NTP_ID)"
+    assign_config_policy "$NTP_ID" "$AVD_HOST_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to AVD hosts."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Configure Windows NTP client")
+    NTP_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -484,14 +526,19 @@ else
 {"name":"Disable password reveal","description":"Disables the password reveal button","platforms":"windows10","technologies":"mdm","settings":[{"id":"0","settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"user_vendor_msft_policy_config_credentialsui_disablepasswordreveal","choiceSettingValue":{"value":"user_vendor_msft_policy_config_credentialsui_disablepasswordreveal_1","children":[]}}}]}
 EOF
 )
-  PWD_REVEAL_ID=$(az rest --method POST \
+  if PWD_REVEAL_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$PWD_REVEAL_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $PWD_REVEAL_ID)"
-  assign_config_policy "$PWD_REVEAL_ID" "$ALL_USERS_GROUP_ID"
-  echo "    Assigned to All Users."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $PWD_REVEAL_ID)"
+    assign_config_policy "$PWD_REVEAL_ID" "$ALL_USERS_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to All Users."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Disable password reveal")
+    PWD_REVEAL_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -508,14 +555,19 @@ else
 {"name":"Enable Azure Information Protection add-in for sensitivity labeling","description":"Enables the policy that ensures Azure Information Protection add-in for sensitivity labeling is present","platforms":"windows10","technologies":"mdm","settings":[{"id":"0","settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"user_vendor_msft_policy_config_office16v13~policy~l_microsoftofficesystem~l_securitysettings_l_aipexception","choiceSettingValue":{"value":"user_vendor_msft_policy_config_office16v13~policy~l_microsoftofficesystem~l_securitysettings_l_aipexception_1","children":[]}}},{"id":"1","settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"user_vendor_msft_policy_config_office16v3~policy~l_microsoftofficesystem~l_securitysettings_l_useofficeforlabelling","choiceSettingValue":{"value":"user_vendor_msft_policy_config_office16v3~policy~l_microsoftofficesystem~l_securitysettings_l_useofficeforlabelling_0","children":[]}}}]}
 EOF
 )
-  AIP_ID=$(az rest --method POST \
+  if AIP_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$AIP_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $AIP_ID)"
-  assign_config_policy "$AIP_ID" "$ALL_USERS_GROUP_ID"
-  echo "    Assigned to All Users."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $AIP_ID)"
+    assign_config_policy "$AIP_ID" "$ALL_USERS_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to All Users."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Enable Azure Information Protection add-in for sensitivity labeling")
+    AIP_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -548,14 +600,19 @@ body = {
 print(json.dumps(body))
 " "$LOGON_BANNER_TEXT" "${CUSTOMER_NAME} Terms of Use")
 
-  LOGON_BANNER_ID=$(az rest --method POST \
+  if LOGON_BANNER_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$LOGON_BANNER_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $LOGON_BANNER_ID)"
-  assign_config_policy "$LOGON_BANNER_ID" "$AVD_HOST_GROUP_ID"
-  echo "    Assigned to AVD hosts."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $LOGON_BANNER_ID)"
+    assign_config_policy "$LOGON_BANNER_ID" "$AVD_HOST_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to AVD hosts."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Enable interactive logon banner")
+    LOGON_BANNER_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -572,14 +629,19 @@ else
 {"name":"Enable screen capture protection","description":"Prevents users from capturing the screen for sharing","platforms":"windows10","technologies":"mdm","settings":[{"id":"0","settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection","choiceSettingValue":{"value":"device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_1","children":[{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_avd_server_screen_capture_protection_level","choiceSettingValue":{"value":"device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_avd_server_screen_capture_protection_level_1","children":[]}}]}}}]}
 EOF
 )
-  SCREEN_CAPTURE_ID=$(az rest --method POST \
+  if SCREEN_CAPTURE_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/configurationPolicies" \
     --headers "Content-Type=application/json" \
     --body "$SCREEN_CAPTURE_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $SCREEN_CAPTURE_ID)"
-  assign_config_policy "$SCREEN_CAPTURE_ID" "$AVD_HOST_GROUP_ID"
-  echo "    Assigned to AVD hosts."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $SCREEN_CAPTURE_ID)"
+    assign_config_policy "$SCREEN_CAPTURE_ID" "$AVD_HOST_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to AVD hosts."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Enable screen capture protection")
+    SCREEN_CAPTURE_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -596,14 +658,19 @@ else
 {"@odata.type":"#microsoft.graph.windows10EndpointProtectionConfiguration","displayName":"Set lock screen inactivity timer","machineInactivityLimit":15}
 EOF
 )
-  LOCK_SCREEN_ID=$(az rest --method POST \
+  if LOCK_SCREEN_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/deviceConfigurations" \
     --headers "Content-Type=application/json" \
     --body "$LOCK_SCREEN_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $LOCK_SCREEN_ID)"
-  assign_device_config_policy "$LOCK_SCREEN_ID" "$ALL_USERS_GROUP_ID"
-  echo "    Assigned to All Users."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $LOCK_SCREEN_ID)"
+    assign_device_config_policy "$LOCK_SCREEN_ID" "$ALL_USERS_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to All Users."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Set lock screen inactivity timer")
+    LOCK_SCREEN_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -620,14 +687,19 @@ else
 {"@odata.type":"#microsoft.graph.windows10GeneralConfiguration","displayName":"Set password policy","passwordRequired":true,"passwordRequiredType":"alphanumeric","passwordMinimumLength":10,"passwordMinimumCharacterSetCount":4,"passwordExpirationDays":90,"passwordPreviousPasswordBlockCount":10,"passwordSignInFailureCountBeforeFactoryReset":10,"passwordRequireWhenResumeFromIdleState":true}
 EOF
 )
-  PASSWORD_POLICY_ID=$(az rest --method POST \
+  if PASSWORD_POLICY_ID=$(az rest --method POST \
     --url "${GRAPH}/deviceManagement/deviceConfigurations" \
     --headers "Content-Type=application/json" \
     --body "$PASSWORD_POLICY_BODY" \
-    --query "id" -o tsv)
-  echo "    Created (ID: $PASSWORD_POLICY_ID)"
-  assign_device_config_policy "$PASSWORD_POLICY_ID" "$ALL_WINDOWS_DEVICES_GROUP_ID"
-  echo "    Assigned to All Windows devices."
+    --query "id" -o tsv); then
+    echo "    Created (ID: $PASSWORD_POLICY_ID)"
+    assign_device_config_policy "$PASSWORD_POLICY_ID" "$ALL_WINDOWS_DEVICES_GROUP_ID" || echo "    WARNING: Assignment failed."
+    echo "    Assigned to All Windows devices."
+  else
+    echo "    ERROR: Creation failed (see above)."
+    POLICY_ERRORS+=("Set password policy")
+    PASSWORD_POLICY_ID="<failed>"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -635,23 +707,30 @@ fi
 # ---------------------------------------------------------------------------
 
 echo ""
+if [[ ${#POLICY_ERRORS[@]} -gt 0 ]]; then
+  echo "WARNING: ${#POLICY_ERRORS[@]} policy(s) failed to deploy:"
+  for p in "${POLICY_ERRORS[@]}"; do
+    echo "  - $p"
+  done
+  echo ""
+fi
 echo "Done."
 echo ""
 printf "%-55s %s\n" "Policy" "ID"
 printf "%-55s %s\n" "------" "--"
-printf "%-55s %s\n" "CMMC - BitLocker Encryption"                                "$BITLOCKER_ID"
-printf "%-55s %s\n" "CMMC - Windows Defender Antivirus"                          "$DEFENDER_ID"
-printf "%-55s %s\n" "CMMC - Windows Firewall"                                    "$FIREWALL_ID"
-printf "%-55s %s\n" "CMMC - Windows Device Compliance"                           "$COMPLIANCE_ID"
-printf "%-55s %s\n" "Configure device and resource redirection"                  "$RDP_REDIR_ID"
+printf "%-55s %s\n" "CMMC - BitLocker Encryption"                                "${BITLOCKER_ID:-<failed>}"
+printf "%-55s %s\n" "CMMC - Windows Defender Antivirus"                          "${DEFENDER_ID:-<failed>}"
+printf "%-55s %s\n" "CMMC - Windows Firewall"                                    "${FIREWALL_ID:-<failed>}"
+printf "%-55s %s\n" "CMMC - Windows Device Compliance"                           "${COMPLIANCE_ID:-<failed>}"
+printf "%-55s %s\n" "Configure device and resource redirection"                  "${RDP_REDIR_ID:-<failed>}"
 printf "%-55s %s\n" "Configure GPU acceleration for Azure Virtual Desktop"       "${GPU_ACCEL_ID:-<skipped>}"
-printf "%-55s %s\n" "Configure OneDrive settings"                                "$ONEDRIVE_ID"
-printf "%-55s %s\n" "Configure Windows NTP client"                               "$NTP_ID"
-printf "%-55s %s\n" "Disable password reveal"                                    "$PWD_REVEAL_ID"
-printf "%-55s %s\n" "Enable AIP add-in for sensitivity labeling"                 "$AIP_ID"
-printf "%-55s %s\n" "Enable interactive logon banner"                            "$LOGON_BANNER_ID"
-printf "%-55s %s\n" "Enable screen capture protection"                           "$SCREEN_CAPTURE_ID"
-printf "%-55s %s\n" "Set lock screen inactivity timer"                           "$LOCK_SCREEN_ID"
-printf "%-55s %s\n" "Set password policy"                                        "$PASSWORD_POLICY_ID"
+printf "%-55s %s\n" "Configure OneDrive settings"                                "${ONEDRIVE_ID:-<failed>}"
+printf "%-55s %s\n" "Configure Windows NTP client"                               "${NTP_ID:-<failed>}"
+printf "%-55s %s\n" "Disable password reveal"                                    "${PWD_REVEAL_ID:-<failed>}"
+printf "%-55s %s\n" "Enable AIP add-in for sensitivity labeling"                 "${AIP_ID:-<failed>}"
+printf "%-55s %s\n" "Enable interactive logon banner"                            "${LOGON_BANNER_ID:-<failed>}"
+printf "%-55s %s\n" "Enable screen capture protection"                           "${SCREEN_CAPTURE_ID:-<failed>}"
+printf "%-55s %s\n" "Set lock screen inactivity timer"                           "${LOCK_SCREEN_ID:-<failed>}"
+printf "%-55s %s\n" "Set password policy"                                        "${PASSWORD_POLICY_ID:-<failed>}"
 echo ""
 echo "Verify at: https://intune.microsoft.us → Devices → Configuration / Compliance policies"
