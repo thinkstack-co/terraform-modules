@@ -35,8 +35,8 @@ Creates Entra ID security groups, PIM eligibility schedules, subscription-level 
 | `{customer_name} - All Users` | `accountEnabled = true` |
 | `{license_name} Licensed Users` | `companyName = customer_name` AND `accountEnabled` |
 | `{customer_name} - All Windows 10 and Later Devices` | Windows devices, OS 10.0.1x / 10.0.2x, accountEnabled |
-| `{customer_name} - All Azure Virtual Desktop Hosts` | Devices starting with `avd`, `cad-avd`, or `mgmt-avd`, accountEnabled |
-| `{customer_name} - GPU-optimized Azure VMs` | Devices starting with `cad-avd`, accountEnabled |
+| `{customer_name} - All Azure Virtual Desktop Hosts` | Devices starting with `{customer_name}-mgmt-avd`, `{customer_name}-prod-avd`, or `{customer_name}-cad-avd`, accountEnabled |
+| `{customer_name} - GPU-optimized Azure VMs` | Devices starting with `{customer_name}-cad-avd`, accountEnabled |
 
 **Named locations**
 

@@ -312,7 +312,7 @@ resource "azuread_conditional_access_policy" "block_non_avd_outside_ztna" {
     devices {
       filter {
         mode = "exclude"
-        rule = "device.displayName -startsWith \"avd\" -and device.manufacturer -eq \"Microsoft Corporation\" -and device.model -eq \"Virtual Machine\""
+        rule = "device.displayName -startsWith \"${var.customer_name}-\" -and device.manufacturer -eq \"Microsoft Corporation\" -and device.model -eq \"Virtual Machine\""
       }
     }
   }
@@ -433,7 +433,7 @@ resource "azuread_group" "avd_hosts" {
 
   dynamic_membership {
     enabled = true
-    rule    = "(device.accountEnabled -eq True) and ((device.displayName -startsWith \"avd\") or (device.displayName -startsWith \"cad-avd\") or (device.displayName -startsWith \"mgmt-avd\"))"
+    rule    = "(device.accountEnabled -eq True) and ((device.displayName -startsWith \"${var.customer_name}-mgmt-avd\") or (device.displayName -startsWith \"${var.customer_name}-prod-avd\") or (device.displayName -startsWith \"${var.customer_name}-cad-avd\"))"
   }
 }
 
@@ -445,6 +445,6 @@ resource "azuread_group" "gpu_vms" {
 
   dynamic_membership {
     enabled = true
-    rule    = "(device.accountEnabled -eq True) and (device.displayName -startsWith \"cad-avd\")"
+    rule    = "(device.accountEnabled -eq True) and (device.displayName -startsWith \"${var.customer_name}-cad-avd\")"
   }
 }
