@@ -126,12 +126,12 @@ find_config_policy() {
     --query "value[0].id" -o tsv 2>/dev/null || echo ""
 }
 
-find_compliance_policy() {
+find_device_compliance_policy() {
   local name="$1"
   local encoded_name
   encoded_name=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$name\"))")
   az rest --method GET \
-    --url "${GRAPH}/deviceManagement/compliancePolicies?\$filter=name+eq+'${encoded_name}'" \
+    --url "${GRAPH}/deviceManagement/deviceCompliancePolicies?\$filter=displayName+eq+'${encoded_name}'" \
     --query "value[0].id" -o tsv 2>/dev/null || echo ""
 }
 
@@ -156,6 +156,14 @@ assign_device_config_policy() {
   local id="$1"; shift
   az rest --method POST \
     --url "${GRAPH}/deviceManagement/deviceConfigurations/${id}/assign" \
+    --headers "Content-Type=application/json" \
+    --body "{\"assignments\": $(build_assignments "$@")}" > /dev/null
+}
+
+assign_device_compliance_policy() {
+  local id="$1"; shift
+  az rest --method POST \
+    --url "${GRAPH}/deviceManagement/deviceCompliancePolicies/${id}/assign" \
     --headers "Content-Type=application/json" \
     --body "{\"assignments\": $(build_assignments "$@")}" > /dev/null
 }
@@ -308,37 +316,31 @@ fi
 # ---------------------------------------------------------------------------
 
 echo "==> 4. Windows Device Compliance Policy"
-COMPLIANCE_ID=$(find_compliance_policy "CMMC - Windows Device Compliance")
+COMPLIANCE_ID=$(find_device_compliance_policy "CMMC - Windows Device Compliance")
 
 if [[ -n "$COMPLIANCE_ID" ]]; then
   echo "    Already exists (ID: $COMPLIANCE_ID) — skipping."
 else
   COMPLIANCE_BODY=$(cat <<EOF
 {
-  "name": "CMMC - Windows Device Compliance",
+  "@odata.type": "#microsoft.graph.windows10CompliancePolicy",
+  "displayName": "CMMC - Windows Device Compliance",
   "description": "Enforces CMMC compliance requirements on Windows devices.",
-  "platforms": "windows10",
-  "settings": [
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"deviceconfiguration--windows10compliancepolicy_antivirusenabled","choiceSettingValue":{"value":"deviceconfiguration--windows10compliancepolicy_antivirusenabled_true","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"deviceconfiguration--windows10compliancepolicy_defenderenabled","choiceSettingValue":{"value":"deviceconfiguration--windows10compliancepolicy_defenderenabled_true","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"deviceconfiguration--windows10compliancepolicy_firewallblocked","choiceSettingValue":{"value":"deviceconfiguration--windows10compliancepolicy_firewallblocked_false","children":[]}}},
-    {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"deviceconfiguration--windows10compliancepolicy_bitlockerenabled","choiceSettingValue":{"value":"deviceconfiguration--windows10compliancepolicy_bitlockerenabled_true","children":[]}}}
-  ],
+  "antivirusRequired": true,
+  "defenderEnabled": true,
+  "firewallEnabled": true,
+  "bitLockerEnabled": true,
   "scheduledActionsForRule": [{"ruleName":"MarkDeviceNonCompliant","scheduledActionConfigurations":[{"actionType":"block","gracePeriodHours":${GRACE_PERIOD_HOURS}}]}]
 }
 EOF
 )
   if COMPLIANCE_ID=$(az rest --method POST \
-    --url "${GRAPH}/deviceManagement/compliancePolicies" \
+    --url "${GRAPH}/deviceManagement/deviceCompliancePolicies" \
     --headers "Content-Type=application/json" \
     --body "$COMPLIANCE_BODY" \
     --query "id" -o tsv); then
     echo "    Created (ID: $COMPLIANCE_ID)"
-    az rest --method POST \
-      --url "${GRAPH}/deviceManagement/compliancePolicies/${COMPLIANCE_ID}/assign" \
-      --headers "Content-Type=application/json" \
-      --body "{\"assignments\": $(build_assignments "${GROUP_IDS[@]}")}" > /dev/null \
-      || echo "    WARNING: Assignment failed."
+    assign_device_compliance_policy "$COMPLIANCE_ID" "${GROUP_IDS[@]}" || echo "    WARNING: Assignment failed."
     echo "    Assigned to ${#GROUP_IDS[@]} group(s)."
   else
     echo "    ERROR: Creation failed (see above)."

@@ -26,7 +26,7 @@ CONFIG_POLICY_NAMES=(
   "Enable screen capture protection"
 )
 
-COMPLIANCE_POLICY_NAMES=(
+DEVICE_COMPLIANCE_POLICY_NAMES=(
   "CMMC - Windows Device Compliance"
 )
 
@@ -52,7 +52,7 @@ fi
 # ---------------------------------------------------------------------------
 
 declare -A TO_DELETE_CONFIG
-declare -A TO_DELETE_COMPLIANCE
+declare -A TO_DELETE_DEVICE_COMPLIANCE
 declare -A TO_DELETE_DEVICE_CONFIG
 
 echo "Searching for Intune policies..."
@@ -71,13 +71,13 @@ for name in "${CONFIG_POLICY_NAMES[@]}"; do
   fi
 done
 
-for name in "${COMPLIANCE_POLICY_NAMES[@]}"; do
+for name in "${DEVICE_COMPLIANCE_POLICY_NAMES[@]}"; do
   encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$name\"))")
   id=$(az rest --method GET \
-    --url "${GRAPH}/deviceManagement/compliancePolicies?\$filter=name+eq+'${encoded}'" \
+    --url "${GRAPH}/deviceManagement/deviceCompliancePolicies?\$filter=displayName+eq+'${encoded}'" \
     --query "value[0].id" -o tsv 2>/dev/null || echo "")
   if [[ -n "$id" ]]; then
-    TO_DELETE_COMPLIANCE["$name"]="$id"
+    TO_DELETE_DEVICE_COMPLIANCE["$name"]="$id"
     echo "  [found] $name  ($id)"
   else
     echo "  [not found] $name"
@@ -97,7 +97,7 @@ for name in "${DEVICE_CONFIG_POLICY_NAMES[@]}"; do
   fi
 done
 
-TOTAL=$(( ${#TO_DELETE_CONFIG[@]} + ${#TO_DELETE_COMPLIANCE[@]} + ${#TO_DELETE_DEVICE_CONFIG[@]} ))
+TOTAL=$(( ${#TO_DELETE_CONFIG[@]} + ${#TO_DELETE_DEVICE_COMPLIANCE[@]} + ${#TO_DELETE_DEVICE_CONFIG[@]} ))
 
 if [[ $TOTAL -eq 0 ]]; then
   echo ""
@@ -128,14 +128,14 @@ for name in "${!TO_DELETE_CONFIG[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-# Delete compliance policies
+# Delete device compliance policies (legacy endpoint)
 # ---------------------------------------------------------------------------
 
-for name in "${!TO_DELETE_COMPLIANCE[@]}"; do
-  id="${TO_DELETE_COMPLIANCE[$name]}"
-  echo "Deleting compliance policy: $name ($id)"
+for name in "${!TO_DELETE_DEVICE_COMPLIANCE[@]}"; do
+  id="${TO_DELETE_DEVICE_COMPLIANCE[$name]}"
+  echo "Deleting device compliance policy: $name ($id)"
   az rest --method DELETE \
-    --url "${GRAPH}/deviceManagement/compliancePolicies/${id}" 2>/dev/null
+    --url "${GRAPH}/deviceManagement/deviceCompliancePolicies/${id}" 2>/dev/null
   echo "  Deleted."
 done
 
