@@ -62,6 +62,11 @@ variable "deploy_vms" {
   default     = false
 }
 
+variable "terraform_sp_object_id" {
+  description = "Object ID of the service principal running Terraform. Used to grant Key Vault access policy. Set this to the TFC workspace SP's object ID so it remains stable across local and remote runs."
+  type        = string
+}
+
 variable "tags" {
   description = "Tags applied to all resources."
   type        = map(string)
