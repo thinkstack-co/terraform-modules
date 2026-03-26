@@ -86,7 +86,6 @@ locals {
       "Global Reader",
     ]
     escalation_engineers = [
-      "Cloud App Security Operator",
       "Security Administrator",
       "Intune Administrator",
       "Authentication Administrator",

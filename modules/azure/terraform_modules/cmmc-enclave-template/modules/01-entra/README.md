@@ -11,7 +11,7 @@ Creates Entra ID security groups, PIM eligibility schedules, subscription-level 
 | Service Desk PIM Eligible Role Assignments | User Admin, Intune Admin, Exchange Admin, SharePoint Admin, Groups Admin, Global Reader |
 | Compliance PIM Eligible Role Assignments | User Admin, Auth Admin, Cloud App Security Admin, Security Admin, Groups Admin, Global Reader |
 | Security Operations PIM Eligible Role Assignments | Security Operator, User Admin, Auth Admin, Intune Admin, Exchange Admin, Global Reader |
-| Escalation Engineers PIM Eligible Role Assignments | Cloud App Security Operator, Security Admin, Intune Admin, Auth Admin, Global Reader |
+| Escalation Engineers PIM Eligible Role Assignments | Security Admin, Intune Admin, Auth Admin, Global Reader |
 | Security Engineering PIM Eligible Role Assignments | Cloud App Admin, Cloud App Security Admin, Security Admin, Global Reader |
 | Global Admin PIM Eligible Role Assignments | Global Administrator |
 
