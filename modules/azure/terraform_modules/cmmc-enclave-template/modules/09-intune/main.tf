@@ -260,7 +260,7 @@ resource "msgraph_resource" "compliance_windows" {
   body = jsonencode({
     name        = "CMMC - Windows Device Compliance"
     description = "Enforces CMMC compliance requirements on Windows devices."
-    platforms   = "windows10AndLater"
+    platforms   = "windows10"
     settings = [
       {
         "@odata.type" = "#microsoft.graph.deviceManagementConfigurationSetting"

@@ -317,7 +317,7 @@ else
 {
   "name": "CMMC - Windows Device Compliance",
   "description": "Enforces CMMC compliance requirements on Windows devices.",
-  "platforms": "windows10AndLater",
+  "platforms": "windows10",
   "settings": [
     {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"deviceconfiguration--windows10compliancepolicy_antivirusenabled","choiceSettingValue":{"value":"deviceconfiguration--windows10compliancepolicy_antivirusenabled_true","children":[]}}},
     {"settingInstance":{"@odata.type":"#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance","settingDefinitionId":"deviceconfiguration--windows10compliancepolicy_defenderenabled","choiceSettingValue":{"value":"deviceconfiguration--windows10compliancepolicy_defenderenabled_true","children":[]}}},
