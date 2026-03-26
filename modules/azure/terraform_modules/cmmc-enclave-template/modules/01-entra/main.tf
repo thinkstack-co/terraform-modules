@@ -168,6 +168,7 @@ resource "azuread_named_location" "us_only" {
 resource "azuread_conditional_access_policy" "require_mfa" {
   display_name = "${var.customer_name} - Require MFA for All Users"
   state        = "enabled"
+  depends_on   = [azuread_group.mfa_exempt]
 
   conditions {
     users {
@@ -291,11 +292,13 @@ resource "azuread_conditional_access_policy" "block_outside_ztna" {
 resource "azuread_conditional_access_policy" "block_non_avd_outside_ztna" {
   display_name = "${var.customer_name} - Block non-AVD cloud apps on ZTNA unless using AVD"
   state        = "enabledForReportingButNotEnforced"
+  depends_on   = [azuread_group.mfa_exempt]
 
   conditions {
     users {
-      included_users = ["All"]
-      excluded_users = var.excluded_user_ids
+      included_users  = ["All"]
+      excluded_users  = var.excluded_user_ids
+      excluded_groups = [azuread_group.mfa_exempt.object_id]
     }
     applications {
       included_applications = ["All"]
