@@ -143,7 +143,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
       name                  = "AllowRDPShortpathUDP"
       protocols             = ["UDP"]
       source_addresses      = ["*"]
-      destination_fqdns     = ["*.wvd.azure.us"]
+      destination_addresses = ["WindowsVirtualDesktop"]
       destination_ports     = ["443", "3478"]
     }
   }
