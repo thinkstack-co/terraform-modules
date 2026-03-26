@@ -35,8 +35,6 @@ resource "azurerm_firewall_policy" "mgmt" {
 
 # ---------------------------------------------------------------------------
 # Firewall Policy Rule Collection Group — FQDN-based rules
-# NOTE: Web category filtering is not reliably supported in Azure Government.
-# Rules use explicit FQDN tags instead.
 # ---------------------------------------------------------------------------
 
 resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
@@ -145,6 +143,116 @@ resource "azurerm_firewall_policy_rule_collection_group" "web_categories" {
       source_addresses      = ["*"]
       destination_addresses = ["WindowsVirtualDesktop"]
       destination_ports     = ["443", "3478"]
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Firewall Policy Rule Collection Group — Web category filtering
+# ---------------------------------------------------------------------------
+
+resource "azurerm_firewall_policy_rule_collection_group" "web_categories_filtering" {
+  name               = "${local.name_prefix}-afwp-web-rcg"
+  firewall_policy_id = azurerm_firewall_policy.mgmt.id
+  priority           = 300
+
+  application_rule_collection {
+    name     = "AllowWebCategories"
+    priority = 100
+    action   = "Allow"
+
+    rule {
+      name = "allow-web-browsing"
+      protocols {
+        type = "Http"
+        port = 80
+      }
+      protocols {
+        type = "Https"
+        port = 443
+      }
+      source_addresses = ["*"]
+      web_categories = [
+        "business",
+        "computersandtechnology",
+        "education",
+        "finance",
+        "forumsandnewsgroups",
+        "government",
+        "healthandmedicine",
+        "informationsecurity",
+        "jobsearch",
+        "news",
+        "nonprofitsandngos",
+        "personalsites",
+        "professionalnetworking",
+        "searchenginesandportals",
+        "translators",
+        "webrepositoryandstorage",
+        "webbasedemail",
+        "advertisementsandpopups",
+        "chat",
+        "games",
+        "instantmessaging",
+        "shopping",
+        "socialnetworking",
+        "arts",
+        "fashionandbeauty",
+        "general",
+        "leisureandrecreation",
+        "natureandconservation",
+        "politicsandlaw",
+        "realestate",
+        "religion",
+        "restaurantsanddining",
+        "sports",
+        "transportation",
+        "travel",
+      ]
+    }
+  }
+
+  application_rule_collection {
+    name     = "BlockWebCategories"
+    priority = 200
+    action   = "Deny"
+
+    rule {
+      name = "block-web-browsing"
+      protocols {
+        type = "Http"
+        port = 80
+      }
+      protocols {
+        type = "Https"
+        port = 443
+      }
+      source_addresses = ["*"]
+      web_categories = [
+        "childabuseimages",
+        "criminalactivity",
+        "datingandpersonals",
+        "gambling",
+        "hacking",
+        "hateandintolerance",
+        "illegaldrug",
+        "illegalsoftware",
+        "lingerieandswimsuits",
+        "marijuana",
+        "nudity",
+        "pornographyandsexuallyexplicit",
+        "selfharm",
+        "sexeducation",
+        "tasteless",
+        "violence",
+        "weapons",
+        "imagesharing",
+        "peertopeer",
+        "streamingmediaanddownloads",
+        "downloadsites",
+        "entertainment",
+        "cults",
+      ]
     }
   }
 }
