@@ -352,13 +352,10 @@ resource "azuread_conditional_access_policy" "avd_reauthentication" {
   }
 
   session_controls {
-    sign_in_frequency = {
-      authentication_type = "primaryAndSecondaryAuthentication"
-      frequency_interval  = "timeBased"
-      enabled             = true
-      type                = "hours"
-      value               = 1
-    }
+    sign_in_frequency                        = 1
+    sign_in_frequency_period                 = "hours"
+    sign_in_frequency_authentication_type    = "primaryAndSecondaryAuthentication"
+    sign_in_frequency_interval               = "timeBased"
   }
 }
 
