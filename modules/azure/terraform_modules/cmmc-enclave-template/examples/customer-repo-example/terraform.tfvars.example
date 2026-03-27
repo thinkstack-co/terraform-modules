@@ -38,5 +38,12 @@ fslogix_share_size_gb = 512
 # Tagging
 environment = "production"
 
+# Entra ID
+license_name       = ["Microsoft 365 Business Premium"]
+secure_enclave_ips = ["203.0.113.10/32"]
+
+# Appgate SDP — object ID of the TFC workspace service principal
+terraform_sp_object_id = "00000000-0000-0000-0000-000000000000"
+
 # vm_admin_password — set via environment variable:
 # export TF_VAR_vm_admin_password="YourStrongPassword123!"

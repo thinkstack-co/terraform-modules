@@ -37,6 +37,9 @@ This directory shows how a customer-specific deployment repo should be structure
 | `environment` | string | No | `production` |
 | `admin_upns` | HCL (list) | No | `["admin@acme.onmicrosoft.us"]` |
 | `admin_source_ips` | HCL (list) | No | `["203.0.113.10/32"]` |
+| `license_name` | HCL (list) | No | `["Microsoft 365 Business Premium"]` |
+| `secure_enclave_ips` | HCL (list) | No | `["203.0.113.10/32"]` |
+| `terraform_sp_object_id` | string | No | `<SP object ID>` |
 | `vm_admin_password` | string | **Yes** | `<password>` |
 
 ### Environment Variables

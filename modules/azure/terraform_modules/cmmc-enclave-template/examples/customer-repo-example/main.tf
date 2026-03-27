@@ -56,11 +56,13 @@ resource "azurerm_resource_group" "imaging" {
 module "entra" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/01-entra?ref=v2.9.2"
 
-  tenant_id       = data.azurerm_client_config.current.tenant_id
-  subscription_id = data.azurerm_client_config.current.subscription_id
-  customer_name   = var.customer_name
-  admin_upns      = var.admin_upns
-  tags            = local.common_tags
+  tenant_id          = data.azurerm_client_config.current.tenant_id
+  subscription_id    = data.azurerm_client_config.current.subscription_id
+  customer_name      = var.customer_name
+  admin_upns         = var.admin_upns
+  license_name       = var.license_name
+  secure_enclave_ips = var.secure_enclave_ips
+  tags               = local.common_tags
 }
 
 # ---------------------------------------------------------------------------
@@ -110,10 +112,12 @@ module "appgate_sdp" {
   tenant_id           = data.azurerm_client_config.current.tenant_id
   ztna_subnet_id      = module.mgmt_vnet.subnet_ids["ztna"]
   firewall_policy_id  = module.mgmt_vnet.firewall_policy_id
-  firewall_public_ip  = module.mgmt_vnet.firewall_public_ip
-  source_admin_ips    = var.admin_source_ips
-  deploy_vms          = false
-  tags                = local.common_tags
+  firewall_public_ip         = module.mgmt_vnet.firewall_public_ip
+  gateway_firewall_public_ip = module.mgmt_vnet.firewall_public_ip_2
+  source_admin_ips           = var.admin_source_ips
+  terraform_sp_object_id     = var.terraform_sp_object_id
+  deploy_vms                 = false
+  tags                       = local.common_tags
 
   depends_on = [module.mgmt_vnet, azurerm_resource_group.ztna]
 }

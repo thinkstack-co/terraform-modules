@@ -190,7 +190,7 @@ terraform {
 
 In the TFC workspace → **Variables**, add:
 
-- **Terraform variables**: `customer_name`, `storage_account_name`, `location`, `environment`, `admin_upns` (HCL), `admin_source_ips` (HCL), `vm_admin_password` (sensitive)
+- **Terraform variables**: `customer_name`, `storage_account_name`, `location`, `environment`, `admin_upns` (HCL), `admin_source_ips` (HCL), `license_name` (HCL), `secure_enclave_ips` (HCL), `terraform_sp_object_id`, `vm_admin_password` (sensitive)
 - **Environment variables** (all sensitive): `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_ENVIRONMENT` = `usgovernment`
 
 Never commit secrets to the repo. See the full variable reference in [`examples/customer-repo-example/README.md`](examples/customer-repo-example/README.md).
@@ -201,10 +201,10 @@ Never commit secrets to the repo. See the full variable reference in [`examples/
 
 | Module | Purpose | Key Inputs | Key Outputs |
 | --- | --- | --- | --- |
-| [01-entra](modules/01-entra/) | Entra ID groups, PIM, conditional access | `tenant_id`, `customer_name`, `admin_upns` | Group IDs, CA policy IDs |
+| [01-entra](modules/01-entra/) | Entra ID groups, PIM, conditional access | `tenant_id`, `customer_name`, `admin_upns`, `license_name`, `secure_enclave_ips` | Group IDs, CA policy IDs |
 | [02-mgmt-vnet](modules/02-mgmt-vnet/) | Management VNet, Firewall Premium, Bastion | `resource_group_name`, `location`, `mgmt_vnet_cidr`, `appgate_controller_dns_label`, `appgate_gateway_dns_label` | `vnet_id`, `firewall_private_ip`, `firewall_public_ip`, `firewall_public_ip_2`, `subnet_ids` |
 | [03-prod-vnet](modules/03-prod-vnet/) | Production VNet, peering to mgmt | `mgmt_vnet_id`, `firewall_private_ip` | `vnet_id`, `subnet_ids` |
-| [04-appgate-sdp](modules/04-appgate-sdp/) | ZTNA — Controller + Gateway VMs, Key Vault, OIDC app, Firewall DNAT rules | `ztna_subnet_id`, `firewall_policy_id`, `firewall_public_ip`, `gateway_firewall_public_ip` | `controller_fqdn`, `gateway_fqdn`, `oidc_client_id`, `key_vault_id` |
+| [04-appgate-sdp](modules/04-appgate-sdp/) | ZTNA — Controller + Gateway VMs, Key Vault, OIDC app, Firewall DNAT rules | `ztna_subnet_id`, `firewall_policy_id`, `firewall_public_ip`, `gateway_firewall_public_ip`, `terraform_sp_object_id` | `controller_fqdn`, `gateway_fqdn`, `oidc_client_id`, `key_vault_id` |
 | [05-avd](modules/05-avd/) | AVD host pools, workspaces, scaling | `log_analytics_workspace_id`, `avd_users_group_id` | Host pool IDs, registration tokens |
 | [06-storage](modules/06-storage/) | FSLogix storage, backup vault | `allowed_subnet_ids`, `customer_name` | `fslogix_unc_path`, `storage_account_key` |
 | [07-vm-imaging](modules/07-vm-imaging/) | Azure Compute Gallery, image definitions | `gallery_name`, `image_definitions` | `gallery_id`, `image_definition_ids` |

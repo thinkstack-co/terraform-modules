@@ -107,3 +107,18 @@ variable "environment" {
   type        = string
   default     = "production"
 }
+
+variable "license_name" {
+  description = "License name(s) for the Licensed Users dynamic group (e.g., [\"Microsoft 365 Business Premium\"])."
+  type        = list(string)
+}
+
+variable "secure_enclave_ips" {
+  description = "IPv4 addresses for the Secure Enclave trusted named location used by CA policies."
+  type        = list(string)
+}
+
+variable "terraform_sp_object_id" {
+  description = "Object ID of the service principal running Terraform. Grants Key Vault access for Appgate SSH keys."
+  type        = string
+}
