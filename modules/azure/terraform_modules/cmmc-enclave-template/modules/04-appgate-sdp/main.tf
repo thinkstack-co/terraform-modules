@@ -60,7 +60,7 @@ resource "azurerm_key_vault_access_policy" "terraform_sp" {
   secret_permissions = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore", "Purge"]
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
