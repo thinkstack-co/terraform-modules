@@ -133,6 +133,14 @@ resource "azurerm_role_assignment" "avd_user" {
   principal_id         = var.avd_users_group_id
 }
 
+# Required for Entra ID authentication to session hosts (enablerdsaadauth:i:1).
+# Without this, VM-level sign-in is rejected even with Desktop Virtualization User assigned.
+resource "azurerm_role_assignment" "vm_user_login" {
+  scope                = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+  role_definition_name = "Virtual Machine User Login"
+  principal_id         = var.avd_users_group_id
+}
+
 # Power On Off Contributor — must be assigned to the AVD first-party service principal
 data "azuread_service_principal" "avd" {
   client_id = "9cdead84-a844-4324-93f2-b2e6bb768d07" # Windows Virtual Desktop
