@@ -138,6 +138,14 @@ data "azuread_service_principal" "avd" {
   client_id = "9cdead84-a844-4324-93f2-b2e6bb768d07" # Windows Virtual Desktop
 }
 
+# Required for AVD Entra ID SSO (enablerdsaadauth:i:1 in RDP properties).
+# Creates the Windows Cloud Login service principal in the tenant if absent,
+# which grants the consent needed to resolve error 50206.
+resource "azuread_service_principal" "windows_cloud_login" {
+  client_id    = "270efc09-cd0d-444b-a71f-39af4910ec45"
+  use_existing = true
+}
+
 resource "azurerm_role_assignment" "power_on_off" {
   scope                = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_group_name}"
   role_definition_name = "Desktop Virtualization Power On Off Contributor"
