@@ -38,7 +38,7 @@ $RequiredFiles = @(
 
 # Step 1: Download scripts
 Write-Host 'Downloading provisioning scripts...'
-$ScriptBaseUrl = 'https://raw.githubusercontent.com/thinkstack-co/terraform-modules/bcec8f9d3dc1cc343e0886d1b2ec8f470cb8eed3/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/'
+$ScriptBaseUrl = 'https://raw.githubusercontent.com/thinkstack-co/terraform-modules/refs/heads/v2.9.2/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/'
 $RequiredFiles | ForEach-Object {
     $Url = '{0}/{1}' -f $ScriptBaseUrl, $_
     Write-Host ('Downloading {0}' -f $_)
