@@ -44,6 +44,9 @@ $RequiredFiles | ForEach-Object {
     Write-Host ('Downloading {0}' -f $_)
     Invoke-RestMethod -Uri $Url -OutFile $_
 }
+if ($IsLinux -or $IsMacOS) {
+    $RequiredFiles | Where-Object { $_ -like '*.sh' } | ForEach-Object { chmod +x $_ }
+}
 
 # Step 2: Ensure Key Vault role
 Write-Host 'Checking Key Vault role assignment...'
@@ -82,8 +85,12 @@ $KeyMap.GetEnumerator() | ForEach-Object {
     }
     $Secret = Get-AzKeyVaultSecret @SecretParams
 
-    $Secret.SecretValue | ConvertFrom-SecureString -AsPlainText | Out-File $PemFile
-    chmod 400 $PemFile
+    $Bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Secret.SecretValue)
+    $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($Bstr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($Bstr)
+    [System.IO.File]::WriteAllText((Resolve-Path -Path '.' | Join-Path -ChildPath ('{0}.pem' -f $_.Key)), $PlainText)
+
+    if ($IsLinux -or $IsMacOS) { chmod 400 $PemFile }
 
     Write-Host ('{0} downloaded and secured.' -f $PemFile)
 }
