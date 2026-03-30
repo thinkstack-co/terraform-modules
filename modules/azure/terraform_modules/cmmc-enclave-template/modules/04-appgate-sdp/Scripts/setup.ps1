@@ -88,7 +88,8 @@ $KeyMap.GetEnumerator() | ForEach-Object {
     $Bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Secret.SecretValue)
     $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($Bstr)
     [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($Bstr)
-    [System.IO.File]::WriteAllText((Resolve-Path -Path '.' | Join-Path -ChildPath ('{0}.pem' -f $_.Key)), $PlainText)
+    $FullPath = Join-Path -Path (Get-Location) -ChildPath ('{0}.pem' -f $_.Key)
+    [System.IO.File]::WriteAllText($FullPath, $PlainText)
 
     if ($IsLinux -or $IsMacOS) { chmod 400 $PemFile }
 
