@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 <customer_shortname> <admin_password> <ctl_private_ip> <gateway_dns_name>"
+if [ "$#" -ne 5 ]; then
+  echo "Usage: $0 <customer_shortname> <admin_password> <ctl_private_ip> <gateway_dns_name> <controller_fqdn>"
   exit 1
 fi
 
@@ -11,6 +11,7 @@ adminpass=$(echo "$encodedpass" | base64 -d)
 
 ctlprivateip="$3"
 gatewaydnsname="$4"
+controllerfqdn="$5"
 
 DEVICE_ID_FILE="./appgate-device-id.txt"
 
@@ -87,7 +88,7 @@ read -r -d '' json_payload <<EOF
     ]
   },
   "networking": {
-    "hosts": [],
+    "hosts": [{"hostname": "$controllerfqdn", "address": "$ctlprivateip"}],
     "nics": [
       {
         "enabled": true,
@@ -169,8 +170,8 @@ echo "Gateway registered. Appliance ID: $gwid"
 
 echo "[2.4] Exporting seed file to temporary location..."
 
-tmpfile="/home/cz/seed.json.tmp"
-finalfile="/home/cz/seed.json"
+tmpfile="/tmp/gw-seed.json.tmp"
+finalfile="/tmp/gw-seed.json"
 
 seed_payload='{
   "provideCloudSSHKey": true,

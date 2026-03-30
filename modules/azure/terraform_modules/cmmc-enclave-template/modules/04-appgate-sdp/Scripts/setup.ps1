@@ -18,12 +18,14 @@ param (
     [string]$GatewayDnsName,
 
     [Parameter(Mandatory = $true)]
-    [string]$TenantId
+    [string]$TenantId,
+
+    [Parameter(Mandatory = $true)]
+    [string]$OidcClientId
 )
 
 # Step 0: Script file list
 $RequiredFiles = @(
-    'new-oidcapplication.ps1',
     'seed-controller.sh',
     'seed-gateway.sh',
     'enable-full-tunnel-default-site.sh',
@@ -36,7 +38,7 @@ $RequiredFiles = @(
 
 # Step 1: Download scripts
 Write-Host 'Downloading provisioning scripts...'
-$ScriptBaseUrl = 'https://raw.githubusercontent.com/NetworkCoverage/azure-resource-manager/refs/heads/main/cmmc-enclave/virtual-machine/ztna/scripts'
+$ScriptBaseUrl = 'https://raw.githubusercontent.com/thinkstack-co/terraform-modules/bcec8f9d3dc1cc343e0886d1b2ec8f470cb8eed3/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/'
 $RequiredFiles | ForEach-Object {
     $Url = '{0}/{1}' -f $ScriptBaseUrl, $_
     Write-Host ('Downloading {0}' -f $_)
@@ -65,10 +67,14 @@ if (-not $HasAccess) {
 
 # Step 3: Retrieve SSH keys
 Write-Host 'Downloading PEM keys from Key Vault...'
-@('ctl', 'gw') | ForEach-Object {
-    $Key = $_
-    $SecretName = '{0}-{1}-secret' -f $VaultName, $Key
-    $PemFile = './{0}.pem' -f $Key
+$KeyMap = @{
+    'ctl' = 'ag-ctl-private-key'
+    'gw'  = 'ag-gw-private-key'
+}
+
+$KeyMap.GetEnumerator() | ForEach-Object {
+    $PemFile = './{0}.pem' -f $_.Key
+    $SecretName = $_.Value
 
     $SecretParams = @{
         VaultName = $VaultName
@@ -96,26 +102,9 @@ if ($Missing.Count -gt 0) {
 }
 Write-Host 'All required files are present.'
 
-# Step 5: Run new-oidcapplication.ps1
-Write-Host 'Executing new-oidcapplication.ps1...'
-.\new-oidcapplication.ps1 -Environment USGov -ControllerDNSName $ControllerDnsName
-
-# Step 6: Parse appgate-iodc-app.json to retrieve Client ID
-$AppJsonPath = './appgate-oidc-app.json'
-if (-not (Test-Path $AppJsonPath)) {
-    Write-Error "The OIDC application metadata file '$AppJsonPath' was not found."
-    exit 1
-}
-
-$AppMetadata = Get-Content $AppJsonPath | ConvertFrom-Json
-$AudienceClientId = $AppMetadata.ClientId
-
-if (-not $AudienceClientId) {
-    Write-Error "ClientId is missing or empty in '$AppJsonPath'."
-    exit 1
-}
-
-# Step 7: Write env.sh for Bash
+# Step 5: Write env.sh for Bash
+# Note: OIDC app registration is handled by Terraform (azuread_application.appgate_oidc).
+# The OidcClientId parameter should come from: terraform output -raw module.appgate_sdp.oidc_client_id
 Write-Host 'Writing environment file for Bash...'
 
 @"
@@ -125,11 +114,11 @@ export CONTROLLERDNS='$ControllerDnsName'
 export CONTROLLERIP='$ControllerIp'
 export GATEWAYDNS='$GatewayDnsName'
 export TENANT_ID='$TenantId'
-export AUDIENCE_ID='$AudienceClientId'
+export AUDIENCE_ID='$OidcClientId'
 "@ | Out-File -Encoding ascii ./env.sh
 
 Write-Host ''
 Write-Host 'Next steps:'
 Write-Host '1. Type: bash'
 Write-Host '2. Then run: . ./env.sh'
-Write-Host '3. Then run: ./provision-appgate.sh \$CUSTOMERSHORTNAME \$ADMINPASS \$CONTROLLERDNS \$CONTROLLERIP \$GATEWAYDNS \$TENANT_ID \$AUDIENCE_ID'
+Write-Host '3. Then run: ./provision-appgate.sh $CUSTOMERSHORTNAME $ADMINPASS $CONTROLLERDNS $CONTROLLERIP $GATEWAYDNS $TENANT_ID $AUDIENCE_ID'
