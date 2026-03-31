@@ -108,7 +108,7 @@ bash
 
 This executes 8 steps:
 
-1. **Seed controller** — SSHes to controller, runs `cz-seed` to bootstrap the appliance
+1. **Seed controller** — SSHes to controller, runs `sudo cz-seed` with firewall-allowed NTP server IPs to bootstrap the appliance
 2. **Register gateway** — Registers gateway via controller API with `networking.hosts` (controller FQDN -> private IP)
 3. **Transfer gateway seed** — SCPs the seed from controller to gateway at `/home/cz/seed.json`, waits for gateway to reach `appliance_ready`
 4. **Enable full tunnel** — Updates Default Site to enable default gateway routing (IPv4 + IPv6)
@@ -169,23 +169,29 @@ az network bastion tunnel \
 ssh -i ctl.pem -p 2222 cz@127.0.0.1
 ```
 
-On the controller, run `cz-seed`:
+On the controller, run `cz-seed` (requires `sudo`):
+
+> **Critical:** The `--ntp-server` flags are required. The Azure Firewall only allows NTP traffic to specific IPs. Without these flags, `cz-configd` configures NTP with pool hostnames that resolve to IPs blocked by the firewall. NTP never syncs, PostgreSQL init fails, and the controller stays stuck at `waiting_config`.
 
 ```bash
-cz-seed \
+sudo cz-seed \
   --dhcp-ipv4 eth0 \
   --appliance-name "<customershortname>-controller" \
   --profile-hostname "<controller-fqdn>" \
   --hostname "<controller-fqdn>" \
   --admin-hostname "<controller-fqdn>" \
-  --admin-password "<admin-password>" > /home/cz/seed.json
+  --admin-password "<admin-password>" \
+  --ntp-server 91.189.91.157 \
+  --ntp-server 91.189.89.198 \
+  --ntp-server 91.189.94.4 \
+  --ntp-server 91.189.91.156 > /home/cz/seed.json
 ```
 
-Wait for the controller to become healthy:
+Wait for the controller to reach `appliance_ready`:
 
 ```bash
-watch "cz-config status | jq -r .roles.controller.status"
-# Wait until: "healthy"
+watch "sudo cz-config status | jq -r .state"
+# Wait until: "appliance_ready"
 ```
 
 ### Step 3 — Register and Seed the Gateway
@@ -252,8 +258,8 @@ GW_ID=$(curl -sk -X POST "https://$CTL_IP:8443/admin/appliances" \
       "dnsServers": [], "dnsDomains": [], "routes": []
     },
     "ntp": {"servers": [
-      {"hostname": "0.ubuntu.pool.ntp.org"}, {"hostname": "1.ubuntu.pool.ntp.org"},
-      {"hostname": "2.ubuntu.pool.ntp.org"}, {"hostname": "3.ubuntu.pool.ntp.org"}
+      {"hostname": "91.189.91.157"}, {"hostname": "91.189.89.198"},
+      {"hostname": "91.189.94.4"}, {"hostname": "91.189.91.156"}
     ]},
     "sshServer": {
       "enabled": true, "port": 22,

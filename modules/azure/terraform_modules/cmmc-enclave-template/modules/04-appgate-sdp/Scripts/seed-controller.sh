@@ -11,14 +11,18 @@ adminpass=$(echo "$encodedpass" | base64 -d)
 
 hostname="$3"
 
-echo "[1.1] Seedinging new controller: $hostname..."
+echo "[1.1] Seeding new controller: $hostname..."
 
-cz-seed \
+sudo cz-seed \
   --dhcp-ipv4 eth0 \
   --appliance-name "${customershortname}-controller" \
   --profile-hostname "$hostname" \
   --hostname "$hostname" \
-  --admin-hostname $hostname \
-  --admin-password "$adminpass" > /home/cz/seed.json
+  --admin-hostname "$hostname" \
+  --admin-password "$adminpass" \
+  --ntp-server 91.189.91.157 \
+  --ntp-server 91.189.89.198 \
+  --ntp-server 91.189.94.4 \
+  --ntp-server 91.189.91.156 > /home/cz/seed.json
 
-  echo "Seeding completed successfully."
+echo "Seeding completed successfully."

@@ -56,15 +56,15 @@ interval=5
 elapsed=0
 
 while true; do
-  status=$(ssh -i ./ctl.pem -o StrictHostKeyChecking=no cz@"$fqdn" "sudo cz-config status | jq -r .roles.controller.status" 2>/dev/null || echo "unavailable")
+  status=$(ssh -i ./ctl.pem -o StrictHostKeyChecking=no cz@"$fqdn" "sudo cz-config status | jq -r .state" 2>/dev/null || echo "unavailable")
 
-  if [[ "$status" == "healthy" ]]; then
-    echo "Controller is healthy."
+  if [[ "$status" == "appliance_ready" ]]; then
+    echo "Controller is ready."
     break
   fi
 
   if (( elapsed >= max_wait )); then
-    echo "Controller did not become healthy within $max_wait seconds."
+    echo "Controller did not reach appliance_ready within $max_wait seconds."
     exit 1
   fi
 

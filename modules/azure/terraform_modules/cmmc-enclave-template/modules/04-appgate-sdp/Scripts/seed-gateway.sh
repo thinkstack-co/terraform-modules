@@ -121,10 +121,10 @@ read -r -d '' json_payload <<EOF
   },
   "ntp": {
     "servers": [
-      { "hostname": "0.ubuntu.pool.ntp.org" },
-      { "hostname": "1.ubuntu.pool.ntp.org" },
-      { "hostname": "2.ubuntu.pool.ntp.org" },
-      { "hostname": "3.ubuntu.pool.ntp.org" }
+      { "hostname": "91.189.91.157" },
+      { "hostname": "91.189.89.198" },
+      { "hostname": "91.189.94.4" },
+      { "hostname": "91.189.91.156" }
     ]
   },
   "sshServer": {
