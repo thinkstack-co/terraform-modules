@@ -23,6 +23,6 @@ sudo cz-seed \
   --ntp-server 91.189.91.157 \
   --ntp-server 91.189.89.198 \
   --ntp-server 91.189.94.4 \
-  --ntp-server 91.189.91.156 > /home/cz/seed.json
+  --ntp-server 91.189.91.156 | sudo tee /home/cz/seed.json > /dev/null
 
 echo "Seeding completed successfully."
