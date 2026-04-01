@@ -187,11 +187,11 @@ sudo cz-seed \
   --ntp-server 91.189.91.156 > /home/cz/seed.json
 ```
 
-Wait for the controller to reach `appliance_ready`:
+Wait for the controller to reach `controller_ready`:
 
 ```bash
 watch "sudo cz-config status | jq -r .state"
-# Wait until: "appliance_ready"
+# Wait until: "controller_ready"
 ```
 
 ### Step 3 — Register and Seed the Gateway

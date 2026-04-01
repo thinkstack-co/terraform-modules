@@ -58,13 +58,13 @@ elapsed=0
 while true; do
   status=$(ssh -i ./ctl.pem -o StrictHostKeyChecking=no cz@"$fqdn" "sudo cz-config status | jq -r .state" 2>/dev/null || echo "unavailable")
 
-  if [[ "$status" == "appliance_ready" ]]; then
-    echo "Controller is ready."
+  if [[ "$status" == "appliance_ready" || "$status" == "controller_ready" ]]; then
+    echo "Controller is ready ($status)."
     break
   fi
 
   if (( elapsed >= max_wait )); then
-    echo "Controller did not reach appliance_ready within $max_wait seconds."
+    echo "Controller did not reach ready state within $max_wait seconds."
     exit 1
   fi
 
