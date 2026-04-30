@@ -26,6 +26,10 @@ locals {
   root_volume_tags = var.exclude_root_volume_snapshot ? {
     for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
   } : var.tags
+
+  # When var.enable_recover_action is null (default), auto-detect from the instance type data source.
+  # When explicitly set to true/false, use the caller's override.
+  recover_action_enabled = var.enable_recover_action != null ? var.enable_recover_action : data.aws_ec2_instance_type.this.auto_recovery_supported
 }
 
 #############################
@@ -109,8 +113,8 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   count = var.create_cloudwatch_alarms ? 1 : 0
-  # Dynamically check if the instance type supports EC2 auto-recovery via the aws_ec2_instance_type data source.
-  alarm_actions = data.aws_ec2_instance_type.this.auto_recovery_supported ? ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"] : []
+  # Auto-detected from instance type by default, or explicitly overridden via var.enable_recover_action.
+  alarm_actions = local.recover_action_enabled ? ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"] : []
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"

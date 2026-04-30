@@ -88,3 +88,27 @@ variable "read_projects" {
   type        = bool
   default     = true
 }
+
+variable "manage_teams" {
+  description = "(Optional) Allow members to create, edit, and delete teams."
+  type        = bool
+  default     = true
+}
+
+variable "manage_agent_pools" {
+  description = "(Optional) Allow members to administrate agent pools in the organization."
+  type        = bool
+  default     = true
+}
+
+variable "manage_organization_access" {
+  description = "(Optional) Allow members to manage the organization's permissions."
+  type        = bool
+  default     = true
+}
+
+variable "access_secret_teams" {
+  description = "(Optional) Allow members to access secret teams within the organization."
+  type        = bool
+  default     = true
+}

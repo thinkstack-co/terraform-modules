@@ -234,6 +234,12 @@ variable "root_volume_throughput" {
   default     = 125
 }
 
+variable "enable_recover_action" {
+  type        = bool
+  description = "(Optional) Whether to attach the EC2 recover action to the system status check alarm. When null (default), auto-detected from the instance type. Set to false to explicitly disable for instances where the recover action is not valid."
+  default     = null
+}
+
 variable "create_cloudwatch_alarms" {
   type        = bool
   description = "(Optional) Whether to create CloudWatch status check alarms for the instance. Set to false to reduce CloudWatch costs. Default: true"
