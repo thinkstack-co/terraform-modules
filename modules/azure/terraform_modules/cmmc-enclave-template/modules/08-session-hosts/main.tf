@@ -83,6 +83,14 @@ resource "azurerm_virtual_machine_extension" "aad_login" {
   })
 
   tags = var.tags
+
+  # Why: virtual_machine_id is occasionally re-evaluated as "Known after apply"
+  # in TFC plans even when the underlying VM is unchanged, which forces
+  # replacement of this extension and re-runs the Entra join on an already-
+  # joined device. Ignore drift on the parent VM ID to suppress that churn.
+  lifecycle {
+    ignore_changes = [virtual_machine_id]
+  }
 }
 
 # ---------------------------------------------------------------------------
@@ -109,6 +117,15 @@ resource "azurerm_virtual_machine_extension" "avd_dsc" {
 
   depends_on = [azurerm_virtual_machine_extension.aad_login]
   tags       = var.tags
+
+  # Why: virtual_machine_id is occasionally re-evaluated as "Known after apply"
+  # in TFC plans even when the underlying VM is unchanged, which forces
+  # replacement of this extension and would briefly drop the host from the
+  # AVD host pool (kicking active users) while DSC re-registers it. Ignore
+  # drift on the parent VM ID to suppress that churn.
+  lifecycle {
+    ignore_changes = [virtual_machine_id]
+  }
 }
 
 # ---------------------------------------------------------------------------
@@ -135,4 +152,12 @@ resource "azurerm_virtual_machine_extension" "fslogix" {
 
   depends_on = [azurerm_virtual_machine_extension.aad_login]
   tags       = var.tags
+
+  # Why: virtual_machine_id is occasionally re-evaluated as "Known after apply"
+  # in TFC plans even when the underlying VM is unchanged, which forces
+  # replacement of this extension and re-runs the FSLogix registry/network
+  # setup script. Ignore drift on the parent VM ID to suppress that churn.
+  lifecycle {
+    ignore_changes = [virtual_machine_id]
+  }
 }
