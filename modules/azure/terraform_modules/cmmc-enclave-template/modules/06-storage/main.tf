@@ -37,6 +37,16 @@ resource "azurerm_storage_account" "fslogix" {
     retention_policy {
       days = 7
     }
+
+    # Why: SMB Multichannel allows a single SMB session to use multiple TCP
+    # connections in parallel, which materially improves FSLogix profile
+    # mount/unmount throughput on Premium FileStorage. Microsoft's FSLogix
+    # guidance recommends enabling it; pinning it here so the setting is not
+    # silently disabled on a future apply when the azurerm provider would
+    # otherwise revert it to Azure's default (false).
+    smb {
+      multichannel_enabled = true
+    }
   }
 
   network_rules {
