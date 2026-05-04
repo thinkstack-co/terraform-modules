@@ -29,13 +29,13 @@ resource "azurerm_storage_account" "fslogix" {
   infrastructure_encryption_enabled = true
   allow_nested_items_to_be_public   = false
   shared_access_key_enabled         = true
-
+  ##
   # Large file shares required for Premium FileStorage
   large_file_share_enabled = true
 
   share_properties {
     retention_policy {
-      days = 7
+      days = var.share_soft_delete_retention_days
     }
 
     # Why: SMB Multichannel allows a single SMB session to use multiple TCP

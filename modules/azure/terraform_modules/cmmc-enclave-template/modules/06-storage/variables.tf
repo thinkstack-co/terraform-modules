@@ -45,6 +45,22 @@ variable "backup_daily_retention_days" {
   default     = 14
 }
 
+# Why: Soft-delete recovery window for accidentally-deleted file shares on the
+# storage account. Default 7 matches the upstream module's original choice;
+# customers with stricter compliance retention requirements (e.g. CMMC L2
+# environments that pre-existed with a longer window) can override to keep
+# state aligned with what's already in Azure.
+variable "share_soft_delete_retention_days" {
+  description = "Number of days deleted file shares remain recoverable before permanent deletion. Range 1-365."
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.share_soft_delete_retention_days >= 1 && var.share_soft_delete_retention_days <= 365
+    error_message = "Share soft-delete retention must be between 1 and 365 days."
+  }
+}
+
 variable "backup_weekly_retention_weeks" {
   description = "Number of weekly backup recovery points to retain."
   type        = number
