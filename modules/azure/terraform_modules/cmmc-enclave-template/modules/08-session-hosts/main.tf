@@ -63,6 +63,16 @@ resource "azurerm_windows_virtual_machine" "session_host" {
   identity {
     type = "SystemAssigned"
   }
+
+  # Why: admin_password is set at VM creation but is expected to drift over
+  # time (rotated out of band via Azure's reset-password flow, manually, or
+  # by a separate rotation process). The azurerm provider treats any change
+  # to admin_password as forcing replacement, which would destroy the VM and
+  # all its extensions. Ignore drift so password rotation does not destroy
+  # session hosts.
+  lifecycle {
+    ignore_changes = [admin_password]
+  }
 }
 
 # ---------------------------------------------------------------------------
