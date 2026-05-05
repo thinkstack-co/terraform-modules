@@ -22,7 +22,12 @@ repos:
     hooks:
       - id: flake8
         # Ignore vendored Lambda packages and caches to avoid third-party lint noise.
-        args: [--max-line-length=120, --extend-ignore=E203, "--exclude=package,.venv,.mypy_cache,modules/**/package,modules/**/package/**"]
+        args:
+          [
+            --max-line-length=120,
+            --extend-ignore=E203,
+            "--exclude=package,.venv,.mypy_cache,modules/**/package,modules/**/package/**",
+          ]
         # Pre-commit-level exclude for vendored dependencies.
         exclude: ^modules/.*/package/|^modules/.*/lambda_package\\.zip$|^modules/.*/\\.mypy_cache/
 
@@ -31,7 +36,14 @@ repos:
     hooks:
       - id: mypy
         # Treat Terraform module folders as namespace packages and skip vendored deps.
-        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --namespace-packages, "--exclude=modules/.*/package/|modules/.*/lambda_package\\.zip$|modules/.*/\\.mypy_cache/"]
+        args:
+          [
+            --ignore-missing-imports,
+            --no-strict-optional,
+            --explicit-package-bases,
+            --namespace-packages,
+            "--exclude=modules/.*/package/|modules/.*/lambda_package\\.zip$|modules/.*/\\.mypy_cache/",
+          ]
         # Pre-commit-level exclude for vendored dependencies.
         exclude: ^modules/.*/package/|^modules/.*/lambda_package\\.zip$|^modules/.*/\\.mypy_cache/
 
@@ -40,7 +52,12 @@ repos:
     hooks:
       - id: pylint
         # Ignore bundled Lambda dependencies and caches to avoid duplicate-code noise.
-        args: [--max-line-length=120, "--disable=C0114,C0115,C0116,E0401", "--ignore-paths=^modules/.*/package/|^modules/.*/lambda_package\\.zip$|^modules/.*/\\.mypy_cache/"]
+        args:
+          [
+            --max-line-length=120,
+            "--disable=C0114,C0115,C0116,E0401",
+            "--ignore-paths=^modules/.*/package/|^modules/.*/lambda_package\\.zip$|^modules/.*/\\.mypy_cache/",
+          ]
 
   # Terraform linting - temporarily disabled due to hook issue
   # - repo: https://github.com/terraform-linters/tflint

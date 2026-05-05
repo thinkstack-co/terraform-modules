@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,8 +58,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -84,18 +83,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -103,36 +103,37 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                                                                         | Type     |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | [aws_organizations_organization.org](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_organization) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_aws_service_access_principals"></a> [aws\_service\_access\_principals](#input\_aws\_service\_access\_principals) | (Optional) List of AWS service principal names for which you want to enable integration with your organization. This is typically in the form of a URL, such as service-abbreviation.amazonaws.com. Organization must have feature\_set set to ALL. For additional information, see the AWS Organizations User Guide. | `list(string)` | <pre>[<br>  "aws-artifact-account-sync.amazonaws.com",<br>  "backup.amazonaws.com",<br>  "cloudtrail.amazonaws.com",<br>  "health.amazonaws.com",<br>  "sso.amazonaws.com"<br>]</pre> | no |
-| <a name="input_enabled_policy_types"></a> [enabled\_policy\_types](#input\_enabled\_policy\_types) | (Optional) List of Organizations policy types to enable in the Organization Root. Organization must have feature\_set set to ALL. For additional information about valid policy types (e.g., AISERVICES\_OPT\_OUT\_POLICY, BACKUP\_POLICY, SERVICE\_CONTROL\_POLICY, and TAG\_POLICY), see the AWS Organizations API Reference. | `list(string)` | `null` | no |
-| <a name="input_feature_set"></a> [feature\_set](#input\_feature\_set) | (Optional) Specify 'ALL' (default) or 'CONSOLIDATED\_BILLING'. | `string` | `"ALL"` | no |
+| Name                                                                                                                     | Description                                                                                                                                                                                                                                                                                                             | Type           | Default                                                                                                                                                                          | Required |
+| ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| <a name="input_aws_service_access_principals"></a> [aws_service_access_principals](#input_aws_service_access_principals) | (Optional) List of AWS service principal names for which you want to enable integration with your organization. This is typically in the form of a URL, such as service-abbreviation.amazonaws.com. Organization must have feature_set set to ALL. For additional information, see the AWS Organizations User Guide.    | `list(string)` | <pre>[<br> "aws-artifact-account-sync.amazonaws.com",<br> "backup.amazonaws.com",<br> "cloudtrail.amazonaws.com",<br> "health.amazonaws.com",<br> "sso.amazonaws.com"<br>]</pre> |    no    |
+| <a name="input_enabled_policy_types"></a> [enabled_policy_types](#input_enabled_policy_types)                            | (Optional) List of Organizations policy types to enable in the Organization Root. Organization must have feature_set set to ALL. For additional information about valid policy types (e.g., AISERVICES_OPT_OUT_POLICY, BACKUP_POLICY, SERVICE_CONTROL_POLICY, and TAG_POLICY), see the AWS Organizations API Reference. | `list(string)` | `null`                                                                                                                                                                           |    no    |
+| <a name="input_feature_set"></a> [feature_set](#input_feature_set)                                                       | (Optional) Specify 'ALL' (default) or 'CONSOLIDATED_BILLING'.                                                                                                                                                                                                                                                           | `string`       | `"ALL"`                                                                                                                                                                          |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_arn"></a> [arn](#output\_arn) | n/a |
-| <a name="output_id"></a> [id](#output\_id) | n/a |
+| Name                                         | Description |
+| -------------------------------------------- | ----------- |
+| <a name="output_arn"></a> [arn](#output_arn) | n/a         |
+| <a name="output_id"></a> [id](#output_id)    | n/a         |
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -141,19 +142,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

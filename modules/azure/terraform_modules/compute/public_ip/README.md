@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -71,47 +72,47 @@ module "public_ip" {
 
 ## Requirements
 
-| Name | Version |
-| --- | --- |
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-| --- | --- |
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-| --- | --- | --- |
+| Name                                                                                                          | Type   | Documentation                     |
+| ------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------- |
 | [module.public_ip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | module | Delegates to networking/public_ip |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-| --- | --- | --- | --- | :---: |
-| name | Name of the Public IP resource | `string` | n/a | yes |
-| resource_group_name | The name of an existing resource group | `string` | n/a | yes |
-| location | The Azure region where resources will be created | `string` | `"eastus"` | no |
-| sku | The SKU of the Public IP (Basic or Standard) | `string` | `"Standard"` | no |
-| allocation_method | Allocation method (Static or Dynamic). Standard requires Static | `string` | `"Static"` | no |
-| domain_name_label | Label for a DNS name to generate an FQDN | `string` | `null` | no |
-| ip_version | The IP version (IPv4 or IPv6) | `string` | `"IPv4"` | no |
-| zones | List of availability zones (empty means regional) | `list(string)` | `[]` | no |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` | no |
+| Name                | Description                                                     | Type           | Default                                                                                      | Required |
+| ------------------- | --------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------- | :------: |
+| name                | Name of the Public IP resource                                  | `string`       | n/a                                                                                          |   yes    |
+| resource_group_name | The name of an existing resource group                          | `string`       | n/a                                                                                          |   yes    |
+| location            | The Azure region where resources will be created                | `string`       | `"eastus"`                                                                                   |    no    |
+| sku                 | The SKU of the Public IP (Basic or Standard)                    | `string`       | `"Standard"`                                                                                 |    no    |
+| allocation_method   | Allocation method (Static or Dynamic). Standard requires Static | `string`       | `"Static"`                                                                                   |    no    |
+| domain_name_label   | Label for a DNS name to generate an FQDN                        | `string`       | `null`                                                                                       |    no    |
+| ip_version          | The IP version (IPv4 or IPv6)                                   | `string`       | `"IPv4"`                                                                                     |    no    |
+| zones               | List of availability zones (empty means regional)               | `list(string)` | `[]`                                                                                         |    no    |
+| tags                | A mapping of tags to assign to the resource                     | `map(string)`  | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` |    no    |
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| id | The ID of the Public IP |
-| name | The name of the Public IP |
-| ip_address | The allocated public IP address |
-| fqdn | The DNS FQDN assigned to the Public IP (if domain_name_label is set) |
+| Name       | Description                                                          |
+| ---------- | -------------------------------------------------------------------- |
+| id         | The ID of the Public IP                                              |
+| name       | The name of the Public IP                                            |
+| ip_address | The allocated public IP address                                      |
+| fqdn       | The DNS FQDN assigned to the Public IP (if domain_name_label is set) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -139,6 +140,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

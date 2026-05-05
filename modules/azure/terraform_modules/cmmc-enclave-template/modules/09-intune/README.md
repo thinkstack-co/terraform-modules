@@ -6,31 +6,31 @@ Deploys Intune device configuration and compliance policies via the `microsoft/m
 
 **Settings Catalog policies** (`deviceManagement/configurationPolicies`)
 
-| Policy | Assignment target |
-|---|---|
-| CMMC - BitLocker Encryption | AVD hosts |
-| CMMC - Windows Defender Antivirus | `target_group_ids` |
-| CMMC - Windows Firewall | `target_group_ids` |
-| Configure device and resource redirection | AVD hosts |
-| Configure GPU acceleration for Azure Virtual Desktop | GPU VMs (skipped if `gpu_vm_group_id` is null) |
-| Configure OneDrive settings | AVD hosts |
-| Configure Windows NTP client | AVD hosts |
-| Disable password reveal | All users |
-| Enable Azure Information Protection add-in for sensitivity labeling | All users |
-| Enable interactive logon banner | AVD hosts |
-| Enable screen capture protection | AVD hosts |
+| Policy                                                              | Assignment target                              |
+| ------------------------------------------------------------------- | ---------------------------------------------- |
+| CMMC - BitLocker Encryption                                         | AVD hosts                                      |
+| CMMC - Windows Defender Antivirus                                   | `target_group_ids`                             |
+| CMMC - Windows Firewall                                             | `target_group_ids`                             |
+| Configure device and resource redirection                           | AVD hosts                                      |
+| Configure GPU acceleration for Azure Virtual Desktop                | GPU VMs (skipped if `gpu_vm_group_id` is null) |
+| Configure OneDrive settings                                         | AVD hosts                                      |
+| Configure Windows NTP client                                        | AVD hosts                                      |
+| Disable password reveal                                             | All users                                      |
+| Enable Azure Information Protection add-in for sensitivity labeling | All users                                      |
+| Enable interactive logon banner                                     | AVD hosts                                      |
+| Enable screen capture protection                                    | AVD hosts                                      |
 
 **Legacy device configuration policies** (`deviceManagement/deviceConfigurations`)
 
-| Policy | Type | Assignment target |
-|---|---|---|
-| Set lock screen inactivity timer (15 min) | `windows10EndpointProtectionConfiguration` | All users |
-| Set password policy (10-char, alphanumeric, 90-day expiry) | `windows10GeneralConfiguration` | All Windows devices |
+| Policy                                                     | Type                                       | Assignment target   |
+| ---------------------------------------------------------- | ------------------------------------------ | ------------------- |
+| Set lock screen inactivity timer (15 min)                  | `windows10EndpointProtectionConfiguration` | All users           |
+| Set password policy (10-char, alphanumeric, 90-day expiry) | `windows10GeneralConfiguration`            | All Windows devices |
 
 **Device compliance policy** (`deviceManagement/compliancePolicies`)
 
-| Policy | Assignment target |
-|---|---|
+| Policy                                                                      | Assignment target  |
+| --------------------------------------------------------------------------- | ------------------ |
 | CMMC - Windows Device Compliance (antivirus, Defender, firewall, BitLocker) | `target_group_ids` |
 
 ## Azure Government Status
@@ -107,34 +107,34 @@ module "intune" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `tenant_id` | string | required | Entra ID tenant ID (used in OneDrive KFM settings) |
-| `customer_name` | string | required | Customer name used in the interactive logon banner |
-| `avd_host_group_id` | string | required | Group ID for AVD-targeted policies and BitLocker |
-| `all_users_group_id` | string | required | Group ID for user-targeted policies |
-| `all_windows_devices_group_id` | string | required | Group ID for device-targeted policies |
-| `target_group_ids` | list(string) | required | Group IDs for CMMC baseline policies (Defender, Firewall, Compliance) |
-| `gpu_vm_group_id` | string | `null` | Group ID for the GPU acceleration policy; omit to skip |
-| `bitlocker_encryption_method` | string | `xtsAes128` | `xtsAes128` or `xtsAes256` |
-| `compliance_grace_period_hours` | number | `0` | Grace period in hours before non-compliant devices are blocked |
-| `tags` | map(string) | `{}` | Reserved (not used by provider) |
+| Name                            | Type         | Default     | Description                                                           |
+| ------------------------------- | ------------ | ----------- | --------------------------------------------------------------------- |
+| `tenant_id`                     | string       | required    | Entra ID tenant ID (used in OneDrive KFM settings)                    |
+| `customer_name`                 | string       | required    | Customer name used in the interactive logon banner                    |
+| `avd_host_group_id`             | string       | required    | Group ID for AVD-targeted policies and BitLocker                      |
+| `all_users_group_id`            | string       | required    | Group ID for user-targeted policies                                   |
+| `all_windows_devices_group_id`  | string       | required    | Group ID for device-targeted policies                                 |
+| `target_group_ids`              | list(string) | required    | Group IDs for CMMC baseline policies (Defender, Firewall, Compliance) |
+| `gpu_vm_group_id`               | string       | `null`      | Group ID for the GPU acceleration policy; omit to skip                |
+| `bitlocker_encryption_method`   | string       | `xtsAes128` | `xtsAes128` or `xtsAes256`                                            |
+| `compliance_grace_period_hours` | number       | `0`         | Grace period in hours before non-compliant devices are blocked        |
+| `tags`                          | map(string)  | `{}`        | Reserved (not used by provider)                                       |
 
 ## Outputs
 
-| Name | Description |
-|---|---|
-| `bitlocker_policy_id` | CMMC - BitLocker Encryption |
-| `defender_policy_id` | CMMC - Windows Defender Antivirus |
-| `firewall_policy_id` | CMMC - Windows Firewall |
-| `compliance_policy_id` | CMMC - Windows Device Compliance |
-| `rdp_redirection_policy_id` | Configure device and resource redirection |
+| Name                         | Description                                                    |
+| ---------------------------- | -------------------------------------------------------------- |
+| `bitlocker_policy_id`        | CMMC - BitLocker Encryption                                    |
+| `defender_policy_id`         | CMMC - Windows Defender Antivirus                              |
+| `firewall_policy_id`         | CMMC - Windows Firewall                                        |
+| `compliance_policy_id`       | CMMC - Windows Device Compliance                               |
+| `rdp_redirection_policy_id`  | Configure device and resource redirection                      |
 | `gpu_acceleration_policy_id` | Configure GPU acceleration (null if `gpu_vm_group_id` not set) |
-| `onedrive_policy_id` | Configure OneDrive settings |
-| `ntp_policy_id` | Configure Windows NTP client |
-| `password_reveal_policy_id` | Disable password reveal |
-| `aip_policy_id` | Enable AIP add-in for sensitivity labeling |
-| `logon_banner_policy_id` | Enable interactive logon banner |
-| `screen_capture_policy_id` | Enable screen capture protection |
-| `lock_screen_policy_id` | Set lock screen inactivity timer |
-| `password_policy_id` | Set password policy |
+| `onedrive_policy_id`         | Configure OneDrive settings                                    |
+| `ntp_policy_id`              | Configure Windows NTP client                                   |
+| `password_reveal_policy_id`  | Disable password reveal                                        |
+| `aip_policy_id`              | Enable AIP add-in for sensitivity labeling                     |
+| `logon_banner_policy_id`     | Enable interactive logon banner                                |
+| `screen_capture_policy_id`   | Enable screen capture protection                               |
+| `lock_screen_policy_id`      | Set lock screen inactivity timer                               |
+| `password_policy_id`         | Set password policy                                            |

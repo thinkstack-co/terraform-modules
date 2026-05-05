@@ -25,25 +25,25 @@ locals {
 # Note: Resource group must be created separately using the resource group module
 
 resource "azurerm_storage_account" "storage" {
-  name                            = var.storage_account_name
-  resource_group_name             = var.resource_group_name
-  location                        = var.location
-  account_tier                    = var.account_tier
-  account_replication_type        = var.account_replication_type
-  account_kind                    = var.account_kind
-  access_tier                     = var.access_tier
-  min_tls_version                 = var.min_tls_version
-  https_traffic_only_enabled      = var.enable_https_traffic_only
-  public_network_access_enabled   = var.public_network_access_enabled
-  allow_nested_items_to_be_public = var.allow_nested_items_to_be_public
-  is_hns_enabled                   = var.enable_hns
-  sftp_enabled                     = var.enable_sftp
-  nfsv3_enabled                    = var.enable_nfs_v3
+  name                              = var.storage_account_name
+  resource_group_name               = var.resource_group_name
+  location                          = var.location
+  account_tier                      = var.account_tier
+  account_replication_type          = var.account_replication_type
+  account_kind                      = var.account_kind
+  access_tier                       = var.access_tier
+  min_tls_version                   = var.min_tls_version
+  https_traffic_only_enabled        = var.enable_https_traffic_only
+  public_network_access_enabled     = var.public_network_access_enabled
+  allow_nested_items_to_be_public   = var.allow_nested_items_to_be_public
+  is_hns_enabled                    = var.enable_hns
+  sftp_enabled                      = var.enable_sftp
+  nfsv3_enabled                     = var.enable_nfs_v3
   infrastructure_encryption_enabled = var.enable_infrastructure_encryption
-  cross_tenant_replication_enabled = var.enable_cross_tenant_replication
-  shared_access_key_enabled        = var.enable_shared_key_access
-  default_to_oauth_authentication  = var.default_to_oauth_authentication
-  tags                            = var.tags
+  cross_tenant_replication_enabled  = var.enable_cross_tenant_replication
+  shared_access_key_enabled         = var.enable_shared_key_access
+  default_to_oauth_authentication   = var.default_to_oauth_authentication
+  tags                              = var.tags
 
   # Optional managed identity
   dynamic "identity" {
@@ -165,7 +165,7 @@ resource "azurerm_private_dns_zone_group" "storage_blob" {
   private_endpoint_id = azurerm_private_endpoint.storage_blob[0].id
 
   private_dns_zone_configs {
-    name                 = "blob-zone"
-    private_dns_zone_id  = var.private_dns_zone_id
+    name                = "blob-zone"
+    private_dns_zone_id = var.private_dns_zone_id
   }
 }

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ "$#" -ne 5 ]; then
-  echo "Usage: $0 <customer_shortname> <admin_password> <ctl_private_ip> <gateway_dns_name> <controller_fqdn>"
-  exit 1
+	echo "Usage: $0 <customer_shortname> <admin_password> <ctl_private_ip> <gateway_dns_name> <controller_fqdn>"
+	exit 1
 fi
 
 customershortname="$1"
@@ -16,10 +16,10 @@ controllerfqdn="$5"
 DEVICE_ID_FILE="./appgate-device-id.txt"
 
 if [ -f "$DEVICE_ID_FILE" ]; then
-  deviceid=$(cat "$DEVICE_ID_FILE")
+	deviceid=$(cat "$DEVICE_ID_FILE")
 else
-  deviceid=$(cat /proc/sys/kernel/random/uuid)
-  echo "$deviceid" > "$DEVICE_ID_FILE"
+	deviceid=$(cat /proc/sys/kernel/random/uuid)
+	echo "$deviceid" >"$DEVICE_ID_FILE"
 fi
 
 echo "[2.1] Logging in to Appgate Controller at $ctlprivateip..."
@@ -34,15 +34,15 @@ read -r -d '' json_payload <<EOF
 EOF
 
 response=$(curl --silent --insecure --location --request POST "https://$ctlprivateip:8443/admin/login" \
---header "Content-Type: application/json" \
---header "Accept: application/vnd.appgate.peer-v19+json" \
---data "$json_payload")
+	--header "Content-Type: application/json" \
+	--header "Accept: application/vnd.appgate.peer-v19+json" \
+	--data "$json_payload")
 
 token=$(echo "$response" | jq -r '.token')
 
 if [ "$token" == "null" ] || [ -z "$token" ]; then
-  echo "Failed to authenticate. Check admin password or controller IP."
-  exit 1
+	echo "Failed to authenticate. Check admin password or controller IP."
+	exit 1
 fi
 
 echo "Logged in. Token retrieved."
@@ -50,15 +50,15 @@ echo "Logged in. Token retrieved."
 echo "[2.2] Getting site ID..."
 
 sites=$(curl --silent --insecure --location --request GET "https://$ctlprivateip:8443/admin/sites" \
---header "Content-Type: application/json" \
---header "Accept: application/vnd.appgate.peer-v19+json" \
---header "Authorization: Bearer $token")
+	--header "Content-Type: application/json" \
+	--header "Accept: application/vnd.appgate.peer-v19+json" \
+	--header "Authorization: Bearer $token")
 
 siteid=$(echo "$sites" | jq -r '.data[0].id')
 
 if [ -z "$siteid" ] || [ "$siteid" == "null" ]; then
-  echo "Failed to retrieve site ID."
-  exit 1
+	echo "Failed to retrieve site ID."
+	exit 1
 fi
 
 echo "Site ID: $siteid"
@@ -154,16 +154,16 @@ read -r -d '' json_payload <<EOF
 EOF
 
 gw=$(curl --silent --insecure --location --request POST "https://$ctlprivateip:8443/admin/appliances" \
---header "Content-Type: application/json" \
---header "Accept: application/vnd.appgate.peer-v19+json" \
---header "Authorization: Bearer $token" \
---data "$json_payload")
+	--header "Content-Type: application/json" \
+	--header "Accept: application/vnd.appgate.peer-v19+json" \
+	--header "Authorization: Bearer $token" \
+	--data "$json_payload")
 
 gwid=$(echo "$gw" | jq -r '.id')
 
 if [ -z "$gwid" ] || [ "$gwid" == "null" ]; then
-  echo "Failed to register gateway."
-  exit 1
+	echo "Failed to register gateway."
+	exit 1
 fi
 
 echo "Gateway registered. Appliance ID: $gwid"
@@ -180,16 +180,16 @@ seed_payload='{
 }'
 
 curl --silent --insecure --location --request POST "https://$ctlprivateip:8443/admin/appliances/$gwid/export" \
---header "Content-Type: application/json" \
---header "Accept: application/vnd.appgate.peer-v19+json" \
---header "Authorization: Bearer $token" \
---data "$seed_payload" > "$tmpfile"
+	--header "Content-Type: application/json" \
+	--header "Accept: application/vnd.appgate.peer-v19+json" \
+	--header "Authorization: Bearer $token" \
+	--data "$seed_payload" >"$tmpfile"
 
 echo "[2.5] Verifying export success..."
 
 if [ ! -s "$tmpfile" ]; then
-  echo "Seed file export failed or empty."
-  exit 1
+	echo "Seed file export failed or empty."
+	exit 1
 fi
 
 echo "Seed file export succeeded."

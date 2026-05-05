@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,8 +58,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -79,18 +78,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_cloudflare"></a> [cloudflare](#requirement\_cloudflare) | 4.0.0 |
+| Name                                                                        | Version  |
+| --------------------------------------------------------------------------- | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform)    | >= 1.0.0 |
+| <a name="requirement_cloudflare"></a> [cloudflare](#requirement_cloudflare) | 4.0.0    |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_cloudflare"></a> [cloudflare](#provider\_cloudflare) | 4.0.0 |
+| Name                                                                  | Version |
+| --------------------------------------------------------------------- | ------- |
+| <a name="provider_cloudflare"></a> [cloudflare](#provider_cloudflare) | 4.0.0   |
 
 ## Modules
 
@@ -98,42 +98,43 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                                            | Type     |
+| --------------------------------------------------------------------------------------------------------------- | -------- |
 | [cloudflare_zone.this](https://registry.terraform.io/providers/cloudflare/cloudflare/4.0.0/docs/resources/zone) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_account_id"></a> [account\_id](#input\_account\_id) | (Required) Account ID to manage the zone resource in. | `string` | n/a | yes |
-| <a name="input_jump_start"></a> [jump\_start](#input\_jump\_start) | (Optional) Whether to scan for DNS records on creation. Ignored after zone is created. | `bool` | `false` | no |
-| <a name="input_paused"></a> [paused](#input\_paused) | (Optional)(Boolean) Whether this zone is paused (traffic bypasses Cloudflare). Defaults to false. | `bool` | `false` | no |
-| <a name="input_plan"></a> [plan](#input\_plan) | (Optional)The name of the commercial plan to apply to the zone. Available values: free, lite, pro, pro\_plus, business, enterprise, partners\_free, partners\_pro, partners\_business, partners\_enterprise. | `string` | `"free"` | no |
-| <a name="input_type"></a> [type](#input\_type) | (Optional) A full zone implies that DNS is hosted with Cloudflare. A partial zone is typically a partner-hosted zone or a CNAME setup. Available values: full, partial. Defaults to full. | `string` | `"full"` | no |
-| <a name="input_zone"></a> [zone](#input\_zone) | (Required) The DNS zone name which will be added. Modifying this attribute will force creation of a new resource. | `string` | n/a | yes |
+| Name                                                            | Description                                                                                                                                                                                             | Type     | Default  | Required |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- | :------: |
+| <a name="input_account_id"></a> [account_id](#input_account_id) | (Required) Account ID to manage the zone resource in.                                                                                                                                                   | `string` | n/a      |   yes    |
+| <a name="input_jump_start"></a> [jump_start](#input_jump_start) | (Optional) Whether to scan for DNS records on creation. Ignored after zone is created.                                                                                                                  | `bool`   | `false`  |    no    |
+| <a name="input_paused"></a> [paused](#input_paused)             | (Optional)(Boolean) Whether this zone is paused (traffic bypasses Cloudflare). Defaults to false.                                                                                                       | `bool`   | `false`  |    no    |
+| <a name="input_plan"></a> [plan](#input_plan)                   | (Optional)The name of the commercial plan to apply to the zone. Available values: free, lite, pro, pro_plus, business, enterprise, partners_free, partners_pro, partners_business, partners_enterprise. | `string` | `"free"` |    no    |
+| <a name="input_type"></a> [type](#input_type)                   | (Optional) A full zone implies that DNS is hosted with Cloudflare. A partial zone is typically a partner-hosted zone or a CNAME setup. Available values: full, partial. Defaults to full.               | `string` | `"full"` |    no    |
+| <a name="input_zone"></a> [zone](#input_zone)                   | (Required) The DNS zone name which will be added. Modifying this attribute will force creation of a new resource.                                                                                       | `string` | n/a      |   yes    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_id"></a> [id](#output\_id) | n/a |
-| <a name="output_name_servers"></a> [name\_servers](#output\_name\_servers) | n/a |
-| <a name="output_status"></a> [status](#output\_status) | n/a |
-| <a name="output_vanity_name_servers"></a> [vanity\_name\_servers](#output\_vanity\_name\_servers) | n/a |
-| <a name="output_verification_key"></a> [verification\_key](#output\_verification\_key) | n/a |
+| Name                                                                                         | Description |
+| -------------------------------------------------------------------------------------------- | ----------- |
+| <a name="output_id"></a> [id](#output_id)                                                    | n/a         |
+| <a name="output_name_servers"></a> [name_servers](#output_name_servers)                      | n/a         |
+| <a name="output_status"></a> [status](#output_status)                                        | n/a         |
+| <a name="output_vanity_name_servers"></a> [vanity_name_servers](#output_vanity_name_servers) | n/a         |
+| <a name="output_verification_key"></a> [verification_key](#output_verification_key)          | n/a         |
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -142,19 +143,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

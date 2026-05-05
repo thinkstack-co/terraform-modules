@@ -22,19 +22,19 @@ module "network_diagram_generator" {
 
 ## Inputs
 
-| Name           | Description                                 | Type   | Default     |
-|----------------|---------------------------------------------|--------|-------------|
-| name           | Base name for resources                     | string | network-diagram-generator |
-| s3_bucket_name | S3 bucket to store diagrams (optional)      | string | null        |
-| schedule       | EventBridge cron schedule for Lambda        | string | `cron(0 2 ? * SUN *)` |
+| Name           | Description                            | Type   | Default                   |
+| -------------- | -------------------------------------- | ------ | ------------------------- |
+| name           | Base name for resources                | string | network-diagram-generator |
+| s3_bucket_name | S3 bucket to store diagrams (optional) | string | null                      |
+| schedule       | EventBridge cron schedule for Lambda   | string | `cron(0 2 ? * SUN *)`     |
 
 ## Outputs
 
-| Name                | Description                      |
-|---------------------|----------------------------------|
-| lambda_function_arn | ARN of the Lambda function       |
+| Name                | Description                         |
+| ------------------- | ----------------------------------- |
+| lambda_function_arn | ARN of the Lambda function          |
 | diagram_s3_bucket   | S3 bucket where diagrams are stored |
-| event_rule_arn      | ARN of the EventBridge rule      |
+| event_rule_arn      | ARN of the EventBridge rule         |
 
 ## Lambda Function
 

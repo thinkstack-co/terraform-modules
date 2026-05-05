@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -54,6 +55,7 @@
 This Terraform module creates and manages AWS Application Load Balancer Target Groups and Target Group Attachments. Target groups are used to route requests to registered targets (such as EC2 instances, IP addresses, or Lambda functions) as part of a listener rule.
 
 The module supports:
+
 - Different target types (instance, IP, Lambda)
 - Customizable health checks
 - Protocol configuration
@@ -62,6 +64,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example with EC2 Instances
@@ -122,79 +125,82 @@ module "lambda_target_group" {
 
 ### Argument Reference
 
-* `name` - (Required) Name of the target group.
-* `target_type` - (Optional) Type of target. Valid values are instance, ip, or lambda. Default is instance.
-* `port` - (Required) Port on which targets receive traffic.
-* `protocol` - (Required) Protocol to use for routing traffic to the targets.
-* `vpc_id` - (Required) The identifier of the VPC that the target group belongs to.
-* `target_group_arn` - (Required) The ARN of the target group with which to register targets.
-* `target_id` - (Required) The ID of the target.
-* `health_check_protocol` - (Optional) The protocol for health checks. Default is HTTP.
-* `health_check_port` - (Optional) The port for health checks. Default is traffic-port.
-* `health_check_path` - (Optional) The destination path for health checks. Default is /.
-* `health_check_timeout_seconds` - (Optional) Health check timeout in seconds. Default is 5.
-* `health_check_interval_seconds` - (Optional) Health check interval in seconds. Default is 30.
-* `healthy_threshold_count` - (Optional) Number of consecutive successful health checks. Default is 5.
-* `unhealthy_threshold_count` - (Optional) Number of consecutive failed health checks. Default is 2.
-* `matcher` - (Optional) Response codes to use when checking for a successful response. Default is 200.
+- `name` - (Required) Name of the target group.
+- `target_type` - (Optional) Type of target. Valid values are instance, ip, or lambda. Default is instance.
+- `port` - (Required) Port on which targets receive traffic.
+- `protocol` - (Required) Protocol to use for routing traffic to the targets.
+- `vpc_id` - (Required) The identifier of the VPC that the target group belongs to.
+- `target_group_arn` - (Required) The ARN of the target group with which to register targets.
+- `target_id` - (Required) The ID of the target.
+- `health_check_protocol` - (Optional) The protocol for health checks. Default is HTTP.
+- `health_check_port` - (Optional) The port for health checks. Default is traffic-port.
+- `health_check_path` - (Optional) The destination path for health checks. Default is /.
+- `health_check_timeout_seconds` - (Optional) Health check timeout in seconds. Default is 5.
+- `health_check_interval_seconds` - (Optional) Health check interval in seconds. Default is 30.
+- `healthy_threshold_count` - (Optional) Number of consecutive successful health checks. Default is 5.
+- `unhealthy_threshold_count` - (Optional) Number of consecutive failed health checks. Default is 2.
+- `matcher` - (Optional) Response codes to use when checking for a successful response. Default is 200.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_lb_target_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html) |
+| Name                                                                                                                                          | Type     | Documentation                                                                                                                              |
+| --------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| [aws_lb_target_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group)                       | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html)                  |
 | [aws_lb_target_group_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group_attachment) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#register-targets) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | Name of the target group | `string` | n/a | yes |
-| target_type | Type of target (instance, ip, or lambda) | `string` | `"instance"` | no |
-| port | Port on which targets receive traffic | `number` | n/a | yes |
-| protocol | Protocol to use for routing traffic to the targets | `string` | n/a | yes |
-| vpc_id | The identifier of the VPC that the target group belongs to | `string` | n/a | yes |
-| target_group_arn | The ARN of the target group with which to register targets | `string` | n/a | yes |
-| target_id | The ID of the target | `string` | n/a | yes |
-| health_check_protocol | The protocol for health checks | `string` | `"HTTP"` | no |
-| health_check_port | The port for health checks | `string` | `"traffic-port"` | no |
-| health_check_path | The destination path for health checks | `string` | `"/"` | no |
-| health_check_timeout_seconds | Health check timeout in seconds | `number` | `5` | no |
-| health_check_interval_seconds | Health check interval in seconds | `number` | `30` | no |
-| healthy_threshold_count | Number of consecutive successful health checks | `number` | `5` | no |
-| unhealthy_threshold_count | Number of consecutive failed health checks | `number` | `2` | no |
-| matcher | Response codes to use when checking for a successful response | `string` | `"200"` | no |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
+| Name                          | Description                                                   | Type          | Default          | Required |
+| ----------------------------- | ------------------------------------------------------------- | ------------- | ---------------- | :------: |
+| name                          | Name of the target group                                      | `string`      | n/a              |   yes    |
+| target_type                   | Type of target (instance, ip, or lambda)                      | `string`      | `"instance"`     |    no    |
+| port                          | Port on which targets receive traffic                         | `number`      | n/a              |   yes    |
+| protocol                      | Protocol to use for routing traffic to the targets            | `string`      | n/a              |   yes    |
+| vpc_id                        | The identifier of the VPC that the target group belongs to    | `string`      | n/a              |   yes    |
+| target_group_arn              | The ARN of the target group with which to register targets    | `string`      | n/a              |   yes    |
+| target_id                     | The ID of the target                                          | `string`      | n/a              |   yes    |
+| health_check_protocol         | The protocol for health checks                                | `string`      | `"HTTP"`         |    no    |
+| health_check_port             | The port for health checks                                    | `string`      | `"traffic-port"` |    no    |
+| health_check_path             | The destination path for health checks                        | `string`      | `"/"`            |    no    |
+| health_check_timeout_seconds  | Health check timeout in seconds                               | `number`      | `5`              |    no    |
+| health_check_interval_seconds | Health check interval in seconds                              | `number`      | `30`             |    no    |
+| healthy_threshold_count       | Number of consecutive successful health checks                | `number`      | `5`              |    no    |
+| unhealthy_threshold_count     | Number of consecutive failed health checks                    | `number`      | `2`              |    no    |
+| matcher                       | Response codes to use when checking for a successful response | `string`      | `"200"`          |    no    |
+| tags                          | A mapping of tags to assign to the resource                   | `map(string)` | `{}`             |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| target_group_arn | The ARN of the Target Group |
+| Name                        | Description                                                       |
+| --------------------------- | ----------------------------------------------------------------- |
+| target_group_arn            | The ARN of the Target Group                                       |
 | target_group_attachment_arn | The ARN of the Target Group to which the attachment is associated |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -202,6 +208,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -211,16 +218,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

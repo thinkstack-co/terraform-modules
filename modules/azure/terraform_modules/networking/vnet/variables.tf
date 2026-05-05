@@ -117,7 +117,7 @@ variable "_validate_subnet_counts" {
 
   validation {
     # Only validate when the internal flag is enabled.
-    condition = var._validate_subnet_counts ? length(var.private_subnets_list) == 1 && length(var.public_subnets_list) == 1 && (var.enable_db_subnets ? length(var.db_subnets_list) == 1 : length(var.db_subnets_list) <= 1) : true
+    condition     = var._validate_subnet_counts ? length(var.private_subnets_list) == 1 && length(var.public_subnets_list) == 1 && (var.enable_db_subnets ? length(var.db_subnets_list) == 1 : length(var.db_subnets_list) <= 1) : true
     error_message = "private_subnets_list and public_subnets_list must each contain exactly one /24 subnet. If enable_db_subnets is true, db_subnets_list must contain exactly one /24 subnet."
   }
 }

@@ -38,25 +38,25 @@ module "avd" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `resource_group_name` | string | required | Resource group name |
-| `location` | string | required | Azure Government region |
-| `customer_name` | string | required | Short customer name |
-| `log_analytics_workspace_id` | string | required | Log Analytics workspace ID |
-| `avd_users_group_id` | string | required | Entra group for AVD users |
-| `customer_host_pool_type` | string | `Pooled` | `Pooled` or `Personal` |
-| `customer_max_sessions` | number | `10` | Max sessions per host |
-| `customer_load_balancer_type` | string | `BreadthFirst` | Load balancing algorithm |
-| `tags` | map(string) | `{}` | Resource tags |
+| Name                          | Type        | Default        | Description                |
+| ----------------------------- | ----------- | -------------- | -------------------------- |
+| `resource_group_name`         | string      | required       | Resource group name        |
+| `location`                    | string      | required       | Azure Government region    |
+| `customer_name`               | string      | required       | Short customer name        |
+| `log_analytics_workspace_id`  | string      | required       | Log Analytics workspace ID |
+| `avd_users_group_id`          | string      | required       | Entra group for AVD users  |
+| `customer_host_pool_type`     | string      | `Pooled`       | `Pooled` or `Personal`     |
+| `customer_max_sessions`       | number      | `10`           | Max sessions per host      |
+| `customer_load_balancer_type` | string      | `BreadthFirst` | Load balancing algorithm   |
+| `tags`                        | map(string) | `{}`           | Resource tags              |
 
 ## Outputs
 
-| Name | Description |
-|---|---|
-| `mgmt_host_pool_id` | Management host pool resource ID |
-| `customer_host_pool_id` | Customer host pool resource ID |
-| `mgmt_registration_token` | Management pool registration token (sensitive) |
-| `customer_registration_token` | Customer pool registration token (sensitive) |
-| `mgmt_workspace_id` | Management workspace resource ID |
-| `customer_workspace_id` | Customer workspace resource ID |
+| Name                          | Description                                    |
+| ----------------------------- | ---------------------------------------------- |
+| `mgmt_host_pool_id`           | Management host pool resource ID               |
+| `customer_host_pool_id`       | Customer host pool resource ID                 |
+| `mgmt_registration_token`     | Management pool registration token (sensitive) |
+| `customer_registration_token` | Customer pool registration token (sensitive)   |
+| `mgmt_workspace_id`           | Management workspace resource ID               |
+| `customer_workspace_id`       | Customer workspace resource ID                 |

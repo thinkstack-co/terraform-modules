@@ -81,8 +81,8 @@ resource "aws_vpc_dhcp_options" "dc_dns" {
   domain_name         = var.domain_name
   domain_name_servers = aws_instance.ec2_instance[*].private_ip
   # Optional custom NTP servers; when the list is empty, no NTP servers are set in DHCP options
-  ntp_servers         = var.ntp_servers
-  tags                = merge(var.tags, ({ "Name" = format("%s-dhcp-options", var.name) }))
+  ntp_servers = var.ntp_servers
+  tags        = merge(var.tags, ({ "Name" = format("%s-dhcp-options", var.name) }))
 }
 
 resource "aws_vpc_dhcp_options_association" "dc_dns" {

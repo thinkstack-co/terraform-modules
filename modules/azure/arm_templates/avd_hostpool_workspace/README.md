@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -66,6 +67,7 @@ The template also supports a management/shared mode via `is_management_host_pool
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -115,46 +117,48 @@ module "avd_hostpool_workspace_mgmt" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                           | Type     |
+| ---------------------------------------------- | -------- |
 | azurerm_resource_group_template_deployment.avd | resource |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| [deployment_name](#input_deployment_name) | Name of the ARM template deployment in the resource group | `string` | `"avd-hostpool-workspace"` | no |
-| [resource_group_name](#input_resource_group_name) | Name of the resource group where AVD resources will be created | `string` | n/a | yes |
-| [is_management_host_pool](#input_is_management_host_pool) | Whether the host pool is a management/shared host pool | `bool` | `false` | no |
-| [customer_short_name](#input_customer_short_name) | (Required when is_management_host_pool = false) Customer short name | `string` | `""` | conditional |
-| [location_short_name](#input_location_short_name) | Short name for the Azure region used in naming | `string` | n/a | yes |
-| [hostpool_name](#input_hostpool_name) | Host pool name to create | `string` | n/a | yes |
-| [hostpool_friendly_name](#input_hostpool_friendly_name) | Friendly name for the host pool | `string` | `""` | no |
-| [hostpool_description](#input_hostpool_description) | Description for the host pool | `string` | `""` | no |
-| [preferred_app_group_type](#input_preferred_app_group_type) | Preferred app group type (`Desktop` or `RemoteApp`) | `string` | `"Desktop"` | no |
-| [hostpool_type](#input_hostpool_type) | Host pool type (`Personal` or `Pooled`) | `string` | n/a | yes |
-| [personal_desktop_assignment_type](#input_personal_desktop_assignment_type) | Personal assignment type (`Automatic` or `Direct`) when hostpool_type is Personal | `string` | `""` | no |
-| [max_session_limit](#input_max_session_limit) | Max sessions when hostpool_type is Pooled | `number` | `99999` | no |
-| [load_balancer_type](#input_load_balancer_type) | Load balancer algorithm (`BreadthFirst` or `DepthFirst`) | `string` | `"BreadthFirst"` | no |
-| [custom_rdp_property](#input_custom_rdp_property) | Custom RDP properties for the host pool | `string` | (see variables.tf) | no |
+| Name                                                                        | Description                                                                       | Type     | Default                    |  Required   |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------- | -------------------------- | :---------: |
+| [deployment_name](#input_deployment_name)                                   | Name of the ARM template deployment in the resource group                         | `string` | `"avd-hostpool-workspace"` |     no      |
+| [resource_group_name](#input_resource_group_name)                           | Name of the resource group where AVD resources will be created                    | `string` | n/a                        |     yes     |
+| [is_management_host_pool](#input_is_management_host_pool)                   | Whether the host pool is a management/shared host pool                            | `bool`   | `false`                    |     no      |
+| [customer_short_name](#input_customer_short_name)                           | (Required when is_management_host_pool = false) Customer short name               | `string` | `""`                       | conditional |
+| [location_short_name](#input_location_short_name)                           | Short name for the Azure region used in naming                                    | `string` | n/a                        |     yes     |
+| [hostpool_name](#input_hostpool_name)                                       | Host pool name to create                                                          | `string` | n/a                        |     yes     |
+| [hostpool_friendly_name](#input_hostpool_friendly_name)                     | Friendly name for the host pool                                                   | `string` | `""`                       |     no      |
+| [hostpool_description](#input_hostpool_description)                         | Description for the host pool                                                     | `string` | `""`                       |     no      |
+| [preferred_app_group_type](#input_preferred_app_group_type)                 | Preferred app group type (`Desktop` or `RemoteApp`)                               | `string` | `"Desktop"`                |     no      |
+| [hostpool_type](#input_hostpool_type)                                       | Host pool type (`Personal` or `Pooled`)                                           | `string` | n/a                        |     yes     |
+| [personal_desktop_assignment_type](#input_personal_desktop_assignment_type) | Personal assignment type (`Automatic` or `Direct`) when hostpool_type is Personal | `string` | `""`                       |     no      |
+| [max_session_limit](#input_max_session_limit)                               | Max sessions when hostpool_type is Pooled                                         | `number` | `99999`                    |     no      |
+| [load_balancer_type](#input_load_balancer_type)                             | Load balancer algorithm (`BreadthFirst` or `DepthFirst`)                          | `string` | `"BreadthFirst"`           |     no      |
+| [custom_rdp_property](#input_custom_rdp_property)                           | Custom RDP properties for the host pool                                           | `string` | (see variables.tf)         |     no      |
 
 ### Input Details
 
@@ -216,22 +220,23 @@ Custom RDP properties passed into the host pool configuration.
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| hostpool_name | Name of the AVD host pool (from ARM template output) |
-| hostpool_id | Resource ID of the AVD host pool (from ARM template output) |
-| log_analytics_workspace_name | Name of the Log Analytics workspace (from ARM template output) |
-| log_analytics_workspace_id | Resource ID of the Log Analytics workspace (from ARM template output) |
-| desktop_application_group_name | Name of the Desktop Application Group (DAG) (from ARM template output) |
-| desktop_application_group_id | Resource ID of the Desktop Application Group (DAG) (from ARM template output) |
-| workspace_name | Name of the AVD workspace (from ARM template output) |
-| workspace_id | Resource ID of the AVD workspace (from ARM template output) |
-| deployment_id | Resource ID of the ARM template deployment |
-| deployment_output_content | Raw output content JSON from the ARM template deployment |
+| Name                           | Description                                                                   |
+| ------------------------------ | ----------------------------------------------------------------------------- |
+| hostpool_name                  | Name of the AVD host pool (from ARM template output)                          |
+| hostpool_id                    | Resource ID of the AVD host pool (from ARM template output)                   |
+| log_analytics_workspace_name   | Name of the Log Analytics workspace (from ARM template output)                |
+| log_analytics_workspace_id     | Resource ID of the Log Analytics workspace (from ARM template output)         |
+| desktop_application_group_name | Name of the Desktop Application Group (DAG) (from ARM template output)        |
+| desktop_application_group_id   | Resource ID of the Desktop Application Group (DAG) (from ARM template output) |
+| workspace_name                 | Name of the AVD workspace (from ARM template output)                          |
+| workspace_id                   | Resource ID of the AVD workspace (from ARM template output)                   |
+| deployment_id                  | Resource ID of the ARM template deployment                                    |
+| deployment_output_content      | Raw output content JSON from the ARM template deployment                      |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -239,6 +244,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - [info@thinkstack.co](mailto:info@thinkstack.co)
@@ -248,6 +254,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 - [Wesley Bey](https://github.com/beywesley)

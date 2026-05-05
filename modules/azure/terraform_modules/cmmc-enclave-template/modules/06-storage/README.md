@@ -27,25 +27,25 @@ module "storage" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `resource_group_name` | string | required | Resource group name |
-| `location` | string | required | Azure Government region |
-| `customer_name` | string | required | Short customer name |
-| `storage_account_name` | string | required | Globally unique storage account name |
-| `allowed_subnet_ids` | list(string) | required | Subnet IDs for network ACL allow |
-| `fslogix_share_size_gb` | number | `512` | File share quota in GiB |
-| `backup_daily_retention_days` | number | `14` | Daily retention count |
-| `backup_weekly_retention_weeks` | number | `4` | Weekly retention count |
-| `backup_monthly_retention_months` | number | `6` | Monthly retention count |
-| `tags` | map(string) | `{}` | Resource tags |
+| Name                              | Type         | Default  | Description                          |
+| --------------------------------- | ------------ | -------- | ------------------------------------ |
+| `resource_group_name`             | string       | required | Resource group name                  |
+| `location`                        | string       | required | Azure Government region              |
+| `customer_name`                   | string       | required | Short customer name                  |
+| `storage_account_name`            | string       | required | Globally unique storage account name |
+| `allowed_subnet_ids`              | list(string) | required | Subnet IDs for network ACL allow     |
+| `fslogix_share_size_gb`           | number       | `512`    | File share quota in GiB              |
+| `backup_daily_retention_days`     | number       | `14`     | Daily retention count                |
+| `backup_weekly_retention_weeks`   | number       | `4`      | Weekly retention count               |
+| `backup_monthly_retention_months` | number       | `6`      | Monthly retention count              |
+| `tags`                            | map(string)  | `{}`     | Resource tags                        |
 
 ## Outputs
 
-| Name | Description |
-|---|---|
-| `storage_account_id` | Storage account resource ID |
-| `storage_account_name` | Storage account name |
-| `storage_account_key` | Primary access key (sensitive) |
-| `fslogix_unc_path` | UNC path for FSLogix (`\\account.file.core.usgovcloudapi.net\fslogixprofiles`) |
-| `recovery_vault_id` | Recovery Services Vault resource ID |
+| Name                   | Description                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `storage_account_id`   | Storage account resource ID                                                    |
+| `storage_account_name` | Storage account name                                                           |
+| `storage_account_key`  | Primary access key (sensitive)                                                 |
+| `fslogix_unc_path`     | UNC path for FSLogix (`\\account.file.core.usgovcloudapi.net\fslogixprofiles`) |
+| `recovery_vault_id`    | Recovery Services Vault resource ID                                            |

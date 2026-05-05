@@ -66,21 +66,21 @@ module "image_builder" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| `resource_group_name` | string | required | Resource group for AIB resources |
-| `location` | string | required | Azure Government region |
-| `customer_name` | string | required | Short customer name for resource naming |
-| `subscription_id` | string | required | Azure subscription ID (for role assignment scope) |
-| `gallery_image_definition_id` | string | required | Compute Gallery image definition resource ID to publish into |
-| `source_image_sku` | string | `win11-24h2-avd` | Marketplace SKU for the Win11 Multi-Session base image |
-| `tags` | map(string) | `{}` | Tags applied to all resources |
+| Name                          | Type        | Default          | Description                                                  |
+| ----------------------------- | ----------- | ---------------- | ------------------------------------------------------------ |
+| `resource_group_name`         | string      | required         | Resource group for AIB resources                             |
+| `location`                    | string      | required         | Azure Government region                                      |
+| `customer_name`               | string      | required         | Short customer name for resource naming                      |
+| `subscription_id`             | string      | required         | Azure subscription ID (for role assignment scope)            |
+| `gallery_image_definition_id` | string      | required         | Compute Gallery image definition resource ID to publish into |
+| `source_image_sku`            | string      | `win11-24h2-avd` | Marketplace SKU for the Win11 Multi-Session base image       |
+| `tags`                        | map(string) | `{}`             | Tags applied to all resources                                |
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| `identity_id` | Resource ID of the AIB user-assigned managed identity |
-| `identity_principal_id` | Principal ID of the AIB managed identity |
-| `template_name` | Name of the AIB image template (use with `az image builder run`) |
-| `template_id` | Resource ID of the AIB image template |
+| Name                    | Description                                                      |
+| ----------------------- | ---------------------------------------------------------------- |
+| `identity_id`           | Resource ID of the AIB user-assigned managed identity            |
+| `identity_principal_id` | Principal ID of the AIB managed identity                         |
+| `template_name`         | Name of the AIB image template (use with `az image builder run`) |
+| `template_id`           | Resource ID of the AIB image template                            |

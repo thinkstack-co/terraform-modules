@@ -33,7 +33,7 @@ resource "azurerm_shared_image" "definitions" {
   os_type             = each.value.os_type
   hyper_v_generation  = each.value.hyper_v_generation
 
-  trusted_launch_enabled      = each.value.trusted_launch_enabled
+  trusted_launch_enabled = each.value.trusted_launch_enabled
   #accelerated_network_support = each.value.accelerated_network_enabled ? "True" : "False"
 
   identifier {

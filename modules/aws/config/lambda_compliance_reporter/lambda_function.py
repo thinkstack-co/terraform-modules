@@ -222,7 +222,9 @@ def lambda_handler(_event, _context):
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
-    insufficient_data_count = sum(1 for v in compliance.values() if v == "INSUFFICIENT_DATA")
+    insufficient_data_count = sum(
+        1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
+    )
 
     # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
     for rule_name, status in compliance.items():
@@ -247,7 +249,9 @@ def lambda_handler(_event, _context):
                         # For other resources, try to use the Name tag if present
                         display_name = get_resource_name_from_tag(arn)
 
-                    non_compliant_section.append([display_name, res["ResourceType"], arn])
+                    non_compliant_section.append(
+                        [display_name, res["ResourceType"], arn]
+                    )
 
     # ── DEBUG FINAL ROWS ──
     print("DEBUG final non_compliant_section:", non_compliant_section)
@@ -387,7 +391,9 @@ def lambda_handler(_event, _context):
             ]
         ]
         for name, rtype, arn in non_compliant_section:
-            table_data.append([Paragraph(name, normal_style), Paragraph(rtype, normal_style)])
+            table_data.append(
+                [Paragraph(name, normal_style), Paragraph(rtype, normal_style)]
+            )
 
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(

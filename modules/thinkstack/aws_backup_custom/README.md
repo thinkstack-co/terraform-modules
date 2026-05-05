@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -56,6 +57,7 @@
 This Terraform module creates and manages AWS Backup resources with a flexible, opt-in architecture. AWS Backup is a fully managed backup service that makes it easy to centralize and automate the backup of data across AWS services.
 
 ### Key Features:
+
 - **Flexible Backup Schedules**: Hourly, daily, weekly, monthly, and yearly backup plans
 - **Smart Tag-Based Selection**: Automatically includes resources in backups based on tags
 - **Disaster Recovery (DR)**: Cross-region backup replication with separate retention policies
@@ -71,12 +73,15 @@ This Terraform module creates and manages AWS Backup resources with a flexible, 
 This module is available in two forms:
 
 ### 1. **Monolithic Module** (this module)
+
 All-in-one solution for backward compatibility. Use this for simple deployments where you want everything managed together.
 
 ### 2. **Separated Modules** (in `modules/` subdirectory)
+
 Modular components for maximum flexibility:
 
 #### `aws_backup_vault`
+
 - Creates and manages backup vaults
 - Supports scheduled vaults (hourly, daily, weekly, monthly, yearly)
 - DR vault creation with cross-region provider
@@ -84,6 +89,7 @@ Modular components for maximum flexibility:
 - Smart naming conventions
 
 #### `aws_backup_plans`
+
 - Creates backup plans with flexible scheduling
 - Integrated backup selection with IAM role management
 - Smart default tag keys that include DR status
@@ -92,6 +98,7 @@ Modular components for maximum flexibility:
 - DR copy actions with separate retention
 
 #### `aws_backup_iam_role`
+
 - Creates IAM roles for AWS Backup
 - Supports custom policies
 - Service-linked role management
@@ -957,23 +964,25 @@ output "backup_infrastructure" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name   | Version                           |
+| ------ | --------------------------------- |
+| aws    | >= 4.0.0                          |
 | aws.dr | >= 4.0.0 (when using DR features) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -981,6 +990,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -990,13 +1000,15 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
+- [Wesley Bey](https://github.com/beywesley)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

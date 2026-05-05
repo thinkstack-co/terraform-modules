@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -68,6 +69,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -164,88 +166,88 @@ module "application_gateway" {
 
 ## Requirements
 
-| Name | Version |
-| --- | --- |
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-| --- | --- |
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-| --- | --- | --- |
+| Name                                                                                                                               | Type     | Documentation                                                                         |
+| ---------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------- |
 | [azurerm_application_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway) | resource | [Azure Documentation](https://learn.microsoft.com/azure/application-gateway/overview) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-| --- | --- | --- | --- | :---: |
-| name | Name of the Application Gateway | `string` | n/a | yes |
-| resource_group_name | Resource group name for the Application Gateway | `string` | n/a | yes |
-| gateway_subnet_id | Subnet ID for the Application Gateway | `string` | n/a | yes |
-| frontend_public_ip_id | Public IP ID for the frontend | `string` | n/a | yes |
-| backend_pool_ip_addresses | Backend pool IP addresses | `list(string)` | n/a | yes |
-| location | Azure region where resources will be created | `string` | `"eastus"` | no |
-| enable_http2 | Enable HTTP/2 | `bool` | `false` | no |
-| sku_name | SKU name (Standard_v2 or WAF_v2) | `string` | `"Standard_v2"` | no |
-| sku_tier | SKU tier (Standard_v2 or WAF_v2) | `string` | `"Standard_v2"` | no |
-| sku_capacity | Instance capacity | `number` | `2` | no |
-| gateway_ip_configuration_name | Gateway IP configuration name | `string` | `"appgw-gateway-ip"` | no |
-| frontend_port_name | Frontend port name | `string` | `"appgw-frontend-port"` | no |
-| frontend_port | Frontend port | `number` | `80` | no |
-| enable_https_listener | Enable HTTPS listener | `bool` | `false` | no |
-| https_frontend_port_name | HTTPS frontend port name | `string` | `"appgw-https-frontend-port"` | no |
-| https_frontend_port | HTTPS frontend port | `number` | `443` | no |
-| frontend_ip_configuration_name | Frontend IP configuration name | `string` | `"appgw-frontend-ip"` | no |
-| backend_address_pool_name | Backend address pool name | `string` | `"appgw-backend-pool"` | no |
-| additional_backend_pools | Additional backend pools | `map(list(string))` | `{}` | no |
-| backend_http_settings_name | Backend HTTP settings name | `string` | `"appgw-backend-http"` | no |
-| backend_http_settings_port | Backend HTTP port | `number` | `80` | no |
-| backend_http_settings_protocol | Backend protocol (Http or Https) | `string` | `"Http"` | no |
-| backend_http_settings_cookie_based_affinity | Cookie affinity (Enabled or Disabled) | `string` | `"Disabled"` | no |
-| backend_http_settings_request_timeout | Request timeout in seconds | `number` | `30` | no |
-| additional_backend_http_settings | Additional backend HTTP settings | `map(object)` | `{}` | no |
-| http_listener_name | HTTP listener name | `string` | `"appgw-http-listener"` | no |
-| http_listener_protocol | Listener protocol (Http or Https) | `string` | `"Http"` | no |
-| http_listener_host_name | Listener host name | `string` | `null` | no |
-| https_listener_name | HTTPS listener name | `string` | `"appgw-https-listener"` | no |
-| https_listener_host_name | HTTPS listener host name | `string` | `null` | no |
-| ssl_certificate_name | SSL certificate name | `string` | `"appgw-ssl-cert"` | no |
-| ssl_certificate_data | Base64-encoded PFX data | `string` | `null` | no |
-| ssl_certificate_password | SSL certificate password | `string` | `null` | no |
-| request_routing_rule_name | Routing rule name | `string` | `"appgw-routing-rule"` | no |
-| request_routing_rule_type | Routing rule type (Basic or PathBasedRouting) | `string` | `"Basic"` | no |
-| request_routing_rule_priority | Routing rule priority | `number` | `100` | no |
-| enable_path_based_routing | Enable path-based routing | `bool` | `false` | no |
-| path_map_name | URL path map name | `string` | `"appgw-path-map"` | no |
-| path_map_default_backend_pool_name | Default backend pool name | `string` | `"appgw-backend-pool"` | no |
-| path_map_default_backend_http_settings_name | Default backend HTTP settings name | `string` | `"appgw-backend-http"` | no |
-| path_rules | Path rules for URL path maps | `list(object)` | `[]` | no |
-| waf_policy_id | WAF policy ID to attach | `string` | `null` | no |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` | no |
+| Name                                        | Description                                     | Type                | Default                                                                                      | Required |
+| ------------------------------------------- | ----------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------- | :------: |
+| name                                        | Name of the Application Gateway                 | `string`            | n/a                                                                                          |   yes    |
+| resource_group_name                         | Resource group name for the Application Gateway | `string`            | n/a                                                                                          |   yes    |
+| gateway_subnet_id                           | Subnet ID for the Application Gateway           | `string`            | n/a                                                                                          |   yes    |
+| frontend_public_ip_id                       | Public IP ID for the frontend                   | `string`            | n/a                                                                                          |   yes    |
+| backend_pool_ip_addresses                   | Backend pool IP addresses                       | `list(string)`      | n/a                                                                                          |   yes    |
+| location                                    | Azure region where resources will be created    | `string`            | `"eastus"`                                                                                   |    no    |
+| enable_http2                                | Enable HTTP/2                                   | `bool`              | `false`                                                                                      |    no    |
+| sku_name                                    | SKU name (Standard_v2 or WAF_v2)                | `string`            | `"Standard_v2"`                                                                              |    no    |
+| sku_tier                                    | SKU tier (Standard_v2 or WAF_v2)                | `string`            | `"Standard_v2"`                                                                              |    no    |
+| sku_capacity                                | Instance capacity                               | `number`            | `2`                                                                                          |    no    |
+| gateway_ip_configuration_name               | Gateway IP configuration name                   | `string`            | `"appgw-gateway-ip"`                                                                         |    no    |
+| frontend_port_name                          | Frontend port name                              | `string`            | `"appgw-frontend-port"`                                                                      |    no    |
+| frontend_port                               | Frontend port                                   | `number`            | `80`                                                                                         |    no    |
+| enable_https_listener                       | Enable HTTPS listener                           | `bool`              | `false`                                                                                      |    no    |
+| https_frontend_port_name                    | HTTPS frontend port name                        | `string`            | `"appgw-https-frontend-port"`                                                                |    no    |
+| https_frontend_port                         | HTTPS frontend port                             | `number`            | `443`                                                                                        |    no    |
+| frontend_ip_configuration_name              | Frontend IP configuration name                  | `string`            | `"appgw-frontend-ip"`                                                                        |    no    |
+| backend_address_pool_name                   | Backend address pool name                       | `string`            | `"appgw-backend-pool"`                                                                       |    no    |
+| additional_backend_pools                    | Additional backend pools                        | `map(list(string))` | `{}`                                                                                         |    no    |
+| backend_http_settings_name                  | Backend HTTP settings name                      | `string`            | `"appgw-backend-http"`                                                                       |    no    |
+| backend_http_settings_port                  | Backend HTTP port                               | `number`            | `80`                                                                                         |    no    |
+| backend_http_settings_protocol              | Backend protocol (Http or Https)                | `string`            | `"Http"`                                                                                     |    no    |
+| backend_http_settings_cookie_based_affinity | Cookie affinity (Enabled or Disabled)           | `string`            | `"Disabled"`                                                                                 |    no    |
+| backend_http_settings_request_timeout       | Request timeout in seconds                      | `number`            | `30`                                                                                         |    no    |
+| additional_backend_http_settings            | Additional backend HTTP settings                | `map(object)`       | `{}`                                                                                         |    no    |
+| http_listener_name                          | HTTP listener name                              | `string`            | `"appgw-http-listener"`                                                                      |    no    |
+| http_listener_protocol                      | Listener protocol (Http or Https)               | `string`            | `"Http"`                                                                                     |    no    |
+| http_listener_host_name                     | Listener host name                              | `string`            | `null`                                                                                       |    no    |
+| https_listener_name                         | HTTPS listener name                             | `string`            | `"appgw-https-listener"`                                                                     |    no    |
+| https_listener_host_name                    | HTTPS listener host name                        | `string`            | `null`                                                                                       |    no    |
+| ssl_certificate_name                        | SSL certificate name                            | `string`            | `"appgw-ssl-cert"`                                                                           |    no    |
+| ssl_certificate_data                        | Base64-encoded PFX data                         | `string`            | `null`                                                                                       |    no    |
+| ssl_certificate_password                    | SSL certificate password                        | `string`            | `null`                                                                                       |    no    |
+| request_routing_rule_name                   | Routing rule name                               | `string`            | `"appgw-routing-rule"`                                                                       |    no    |
+| request_routing_rule_type                   | Routing rule type (Basic or PathBasedRouting)   | `string`            | `"Basic"`                                                                                    |    no    |
+| request_routing_rule_priority               | Routing rule priority                           | `number`            | `100`                                                                                        |    no    |
+| enable_path_based_routing                   | Enable path-based routing                       | `bool`              | `false`                                                                                      |    no    |
+| path_map_name                               | URL path map name                               | `string`            | `"appgw-path-map"`                                                                           |    no    |
+| path_map_default_backend_pool_name          | Default backend pool name                       | `string`            | `"appgw-backend-pool"`                                                                       |    no    |
+| path_map_default_backend_http_settings_name | Default backend HTTP settings name              | `string`            | `"appgw-backend-http"`                                                                       |    no    |
+| path_rules                                  | Path rules for URL path maps                    | `list(object)`      | `[]`                                                                                         |    no    |
+| waf_policy_id                               | WAF policy ID to attach                         | `string`            | `null`                                                                                       |    no    |
+| tags                                        | A mapping of tags to assign to the resource     | `map(string)`       | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` |    no    |
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| id | The ID of the Application Gateway |
-| name | The name of the Application Gateway |
-| frontend_ip_configuration_name | The frontend IP configuration name |
-| frontend_port_name | The frontend port name |
-| backend_address_pool_name | The backend address pool name |
-| backend_http_settings_name | The backend HTTP settings name |
-| http_listener_name | The HTTP listener name |
-| https_listener_name | The HTTPS listener name (if enabled) |
-| request_routing_rule_name | The routing rule name |
-| url_path_map_name | The URL path map name (if enabled) |
-| waf_policy_id | The WAF policy ID attached to the gateway |
+| Name                           | Description                               |
+| ------------------------------ | ----------------------------------------- |
+| id                             | The ID of the Application Gateway         |
+| name                           | The name of the Application Gateway       |
+| frontend_ip_configuration_name | The frontend IP configuration name        |
+| frontend_port_name             | The frontend port name                    |
+| backend_address_pool_name      | The backend address pool name             |
+| backend_http_settings_name     | The backend HTTP settings name            |
+| http_listener_name             | The HTTP listener name                    |
+| https_listener_name            | The HTTPS listener name (if enabled)      |
+| request_routing_rule_name      | The routing rule name                     |
+| url_path_map_name              | The URL path map name (if enabled)        |
+| waf_policy_id                  | The WAF policy ID attached to the gateway |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -281,6 +283,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

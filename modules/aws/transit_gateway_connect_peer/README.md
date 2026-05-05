@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,8 +58,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -83,18 +82,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -102,39 +102,40 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                                                                                      | Type     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | [aws_ec2_transit_gateway_connect_peer.peer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway_connect_peer) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_bgp_asn"></a> [bgp\_asn](#input\_bgp\_asn) | (Optional) The BGP ASN number assigned customer device. If not provided, it will use the same BGP ASN as is associated with Transit Gateway. | `number` | `64512` | no |
-| <a name="input_inside_cidr_blocks"></a> [inside\_cidr\_blocks](#input\_inside\_cidr\_blocks) | (Required) The CIDR block that will be used for addressing within the tunnel. It must contain exactly one IPv4 CIDR block and up to one IPv6 CIDR block. The IPv4 CIDR block must be /29 size and must be within 169.254.0.0/16 range, with exception of: 169.254.0.0/29, 169.254.1.0/29, 169.254.2.0/29, 169.254.3.0/29, 169.254.4.0/29, 169.254.5.0/29, 169.254.169.248/29. The IPv6 CIDR block must be /125 size and must be within fd00::/8. The first IP from each CIDR block is assigned for customer gateway, the second and third is for Transit Gateway (An example: from range 169.254.100.0/29, .1 is assigned to customer gateway and .2 and .3 are assigned to Transit Gateway) | `list(string)` | n/a | yes |
-| <a name="input_name"></a> [name](#input\_name) | (Required) The name of the transit gateway | `string` | n/a | yes |
-| <a name="input_peer_address"></a> [peer\_address](#input\_peer\_address) | (Required) The IP addressed assigned to customer device, which will be used as tunnel endpoint. It can be IPv4 or IPv6 address, but must be the same address family as transit\_gateway\_address | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) Key-value tags for the EC2 Transit Gateway Connect. If configured with a provider default\_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level. | `map(any)` | <pre>{<br>  "environment": "prod",<br>  "project": "core_infrastructure",<br>  "terraform": "true"<br>}</pre> | no |
-| <a name="input_transit_gateway_address"></a> [transit\_gateway\_address](#input\_transit\_gateway\_address) | (Required) The IP address assigned to Transit Gateway, which will be used as tunnel endpoint. This address must be from associated Transit Gateway CIDR block. The address must be from the same address family as peer\_address. If not set explicitly, it will be selected from associated Transit Gateway CIDR blocks | `string` | n/a | yes |
-| <a name="input_transit_gateway_attachment_id"></a> [transit\_gateway\_attachment\_id](#input\_transit\_gateway\_attachment\_id) | (Required) The Transit Gateway Connect | `string` | n/a | yes |
+| Name                                                                                                                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Type           | Default                                                                                                    | Required |
+| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------- | :------: |
+| <a name="input_bgp_asn"></a> [bgp_asn](#input_bgp_asn)                                                                   | (Optional) The BGP ASN number assigned customer device. If not provided, it will use the same BGP ASN as is associated with Transit Gateway.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `number`       | `64512`                                                                                                    |    no    |
+| <a name="input_inside_cidr_blocks"></a> [inside_cidr_blocks](#input_inside_cidr_blocks)                                  | (Required) The CIDR block that will be used for addressing within the tunnel. It must contain exactly one IPv4 CIDR block and up to one IPv6 CIDR block. The IPv4 CIDR block must be /29 size and must be within 169.254.0.0/16 range, with exception of: 169.254.0.0/29, 169.254.1.0/29, 169.254.2.0/29, 169.254.3.0/29, 169.254.4.0/29, 169.254.5.0/29, 169.254.169.248/29. The IPv6 CIDR block must be /125 size and must be within fd00::/8. The first IP from each CIDR block is assigned for customer gateway, the second and third is for Transit Gateway (An example: from range 169.254.100.0/29, .1 is assigned to customer gateway and .2 and .3 are assigned to Transit Gateway) | `list(string)` | n/a                                                                                                        |   yes    |
+| <a name="input_name"></a> [name](#input_name)                                                                            | (Required) The name of the transit gateway                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `string`       | n/a                                                                                                        |   yes    |
+| <a name="input_peer_address"></a> [peer_address](#input_peer_address)                                                    | (Required) The IP addressed assigned to customer device, which will be used as tunnel endpoint. It can be IPv4 or IPv6 address, but must be the same address family as transit_gateway_address                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `string`       | n/a                                                                                                        |   yes    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                                            | (Optional) Key-value tags for the EC2 Transit Gateway Connect. If configured with a provider default_tags configuration block present, tags with matching keys will overwrite those defined at the provider-level.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `map(any)`     | <pre>{<br> "environment": "prod",<br> "project": "core_infrastructure",<br> "terraform": "true"<br>}</pre> |    no    |
+| <a name="input_transit_gateway_address"></a> [transit_gateway_address](#input_transit_gateway_address)                   | (Required) The IP address assigned to Transit Gateway, which will be used as tunnel endpoint. This address must be from associated Transit Gateway CIDR block. The address must be from the same address family as peer_address. If not set explicitly, it will be selected from associated Transit Gateway CIDR blocks                                                                                                                                                                                                                                                                                                                                                                      | `string`       | n/a                                                                                                        |   yes    |
+| <a name="input_transit_gateway_attachment_id"></a> [transit_gateway_attachment_id](#input_transit_gateway_attachment_id) | (Required) The Transit Gateway Connect                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `string`       | n/a                                                                                                        |   yes    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_id"></a> [id](#output\_id) | n/a |
+| Name                                      | Description |
+| ----------------------------------------- | ----------- |
+| <a name="output_id"></a> [id](#output_id) | n/a         |
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -143,19 +144,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

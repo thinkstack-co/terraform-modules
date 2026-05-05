@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,10 +58,12 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
+
 ### Simple Example
+
 ```
 module "public_ip" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/eip"
@@ -73,6 +74,7 @@ module "public_ip" {
 ```
 
 ### Example of associating the EIP with a network interface
+
 ```
 module "website_eip" {
   source = "github.com/thinkstack-co/terraform-modules//modules/aws/eip"
@@ -90,18 +92,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -109,38 +112,39 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                           | Type     |
+| ---------------------------------------------------------------------------------------------- | -------- |
 | [aws_eip.eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_associate_with_private_ip"></a> [associate\_with\_private\_ip](#input\_associate\_with\_private\_ip) | (Optional) A user specified primary or secondary private IP address to associate with the Elastic IP address. If no private IP address is specified, the Elastic IP address is associated with the primary private IP address. | `string` | `""` | no |
-| <a name="input_instance"></a> [instance](#input\_instance) | (Optional) EC2 instance ID. | `string` | `""` | no |
-| <a name="input_network_interface"></a> [network\_interface](#input\_network\_interface) | (Optional) Network interface ID to associate with. | `string` | `""` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A mapping of tags to assign to the resource. | `map(any)` | `{}` | no |
-| <a name="input_vpc"></a> [vpc](#input\_vpc) | (Optional) Boolean if the EIP is in a VPC or not. | `string` | `true` | no |
+| Name                                                                                                         | Description                                                                                                                                                                                                                    | Type       | Default | Required |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ------- | :------: |
+| <a name="input_associate_with_private_ip"></a> [associate_with_private_ip](#input_associate_with_private_ip) | (Optional) A user specified primary or secondary private IP address to associate with the Elastic IP address. If no private IP address is specified, the Elastic IP address is associated with the primary private IP address. | `string`   | `""`    |    no    |
+| <a name="input_instance"></a> [instance](#input_instance)                                                    | (Optional) EC2 instance ID.                                                                                                                                                                                                    | `string`   | `""`    |    no    |
+| <a name="input_network_interface"></a> [network_interface](#input_network_interface)                         | (Optional) Network interface ID to associate with.                                                                                                                                                                             | `string`   | `""`    |    no    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                                | (Optional) A mapping of tags to assign to the resource.                                                                                                                                                                        | `map(any)` | `{}`    |    no    |
+| <a name="input_vpc"></a> [vpc](#input_vpc)                                                                   | (Optional) Boolean if the EIP is in a VPC or not.                                                                                                                                                                              | `string`   | `true`  |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_id"></a> [id](#output\_id) | Contains the EIP allocation ID |
-| <a name="output_public_ip"></a> [public\_ip](#output\_public\_ip) | Contains the public IP address |
+| Name                                                           | Description                    |
+| -------------------------------------------------------------- | ------------------------------ |
+| <a name="output_id"></a> [id](#output_id)                      | Contains the EIP allocation ID |
+| <a name="output_public_ip"></a> [public_ip](#output_public_ip) | Contains the public IP address |
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -149,19 +153,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

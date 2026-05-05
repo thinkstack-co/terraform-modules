@@ -107,11 +107,11 @@ module "prod_vnet" {
 module "appgate_sdp" {
   source = "github.com/thinkstack-co/terraform-modules//modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp?ref=v2.9.2"
 
-  resource_group_name = azurerm_resource_group.ztna.name
-  location            = var.location
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  ztna_subnet_id      = module.mgmt_vnet.subnet_ids["ztna"]
-  firewall_policy_id  = module.mgmt_vnet.firewall_policy_id
+  resource_group_name        = azurerm_resource_group.ztna.name
+  location                   = var.location
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  ztna_subnet_id             = module.mgmt_vnet.subnet_ids["ztna"]
+  firewall_policy_id         = module.mgmt_vnet.firewall_policy_id
   firewall_public_ip         = module.mgmt_vnet.firewall_public_ip
   gateway_firewall_public_ip = module.mgmt_vnet.firewall_public_ip_2
   source_admin_ips           = var.admin_source_ips

@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -65,6 +66,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -96,62 +98,62 @@ module "vpn" {
 
 ## Requirements
 
-| Name | Version |
-| --- | --- |
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-| --- | --- |
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-| --- | --- | --- |
-| [azurerm_public_ip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource | [Azure Documentation](https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses) |
-| [azurerm_virtual_network_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway) | resource | [Azure Documentation](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-about-vpngateways) |
-| [azurerm_local_network_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/local_network_gateway) | resource | [Azure Documentation](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal) |
-| [azurerm_virtual_network_gateway_connection](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway_connection) | resource | [Azure Documentation](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal) |
-| [azurerm_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | data source | [Azure Documentation](https://learn.microsoft.com/azure/virtual-network/virtual-network-manage-subnet) |
+| Name                                                                                                                                                             | Type        | Documentation                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [azurerm_public_ip](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip)                                                   | resource    | [Azure Documentation](https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses)                    |
+| [azurerm_virtual_network_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway)                       | resource    | [Azure Documentation](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-about-vpngateways)                          |
+| [azurerm_local_network_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/local_network_gateway)                           | resource    | [Azure Documentation](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal) |
+| [azurerm_virtual_network_gateway_connection](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway_connection) | resource    | [Azure Documentation](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal) |
+| [azurerm_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet)                                                         | data source | [Azure Documentation](https://learn.microsoft.com/azure/virtual-network/virtual-network-manage-subnet)                      |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-| --- | --- | --- | --- | :---: |
-| name | Name of the Virtual Network Gateway | `string` | n/a | yes |
-| resource_group_name | Resource group name for the VPN resources | `string` | n/a | yes |
-| location | Azure region for the VPN resources | `string` | `"eastus"` | no |
-| vnet_name | VNet name where the GatewaySubnet exists | `string` | n/a | yes |
-| local_network_gateway_name | Name of the local network gateway | `string` | n/a | yes |
-| local_gateway_address | Public IP of the on-prem or vendor gateway | `string` | n/a | yes |
-| local_address_space | Address spaces for the on-prem or vendor network | `list(string)` | n/a | yes |
-| shared_key | Pre-shared key for the VPN connection | `string` | n/a | yes |
-| vnet_resource_group_name | Resource group of the target VNet | `string` | `""` | no |
-| public_ip_name | Public IP name for the VPN gateway | `string` | `"vpn-gateway-pip"` | no |
-| ip_configuration_name | IP configuration name for the VPN gateway | `string` | `"vpn-ipconfig"` | no |
-| vpn_type | VPN type (RouteBased or PolicyBased) | `string` | `"RouteBased"` | no |
-| sku | VPN gateway SKU | `string` | `"VpnGw1"` | no |
-| generation | VPN gateway generation (Generation1 or Generation2) | `string` | `"Generation1"` | no |
-| active_active | Enable active-active VPN gateways | `bool` | `false` | no |
-| enable_bgp | Enable BGP for the VPN gateway and connection | `bool` | `false` | no |
-| connection_name | Name of the VPN connection | `string` | `"vpn-connection"` | no |
-| connection_protocol | VPN connection protocol | `string` | `"IKEv2"` | no |
-| tags | A mapping of tags to assign to the resources | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` | no |
+| Name                       | Description                                         | Type           | Default                                                                                      | Required |
+| -------------------------- | --------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------- | :------: |
+| name                       | Name of the Virtual Network Gateway                 | `string`       | n/a                                                                                          |   yes    |
+| resource_group_name        | Resource group name for the VPN resources           | `string`       | n/a                                                                                          |   yes    |
+| location                   | Azure region for the VPN resources                  | `string`       | `"eastus"`                                                                                   |    no    |
+| vnet_name                  | VNet name where the GatewaySubnet exists            | `string`       | n/a                                                                                          |   yes    |
+| local_network_gateway_name | Name of the local network gateway                   | `string`       | n/a                                                                                          |   yes    |
+| local_gateway_address      | Public IP of the on-prem or vendor gateway          | `string`       | n/a                                                                                          |   yes    |
+| local_address_space        | Address spaces for the on-prem or vendor network    | `list(string)` | n/a                                                                                          |   yes    |
+| shared_key                 | Pre-shared key for the VPN connection               | `string`       | n/a                                                                                          |   yes    |
+| vnet_resource_group_name   | Resource group of the target VNet                   | `string`       | `""`                                                                                         |    no    |
+| public_ip_name             | Public IP name for the VPN gateway                  | `string`       | `"vpn-gateway-pip"`                                                                          |    no    |
+| ip_configuration_name      | IP configuration name for the VPN gateway           | `string`       | `"vpn-ipconfig"`                                                                             |    no    |
+| vpn_type                   | VPN type (RouteBased or PolicyBased)                | `string`       | `"RouteBased"`                                                                               |    no    |
+| sku                        | VPN gateway SKU                                     | `string`       | `"VpnGw1"`                                                                                   |    no    |
+| generation                 | VPN gateway generation (Generation1 or Generation2) | `string`       | `"Generation1"`                                                                              |    no    |
+| active_active              | Enable active-active VPN gateways                   | `bool`         | `false`                                                                                      |    no    |
+| enable_bgp                 | Enable BGP for the VPN gateway and connection       | `bool`         | `false`                                                                                      |    no    |
+| connection_name            | Name of the VPN connection                          | `string`       | `"vpn-connection"`                                                                           |    no    |
+| connection_protocol        | VPN connection protocol                             | `string`       | `"IKEv2"`                                                                                    |    no    |
+| tags                       | A mapping of tags to assign to the resources        | `map(string)`  | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` |    no    |
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| virtual_network_gateway_id | The ID of the Virtual Network Gateway |
-| virtual_network_gateway_name | The name of the Virtual Network Gateway |
-| public_ip_address | The public IP address of the VPN gateway |
-| local_network_gateway_id | The ID of the local network gateway |
-| vpn_connection_id | The ID of the VPN connection |
+| Name                         | Description                              |
+| ---------------------------- | ---------------------------------------- |
+| virtual_network_gateway_id   | The ID of the Virtual Network Gateway    |
+| virtual_network_gateway_name | The name of the Virtual Network Gateway  |
+| public_ip_address            | The public IP address of the VPN gateway |
+| local_network_gateway_id     | The ID of the local network gateway      |
+| vpn_connection_id            | The ID of the VPN connection             |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -187,6 +189,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

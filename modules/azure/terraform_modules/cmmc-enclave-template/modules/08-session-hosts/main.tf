@@ -119,9 +119,9 @@ resource "azurerm_virtual_machine_extension" "avd_dsc" {
     modulesUrl            = "https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip"
     configurationFunction = "Configuration.ps1\\AddSessionHost"
     properties = {
-      HostPoolName        = split("/", var.host_pool_id)[8]
+      HostPoolName          = split("/", var.host_pool_id)[8]
       RegistrationInfoToken = var.registration_token
-      AadJoin             = true
+      AadJoin               = true
     }
   })
 

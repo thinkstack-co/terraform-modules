@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -72,6 +73,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -227,58 +229,59 @@ module "vnet" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-| --- | --- |
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-| --- | --- |
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-| --- | --- | --- |
-| [azurerm_virtual_network](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview) |
-| [azurerm_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-manage-subnet) |
-| [azurerm_network_security_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview) |
-| [azurerm_nat_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/nat_gateway) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/nat-gateway/nat-overview) |
-| [azurerm_route_table](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/route_table) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview) |
+| Name                                                                                                                                         | Type     | Documentation                                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [azurerm_virtual_network](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network)                   | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview)                 |
+| [azurerm_subnet](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet)                                     | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-manage-subnet)             |
+| [azurerm_network_security_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group)     | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview)          |
+| [azurerm_nat_gateway](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/nat_gateway)                           | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/nat-gateway/nat-overview)                  |
+| [azurerm_route_table](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/route_table)                           | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)             |
 | [azurerm_network_watcher_flow_log](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_watcher_flow_log) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-nsg-flow-logging-overview) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| vnet_id | The ID of the Virtual Network |
-| vnet_name | The name of the Virtual Network |
-| vnet_address_space | The address space of the Virtual Network |
-| private_subnet_ids | List of IDs of private subnets |
-| public_subnet_ids | List of IDs of public subnets |
-| db_subnet_ids | List of IDs of database subnets |
-| vpn_gateway_subnet_id | ID of the VPN GatewaySubnet |
-| vpn_gateway_subnet_name | Name of the VPN GatewaySubnet |
-| vpn_gateway_subnet_address_prefix | Address prefix of the VPN GatewaySubnet |
-| application_gateway_subnet_id | ID of the AzureApplicationGatewaySubnet |
-| application_gateway_subnet_name | Name of the AzureApplicationGatewaySubnet |
+| Name                                      | Description                                         |
+| ----------------------------------------- | --------------------------------------------------- |
+| vnet_id                                   | The ID of the Virtual Network                       |
+| vnet_name                                 | The name of the Virtual Network                     |
+| vnet_address_space                        | The address space of the Virtual Network            |
+| private_subnet_ids                        | List of IDs of private subnets                      |
+| public_subnet_ids                         | List of IDs of public subnets                       |
+| db_subnet_ids                             | List of IDs of database subnets                     |
+| vpn_gateway_subnet_id                     | ID of the VPN GatewaySubnet                         |
+| vpn_gateway_subnet_name                   | Name of the VPN GatewaySubnet                       |
+| vpn_gateway_subnet_address_prefix         | Address prefix of the VPN GatewaySubnet             |
+| application_gateway_subnet_id             | ID of the AzureApplicationGatewaySubnet             |
+| application_gateway_subnet_name           | Name of the AzureApplicationGatewaySubnet           |
 | application_gateway_subnet_address_prefix | Address prefix of the AzureApplicationGatewaySubnet |
-| firewall_subnet_id | ID of the AzureFirewallSubnet |
-| firewall_subnet_name | Name of the AzureFirewallSubnet |
-| firewall_subnet_address_prefix | Address prefix of the AzureFirewallSubnet |
-| nat_gateway_ids | List of IDs of NAT Gateways |
-| nat_gateway_public_ips | List of public IP addresses of NAT Gateways |
-| public_route_table_id | ID of the public route table |
-| private_route_table_ids | List of IDs of private route tables |
-| service_endpoints_nsg_id | ID of the service endpoints NSG |
-| flow_logs_storage_account_id | ID of the storage account for flow logs |
-| resource_group_name | The name of the resource group |
+| firewall_subnet_id                        | ID of the AzureFirewallSubnet                       |
+| firewall_subnet_name                      | Name of the AzureFirewallSubnet                     |
+| firewall_subnet_address_prefix            | Address prefix of the AzureFirewallSubnet           |
+| nat_gateway_ids                           | List of IDs of NAT Gateways                         |
+| nat_gateway_public_ips                    | List of public IP addresses of NAT Gateways         |
+| public_route_table_id                     | ID of the public route table                        |
+| private_route_table_ids                   | List of IDs of private route tables                 |
+| service_endpoints_nsg_id                  | ID of the service endpoints NSG                     |
+| flow_logs_storage_account_id              | ID of the storage account for flow logs             |
+| resource_group_name                       | The name of the resource group                      |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -316,11 +319,11 @@ This module creates a comprehensive Azure Virtual Network infrastructure with th
 
 The module uses a standardized IP allocation scheme within the default `10.100.0.0/16` VNet to prevent overlaps:
 
-| Subnet Type | IP Range | Purpose |
-| --- | --- | --- |
-| **Private** | `10.100.1.0/24` | Application servers, workloads |
-| **Database** | `10.100.11.0/24` (optional) | Database servers |
-| **Public** | `10.100.2.0/24` | Load balancers, public endpoints |
+| Subnet Type  | IP Range                    | Purpose                          |
+| ------------ | --------------------------- | -------------------------------- |
+| **Private**  | `10.100.1.0/24`             | Application servers, workloads   |
+| **Database** | `10.100.11.0/24` (optional) | Database servers                 |
+| **Public**   | `10.100.2.0/24`             | Load balancers, public endpoints |
 
 This allocation scheme:
 
@@ -343,6 +346,7 @@ This allocation scheme:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -350,6 +354,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - [info@thinkstack.co](mailto:info@thinkstack.co)
@@ -359,6 +364,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 - [Wesley Bey](https://github.com/beywesley)
@@ -369,6 +375,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

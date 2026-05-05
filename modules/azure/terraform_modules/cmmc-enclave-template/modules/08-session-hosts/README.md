@@ -48,30 +48,30 @@ module "session_hosts" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `resource_group_name` | string | required | Resource group name |
-| `location` | string | required | Azure Government region |
-| `customer_name` | string | required | Short customer name |
-| `host_count` | number | `5` | Number of VMs to create |
-| `vm_size` | string | `Standard_D4s_v5` | VM size |
-| `subnet_id` | string | required | NIC subnet resource ID |
-| `gallery_image_id` | string | required | Gallery image definition resource ID |
-| `image_version` | string | `latest` | Gallery image version |
-| `host_pool_id` | string | required | AVD host pool resource ID |
-| `registration_token` | string | required | AVD registration token (sensitive) |
-| `fslogix_storage_account` | string | required | FSLogix storage account name |
-| `fslogix_storage_key` | string | required | FSLogix storage key (sensitive) |
-| `fslogix_share_name` | string | `fslogixprofiles` | FSLogix share name |
-| `admin_username` | string | `avdadmin` | VM local admin username |
-| `admin_password` | string | required | VM local admin password (sensitive) |
-| `os_disk_type` | string | `Premium_LRS` | OS disk storage type |
-| `tags` | map(string) | `{}` | Resource tags |
+| Name                      | Type        | Default           | Description                          |
+| ------------------------- | ----------- | ----------------- | ------------------------------------ |
+| `resource_group_name`     | string      | required          | Resource group name                  |
+| `location`                | string      | required          | Azure Government region              |
+| `customer_name`           | string      | required          | Short customer name                  |
+| `host_count`              | number      | `5`               | Number of VMs to create              |
+| `vm_size`                 | string      | `Standard_D4s_v5` | VM size                              |
+| `subnet_id`               | string      | required          | NIC subnet resource ID               |
+| `gallery_image_id`        | string      | required          | Gallery image definition resource ID |
+| `image_version`           | string      | `latest`          | Gallery image version                |
+| `host_pool_id`            | string      | required          | AVD host pool resource ID            |
+| `registration_token`      | string      | required          | AVD registration token (sensitive)   |
+| `fslogix_storage_account` | string      | required          | FSLogix storage account name         |
+| `fslogix_storage_key`     | string      | required          | FSLogix storage key (sensitive)      |
+| `fslogix_share_name`      | string      | `fslogixprofiles` | FSLogix share name                   |
+| `admin_username`          | string      | `avdadmin`        | VM local admin username              |
+| `admin_password`          | string      | required          | VM local admin password (sensitive)  |
+| `os_disk_type`            | string      | `Premium_LRS`     | OS disk storage type                 |
+| `tags`                    | map(string) | `{}`              | Resource tags                        |
 
 ## Outputs
 
-| Name | Description |
-|---|---|
-| `vm_ids` | List of VM resource IDs |
-| `vm_names` | List of VM names |
+| Name          | Description                  |
+| ------------- | ---------------------------- |
+| `vm_ids`      | List of VM resource IDs      |
+| `vm_names`    | List of VM names             |
 | `private_ips` | List of private IP addresses |

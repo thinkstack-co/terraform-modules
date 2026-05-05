@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,8 +58,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -78,18 +77,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -97,45 +97,46 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                                                                       | Type     |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
 | [aws_ec2_transit_gateway.transit_gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_transit_gateway) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_amazon_side_asn"></a> [amazon\_side\_asn](#input\_amazon\_side\_asn) | (Optional) Private Autonomous System Number (ASN) for the Amazon side of a BGP session. | `string` | `"64525"` | no |
-| <a name="input_auto_accept_shared_attachments"></a> [auto\_accept\_shared\_attachments](#input\_auto\_accept\_shared\_attachments) | (Optional) Whether resource attachment requests are automatically accepted. | `string` | `"disable"` | no |
-| <a name="input_default_route_table_association"></a> [default\_route\_table\_association](#input\_default\_route\_table\_association) | (Optional) Whether resource attachments are automatically associated with the default association route table. | `string` | `"enable"` | no |
-| <a name="input_default_route_table_propagation"></a> [default\_route\_table\_propagation](#input\_default\_route\_table\_propagation) | (Optional) Whether resource attachments automatically propagate routes to the default propagation route table. | `string` | `"enable"` | no |
-| <a name="input_description"></a> [description](#input\_description) | (Optional) Description of the EC2 Transit Gateway. | `string` | `"Transit gateway to allow access across VPCs or accounts."` | no |
-| <a name="input_dns_support"></a> [dns\_support](#input\_dns\_support) | (Optional) Whether DNS support is enabled. | `string` | `"enable"` | no |
-| <a name="input_name"></a> [name](#input\_name) | (Required) The name of the transit gateway | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) Map of tags for the EC2 Transit Gateway. | `map(any)` | <pre>{<br>  "environment": "prod",<br>  "project": "core_infrastructure",<br>  "terraform": "true"<br>}</pre> | no |
-| <a name="input_transit_gateway_cidr_blocks"></a> [transit\_gateway\_cidr\_blocks](#input\_transit\_gateway\_cidr\_blocks) | (Optional) One or more IPv4 or IPv6 CIDR blocks for the transit gateway. Must be a size /24 CIDR block or larger for IPv4, or a size /64 CIDR block or larger for IPv6. | `list(string)` | `null` | no |
-| <a name="input_vpn_ecmp_support"></a> [vpn\_ecmp\_support](#input\_vpn\_ecmp\_support) | (Optional) Whether VPN Equal Cost Multipath Protocol support is enabled. | `string` | `"enable"` | no |
+| Name                                                                                                                           | Description                                                                                                                                                             | Type           | Default                                                                                                    | Required |
+| ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------- | :------: |
+| <a name="input_amazon_side_asn"></a> [amazon_side_asn](#input_amazon_side_asn)                                                 | (Optional) Private Autonomous System Number (ASN) for the Amazon side of a BGP session.                                                                                 | `string`       | `"64525"`                                                                                                  |    no    |
+| <a name="input_auto_accept_shared_attachments"></a> [auto_accept_shared_attachments](#input_auto_accept_shared_attachments)    | (Optional) Whether resource attachment requests are automatically accepted.                                                                                             | `string`       | `"disable"`                                                                                                |    no    |
+| <a name="input_default_route_table_association"></a> [default_route_table_association](#input_default_route_table_association) | (Optional) Whether resource attachments are automatically associated with the default association route table.                                                          | `string`       | `"enable"`                                                                                                 |    no    |
+| <a name="input_default_route_table_propagation"></a> [default_route_table_propagation](#input_default_route_table_propagation) | (Optional) Whether resource attachments automatically propagate routes to the default propagation route table.                                                          | `string`       | `"enable"`                                                                                                 |    no    |
+| <a name="input_description"></a> [description](#input_description)                                                             | (Optional) Description of the EC2 Transit Gateway.                                                                                                                      | `string`       | `"Transit gateway to allow access across VPCs or accounts."`                                               |    no    |
+| <a name="input_dns_support"></a> [dns_support](#input_dns_support)                                                             | (Optional) Whether DNS support is enabled.                                                                                                                              | `string`       | `"enable"`                                                                                                 |    no    |
+| <a name="input_name"></a> [name](#input_name)                                                                                  | (Required) The name of the transit gateway                                                                                                                              | `string`       | n/a                                                                                                        |   yes    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                                                  | (Optional) Map of tags for the EC2 Transit Gateway.                                                                                                                     | `map(any)`     | <pre>{<br> "environment": "prod",<br> "project": "core_infrastructure",<br> "terraform": "true"<br>}</pre> |    no    |
+| <a name="input_transit_gateway_cidr_blocks"></a> [transit_gateway_cidr_blocks](#input_transit_gateway_cidr_blocks)             | (Optional) One or more IPv4 or IPv6 CIDR blocks for the transit gateway. Must be a size /24 CIDR block or larger for IPv4, or a size /64 CIDR block or larger for IPv6. | `list(string)` | `null`                                                                                                     |    no    |
+| <a name="input_vpn_ecmp_support"></a> [vpn_ecmp_support](#input_vpn_ecmp_support)                                              | (Optional) Whether VPN Equal Cost Multipath Protocol support is enabled.                                                                                                | `string`       | `"enable"`                                                                                                 |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_arn"></a> [arn](#output\_arn) | n/a |
-| <a name="output_association_default_route_table_id"></a> [association\_default\_route\_table\_id](#output\_association\_default\_route\_table\_id) | n/a |
-| <a name="output_id"></a> [id](#output\_id) | n/a |
-| <a name="output_propagation_default_route_table_id"></a> [propagation\_default\_route\_table\_id](#output\_propagation\_default\_route\_table\_id) | n/a |
+| Name                                                                                                                                      | Description |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| <a name="output_arn"></a> [arn](#output_arn)                                                                                              | n/a         |
+| <a name="output_association_default_route_table_id"></a> [association_default_route_table_id](#output_association_default_route_table_id) | n/a         |
+| <a name="output_id"></a> [id](#output_id)                                                                                                 | n/a         |
+| <a name="output_propagation_default_route_table_id"></a> [propagation_default_route_table_id](#output_propagation_default_route_table_id) | n/a         |
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -144,19 +145,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

@@ -59,20 +59,14 @@
     "preferredAppGroupType": {
       "type": "string",
       "defaultValue": "Desktop",
-      "allowedValues": [
-        "Desktop",
-        "RemoteApp"
-      ],
+      "allowedValues": ["Desktop", "RemoteApp"],
       "metadata": {
         "description": "Preferred App Group type to display"
       }
     },
     "hostpoolType": {
       "type": "string",
-      "allowedValues": [
-        "Personal",
-        "Pooled"
-      ],
+      "allowedValues": ["Personal", "Pooled"],
       "metadata": {
         "description": "Set this parameter to Personal if you would like to enable Persistent Desktop experience. Defaults to false."
       }
@@ -80,11 +74,7 @@
     "personalDesktopAssignmentType": {
       "type": "string",
       "defaultValue": "",
-      "allowedValues": [
-        "Automatic",
-        "Direct",
-        ""
-      ],
+      "allowedValues": ["Automatic", "Direct", ""],
       "metadata": {
         "description": "(Required when hostPoolType = Personal) Set the type of assignment for a Personal host pool type"
       }
@@ -99,10 +89,7 @@
     "loadBalancerType": {
       "type": "string",
       "defaultValue": "BreadthFirst",
-      "allowedValues": [
-        "BreadthFirst",
-        "DepthFirst"
-      ],
+      "allowedValues": ["BreadthFirst", "DepthFirst"],
       "metadata": {
         "description": "(Required when hostPoolType = Pooled) Type of load balancer algorithm."
       }
@@ -225,9 +212,7 @@
             "workspaceId": "[resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces', concat(parameters('hostpoolName'), '-log'))]",
             "logs": "[variables('hostpoolDiagnosticSettingsLogProperties')]"
           },
-          "dependsOn": [
-            "[parameters('hostpoolName')]"
-          ]
+          "dependsOn": ["[parameters('hostpoolName')]"]
         }
       ]
     },
@@ -252,9 +237,7 @@
             "workspaceId": "[resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces', concat(parameters('hostpoolName'), '-log'))]",
             "logs": "[variables('appGroupDiagnosticSettingsLogProperties')]"
           },
-          "dependsOn": [
-            "[concat(parameters('hostpoolName'), '-dag')]"
-          ]
+          "dependsOn": ["[concat(parameters('hostpoolName'), '-dag')]"]
         }
       ],
       "dependsOn": [

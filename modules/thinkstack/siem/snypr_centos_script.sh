@@ -7,7 +7,7 @@ MOUNT_POINT="/Securonix"
 
 # Create filesystem only if one doesn't already exist (idempotent)
 if ! blkid "${DATA_DEVICE}" >/dev/null 2>&1; then
-  mkfs -t xfs "${DATA_DEVICE}"
+	mkfs -t xfs "${DATA_DEVICE}"
 fi
 
 # Update system and install required packages
@@ -26,26 +26,26 @@ chmod +x "${SETUP_SCRIPT_PATH}"
 
 # Create user and set up directories
 if ! id securonix >/dev/null 2>&1; then
-  adduser securonix
+	adduser securonix
 fi
 usermod -aG wheel securonix
 mkdir -p "${MOUNT_POINT}"
 
 # Mount if not already mounted
 if ! mountpoint -q "${MOUNT_POINT}"; then
-  mount "${DATA_DEVICE}" "${MOUNT_POINT}"
+	mount "${DATA_DEVICE}" "${MOUNT_POINT}"
 fi
 chown securonix:securonix "${MOUNT_POINT}"
 
 # Update fstab for persistent mount
 cp /etc/fstab /etc/fstab.orig
 if ! grep -q "^${DATA_DEVICE} ${MOUNT_POINT} " /etc/fstab; then
-  echo "${DATA_DEVICE} ${MOUNT_POINT} xfs defaults,nofail 0 2" >> /etc/fstab
+	echo "${DATA_DEVICE} ${MOUNT_POINT} xfs defaults,nofail 0 2" >>/etc/fstab
 fi
 
 # Set up cleanup script and cron job
 mkdir -p "${MOUNT_POINT}/scripts"
-cat > "${MOUNT_POINT}/scripts/syslog_cleanup.sh" << 'EOF'
+cat >"${MOUNT_POINT}/scripts/syslog_cleanup.sh" <<'EOF'
 #!/bin/bash
 find /Securonix/Ingester/import/in* -mtime +7 -exec rm {} \;
 EOF
@@ -56,9 +56,9 @@ chmod +x "${MOUNT_POINT}/scripts/syslog_cleanup.sh"
 # Add cron job for securonix user
 CRON_LINE="0 * * * * /Securonix/scripts/syslog_cleanup.sh"
 TMP_CRON_FILE="$(mktemp)"
-crontab -u securonix -l > "${TMP_CRON_FILE}" 2>/dev/null || true
+crontab -u securonix -l >"${TMP_CRON_FILE}" 2>/dev/null || true
 if ! grep -Fq "${CRON_LINE}" "${TMP_CRON_FILE}"; then
-  echo "${CRON_LINE}" >> "${TMP_CRON_FILE}"
+	echo "${CRON_LINE}" >>"${TMP_CRON_FILE}"
 fi
 crontab -u securonix "${TMP_CRON_FILE}"
 rm -f "${TMP_CRON_FILE}"

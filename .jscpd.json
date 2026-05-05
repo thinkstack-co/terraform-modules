@@ -26,5 +26,14 @@
   "output": "./jscpd-report",
   "silent": false,
   "blame": true,
-  "format": ["python", "javascript", "typescript", "terraform", "yaml", "json", "bash", "dockerfile"]
+  "format": [
+    "python",
+    "javascript",
+    "typescript",
+    "terraform",
+    "yaml",
+    "json",
+    "bash",
+    "dockerfile"
+  ]
 }

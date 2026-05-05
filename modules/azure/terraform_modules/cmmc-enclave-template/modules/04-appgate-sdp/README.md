@@ -77,35 +77,35 @@ module "appgate_sdp" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `resource_group_name` | string | required | Resource group to deploy into |
-| `location` | string | `usgovarizona` | Azure Government region |
-| `customer_name` | string | required | Customer name (used in Entra app display name) |
-| `tenant_id` | string | required | Entra ID tenant ID (Key Vault access policy) |
-| `ztna_subnet_id` | string | required | ZTNA subnet resource ID (from 02-mgmt-vnet) |
-| `firewall_policy_id` | string | required | Firewall policy resource ID (from 02-mgmt-vnet) |
-| `firewall_public_ip` | string | required | Firewall PIP[0] — controller DNAT destination |
-| `gateway_firewall_public_ip` | string | required | Firewall PIP[1] — gateway DNAT destination |
-| `source_admin_ips` | list(string) | required | IPs allowed SSH and admin UI access (8443) |
-| `controller_vm_size` | string | `Standard_B2ls_v2` | Controller VM size |
-| `gateway_vm_size` | string | `Standard_B2ls_v2` | Gateway VM size |
-| `deploy_vms` | bool | `false` | Deploy Controller and Gateway VMs |
-| `tags` | map(string) | `{}` | Resource tags |
+| Name                         | Type         | Default            | Description                                     |
+| ---------------------------- | ------------ | ------------------ | ----------------------------------------------- |
+| `resource_group_name`        | string       | required           | Resource group to deploy into                   |
+| `location`                   | string       | `usgovarizona`     | Azure Government region                         |
+| `customer_name`              | string       | required           | Customer name (used in Entra app display name)  |
+| `tenant_id`                  | string       | required           | Entra ID tenant ID (Key Vault access policy)    |
+| `ztna_subnet_id`             | string       | required           | ZTNA subnet resource ID (from 02-mgmt-vnet)     |
+| `firewall_policy_id`         | string       | required           | Firewall policy resource ID (from 02-mgmt-vnet) |
+| `firewall_public_ip`         | string       | required           | Firewall PIP[0] — controller DNAT destination   |
+| `gateway_firewall_public_ip` | string       | required           | Firewall PIP[1] — gateway DNAT destination      |
+| `source_admin_ips`           | list(string) | required           | IPs allowed SSH and admin UI access (8443)      |
+| `controller_vm_size`         | string       | `Standard_B2ls_v2` | Controller VM size                              |
+| `gateway_vm_size`            | string       | `Standard_B2ls_v2` | Gateway VM size                                 |
+| `deploy_vms`                 | bool         | `false`            | Deploy Controller and Gateway VMs               |
+| `tags`                       | map(string)  | `{}`               | Resource tags                                   |
 
 ---
 
 ## Outputs
 
-| Name | Description |
-|---|---|
-| `key_vault_id` | Key Vault resource ID |
-| `key_vault_name` | Key Vault name |
-| `oidc_client_id` | Client (application) ID of the Entra OIDC app registration |
-| `controller_private_ip` | Controller VM private IP (null when `deploy_vms = false`) |
-| `controller_fqdn` | Controller FQDN via firewall PIP[0] DNS label (null when `deploy_vms = false`) |
-| `gateway_private_ip` | Gateway VM private IP (null when `deploy_vms = false`) |
-| `gateway_fqdn` | Gateway FQDN via firewall PIP[1] DNS label (null when `deploy_vms = false`) |
+| Name                    | Description                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `key_vault_id`          | Key Vault resource ID                                                          |
+| `key_vault_name`        | Key Vault name                                                                 |
+| `oidc_client_id`        | Client (application) ID of the Entra OIDC app registration                     |
+| `controller_private_ip` | Controller VM private IP (null when `deploy_vms = false`)                      |
+| `controller_fqdn`       | Controller FQDN via firewall PIP[0] DNS label (null when `deploy_vms = false`) |
+| `gateway_private_ip`    | Gateway VM private IP (null when `deploy_vms = false`)                         |
+| `gateway_fqdn`          | Gateway FQDN via firewall PIP[1] DNS label (null when `deploy_vms = false`)    |
 
 ---
 

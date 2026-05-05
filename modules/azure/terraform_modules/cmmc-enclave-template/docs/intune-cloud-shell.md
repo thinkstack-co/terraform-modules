@@ -6,12 +6,12 @@ The `09-intune` Terraform module is disabled for Azure Government because `micro
 
 ## Policies Deployed
 
-| Policy | Type | Endpoint |
-| --- | --- | --- |
-| CMMC - BitLocker Encryption | Configuration | `deviceManagement/configurationPolicies` |
+| Policy                            | Type          | Endpoint                                 |
+| --------------------------------- | ------------- | ---------------------------------------- |
+| CMMC - BitLocker Encryption       | Configuration | `deviceManagement/configurationPolicies` |
 | CMMC - Windows Defender Antivirus | Configuration | `deviceManagement/configurationPolicies` |
-| CMMC - Windows Firewall | Configuration | `deviceManagement/configurationPolicies` |
-| CMMC - Windows Device Compliance | Compliance | `deviceManagement/compliancePolicies` |
+| CMMC - Windows Firewall           | Configuration | `deviceManagement/configurationPolicies` |
+| CMMC - Windows Device Compliance  | Compliance    | `deviceManagement/compliancePolicies`    |
 
 All policies are assigned to the Entra group(s) you specify. The scripts call `https://graph.microsoft.us/beta` — the Azure Government Microsoft Graph endpoint.
 

@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -63,6 +64,7 @@ The module supports all CloudWatch alarm features including multiple evaluation 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic CPU Utilization Alarm Example
@@ -114,58 +116,62 @@ module "storage_alarm" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
+| Name                                                                                                                                     | Type     | Documentation                                                                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | [aws_cloudwatch_metric_alarm.alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource | [AWS CloudWatch Alarm Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| actions_enabled | Indicates whether or not actions should be executed during any changes to the alarm's state | `bool` | `true` | no |
-| alarm_actions | The list of actions to execute when this alarm transitions into an ALARM state from any other state | `list(string)` | `null` | no |
-| alarm_description | The description for the alarm | `string` | `null` | no |
-| alarm_name | The descriptive name for the alarm | `string` | n/a | yes |
-| comparison_operator | The arithmetic operation to use when comparing the specified Statistic and Threshold | `string` | n/a | yes |
-| datapoints_to_alarm | The number of datapoints that must be breaching to trigger the alarm | `number` | `null` | no |
-| dimensions | The dimensions for the alarm's associated metric | `map(any)` | n/a | yes |
-| evaluation_periods | The number of periods over which data is compared to the specified threshold | `string` | n/a | yes |
-| insufficient_data_actions | The list of actions to execute when this alarm transitions into an INSUFFICIENT_DATA state from any other state | `string` | n/a | yes |
-| metric_name | The name for the alarm's associated metric | `string` | n/a | yes |
-| namespace | The namespace for the alarm's associated metric | `string` | n/a | yes |
-| ok_actions | The list of actions to execute when this alarm transitions into an OK state from any other state | `list(string)` | `null` | no |
-| period | The period in seconds over which the specified statistic is applied | `string` | n/a | yes |
-| statistic | The statistic to apply to the alarm's associated metric | `string` | n/a | yes |
-| threshold | The value against which the specified statistic is compared | `string` | n/a | yes |
-| treat_missing_data | Sets how this alarm is to handle missing data points | `string` | `"missing"` | no |
-| unit | The unit for the alarm's associated metric | `string` | `null` | no |
+| Name                      | Description                                                                                                     | Type           | Default     | Required |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------- | ----------- | :------: |
+| actions_enabled           | Indicates whether or not actions should be executed during any changes to the alarm's state                     | `bool`         | `true`      |    no    |
+| alarm_actions             | The list of actions to execute when this alarm transitions into an ALARM state from any other state             | `list(string)` | `null`      |    no    |
+| alarm_description         | The description for the alarm                                                                                   | `string`       | `null`      |    no    |
+| alarm_name                | The descriptive name for the alarm                                                                              | `string`       | n/a         |   yes    |
+| comparison_operator       | The arithmetic operation to use when comparing the specified Statistic and Threshold                            | `string`       | n/a         |   yes    |
+| datapoints_to_alarm       | The number of datapoints that must be breaching to trigger the alarm                                            | `number`       | `null`      |    no    |
+| dimensions                | The dimensions for the alarm's associated metric                                                                | `map(any)`     | n/a         |   yes    |
+| evaluation_periods        | The number of periods over which data is compared to the specified threshold                                    | `string`       | n/a         |   yes    |
+| insufficient_data_actions | The list of actions to execute when this alarm transitions into an INSUFFICIENT_DATA state from any other state | `string`       | n/a         |   yes    |
+| metric_name               | The name for the alarm's associated metric                                                                      | `string`       | n/a         |   yes    |
+| namespace                 | The namespace for the alarm's associated metric                                                                 | `string`       | n/a         |   yes    |
+| ok_actions                | The list of actions to execute when this alarm transitions into an OK state from any other state                | `list(string)` | `null`      |    no    |
+| period                    | The period in seconds over which the specified statistic is applied                                             | `string`       | n/a         |   yes    |
+| statistic                 | The statistic to apply to the alarm's associated metric                                                         | `string`       | n/a         |   yes    |
+| threshold                 | The value against which the specified statistic is compared                                                     | `string`       | n/a         |   yes    |
+| treat_missing_data        | Sets how this alarm is to handle missing data points                                                            | `string`       | `"missing"` |    no    |
+| unit                      | The unit for the alarm's associated metric                                                                      | `string`       | `null`      |    no    |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- OUTPUTS -->
+
 ## Outputs
 
 No outputs.
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -173,6 +179,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -182,16 +189,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

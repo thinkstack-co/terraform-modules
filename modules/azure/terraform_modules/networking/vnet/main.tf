@@ -27,13 +27,13 @@ locals {
   # Select the last /24 in the VNet address space
   service_subnet_total = pow(2, local.vpn_subnet_newbits)
   # Select the last /24s for service subnets when enabled
-  vpn_subnet_index = var.enable_vpn_subnet ? local.service_subnet_total - 1 : null
+  vpn_subnet_index         = var.enable_vpn_subnet ? local.service_subnet_total - 1 : null
   app_gateway_subnet_index = var.enable_application_gateway_subnet ? local.service_subnet_total - 1 - (var.enable_vpn_subnet ? 1 : 0) : null
-  firewall_subnet_index = var.enable_firewall_subnet ? local.service_subnet_total - 1 - (var.enable_vpn_subnet ? 1 : 0) - (var.enable_application_gateway_subnet ? 1 : 0) : null
+  firewall_subnet_index    = var.enable_firewall_subnet ? local.service_subnet_total - 1 - (var.enable_vpn_subnet ? 1 : 0) - (var.enable_application_gateway_subnet ? 1 : 0) : null
   # Compute the service subnet CIDRs when enabled
   vpn_gateway_subnet_cidr = var.enable_vpn_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.vpn_subnet_index) : null
   app_gateway_subnet_cidr = var.enable_application_gateway_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.app_gateway_subnet_index) : null
-  firewall_subnet_cidr = var.enable_firewall_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.firewall_subnet_index) : null
+  firewall_subnet_cidr    = var.enable_firewall_subnet ? cidrsubnet(var.vnet_address_space, local.vpn_subnet_newbits, local.firewall_subnet_index) : null
 }
 
 ###########################
@@ -266,15 +266,15 @@ resource "azurerm_network_watcher" "nw" {
 ###########################
 
 resource "azurerm_storage_account" "flow_logs" {
-  count                     = var.enable_flow_logs ? 1 : 0
-  name                      = replace(format("%sflowlogs%s", var.name, formatdate("YYYYMMDDhhmmss", timestamp())), "-", "")
-  resource_group_name       = local.resource_group_name
-  location                  = var.location
-  account_tier                   = var.flow_logs_storage_account_tier
-  account_replication_type       = var.flow_logs_storage_replication_type
-  min_tls_version                = "TLS1_2"
-  https_traffic_only_enabled     = true
-  tags                           = var.tags
+  count                      = var.enable_flow_logs ? 1 : 0
+  name                       = replace(format("%sflowlogs%s", var.name, formatdate("YYYYMMDDhhmmss", timestamp())), "-", "")
+  resource_group_name        = local.resource_group_name
+  location                   = var.location
+  account_tier               = var.flow_logs_storage_account_tier
+  account_replication_type   = var.flow_logs_storage_replication_type
+  min_tls_version            = "TLS1_2"
+  https_traffic_only_enabled = true
+  tags                       = var.tags
 
   lifecycle {
     ignore_changes = [name]

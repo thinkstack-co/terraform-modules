@@ -41,18 +41,18 @@ module "vm_imaging" {
 
 ## Inputs
 
-| Name | Type | Default | Description |
-|---|---|---|---|
-| `resource_group_name` | string | required | Resource group name |
-| `location` | string | required | Azure Government region |
-| `gallery_name` | string | required | Compute Gallery name |
-| `image_definitions` | map(object) | see variables | Image definition configurations |
-| `tags` | map(string) | `{}` | Resource tags |
+| Name                  | Type        | Default       | Description                     |
+| --------------------- | ----------- | ------------- | ------------------------------- |
+| `resource_group_name` | string      | required      | Resource group name             |
+| `location`            | string      | required      | Azure Government region         |
+| `gallery_name`        | string      | required      | Compute Gallery name            |
+| `image_definitions`   | map(object) | see variables | Image definition configurations |
+| `tags`                | map(string) | `{}`          | Resource tags                   |
 
 ## Outputs
 
-| Name | Description |
-|---|---|
-| `gallery_id` | Compute Gallery resource ID |
-| `gallery_name` | Compute Gallery name |
+| Name                   | Description                          |
+| ---------------------- | ------------------------------------ |
+| `gallery_id`           | Compute Gallery resource ID          |
+| `gallery_name`         | Compute Gallery name                 |
 | `image_definition_ids` | Map of definition name → resource ID |

@@ -2,8 +2,8 @@
 
 # Usage: ./create-full-tunnel-entitlement.sh <admin_password> <controller_dns_or_ip>
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <admin_password> <controller_dns_or_ip>"
-  exit 1
+	echo "Usage: $0 <admin_password> <controller_dns_or_ip>"
+	exit 1
 fi
 
 encodedpass="$1"
@@ -13,15 +13,16 @@ ctlhost="$2"
 DEVICE_ID_FILE="./appgate-device-id.txt"
 
 if [ -f "$DEVICE_ID_FILE" ]; then
-  deviceid=$(cat "$DEVICE_ID_FILE")
+	deviceid=$(cat "$DEVICE_ID_FILE")
 else
-  deviceid=$(cat /proc/sys/kernel/random/uuid)
-  echo "$deviceid" > "$DEVICE_ID_FILE"
+	deviceid=$(cat /proc/sys/kernel/random/uuid)
+	echo "$deviceid" >"$DEVICE_ID_FILE"
 fi
 
 echo "[5.1] Logging into Appgate controller..."
 
-login_payload=$(cat <<EOF
+login_payload=$(
+	cat <<EOF
 {
   "providerName": "local",
   "username": "admin",
@@ -32,15 +33,15 @@ EOF
 )
 
 response=$(curl -s --insecure -X POST "https://$ctlhost:8443/admin/login" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.appgate.peer-v19+json" \
-  -d "$login_payload")
+	-H "Content-Type: application/json" \
+	-H "Accept: application/vnd.appgate.peer-v19+json" \
+	-d "$login_payload")
 
 token=$(echo "$response" | jq -r '.token')
 
 if [ -z "$token" ] || [ "$token" == "null" ]; then
-  echo "Authentication failed."
-  exit 1
+	echo "Authentication failed."
+	exit 1
 fi
 
 echo "Authenticated."
@@ -48,14 +49,14 @@ echo "Authenticated."
 echo "[5.2] Retrieving Default Site ID..."
 
 sites=$(curl -s --insecure -X GET "https://$ctlhost:8443/admin/sites" \
-  -H "Authorization: Bearer $token" \
-  -H "Accept: application/vnd.appgate.peer-v19+json")
+	-H "Authorization: Bearer $token" \
+	-H "Accept: application/vnd.appgate.peer-v19+json")
 
 site_id=$(echo "$sites" | jq -r '.data[] | select(.name == "Default Site") | .id')
 
 if [ -z "$site_id" ]; then
-  echo "'Default Site' not found."
-  exit 1
+	echo "'Default Site' not found."
+	exit 1
 fi
 
 echo "Found Default Site ID: $site_id"
@@ -68,7 +69,8 @@ icmp_action_id=$(cat /proc/sys/kernel/random/uuid)
 
 echo "[5.4] Creating 'Outbound All Protocols - Full Tunnel' entitlement..."
 
-entitlement_payload=$(cat <<EOF
+entitlement_payload=$(
+	cat <<EOF
 {
   "name": "Outbound All Protocols - Full Tunnel",
   "notes": "Allows outbound access to all destinations and ports",
@@ -117,9 +119,9 @@ EOF
 )
 
 curl -s --insecure -X POST "https://$ctlhost:8443/admin/entitlements" \
-  -H "Authorization: Bearer $token" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.appgate.peer-v19+json" \
-  -d "$entitlement_payload" | jq .
+	-H "Authorization: Bearer $token" \
+	-H "Content-Type: application/json" \
+	-H "Accept: application/vnd.appgate.peer-v19+json" \
+	-d "$entitlement_payload" | jq .
 
 echo "Entitlement creation attempt complete."

@@ -6,13 +6,13 @@ The `04-appgate-sdp` module deploys Appgate SDP Controller and Gateway VMs using
 
 ## Confirmed Image
 
-| Field | Value |
-|---|---|
-| Publisher | `cyxtera` |
-| Offer | `appgatesdp-vm` |
-| Plan/SKU | `v6_5_vm` |
-| Version | `6.5.4` |
-| Region | `usgovarizona` (confirmed available) |
+| Field     | Value                                |
+| --------- | ------------------------------------ |
+| Publisher | `cyxtera`                            |
+| Offer     | `appgatesdp-vm`                      |
+| Plan/SKU  | `v6_5_vm`                            |
+| Version   | `6.5.4`                              |
+| Region    | `usgovarizona` (confirmed available) |
 
 The Terraform marketplace agreement resource (`azurerm_marketplace_agreement.appgate`) accepts the plan automatically on first `terraform apply`. No manual portal steps required.
 

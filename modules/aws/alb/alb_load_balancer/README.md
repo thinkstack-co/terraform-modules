@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -54,6 +55,7 @@
 This Terraform module creates and manages AWS Application Load Balancers (ALB). ALBs automatically distribute incoming application traffic across multiple targets, such as EC2 instances, containers, and IP addresses, in multiple Availability Zones.
 
 The module supports:
+
 - Internal or internet-facing load balancers
 - Cross-zone load balancing
 - HTTP/2 support
@@ -65,6 +67,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -112,74 +115,77 @@ module "internal_alb" {
 
 ### Argument Reference
 
-* `alb_name` - (Required) The name of the load balancer.
-* `subnets` - (Required) A list of subnet IDs to attach to the load balancer.
-* `security_groups` - (Required) A list of security group IDs to assign to the load balancer.
-* `internal` - (Optional) If true, the load balancer will be internal. Default is false.
-* `enable_deletion_protection` - (Optional) If true, deletion of the load balancer will be disabled. Default is false.
-* `enable_http2` - (Optional) Indicates whether HTTP/2 is enabled. Default is true.
-* `enable_cross_zone_load_balancing` - (Optional) If true, cross-zone load balancing is enabled. Default is false.
-* `idle_timeout` - (Optional) The time in seconds that the connection is allowed to be idle. Default is 60.
-* `access_logs_enabled` - (Optional) Boolean to enable/disable access logs. Default is false.
-* `access_logs_bucket` - (Optional) The S3 bucket name to store access logs.
-* `access_logs_prefix` - (Optional) The S3 bucket prefix for access logs. Default is "alb-log".
-* `tags` - (Optional) A map of tags to assign to the resource.
+- `alb_name` - (Required) The name of the load balancer.
+- `subnets` - (Required) A list of subnet IDs to attach to the load balancer.
+- `security_groups` - (Required) A list of security group IDs to assign to the load balancer.
+- `internal` - (Optional) If true, the load balancer will be internal. Default is false.
+- `enable_deletion_protection` - (Optional) If true, deletion of the load balancer will be disabled. Default is false.
+- `enable_http2` - (Optional) Indicates whether HTTP/2 is enabled. Default is true.
+- `enable_cross_zone_load_balancing` - (Optional) If true, cross-zone load balancing is enabled. Default is false.
+- `idle_timeout` - (Optional) The time in seconds that the connection is allowed to be idle. Default is 60.
+- `access_logs_enabled` - (Optional) Boolean to enable/disable access logs. Default is false.
+- `access_logs_bucket` - (Optional) The S3 bucket name to store access logs.
+- `access_logs_prefix` - (Optional) The S3 bucket prefix for access logs. Default is "alb-log".
+- `tags` - (Optional) A map of tags to assign to the resource.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
+| Name                                                                                          | Type     | Documentation                                                                                              |
+| --------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
 | [aws_lb.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| alb_name | The name of the LB | `string` | n/a | yes |
-| subnets | A list of subnet IDs to attach to the LB | `list(string)` | n/a | yes |
-| security_groups | A list of security group IDs to assign to the LB | `list(any)` | n/a | yes |
-| internal | If true, the LB will be internal | `bool` | `false` | no |
-| enable_deletion_protection | If true, deletion of the load balancer will be disabled | `bool` | `false` | no |
-| enable_http2 | Indicates whether HTTP/2 is enabled | `bool` | `true` | no |
-| enable_cross_zone_load_balancing | If true, cross-zone load balancing is enabled | `bool` | `false` | no |
-| idle_timeout | The time in seconds that the connection is allowed to be idle | `number` | `60` | no |
-| drop_invalid_header_fields | Indicates whether invalid header fields are dropped | `bool` | `true` | no |
-| ip_address_type | The type of IP addresses used by the subnets (ipv4 or dualstack) | `string` | `"ipv4"` | no |
-| load_balancer_type | The type of load balancer to create | `string` | `"application"` | no |
-| access_logs_enabled | Boolean to enable/disable access logs | `bool` | `false` | no |
-| access_logs_bucket | The S3 bucket name to store access logs | `string` | n/a | no |
-| access_logs_prefix | The S3 bucket prefix for access logs | `string` | `"alb-log"` | no |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
+| Name                             | Description                                                      | Type           | Default         | Required |
+| -------------------------------- | ---------------------------------------------------------------- | -------------- | --------------- | :------: |
+| alb_name                         | The name of the LB                                               | `string`       | n/a             |   yes    |
+| subnets                          | A list of subnet IDs to attach to the LB                         | `list(string)` | n/a             |   yes    |
+| security_groups                  | A list of security group IDs to assign to the LB                 | `list(any)`    | n/a             |   yes    |
+| internal                         | If true, the LB will be internal                                 | `bool`         | `false`         |    no    |
+| enable_deletion_protection       | If true, deletion of the load balancer will be disabled          | `bool`         | `false`         |    no    |
+| enable_http2                     | Indicates whether HTTP/2 is enabled                              | `bool`         | `true`          |    no    |
+| enable_cross_zone_load_balancing | If true, cross-zone load balancing is enabled                    | `bool`         | `false`         |    no    |
+| idle_timeout                     | The time in seconds that the connection is allowed to be idle    | `number`       | `60`            |    no    |
+| drop_invalid_header_fields       | Indicates whether invalid header fields are dropped              | `bool`         | `true`          |    no    |
+| ip_address_type                  | The type of IP addresses used by the subnets (ipv4 or dualstack) | `string`       | `"ipv4"`        |    no    |
+| load_balancer_type               | The type of load balancer to create                              | `string`       | `"application"` |    no    |
+| access_logs_enabled              | Boolean to enable/disable access logs                            | `bool`         | `false`         |    no    |
+| access_logs_bucket               | The S3 bucket name to store access logs                          | `string`       | n/a             |    no    |
+| access_logs_prefix               | The S3 bucket prefix for access logs                             | `string`       | `"alb-log"`     |    no    |
+| tags                             | A mapping of tags to assign to the resource                      | `map(string)`  | `{}`            |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| lb_arn | The ARN of the Load Balancer |
+| Name        | Description                       |
+| ----------- | --------------------------------- |
+| lb_arn      | The ARN of the Load Balancer      |
 | lb_dns_name | The DNS name of the Load Balancer |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -187,6 +193,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -196,16 +203,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

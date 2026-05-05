@@ -85,16 +85,16 @@ Downloads provisioning scripts, retrieves SSH keys from Key Vault, and generates
   -OidcClientId "<oidc-client-id>"
 ```
 
-| Parameter | Source |
-|-----------|--------|
-| VaultName | `terraform output -raw module.appgate_sdp.key_vault_name` |
-| CustomerShortName | Short customer identifier (used in appliance names) |
-| AdminPass | Your chosen Appgate admin password |
-| ControllerDnsName | `terraform output -raw module.appgate_sdp.controller_fqdn` |
-| ControllerIp | `terraform output -raw module.appgate_sdp.controller_private_ip` |
-| GatewayDnsName | `terraform output -raw module.appgate_sdp.gateway_fqdn` |
-| TenantId | Your Entra ID tenant ID |
-| OidcClientId | `terraform output -raw module.appgate_sdp.oidc_client_id` |
+| Parameter         | Source                                                           |
+| ----------------- | ---------------------------------------------------------------- |
+| VaultName         | `terraform output -raw module.appgate_sdp.key_vault_name`        |
+| CustomerShortName | Short customer identifier (used in appliance names)              |
+| AdminPass         | Your chosen Appgate admin password                               |
+| ControllerDnsName | `terraform output -raw module.appgate_sdp.controller_fqdn`       |
+| ControllerIp      | `terraform output -raw module.appgate_sdp.controller_private_ip` |
+| GatewayDnsName    | `terraform output -raw module.appgate_sdp.gateway_fqdn`          |
+| TenantId          | Your Entra ID tenant ID                                          |
+| OidcClientId      | `terraform output -raw module.appgate_sdp.oidc_client_id`        |
 
 ### Step 2 — Run provision-appgate.sh
 
@@ -437,12 +437,12 @@ curl -sk -X POST "https://$CTL_IP:8443/admin/client-profiles" \
 
 ## Admin Access Reference
 
-| Access | Method |
-| --- | --- |
+| Access              | Method                                                              |
+| ------------------- | ------------------------------------------------------------------- |
 | Controller admin UI | `https://<firewall-pip-1>:8443` or `https://<controller-fqdn>:8443` |
-| Controller SSH | `ssh -i ctl.pem cz@<controller-fqdn>` or via Bastion |
-| Gateway SSH | `ssh -i gw.pem cz@<gateway-fqdn>` or via Bastion |
-| SSH keys | Azure Key Vault: `ag-ctl-private-key`, `ag-gw-private-key` |
+| Controller SSH      | `ssh -i ctl.pem cz@<controller-fqdn>` or via Bastion                |
+| Gateway SSH         | `ssh -i gw.pem cz@<gateway-fqdn>` or via Bastion                    |
+| SSH keys            | Azure Key Vault: `ag-ctl-private-key`, `ag-gw-private-key`          |
 
 Firewall PIP addresses and FQDNs are available as Terraform outputs:
 

@@ -33,19 +33,19 @@ locals {
 }
 
 resource "azuread_group" "pim_eligible" {
-  for_each             = local.pim_groups
-  display_name         = "${var.customer_name} - ${each.value}"
-  security_enabled     = true
-  mail_enabled         = false
-  assignable_to_role   = true
+  for_each           = local.pim_groups
+  display_name       = "${var.customer_name} - ${each.value}"
+  security_enabled   = true
+  mail_enabled       = false
+  assignable_to_role = true
 }
 
 resource "azuread_group" "rbac" {
-  for_each             = local.rbac_groups
-  display_name         = "${var.customer_name} - ${each.value}"
-  security_enabled     = true
-  mail_enabled         = false
-  assignable_to_role   = true
+  for_each           = local.rbac_groups
+  display_name       = "${var.customer_name} - ${each.value}"
+  security_enabled   = true
+  mail_enabled       = false
+  assignable_to_role = true
 }
 
 # ---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ locals {
     for group_key, roles in local.pim_role_assignments : {
       for role_name in roles :
       "${group_key}|${role_name}" => {
-        group_id         = azuread_group.pim_eligible[group_key].object_id
+        group_id          = azuread_group.pim_eligible[group_key].object_id
         role_display_name = role_name
       }
     }
@@ -352,10 +352,10 @@ resource "azuread_conditional_access_policy" "avd_reauthentication" {
   }
 
   session_controls {
-    sign_in_frequency                        = 1
-    sign_in_frequency_period                 = "hours"
-    sign_in_frequency_authentication_type    = "primaryAndSecondaryAuthentication"
-    sign_in_frequency_interval               = "timeBased"
+    sign_in_frequency                     = 1
+    sign_in_frequency_period              = "hours"
+    sign_in_frequency_authentication_type = "primaryAndSecondaryAuthentication"
+    sign_in_frequency_interval            = "timeBased"
   }
 }
 

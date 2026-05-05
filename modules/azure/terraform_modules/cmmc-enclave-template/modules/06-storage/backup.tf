@@ -9,7 +9,7 @@ resource "azurerm_recovery_services_vault" "fslogix" {
   sku                 = "Standard"
   storage_mode_type   = "LocallyRedundant"
   #soft_delete_enabled = true
-  tags                = var.tags
+  tags = var.tags
 }
 
 # ---------------------------------------------------------------------------

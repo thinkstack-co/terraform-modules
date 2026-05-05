@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -63,6 +64,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -148,47 +150,50 @@ module "westus_rg" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-| --- | --- |
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-| --- | --- |
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-| --- | --- | --- |
+| Name                                                                                                                     | Type     | Documentation                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | [azurerm_resource_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource | [Azure Documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-| --- | --- | --- | --- | :---: |
-| name | The name of the resource group. Must be unique within the Azure subscription | `string` | n/a | yes |
-| location | The Azure region where the resource group will be created | `string` | `"eastus"` | no |
-| tags | A mapping of tags to assign to the resource group | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` | no |
+| Name     | Description                                                                  | Type          | Default                                                                                      | Required |
+| -------- | ---------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------- | :------: |
+| name     | The name of the resource group. Must be unique within the Azure subscription | `string`      | n/a                                                                                          |   yes    |
+| location | The Azure region where the resource group will be created                    | `string`      | `"eastus"`                                                                                   |    no    |
+| tags     | A mapping of tags to assign to the resource group                            | `map(string)` | `{ terraform = "true", created_by = "ThinkStack", environment = "prod", priority = "high" }` |    no    |
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| id | The ID of the resource group |
-| name | The name of the resource group |
+| Name     | Description                        |
+| -------- | ---------------------------------- |
+| id       | The ID of the resource group       |
+| name     | The name of the resource group     |
 | location | The location of the resource group |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -196,6 +201,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - [info@thinkstack.co](mailto:info@thinkstack.co)
@@ -205,6 +211,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 - [Wesley Bey](https://github.com/beywesley)
@@ -215,6 +222,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

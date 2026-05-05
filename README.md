@@ -1,5 +1,7 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 # terraform-modules
+
 <!--
 *** Thanks for checking out the Best-README-Template. If you have a suggestion
 *** that would make this better, please fork the repo and create a pull request
@@ -16,6 +18,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -50,6 +53,7 @@ Terraform modules to deploy and manage cloud resources using the latest well arc
 - [Acknowledgments](#acknowledgments)
 
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://github.com/thinkstack-co/terraform-modules)
@@ -65,6 +69,7 @@ These terraform modules were originally created as part of a six month adoption 
 [back to top](#terraform-modules)
 
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 To get a local copy up and running, simply clone this repo.
@@ -102,6 +107,7 @@ This is an example of how to list things you need to use the software and how to
 [back to top](#terraform-modules)
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 Navigate to the folder for the provider and subsequent module, service, or infrastructure you're looking to utilize. Within each module a README.md has documented the usage instructions and examples for that module. Included in each README.md is also an output of automated `terraform-docs` which has requirements, inputs, and outputs.
@@ -147,6 +153,7 @@ Run local checks to find deprecated Terraform syntax and validation issues.
    - `reports/python-black-report.md`
 
 <!-- ROADMAP -->
+
 ## Roadmap
 
 See the [open issues](https://github.com/thinkstack-co/terraform-modules/issues) for a full list of proposed features (and known issues).
@@ -154,6 +161,7 @@ See the [open issues](https://github.com/thinkstack-co/terraform-modules/issues)
 [back to top](#terraform-modules)
 
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -170,6 +178,7 @@ Don't forget to give the project a star! Thank you!
 [back to top](#terraform-modules)
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -177,6 +186,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 [back to top](#terraform-modules)
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - <info@thinkstack.co>
@@ -186,6 +196,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 [back to top](#terraform-modules)
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 - [Zachary Hill](https://zacharyhill.co)
@@ -195,6 +206,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

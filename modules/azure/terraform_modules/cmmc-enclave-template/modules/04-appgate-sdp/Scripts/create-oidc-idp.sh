@@ -2,8 +2,8 @@
 
 # Usage: ./create-oidc-idp.sh <admin_password> <controller_dns_or_ip> <tenant_id> <audience_client_id>
 if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 <admin_password> <controller_dns_or_ip> <tenant_id> <audience_client_id>"
-  exit 1
+	echo "Usage: $0 <admin_password> <controller_dns_or_ip> <tenant_id> <audience_client_id>"
+	exit 1
 fi
 
 encodedpass="$1"
@@ -15,15 +15,16 @@ audience="$4"
 DEVICE_ID_FILE="./appgate-device-id.txt"
 
 if [ -f "$DEVICE_ID_FILE" ]; then
-  deviceid=$(cat "$DEVICE_ID_FILE")
+	deviceid=$(cat "$DEVICE_ID_FILE")
 else
-  deviceid=$(cat /proc/sys/kernel/random/uuid)
-  echo "$deviceid" > "$DEVICE_ID_FILE"
+	deviceid=$(cat /proc/sys/kernel/random/uuid)
+	echo "$deviceid" >"$DEVICE_ID_FILE"
 fi
 
 echo "[4.1] Logging into Appgate controller..."
 
-login_payload=$(cat <<EOF
+login_payload=$(
+	cat <<EOF
 {
   "providerName": "local",
   "username": "admin",
@@ -34,15 +35,15 @@ EOF
 )
 
 response=$(curl -s --insecure -X POST "https://$ctlhost:8443/admin/login" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.appgate.peer-v19+json" \
-  -d "$login_payload")
+	-H "Content-Type: application/json" \
+	-H "Accept: application/vnd.appgate.peer-v19+json" \
+	-d "$login_payload")
 
 token=$(echo "$response" | jq -r '.token')
 
 if [ -z "$token" ] || [ "$token" == "null" ]; then
-  echo "Authentication failed."
-  exit 1
+	echo "Authentication failed."
+	exit 1
 fi
 
 echo "Authenticated."
@@ -50,14 +51,14 @@ echo "Authenticated."
 echo "[4.2] Retrieving IP Pool ID for 'default pool v4..."
 
 ippools=$(curl -s --insecure -X GET "https://$ctlhost:8443/admin/ip-pools" \
-  -H "Authorization: Bearer $token" \
-  -H "Accept: application/vnd.appgate.peer-v19+json")
+	-H "Authorization: Bearer $token" \
+	-H "Accept: application/vnd.appgate.peer-v19+json")
 
 ippool=$(echo "$ippools" | jq -r '.data[] | select(.name == "default pool v4") | .id')
 
 if [ -z "$ippool" ]; then
-  echo "'default pool v4' IP pool not found."
-  exit 1
+	echo "'default pool v4' IP pool not found."
+	exit 1
 fi
 
 echo "Found IP Pool ID: $ippool"
@@ -66,7 +67,8 @@ echo "[4.3] Constructing Identity Provider payload..."
 
 issuer_url="https://login.microsoftonline.us/$tenantid/v2.0"
 
-idp_payload=$(cat <<EOF
+idp_payload=$(
+	cat <<EOF
 {
   "name": "OIDC",
   "notes": "",
@@ -131,9 +133,9 @@ EOF
 echo "[4.4] Creating Identity Provider..."
 
 curl -s --insecure -X POST "https://$ctlhost:8443/admin/identity-providers" \
-  -H "Authorization: Bearer $token" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.appgate.peer-v19+json" \
-  -d "$idp_payload" | jq .
+	-H "Authorization: Bearer $token" \
+	-H "Content-Type: application/json" \
+	-H "Accept: application/vnd.appgate.peer-v19+json" \
+	-d "$idp_payload" | jq .
 
 echo "Identity Provider created."

@@ -369,7 +369,7 @@ resource "msgraph_resource_action" "rdp_redirection_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -402,7 +402,7 @@ resource "msgraph_resource_action" "gpu_acceleration_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.gpu_vm_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.gpu_vm_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -425,16 +425,16 @@ resource "msgraph_resource" "settings_catalog_onedrive" {
         id = "0"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_allowtenantlist"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_allowtenantlist"
           choiceSettingValue = {
             settingValueTemplateReference = null
-            value    = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_allowtenantlist_1"
+            value                         = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_allowtenantlist_1"
             children = [{
               settingInstanceTemplateReference = null
-              "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance"
-              settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_allowtenantlist_allowtenantlistbox"
-              simpleSettingCollectionValue = [{ settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = var.tenant_id }]
+              "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance"
+              settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_allowtenantlist_allowtenantlistbox"
+              simpleSettingCollectionValue     = [{ settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = var.tenant_id }]
             }]
           }
         }
@@ -443,15 +443,15 @@ resource "msgraph_resource" "settings_catalog_onedrive" {
         id = "1"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv4~policy~onedrivengsc_enableodignorelistfromgpo"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv4~policy~onedrivengsc_enableodignorelistfromgpo"
           choiceSettingValue = {
             settingValueTemplateReference = null
-            value    = "device_vendor_msft_policy_config_onedrivengscv4~policy~onedrivengsc_enableodignorelistfromgpo_1"
+            value                         = "device_vendor_msft_policy_config_onedrivengscv4~policy~onedrivengsc_enableodignorelistfromgpo_1"
             children = [{
               settingInstanceTemplateReference = null
-              "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance"
-              settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv4~policy~onedrivengsc_enableodignorelistfromgpo_enableodignorelistfromgpolistbox"
+              "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance"
+              settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv4~policy~onedrivengsc_enableodignorelistfromgpo_enableodignorelistfromgpolistbox"
               simpleSettingCollectionValue = [
                 { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = "*.mp3" },
                 { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = "*.pst" },
@@ -465,16 +465,16 @@ resource "msgraph_resource" "settings_catalog_onedrive" {
         id = "3"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinwithwizard"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinwithwizard"
           choiceSettingValue = {
             settingValueTemplateReference = null
-            value    = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinwithwizard_1"
+            value                         = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinwithwizard_1"
             children = [{
               settingInstanceTemplateReference = null
-              "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
-              settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinwithwizard_kfmoptinwithwizard_textbox"
-              simpleSettingValue  = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = var.tenant_id }
+              "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
+              settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinwithwizard_kfmoptinwithwizard_textbox"
+              simpleSettingValue               = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = var.tenant_id }
             }]
           }
         }
@@ -483,16 +483,16 @@ resource "msgraph_resource" "settings_catalog_onedrive" {
         id = "4"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv3~policy~onedrivengsc_localmassdeletefiledeletethreshold"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv3~policy~onedrivengsc_localmassdeletefiledeletethreshold"
           choiceSettingValue = {
             settingValueTemplateReference = null
-            value    = "device_vendor_msft_policy_config_onedrivengscv3~policy~onedrivengsc_localmassdeletefiledeletethreshold_1"
+            value                         = "device_vendor_msft_policy_config_onedrivengscv3~policy~onedrivengsc_localmassdeletefiledeletethreshold_1"
             children = [{
               settingInstanceTemplateReference = null
-              "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
-              settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv3~policy~onedrivengsc_localmassdeletefiledeletethreshold_lmdfiledeletethresholdbox"
-              simpleSettingValue  = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue", value = 25 }
+              "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
+              settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv3~policy~onedrivengsc_localmassdeletefiledeletethreshold_lmdfiledeletethresholdbox"
+              simpleSettingValue               = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue", value = 25 }
             }]
           }
         }
@@ -502,23 +502,23 @@ resource "msgraph_resource" "settings_catalog_onedrive" {
         id = "6"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard"
           choiceSettingValue = {
             settingValueTemplateReference = null
-            value    = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_1"
+            value                         = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_1"
             children = [
               {
                 settingInstanceTemplateReference = null
-                "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-                settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_kfmoptinnowizard_dropdown"
-                choiceSettingValue  = { settingValueTemplateReference = null, children = [], value = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_kfmoptinnowizard_dropdown_0" }
+                "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+                settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_kfmoptinnowizard_dropdown"
+                choiceSettingValue               = { settingValueTemplateReference = null, children = [], value = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_kfmoptinnowizard_dropdown_0" }
               },
               {
                 settingInstanceTemplateReference = null
-                "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
-                settingDefinitionId = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_kfmoptinnowizard_textbox"
-                simpleSettingValue  = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = var.tenant_id }
+                "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
+                settingDefinitionId              = "device_vendor_msft_policy_config_onedrivengscv2~policy~onedrivengsc_kfmoptinnowizard_kfmoptinnowizard_textbox"
+                simpleSettingValue               = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue", value = var.tenant_id }
               },
             ]
           }
@@ -534,7 +534,7 @@ resource "msgraph_resource_action" "onedrive_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -556,11 +556,11 @@ resource "msgraph_resource" "settings_catalog_ntp" {
       id = "0"
       settingInstance = {
         settingInstanceTemplateReference = null
-        "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-        settingDefinitionId = "device_vendor_msft_policy_config_admx_w32time_w32time_policy_configure_ntpclient"
+        "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+        settingDefinitionId              = "device_vendor_msft_policy_config_admx_w32time_w32time_policy_configure_ntpclient"
         choiceSettingValue = {
           settingValueTemplateReference = null
-          value    = "device_vendor_msft_policy_config_admx_w32time_w32time_policy_configure_ntpclient_1"
+          value                         = "device_vendor_msft_policy_config_admx_w32time_w32time_policy_configure_ntpclient_1"
           children = [
             { settingInstanceTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance", settingDefinitionId = "device_vendor_msft_policy_config_admx_w32time_w32time_policy_configure_ntpclient_w32time_crosssitesyncflags", simpleSettingValue = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue", value = 2 } },
             { settingInstanceTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance", settingDefinitionId = "device_vendor_msft_policy_config_admx_w32time_w32time_policy_configure_ntpclient_w32time_ntpclienteventlogflags", simpleSettingValue = { settingValueTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue", value = 0 } },
@@ -581,7 +581,7 @@ resource "msgraph_resource_action" "ntp_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -599,7 +599,7 @@ resource "msgraph_resource" "settings_catalog_password_reveal" {
     description  = "Disables the password reveal button"
     platforms    = "windows10"
     technologies = "mdm"
-    settings = [{ id = "0", settingInstance = { settingInstanceTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance", settingDefinitionId = "user_vendor_msft_policy_config_credentialsui_disablepasswordreveal", choiceSettingValue = { settingValueTemplateReference = null, children = [], value = "user_vendor_msft_policy_config_credentialsui_disablepasswordreveal_1" } } }]
+    settings     = [{ id = "0", settingInstance = { settingInstanceTemplateReference = null, "@odata.type" = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance", settingDefinitionId = "user_vendor_msft_policy_config_credentialsui_disablepasswordreveal", choiceSettingValue = { settingValueTemplateReference = null, children = [], value = "user_vendor_msft_policy_config_credentialsui_disablepasswordreveal_1" } } }]
   })
 }
 
@@ -608,7 +608,7 @@ resource "msgraph_resource_action" "password_reveal_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_users_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_users_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -638,7 +638,7 @@ resource "msgraph_resource_action" "aip_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_users_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_users_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -661,12 +661,12 @@ resource "msgraph_resource" "settings_catalog_logon_banner" {
         id = "0"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_localpoliciessecurityoptions_interactivelogon_messagetextforusersattemptingtologon"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_localpoliciessecurityoptions_interactivelogon_messagetextforusersattemptingtologon"
           simpleSettingCollectionValue = [{
             settingValueTemplateReference = null
-            "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
-            value         = "This system is the property of ${var.customer_name} and is intended for authorized users only. Employees and users of ${var.customer_name}'s Electronic Systems (including desktop computers laptop computers servers mobile devices email Internet access and business applications) should have no expectation of privacy with regard to use of these resources. All individuals' activities while using ${var.customer_name}'s Electronic Systems may be monitored and audited. By signing on and using any of these Electronic Systems users acknowledge that all data messages documents etc. sent received or reviewed while using these Electronic Systems are property of ${var.customer_name}. Additionally this system contains federal contract information and/or Controlled Unclassified Information (CUI). By using this system (which includes any device attached to this system) you consent to abide by ${var.customer_name}'s policies regarding CUI. You further acknowledge that failure to abide by these terms and usage requirements may result in revoked or suspended access privileges."
+            "@odata.type"                 = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+            value                         = "This system is the property of ${var.customer_name} and is intended for authorized users only. Employees and users of ${var.customer_name}'s Electronic Systems (including desktop computers laptop computers servers mobile devices email Internet access and business applications) should have no expectation of privacy with regard to use of these resources. All individuals' activities while using ${var.customer_name}'s Electronic Systems may be monitored and audited. By signing on and using any of these Electronic Systems users acknowledge that all data messages documents etc. sent received or reviewed while using these Electronic Systems are property of ${var.customer_name}. Additionally this system contains federal contract information and/or Controlled Unclassified Information (CUI). By using this system (which includes any device attached to this system) you consent to abide by ${var.customer_name}'s policies regarding CUI. You further acknowledge that failure to abide by these terms and usage requirements may result in revoked or suspended access privileges."
           }]
         }
       },
@@ -674,12 +674,12 @@ resource "msgraph_resource" "settings_catalog_logon_banner" {
         id = "1"
         settingInstance = {
           settingInstanceTemplateReference = null
-          "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
-          settingDefinitionId = "device_vendor_msft_policy_config_localpoliciessecurityoptions_interactivelogon_messagetitleforusersattemptingtologon"
+          "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance"
+          settingDefinitionId              = "device_vendor_msft_policy_config_localpoliciessecurityoptions_interactivelogon_messagetitleforusersattemptingtologon"
           simpleSettingValue = {
             settingValueTemplateReference = null
-            "@odata.type" = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
-            value         = "${var.customer_name} Terms of Use"
+            "@odata.type"                 = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+            value                         = "${var.customer_name} Terms of Use"
           }
         }
       },
@@ -692,7 +692,7 @@ resource "msgraph_resource_action" "logon_banner_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -714,16 +714,16 @@ resource "msgraph_resource" "settings_catalog_screen_capture" {
       id = "0"
       settingInstance = {
         settingInstanceTemplateReference = null
-        "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-        settingDefinitionId = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection"
+        "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+        settingDefinitionId              = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection"
         choiceSettingValue = {
           settingValueTemplateReference = null
-          value    = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_1"
+          value                         = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_1"
           children = [{
             settingInstanceTemplateReference = null
-            "@odata.type"       = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
-            settingDefinitionId = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_avd_server_screen_capture_protection_level"
-            choiceSettingValue  = { settingValueTemplateReference = null, children = [], value = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_avd_server_screen_capture_protection_level_1" }
+            "@odata.type"                    = "#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance"
+            settingDefinitionId              = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_avd_server_screen_capture_protection_level"
+            choiceSettingValue               = { settingValueTemplateReference = null, children = [], value = "device_vendor_msft_policy_config_terminalserver-avdv1~policy~avd_gp_node_avd_server_screen_capture_protection_avd_server_screen_capture_protection_level_1" }
           }]
         }
       }
@@ -736,7 +736,7 @@ resource "msgraph_resource_action" "screen_capture_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.avd_host_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -761,7 +761,7 @@ resource "msgraph_resource_action" "lock_screen_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_users_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_users_group_id } }] })
 }
 
 # ---------------------------------------------------------------------------
@@ -793,5 +793,5 @@ resource "msgraph_resource_action" "password_policy_assign" {
   action       = "assign"
   method       = "POST"
   api_version  = "beta"
-  body = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_windows_devices_group_id } }] })
+  body         = jsonencode({ assignments = [{ target = { "@odata.type" = "#microsoft.graph.groupAssignmentTarget", groupId = var.all_windows_devices_group_id } }] })
 }

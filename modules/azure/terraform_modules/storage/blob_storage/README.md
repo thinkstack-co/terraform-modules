@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -72,6 +73,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -302,77 +304,80 @@ module "blob_storage_private" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-| --- | --- |
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| azurerm | >= 3.0.0 |
+| azurerm   | >= 3.0.0 |
 
 ## Providers
 
-| Name | Version |
-| --- | --- |
+| Name    | Version  |
+| ------- | -------- |
 | azurerm | >= 3.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-| --- | --- | --- |
-| [azurerm_storage_account.storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource | [Azure Documentation](https://learn.microsoft.com/azure/storage/common/storage-account-overview) |
+| Name                                                                                                                                      | Type     | Documentation                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------- |
+| [azurerm_storage_account.storage](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account)        | resource | [Azure Documentation](https://learn.microsoft.com/azure/storage/common/storage-account-overview)  |
 | [azurerm_storage_container.containers](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_container) | resource | [Azure Documentation](https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-| --- | --- | --- | --- | :---: |
-| storage_account_name | The globally unique name of the storage account | `string` | n/a | yes |
-| resource_group_name | The name of the resource group in which to create the storage account | `string` | n/a | yes |
-| location | The Azure region where resources will be created | `string` | `"eastus"` | no |
-| account_tier | The storage account tier | `string` | `"Standard"` | no |
-| account_replication_type | The storage account replication type | `string` | `"LRS"` | no |
-| account_kind | The storage account kind | `string` | `"StorageV2"` | no |
-| access_tier | The access tier for BlobStorage or StorageV2 accounts | `string` | `"Hot"` | no |
-| min_tls_version | The minimum TLS version | `string` | `"TLS1_2"` | no |
-| enable_https_traffic_only | Enforce HTTPS-only traffic | `bool` | `true` | no |
-| public_network_access_enabled | Enable public network access | `bool` | `true` | no |
-| allow_nested_items_to_be_public | Allow public access to nested items | `bool` | `false` | no |
-| enable_network_rules | Enable storage account network rules | `bool` | `false` | no |
-| network_rules_default_action | Default action for network rules | `string` | `"Deny"` | no |
-| network_rules_bypass | Services that bypass network rules | `list(string)` | `["AzureServices"]` | no |
-| network_rules_ip_rules | List of public IPs or CIDRs to allow | `list(string)` | `[]` | no |
-| network_rules_virtual_network_subnet_ids | List of subnet IDs to allow | `list(string)` | `[]` | no |
-| network_rules_private_link_access | Private link access list | `list(object({ endpoint_resource_id = string, endpoint_tenant_id = string }))` | `[]` | no |
-| enable_private_endpoint | Enable a private endpoint | `bool` | `false` | no |
-| private_endpoint_name | Name of the private endpoint | `string` | `null` | no |
-| private_endpoint_subnet_id | Subnet ID for the private endpoint | `string` | `null` | no |
-| private_endpoint_resource_group_name | Resource group name for the private endpoint | `string` | `null` | no |
-| private_endpoint_location | Location for the private endpoint | `string` | `null` | no |
-| private_dns_zone_id | Private DNS zone ID for blob private endpoint integration | `string` | `null` | no |
-| containers | Map of container names to access settings | `map(object({ access_type = string }))` | `{}` | no |
-| tags | A mapping of tags to assign to the resources | `map(any)` | `{ terraform = "true" }` | no |
+| Name                                     | Description                                                           | Type                                                                           | Default                  | Required |
+| ---------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------ | :------: |
+| storage_account_name                     | The globally unique name of the storage account                       | `string`                                                                       | n/a                      |   yes    |
+| resource_group_name                      | The name of the resource group in which to create the storage account | `string`                                                                       | n/a                      |   yes    |
+| location                                 | The Azure region where resources will be created                      | `string`                                                                       | `"eastus"`               |    no    |
+| account_tier                             | The storage account tier                                              | `string`                                                                       | `"Standard"`             |    no    |
+| account_replication_type                 | The storage account replication type                                  | `string`                                                                       | `"LRS"`                  |    no    |
+| account_kind                             | The storage account kind                                              | `string`                                                                       | `"StorageV2"`            |    no    |
+| access_tier                              | The access tier for BlobStorage or StorageV2 accounts                 | `string`                                                                       | `"Hot"`                  |    no    |
+| min_tls_version                          | The minimum TLS version                                               | `string`                                                                       | `"TLS1_2"`               |    no    |
+| enable_https_traffic_only                | Enforce HTTPS-only traffic                                            | `bool`                                                                         | `true`                   |    no    |
+| public_network_access_enabled            | Enable public network access                                          | `bool`                                                                         | `true`                   |    no    |
+| allow_nested_items_to_be_public          | Allow public access to nested items                                   | `bool`                                                                         | `false`                  |    no    |
+| enable_network_rules                     | Enable storage account network rules                                  | `bool`                                                                         | `false`                  |    no    |
+| network_rules_default_action             | Default action for network rules                                      | `string`                                                                       | `"Deny"`                 |    no    |
+| network_rules_bypass                     | Services that bypass network rules                                    | `list(string)`                                                                 | `["AzureServices"]`      |    no    |
+| network_rules_ip_rules                   | List of public IPs or CIDRs to allow                                  | `list(string)`                                                                 | `[]`                     |    no    |
+| network_rules_virtual_network_subnet_ids | List of subnet IDs to allow                                           | `list(string)`                                                                 | `[]`                     |    no    |
+| network_rules_private_link_access        | Private link access list                                              | `list(object({ endpoint_resource_id = string, endpoint_tenant_id = string }))` | `[]`                     |    no    |
+| enable_private_endpoint                  | Enable a private endpoint                                             | `bool`                                                                         | `false`                  |    no    |
+| private_endpoint_name                    | Name of the private endpoint                                          | `string`                                                                       | `null`                   |    no    |
+| private_endpoint_subnet_id               | Subnet ID for the private endpoint                                    | `string`                                                                       | `null`                   |    no    |
+| private_endpoint_resource_group_name     | Resource group name for the private endpoint                          | `string`                                                                       | `null`                   |    no    |
+| private_endpoint_location                | Location for the private endpoint                                     | `string`                                                                       | `null`                   |    no    |
+| private_dns_zone_id                      | Private DNS zone ID for blob private endpoint integration             | `string`                                                                       | `null`                   |    no    |
+| containers                               | Map of container names to access settings                             | `map(object({ access_type = string }))`                                        | `{}`                     |    no    |
+| tags                                     | A mapping of tags to assign to the resources                          | `map(any)`                                                                     | `{ terraform = "true" }` |    no    |
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| storage_account_id | The ID of the storage account |
-| storage_account_name | The name of the storage account |
-| primary_blob_endpoint | The primary blob endpoint URL |
-| primary_connection_string | The primary connection string for the storage account |
-| primary_access_key | The primary access key for the storage account |
-| container_ids | Map of container names to container IDs |
-| private_endpoint_id | The ID of the private endpoint (if created) |
-| private_endpoint_name | The name of the private endpoint (if created) |
+| Name                        | Description                                                 |
+| --------------------------- | ----------------------------------------------------------- |
+| storage_account_id          | The ID of the storage account                               |
+| storage_account_name        | The name of the storage account                             |
+| primary_blob_endpoint       | The primary blob endpoint URL                               |
+| primary_connection_string   | The primary connection string for the storage account       |
+| primary_access_key          | The primary access key for the storage account              |
+| container_ids               | Map of container names to container IDs                     |
+| private_endpoint_id         | The ID of the private endpoint (if created)                 |
+| private_endpoint_name       | The name of the private endpoint (if created)               |
 | private_endpoint_private_ip | The private IP address of the private endpoint (if created) |
-| private_dns_zone_group_id | The ID of the private DNS zone group (if created) |
+| private_dns_zone_group_id   | The ID of the private DNS zone group (if created)           |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -380,6 +385,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - [info@thinkstack.co](mailto:info@thinkstack.co)
@@ -389,6 +395,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 - [Wesley Bey](https://github.com/beywesley)
@@ -399,6 +406,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

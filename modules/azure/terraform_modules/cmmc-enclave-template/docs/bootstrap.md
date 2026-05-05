@@ -161,25 +161,25 @@ az role assignment create \
 
 **Terraform variables:**
 
-| Key | Value | Sensitive |
-| --- | --- | --- |
-| `customer_name` | `<customer>` | No |
-| `storage_account_name` | `<customer>fslogix001` | No |
-| `location` | `usgovarizona` | No |
-| `environment` | `production` | No |
-| `admin_upns` | `["<admin-upn>"]` (HCL) | No |
-| `admin_source_ips` | `["<ip>/32"]` (HCL) | No |
-| `vm_admin_password` | `<password>` | **Yes** |
+| Key                    | Value                   | Sensitive |
+| ---------------------- | ----------------------- | --------- |
+| `customer_name`        | `<customer>`            | No        |
+| `storage_account_name` | `<customer>fslogix001`  | No        |
+| `location`             | `usgovarizona`          | No        |
+| `environment`          | `production`            | No        |
+| `admin_upns`           | `["<admin-upn>"]` (HCL) | No        |
+| `admin_source_ips`     | `["<ip>/32"]` (HCL)     | No        |
+| `vm_admin_password`    | `<password>`            | **Yes**   |
 
 **Environment variables** (all sensitive):
 
-| Key | Value |
-| --- | --- |
-| `ARM_CLIENT_ID` | `<appId>` |
-| `ARM_CLIENT_SECRET` | `<password from SP creation>` |
-| `ARM_TENANT_ID` | `<tenant-id>` |
-| `ARM_SUBSCRIPTION_ID` | `<subscription-id>` |
-| `ARM_ENVIRONMENT` | `usgovernment` |
+| Key                   | Value                         |
+| --------------------- | ----------------------------- |
+| `ARM_CLIENT_ID`       | `<appId>`                     |
+| `ARM_CLIENT_SECRET`   | `<password from SP creation>` |
+| `ARM_TENANT_ID`       | `<tenant-id>`                 |
+| `ARM_SUBSCRIPTION_ID` | `<subscription-id>`           |
+| `ARM_ENVIRONMENT`     | `usgovernment`                |
 
 ---
 
