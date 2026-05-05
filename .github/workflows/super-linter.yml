@@ -46,10 +46,17 @@ jobs:
 
           # Optional: Disable specific linters if needed (uncomment to disable)
           # VALIDATE_JSCPD: false  # Copy-paste detection can be noisy
+          #
+          # Why: super-linter warns that black + pyink can conflict (they did,
+          # on lambda_function.py). Keeping black, disabling pyink — black is
+          # the broader-community standard and reads our .python-black config.
+          VALIDATE_PYTHON_PYINK: false
 
           # Output settings
           LOG_LEVEL: NOTICE
           CREATE_LOG_FILE: true
 
-          # Filter settings - only validate changed files on PRs
-          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package)/.*'
+          # Filter settings - exclude vendor/runtime artefacts.
+          # super-linter.log is super-linter's own runtime log; lint-reports/
+          # is where local runs of run-superlinter.sh write artefacts.
+          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports)/.*|.*super-linter\.log$|.*\.log$'

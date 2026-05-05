@@ -6,8 +6,12 @@
 # Module directory
 .terraform/
 
-{{ ... }}
+# Terraform variables (may contain secrets)
 terraform.tfvars
+
+# Lint runtime logs (super-linter writes its own log into the workspace)
+super-linter.log
+*.log
 
 # macOS
 .DS_Store
