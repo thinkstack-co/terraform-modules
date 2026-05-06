@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -54,6 +55,7 @@
 This Terraform module creates and manages AWS Application Load Balancer Listener Rules. Listener rules define how the load balancer routes requests to registered targets based on conditions such as path patterns or host headers.
 
 The module supports:
+
 - Path-based routing
 - Host-based routing
 - Priority configuration for rule evaluation
@@ -62,6 +64,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Path-Based Routing Example
@@ -122,53 +125,56 @@ module "admin_rule" {
 
 ### Argument Reference
 
-* `listener_arn` - (Required) The ARN of the listener to which to attach the rule.
-* `priority` - (Optional) The priority for the rule between 1 and 50000. If unset, the next available priority after the current highest rule will be used.
-* `target_group_arn` - (Required) The ARN of the Target Group to which to route traffic.
-* `condition_field` - (Required) The name of the field. It must be 'path-pattern' for path-based routing or 'host-header' for host-based routing.
-* `condition_values` - (Required) The path patterns or host headers to match.
-* `type` - (Optional) Type of routing action. Default is "forward".
+- `listener_arn` - (Required) The ARN of the listener to which to attach the rule.
+- `priority` - (Optional) The priority for the rule between 1 and 50000. If unset, the next available priority after the current highest rule will be used.
+- `target_group_arn` - (Required) The ARN of the Target Group to which to route traffic.
+- `condition_field` - (Required) The name of the field. It must be 'path-pattern' for path-based routing or 'host-header' for host-based routing.
+- `condition_values` - (Required) The path patterns or host headers to match.
+- `type` - (Optional) Type of routing action. Default is "forward".
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
+| Name                                                                                                                      | Type     | Documentation                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | [aws_lb_listener_rule.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-update-rules.html) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| listener_arn | The ARN of the listener to attach the rule | `string` | n/a | yes |
-| priority | The priority for the rule between 1 and 50000 | `number` | `null` | no |
-| target_group_arn | The ARN of the Target Group to which to route traffic | `string` | n/a | yes |
-| condition_field | The name of the field (path-pattern or host-header) | `string` | n/a | yes |
-| condition_values | The path patterns or host headers to match | `list(string)` | n/a | yes |
-| type | Type of routing action | `string` | `"forward"` | no |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
+| Name             | Description                                           | Type           | Default     | Required |
+| ---------------- | ----------------------------------------------------- | -------------- | ----------- | :------: |
+| listener_arn     | The ARN of the listener to attach the rule            | `string`       | n/a         |   yes    |
+| priority         | The priority for the rule between 1 and 50000         | `number`       | `null`      |    no    |
+| target_group_arn | The ARN of the Target Group to which to route traffic | `string`       | n/a         |   yes    |
+| condition_field  | The name of the field (path-pattern or host-header)   | `string`       | n/a         |   yes    |
+| condition_values | The path patterns or host headers to match            | `list(string)` | n/a         |   yes    |
+| type             | Type of routing action                                | `string`       | `"forward"` |    no    |
+| tags             | A mapping of tags to assign to the resource           | `map(string)`  | `{}`        |    no    |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -176,6 +182,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -185,16 +192,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

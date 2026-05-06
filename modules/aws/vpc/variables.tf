@@ -46,6 +46,43 @@ variable "azs" {
   default     = ["us-east-2a", "us-east-2b", "us-east-2c"]
 }
 
+# Subnet disable flags
+variable "private_subnet_disabled" {
+  type        = bool
+  description = "Disable creation of private subnets when true."
+  default     = false
+}
+
+variable "public_subnet_disabled" {
+  type        = bool
+  description = "Disable creation of public subnets when true."
+  default     = false
+}
+
+variable "dmz_subnet_disabled" {
+  type        = bool
+  description = "Disable creation of DMZ subnets when true."
+  default     = false
+}
+
+variable "db_subnet_disabled" {
+  type        = bool
+  description = "Disable creation of database subnets when true."
+  default     = false
+}
+
+variable "mgmt_subnet_disabled" {
+  type        = bool
+  description = "Disable creation of management subnets when true."
+  default     = false
+}
+
+variable "workspaces_subnet_disabled" {
+  type        = bool
+  description = "Disable creation of workspaces subnets when true."
+  default     = false
+}
+
 variable "db_subnets_list" {
   type        = list(string)
   description = "A list of database subnets inside the VPC."
@@ -101,6 +138,13 @@ variable "single_nat_gateway" {
 ###########################
 # Route Tables and Associations
 ###########################
+
+# Toggle to enable or disable VGW route propagation across all route tables.
+variable "enable_route_table_propagation" {
+  type        = bool
+  description = "Enable or disable route propagation (propagating_vgws) for all route tables in this module."
+  default     = true
+}
 
 variable "db_propagating_vgws" {
   type        = list(string)
@@ -284,7 +328,7 @@ variable "iam_role_name_prefix" {
 variable "iam_role_permissions_boundary" {
   type        = string
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
-  default     = ""
+  default     = null
 }
 
 ###########################

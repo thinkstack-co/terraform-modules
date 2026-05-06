@@ -13,6 +13,7 @@ This module creates and manages AWS Backup vaults with support for scheduled vau
 ## Usage Patterns
 
 ### 1. Single Custom Vault (Simple)
+
 For basic use cases where you need just one vault:
 
 ```hcl
@@ -32,6 +33,7 @@ module "backup_vault" {
 ```
 
 ### 2. Scheduled Vaults (Recommended)
+
 Create multiple vaults based on backup schedules:
 
 ```hcl
@@ -58,6 +60,7 @@ module "backup_vaults" {
 ```
 
 ### 3. With Selective DR (Advanced)
+
 Enable DR functionality with granular control over which vaults get DR copies:
 
 ```hcl
@@ -122,12 +125,12 @@ The module includes built-in validation to prevent creating DR vaults without co
 
 Example scenarios:
 
-| Primary Vault | DR Master | Individual DR Flag | Result |
-|---------------|-----------|-------------------|---------|
-| `enable_daily_vault = true` | `enable_dr = true` | `enable_daily_dr_vault = true` | ✅ Both primary and DR daily vaults created |
-| `enable_daily_vault = true` | `enable_dr = true` | `enable_daily_dr_vault = false` | ✅ Only primary daily vault created |
-| `enable_daily_vault = true` | `enable_dr = false` | `enable_daily_dr_vault = true` | ✅ Only primary daily vault created |
-| `enable_daily_vault = false` | `enable_dr = true` | `enable_daily_dr_vault = true` | ❌ **ERROR**: Cannot create DR vault without primary |
+| Primary Vault                | DR Master           | Individual DR Flag              | Result                                               |
+| ---------------------------- | ------------------- | ------------------------------- | ---------------------------------------------------- |
+| `enable_daily_vault = true`  | `enable_dr = true`  | `enable_daily_dr_vault = true`  | ✅ Both primary and DR daily vaults created          |
+| `enable_daily_vault = true`  | `enable_dr = true`  | `enable_daily_dr_vault = false` | ✅ Only primary daily vault created                  |
+| `enable_daily_vault = true`  | `enable_dr = false` | `enable_daily_dr_vault = true`  | ✅ Only primary daily vault created                  |
+| `enable_daily_vault = false` | `enable_dr = true`  | `enable_daily_dr_vault = true`  | ❌ **ERROR**: Cannot create DR vault without primary |
 
 ### Validation Error Example
 
@@ -153,102 +156,105 @@ module "invalid_config" {
 Vaults are named based on the configuration:
 
 **Primary Region:**
+
 - With prefix: `{prefix}-{schedule}` (e.g., `prod-daily`)
 - Without prefix: `{schedule}` (e.g., `daily`)
 
 **DR Region:**
+
 - With prefix: `{dr_prefix}-{schedule}` (e.g., `prod-dr-daily`)
 - Without prefix: `dr-{schedule}` (e.g., `dr-daily`)
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version | Required |
-|------|---------|----------|
-| aws | >= 4.0.0 | Yes |
+| Name   | Version  | Required                     |
+| ------ | -------- | ---------------------------- |
+| aws    | >= 4.0.0 | Yes                          |
 | aws.dr | >= 4.0.0 | Only when `enable_dr = true` |
 
 ## Inputs
 
 ### Core Configuration
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| `create_single_vault` | Whether to create a single custom vault (set to false for scheduled vaults) | `bool` | `true` | no |
-| `name` | Name of the single vault (used when create_single_vault = true) | `string` | `""` | no |
-| `vault_name_prefix` | Prefix for scheduled vault names (e.g., 'prod' results in 'prod-daily', 'prod-weekly', etc.) | `string` | `""` | no |
-| `kms_key_arn` | The server-side encryption key ARN that is used to protect your backups | `string` | n/a | yes |
-| `force_destroy` | A boolean that indicates whether all recovery points stored in the vault should be deleted so that the vault can be destroyed without error. USE WITH CAUTION! | `bool` | `false` | no |
-| `tags` | A mapping of tags to assign to all resources | `map(string)` | `{}` | no |
+| Name                  | Description                                                                                                                                                    | Type          | Default | Required |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------- | :------: |
+| `create_single_vault` | Whether to create a single custom vault (set to false for scheduled vaults)                                                                                    | `bool`        | `true`  |    no    |
+| `name`                | Name of the single vault (used when create_single_vault = true)                                                                                                | `string`      | `""`    |    no    |
+| `vault_name_prefix`   | Prefix for scheduled vault names (e.g., 'prod' results in 'prod-daily', 'prod-weekly', etc.)                                                                   | `string`      | `""`    |    no    |
+| `kms_key_arn`         | The server-side encryption key ARN that is used to protect your backups                                                                                        | `string`      | n/a     |   yes    |
+| `force_destroy`       | A boolean that indicates whether all recovery points stored in the vault should be deleted so that the vault can be destroyed without error. USE WITH CAUTION! | `bool`        | `false` |    no    |
+| `tags`                | A mapping of tags to assign to all resources                                                                                                                   | `map(string)` | `{}`    |    no    |
 
 ### Scheduled Vault Enable/Disable
 
 Control which scheduled vaults are created:
 
-| Name | Description | Type | Default |
-|------|-------------|------|---------|
-| `enable_hourly_vault` | Whether to create an hourly backup vault | `bool` | `false` |
-| `enable_daily_vault` | Whether to create a daily backup vault | `bool` | `false` |
-| `enable_weekly_vault` | Whether to create a weekly backup vault | `bool` | `false` |
+| Name                   | Description                              | Type   | Default |
+| ---------------------- | ---------------------------------------- | ------ | ------- |
+| `enable_hourly_vault`  | Whether to create an hourly backup vault | `bool` | `false` |
+| `enable_daily_vault`   | Whether to create a daily backup vault   | `bool` | `false` |
+| `enable_weekly_vault`  | Whether to create a weekly backup vault  | `bool` | `false` |
 | `enable_monthly_vault` | Whether to create a monthly backup vault | `bool` | `false` |
-| `enable_yearly_vault` | Whether to create a yearly backup vault | `bool` | `false` |
+| `enable_yearly_vault`  | Whether to create a yearly backup vault  | `bool` | `false` |
 
 ### Vault Lock Configuration
 
 Vault lock prevents deletion of recovery points before the minimum retention period:
 
-| Name | Description | Type | Default | Notes |
-|------|-------------|------|---------|--------|
-| `enable_vault_lock` | Whether to enable vault lock on all vaults | `bool` | `false` | Once enabled, vault lock cannot be disabled |
-| `vault_lock_changeable_for_days` | The number of days before the lock configuration becomes immutable | `number` | `3` | Set to 0 for immediate lock |
-| `vault_lock_max_retention_days` | The maximum retention period that the vault retains recovery points | `number` | `1200` | Maximum allowed is 36500 (100 years) |
-| `vault_lock_min_retention_days` | The minimum retention period for the single vault (when create_single_vault = true) | `number` | `7` | Must be <= max_retention_days |
+| Name                             | Description                                                                         | Type     | Default | Notes                                       |
+| -------------------------------- | ----------------------------------------------------------------------------------- | -------- | ------- | ------------------------------------------- |
+| `enable_vault_lock`              | Whether to enable vault lock on all vaults                                          | `bool`   | `false` | Once enabled, vault lock cannot be disabled |
+| `vault_lock_changeable_for_days` | The number of days before the lock configuration becomes immutable                  | `number` | `3`     | Set to 0 for immediate lock                 |
+| `vault_lock_max_retention_days`  | The maximum retention period that the vault retains recovery points                 | `number` | `1200`  | Maximum allowed is 36500 (100 years)        |
+| `vault_lock_min_retention_days`  | The minimum retention period for the single vault (when create_single_vault = true) | `number` | `7`     | Must be <= max_retention_days               |
 
 ### Schedule-Specific Minimum Retention Days
 
 When vault lock is enabled, these define the minimum retention for each vault type:
 
-| Name | Description | Type | Default | Typical Use Case |
-|------|-------------|------|---------|------------------|
-| `hourly_min_retention_days` | Minimum retention days for hourly vault lock | `number` | `1` | 1-3 days for rapid recovery |
-| `daily_min_retention_days` | Minimum retention days for daily vault lock | `number` | `7` | 7-30 days for operational recovery |
-| `weekly_min_retention_days` | Minimum retention days for weekly vault lock | `number` | `30` | 30-90 days for monthly reporting |
-| `monthly_min_retention_days` | Minimum retention days for monthly vault lock | `number` | `365` | 365-730 days for compliance |
-| `yearly_min_retention_days` | Minimum retention days for yearly vault lock | `number` | `2555` | 7-10 years for long-term archive |
+| Name                         | Description                                   | Type     | Default | Typical Use Case                   |
+| ---------------------------- | --------------------------------------------- | -------- | ------- | ---------------------------------- |
+| `hourly_min_retention_days`  | Minimum retention days for hourly vault lock  | `number` | `1`     | 1-3 days for rapid recovery        |
+| `daily_min_retention_days`   | Minimum retention days for daily vault lock   | `number` | `7`     | 7-30 days for operational recovery |
+| `weekly_min_retention_days`  | Minimum retention days for weekly vault lock  | `number` | `30`    | 30-90 days for monthly reporting   |
+| `monthly_min_retention_days` | Minimum retention days for monthly vault lock | `number` | `365`   | 365-730 days for compliance        |
+| `yearly_min_retention_days`  | Minimum retention days for yearly vault lock  | `number` | `2555`  | 7-10 years for long-term archive   |
 
 ### Disaster Recovery (DR) Configuration
 
 Configure cross-region disaster recovery vaults:
 
-| Name | Description | Type | Default | Notes |
-|------|-------------|------|---------|--------|
-| `enable_dr` | Master switch to enable DR functionality | `bool` | `false` | Requires aws.dr provider |
-| `dr_vault_name` | Name for the single DR vault (used when create_single_vault = true) | `string` | `""` | Defaults to "dr-{name}" |
-| `dr_vault_name_prefix` | Prefix for DR vault names (e.g., 'prod-dr' results in 'prod-dr-daily', etc.) | `string` | `""` | Defaults to "dr-{schedule}" |
-| `dr_kms_key_arn` | The KMS key ARN for the DR region | `string` | `null` | Uses primary region key if not specified |
-| `dr_tags` | Additional tags to apply to DR resources | `map(string)` | `{}` | Merged with primary tags |
+| Name                   | Description                                                                  | Type          | Default | Notes                                    |
+| ---------------------- | ---------------------------------------------------------------------------- | ------------- | ------- | ---------------------------------------- |
+| `enable_dr`            | Master switch to enable DR functionality                                     | `bool`        | `false` | Requires aws.dr provider                 |
+| `dr_vault_name`        | Name for the single DR vault (used when create_single_vault = true)          | `string`      | `""`    | Defaults to "dr-{name}"                  |
+| `dr_vault_name_prefix` | Prefix for DR vault names (e.g., 'prod-dr' results in 'prod-dr-daily', etc.) | `string`      | `""`    | Defaults to "dr-{schedule}"              |
+| `dr_kms_key_arn`       | The KMS key ARN for the DR region                                            | `string`      | `null`  | Uses primary region key if not specified |
+| `dr_tags`              | Additional tags to apply to DR resources                                     | `map(string)` | `{}`    | Merged with primary tags                 |
 
 ### Granular DR Vault Control
 
 Control which scheduled vaults get DR copies (requires enable_dr = true):
 
-| Name | Description | Type | Default | Validation |
-|------|-------------|------|---------|------------|
-| `enable_hourly_dr_vault` | Whether to create a DR vault for hourly backups | `bool` | `true` | Requires enable_hourly_vault = true |
-| `enable_daily_dr_vault` | Whether to create a DR vault for daily backups | `bool` | `true` | Requires enable_daily_vault = true |
-| `enable_weekly_dr_vault` | Whether to create a DR vault for weekly backups | `bool` | `true` | Requires enable_weekly_vault = true |
-| `enable_monthly_dr_vault` | Whether to create a DR vault for monthly backups | `bool` | `true` | Requires enable_monthly_vault = true |
-| `enable_yearly_dr_vault` | Whether to create a DR vault for yearly backups | `bool` | `true` | Requires enable_yearly_vault = true |
+| Name                      | Description                                      | Type   | Default | Validation                           |
+| ------------------------- | ------------------------------------------------ | ------ | ------- | ------------------------------------ |
+| `enable_hourly_dr_vault`  | Whether to create a DR vault for hourly backups  | `bool` | `true`  | Requires enable_hourly_vault = true  |
+| `enable_daily_dr_vault`   | Whether to create a DR vault for daily backups   | `bool` | `true`  | Requires enable_daily_vault = true   |
+| `enable_weekly_dr_vault`  | Whether to create a DR vault for weekly backups  | `bool` | `true`  | Requires enable_weekly_vault = true  |
+| `enable_monthly_dr_vault` | Whether to create a DR vault for monthly backups | `bool` | `true`  | Requires enable_monthly_vault = true |
+| `enable_yearly_dr_vault`  | Whether to create a DR vault for yearly backups  | `bool` | `true`  | Requires enable_yearly_vault = true  |
 
 ### Common Configuration Patterns
 
 #### Minimal Configuration
+
 ```hcl
 # Single vault with defaults
 module "simple_vault" {
@@ -259,6 +265,7 @@ module "simple_vault" {
 ```
 
 #### Production with Selective DR
+
 ```hcl
 # Multiple vaults with selective DR
 module "prod_vaults" {
@@ -290,6 +297,7 @@ module "prod_vaults" {
 ```
 
 #### Compliance-Focused Configuration
+
 ```hcl
 # Long retention with vault lock
 module "compliance_vaults" {
@@ -320,23 +328,24 @@ module "compliance_vaults" {
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| `id` | ID of the single vault (if created) |
-| `arn` | ARN of the single vault (if created) |
-| `name` | Name of the single vault (if created) |
-| `recovery_points` | Number of recovery points in single vault |
-| `scheduled_vault_ids` | Map of schedule type to vault ID |
-| `scheduled_vault_arns` | Map of schedule type to vault ARN |
-| `scheduled_vault_names` | Map of schedule type to vault name |
-| `dr_vault_ids` | Map of DR vault schedule type to ID |
-| `dr_vault_arns` | Map of DR vault schedule type to ARN |
-| `dr_vault_names` | Map of DR vault schedule type to name |
-| `all_vault_arns` | Combined map of all vault ARNs |
+| Name                    | Description                               |
+| ----------------------- | ----------------------------------------- |
+| `id`                    | ID of the single vault (if created)       |
+| `arn`                   | ARN of the single vault (if created)      |
+| `name`                  | Name of the single vault (if created)     |
+| `recovery_points`       | Number of recovery points in single vault |
+| `scheduled_vault_ids`   | Map of schedule type to vault ID          |
+| `scheduled_vault_arns`  | Map of schedule type to vault ARN         |
+| `scheduled_vault_names` | Map of schedule type to vault name        |
+| `dr_vault_ids`          | Map of DR vault schedule type to ID       |
+| `dr_vault_arns`         | Map of DR vault schedule type to ARN      |
+| `dr_vault_names`        | Map of DR vault schedule type to name     |
+| `all_vault_arns`        | Combined map of all vault ARNs            |
 
 ## Examples
 
 ### Production Setup with Cost-Optimized DR
+
 ```hcl
 module "production_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault?ref=v2.6.6"
@@ -381,6 +390,7 @@ module "production_vaults" {
 ```
 
 ### Development Environment (No DR)
+
 ```hcl
 module "dev_vaults" {
   source = "github.com/thinkstack-co/terraform-modules//modules/thinkstack/aws_backup_custom/modules/aws_backup_vault?ref=v2.6.6"

@@ -93,7 +93,7 @@ variable "structured_run_output_enabled" {
 variable "terraform_version" {
   description = "(Optional) The version of Terraform to use for this workspace. This can be either an exact version or a version constraint (like ~> 1.0.0); if you specify a constraint, the workspace will always use the newest release that meets that constraint. Defaults to the latest available version."
   type        = string
-  default     = "~>1.4.0"
+  default     = "~> 1.14.0"
 }
 
 variable "trigger_prefixes" {
@@ -134,6 +134,12 @@ variable "ingress_submodules" {
 variable "oauth_token_id" {
   description = "(Required) The VCS Connection (OAuth Connection + Token) to use. This ID can be obtained from a tfe_oauth_client resource."
   type        = string
+}
+
+variable "parallelism" {
+  description = "(Optional) The number of concurrent operations Terraform will run during plan and apply. Set this higher (e.g. 50) for larger environments to speed up runs. Set to null to use Terraform's default of 10."
+  type        = number
+  default     = null
 }
 
 ##############################

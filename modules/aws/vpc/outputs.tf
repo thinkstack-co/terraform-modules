@@ -63,7 +63,7 @@ output "workspaces_route_table_ids" {
 }
 
 output "default_security_group_id" {
-  value = aws_vpc.vpc[*].default_security_group_id
+  value = aws_vpc.vpc.default_security_group_id
 }
 
 output "nat_eips" {

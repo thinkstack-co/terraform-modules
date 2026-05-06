@@ -8,7 +8,7 @@ variable "create_single_vault" {
 variable "name" {
   description = "The name of the backup vault (used when create_single_vault is true)"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "create_kms_key" {

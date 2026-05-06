@@ -34,7 +34,7 @@ variable "disable_api_termination" {
 variable "ebs_optimized" {
   type        = bool
   description = "(Optional) If true, the launched EC2 instance will be EBS-optimized. Note that if this is not set on an instance type that is optimized by default then this will show as disabled but if the instance type is optimized by default then there is no need to set this and there is no effect to disabling it. See the EBS Optimized section of the AWS User Guide for more information."
-  default     = false
+  default     = true
   validation {
     condition     = can(regex("true|false", var.ebs_optimized))
     error_message = "The value must be either true or false."
@@ -93,14 +93,16 @@ variable "kms_key_id" {
   }
 }
 
-variable "monitoring" {
+variable "enable_detailed_monitoring" {
   type        = bool
-  description = "(Optional) If true, the launched EC2 instance will have detailed monitoring enabled. (Available since v0.6.0)"
+  description = "(Optional) Enables detailed monitoring (1-min intervals, ~$2.10/month/instance). When false, uses basic monitoring (5-min intervals, free). Default: false"
+  default     = false
+}
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create CloudWatch status check alarms for the instance. Set to false to disable alarms. Default: true"
   default     = true
-  validation {
-    condition     = can(regex("true|false", var.monitoring))
-    error_message = "The value must be either true or false."
-  }
 }
 
 variable "placement_group" {
@@ -207,6 +209,20 @@ variable "tags" {
   }
 }
 
+# Control whether backup selection tags are removed from root volume tags.
+variable "exclude_root_volume_snapshot" {
+  type        = bool
+  description = "(Optional) When true, exclude selected tag keys from the root EBS volume tags to prevent the root volume from being selected separately by tag-based backup workflows. Instance tags are unchanged."
+  default     = false
+}
+
+# Tag keys to remove from the root volume when exclude_root_volume_snapshot is enabled.
+variable "root_volume_excluded_tag_keys" {
+  type        = list(string)
+  description = "(Optional) Tag keys to remove from root EBS volume tags when exclude_root_volume_snapshot is true."
+  default     = []
+}
+
 variable "user_data" {
   type        = string
   description = "(Optional) User data to provide when launching the instance. Do not pass gzip-compressed data via this argument; see user_data_base64 instead. Updates to this field will trigger a stop/start of the EC2 instance by default. If the user_data_replace_on_change is set then updates to this field will trigger a destroy and recreate."
@@ -233,6 +249,12 @@ variable "vpc_security_group_ids" {
 variable "domain_name" {
   type        = string
   description = "(Required) the suffix domain name to use by default when resolving non Fully Qualified Domain Names. In other words, this is what ends up being the search value in the /etc/resolv.conf file."
+}
+
+variable "ntp_servers" {
+  type        = list(string)
+  description = "(Optional) List of NTP servers to configure in the DHCP options set. When empty, defaults to using the domain controller private IPs."
+  default     = []
 }
 
 variable "vpc_id" {

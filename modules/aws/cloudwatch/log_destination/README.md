@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -63,6 +64,7 @@ The module supports creating log destinations with appropriate IAM policies and 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Cross-Account Log Forwarding Example
@@ -118,47 +120,51 @@ module "firehose_log_destination" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_cloudwatch_log_destination.destination](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_destination) | resource | [AWS CloudWatch Log Destination Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationMembershipFirehose) |
+| Name                                                                                                                                                          | Type     | Documentation                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [aws_cloudwatch_log_destination.destination](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_destination)          | resource | [AWS CloudWatch Log Destination Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationMembershipFirehose)    |
 | [aws_cloudwatch_log_destination_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_destination_policy) | resource | [AWS CloudWatch Log Destination Policy Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#CrossAccountSubscriptions) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | The name of the CloudWatch Log Destination | `string` | n/a | yes |
-| role_arn | The ARN of the IAM role that grants CloudWatch Logs permission to deliver logs to the target | `string` | n/a | yes |
-| target_arn | The ARN of the target resource (Kinesis stream, Lambda function, or Firehose delivery stream) | `string` | n/a | yes |
-| destination_policy | The IAM policy document that governs which AWS accounts can create subscription filters against this destination | `string` | n/a | yes |
+| Name               | Description                                                                                                      | Type     | Default | Required |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------- | -------- | ------- | :------: |
+| name               | The name of the CloudWatch Log Destination                                                                       | `string` | n/a     |   yes    |
+| role_arn           | The ARN of the IAM role that grants CloudWatch Logs permission to deliver logs to the target                     | `string` | n/a     |   yes    |
+| target_arn         | The ARN of the target resource (Kinesis stream, Lambda function, or Firehose delivery stream)                    | `string` | n/a     |   yes    |
+| destination_policy | The IAM policy document that governs which AWS accounts can create subscription filters against this destination | `string` | n/a     |   yes    |
 
 <!-- OUTPUTS -->
+
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| destination_arn | The ARN of the CloudWatch Log Destination |
+| Name             | Description                                |
+| ---------------- | ------------------------------------------ |
+| destination_arn  | The ARN of the CloudWatch Log Destination  |
 | destination_name | The name of the CloudWatch Log Destination |
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -166,6 +172,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -175,16 +182,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -63,6 +64,7 @@ The module supports creating event rules with schedule expressions and connectin
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Scheduled Event Example
@@ -96,47 +98,51 @@ module "weekly_maintenance" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_cloudwatch_event_rule.event_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource | [AWS CloudWatch Events Documentation](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html) |
+| Name                                                                                                                                            | Type     | Documentation                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [aws_cloudwatch_event_rule.event_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule)       | resource | [AWS CloudWatch Events Documentation](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html)          |
 | [aws_cloudwatch_event_target.event_target](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource | [AWS CloudWatch Event Targets Documentation](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-targets.html) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | The name of the CloudWatch Event Rule | `string` | n/a | yes |
-| description | The description of the CloudWatch Event Rule | `string` | n/a | yes |
-| schedule_expression | The scheduling expression (rate or cron expression) for when the rule should be triggered | `string` | n/a | yes |
-| is_enabled | Whether the rule should be enabled | `bool` | `true` | no |
-| event_target_arn | The Amazon Resource Name (ARN) of the target resource for the CloudWatch Event Rule | `string` | n/a | yes |
+| Name                | Description                                                                               | Type     | Default | Required |
+| ------------------- | ----------------------------------------------------------------------------------------- | -------- | ------- | :------: |
+| name                | The name of the CloudWatch Event Rule                                                     | `string` | n/a     |   yes    |
+| description         | The description of the CloudWatch Event Rule                                              | `string` | n/a     |   yes    |
+| schedule_expression | The scheduling expression (rate or cron expression) for when the rule should be triggered | `string` | n/a     |   yes    |
+| is_enabled          | Whether the rule should be enabled                                                        | `bool`   | `true`  |    no    |
+| event_target_arn    | The Amazon Resource Name (ARN) of the target resource for the CloudWatch Event Rule       | `string` | n/a     |   yes    |
 
 <!-- OUTPUTS -->
+
 ## Outputs
 
-| Name | Description |
-|------|-------------|
+| Name          | Description                         |
+| ------------- | ----------------------------------- |
 | event_rule_id | The ID of the CloudWatch Event Rule |
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -144,6 +150,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -153,16 +160,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

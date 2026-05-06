@@ -8,7 +8,23 @@ data "aws_caller_identity" "current" {}
 locals {
   customer_identifier  = var.customer_name != "" ? var.customer_name : "AWS Account ${data.aws_caller_identity.current.account_id}"
   valid_retention_days = (var.report_retention_days == 0 || var.glacier_transition_days == 0) || var.report_retention_days > var.glacier_transition_days
+
+  # Determine if the recorder should be created:
+  # - Always create when record_all_resource_types is true (Security Hub needs it)
+  # - Otherwise, only create when at least one Config rule is enabled
+  enable_recorder = var.record_all_resource_types || (
+    var.enable_ebs_encryption_rule ||
+    var.enable_iam_password_policy_rule ||
+    var.enable_s3_public_access_rules ||
+    var.enable_mfa_for_iam_console_rule ||
+    var.enable_ec2_volume_inuse_rule ||
+    var.enable_eip_attached_rule ||
+    var.enable_rds_storage_encrypted_rule ||
+    var.enable_iam_user_access_key_age_rule ||
+    var.enable_iam_root_access_key_rule
+  )
 }
+
 # --- Core AWS Config Resources ---
 
 # IAM Role for AWS Config Service
@@ -32,30 +48,31 @@ resource "aws_iam_role" "config_role" {
 
 # AWS Config Configuration Recorder
 # This resource enables AWS Config and defines what resources it records.
+# When record_all_resource_types=true (for Security Hub), records ALL supported
+# resource types including global resources. Otherwise, only records the specific
+# resource types needed by enabled Config rules.
 resource "aws_config_configuration_recorder" "config" {
-  count = (var.enable_encrypted_volumes_rule ||
-    var.enable_iam_password_policy_rule ||
-    var.enable_s3_public_access_rules ||
-    var.enable_mfa_for_iam_console_rule ||
-    var.enable_ec2_volume_inuse_rule ||
-    var.enable_eip_attached_rule ||
-    var.enable_rds_storage_encrypted_rule ||
-  var.enable_iam_user_access_key_age_rule) ? 1 : 0
+  count = local.enable_recorder ? 1 : 0
 
   name     = var.config_recorder_name
   role_arn = aws_iam_role.config_role.arn
 
+  # When record_all_resource_types=true, record everything Security Hub needs
   recording_group {
-    all_supported = false
-    resource_types = distinct(concat(
-      var.enable_encrypted_volumes_rule ? ["AWS::EC2::Volume"] : [],
+    all_supported                 = var.record_all_resource_types
+    include_global_resource_types = var.record_all_resource_types
+
+    # Only specify individual resource types when NOT recording all
+    resource_types = var.record_all_resource_types ? [] : distinct(concat(
+      var.enable_ebs_encryption_rule ? ["AWS::EC2::Volume"] : [],
       var.enable_iam_password_policy_rule ? ["AWS::IAM::User"] : [],
       var.enable_s3_public_access_rules ? ["AWS::S3::Bucket"] : [],
-      var.enable_mfa_for_iam_console_rule ? ["AWS::IAM::User"] : [], # User type already potentially included
-      var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [],  # Volume type already potentially included
+      var.enable_mfa_for_iam_console_rule ? ["AWS::IAM::User"] : [],
+      var.enable_ec2_volume_inuse_rule ? ["AWS::EC2::Volume"] : [],
       var.enable_eip_attached_rule ? ["AWS::EC2::EIP"] : [],
       var.enable_rds_storage_encrypted_rule ? ["AWS::RDS::DBInstance"] : [],
-      var.enable_iam_user_access_key_age_rule ? ["AWS::IAM::User"] : [] # User type already potentially included
+      var.enable_iam_user_access_key_age_rule ? ["AWS::IAM::User"] : [],
+      var.enable_iam_root_access_key_rule ? ["AWS::IAM::User"] : []
     ))
   }
 
@@ -228,6 +245,19 @@ resource "aws_config_config_rule" "access_keys_rotated" {
   input_parameters = jsonencode({
     maxAccessKeyAge = tostring(var.iam_access_key_max_age)
   })
+
+  depends_on = [aws_config_delivery_channel.config]
+}
+
+resource "aws_config_config_rule" "iam_root_access_key_check" {
+  count       = var.enable_iam_root_access_key_rule ? 1 : 0
+  name        = "iam-root-access-key-check"
+  description = "Checks whether the root user access key is available. The rule is compliant if the root user access key does not exist."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
+  }
 
   depends_on = [aws_config_delivery_channel.config]
 }
@@ -482,7 +512,7 @@ resource "aws_lambda_function" "compliance_reporter" {
   description   = "Generates compliance reports from AWS Config rule evaluations"
   role          = aws_iam_role.reporter_lambda_role[0].arn
   handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.12"
+  runtime       = "python3.13"
   timeout       = var.reporter_lambda_timeout
   memory_size   = var.reporter_lambda_memory_size
 

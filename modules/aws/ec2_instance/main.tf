@@ -10,37 +10,26 @@ terraform {
 }
 
 ###########################
-# Data Sources (Conditional)
+# Data Sources
 ###########################
-# These data sources are now CONDITIONAL to avoid redundant API calls.
 
-# Only fetch region from AWS if not passed as a variable (backward compatible)
-data "aws_region" "current" {
-  count = var.aws_region == null ? 1 : 0
-  # count = 0: Variable provided, skip API call (fast path)
-  # count = 1: Variable is null, query AWS (backward compatible path)
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_ec2_instance_type" "this" {
+  instance_type = var.instance_type
 }
-
-# Only fetch account ID from AWS if not passed as a variable (backward compatible)
-data "aws_caller_identity" "current" {
-  count = var.aws_account_id == null ? 1 : 0
-  # count = 0: Variable provided, skip API call (fast path)
-  # count = 1: Variable is null, query AWS (backward compatible path)
-}
-
-###########################
-# Local Values
-###########################
 
 locals {
-  # Use passed aws_region variable if provided, otherwise query from data source
-  # Ternary operator: condition ? true_value : false_value
-  # Note: Using 'id' instead of deprecated 'name' attribute
-  aws_region = var.aws_region != null ? var.aws_region : data.aws_region.current[0].id
+  # Exclude specific tag keys from the root volume to avoid selecting the root EBS volume separately in tag-based backup workflows.
+  root_volume_tags = var.exclude_root_volume_snapshot ? {
+    for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
+  } : var.tags
 
-  # Use passed aws_account_id variable if provided, otherwise query from data source
-  # Ternary operator: condition ? true_value : false_value
-  aws_account_id = var.aws_account_id != null ? var.aws_account_id : data.aws_caller_identity.current[0].account_id
+  # When var.enable_recover_action is null (default), auto-detect from the instance type data source.
+  # When explicitly set to true/false, use the caller's override.
+  recover_action_enabled = var.enable_recover_action != null ? var.enable_recover_action : data.aws_ec2_instance_type.this.auto_recovery_supported
 }
 
 #############################
@@ -59,7 +48,7 @@ resource "aws_instance" "ec2" {
   instance_type                        = var.instance_type
   ipv6_addresses                       = var.ipv6_addresses
   key_name                             = var.key_name
-  monitoring                           = var.monitoring
+  monitoring                           = var.enable_detailed_monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
 
@@ -71,19 +60,19 @@ resource "aws_instance" "ec2" {
   root_block_device {
     delete_on_termination = var.root_delete_on_termination
     encrypted             = var.encrypted
-    tags                  = merge(var.tags, ({ "Name" = var.name }))
+    tags                  = merge(local.root_volume_tags, ({ "Name" = var.name }))
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
     iops                  = var.root_volume_iops
     throughput            = var.root_volume_throughput
   }
 
-  source_dest_check      = var.source_dest_check
-  subnet_id              = var.subnet_id
-  tags                   = merge(var.tags, ({ "Name" = var.name }))
-  tenancy                = var.tenancy
+  source_dest_check = var.source_dest_check
+  subnet_id         = var.subnet_id
+  tags              = merge(var.tags, ({ "Name" = var.name }))
+  tenancy           = var.tenancy
   # Only set user_data if user_data_base64 is not provided (prevents base64 warning)
-  user_data              = var.user_data_base64 != "" ? null : (var.user_data != "" ? var.user_data : null)
+  user_data = var.user_data_base64 != "" ? null : (var.user_data != "" ? var.user_data : null)
   # Only set user_data_base64 if explicitly provided
   user_data_base64       = var.user_data_base64 != "" ? var.user_data_base64 : null
   vpc_security_group_ids = var.vpc_security_group_ids
@@ -97,7 +86,10 @@ resource "aws_instance" "ec2" {
 # CloudWatch Alarms
 ###################################################
 # Creating a CloudWatch metric alarm for each instance. This alarm triggers if the status check of the instance fails.
+# Set create_cloudwatch_alarms = false to disable these alarms.
+# Alarm period adjusts based on monitoring mode: 60s for detailed, 300s for basic (to match metric availability).
 resource "aws_cloudwatch_metric_alarm" "instance" {
+  count         = var.create_cloudwatch_alarms ? 1 : 0
   alarm_actions = [] # No 'Recover' action for StatusCheckFailed_Instance metric
 
   actions_enabled     = true
@@ -113,23 +105,16 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = "60"
+  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
 }
 
-# Creating another CloudWatch metric alarm for each instance. This alarm triggers if the system status check of the instance fails.
 resource "aws_cloudwatch_metric_alarm" "system" {
-  # If the instance is of a type that does not support recovery actions, no action is taken when the alarm is triggered.
-  # If it does support recovery, AWS attempts to recover the instance when the alarm is triggered.
-  #
-  # PERFORMANCE OPTIMIZATION: Using local.aws_region instead of data.aws_region.current.name
-  # This allows the region to come from either:
-  #   1. Passed variable (fast, no API call) - local.aws_region uses var.aws_region
-  #   2. Data source query (slow, API call) - local.aws_region uses data.aws_region.current[0].name
-  # The abstraction through locals makes the code work in both scenarios without changing the alarm logic.
-  alarm_actions = contains(local.recover_action_unsupported_instances, var.instance_type) ? [] : ["arn:aws:automate:${local.aws_region}:ec2:recover"]
+  count = var.create_cloudwatch_alarms ? 1 : 0
+  # Auto-detected from instance type by default, or explicitly overridden via var.enable_recover_action.
+  alarm_actions = local.recover_action_enabled ? ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"] : []
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
@@ -144,7 +129,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = "60"
+  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"

@@ -186,7 +186,7 @@ variable "is_enabled" {
 
 variable "policy" {
   description = "(Optional) A valid policy JSON document. Although this is a key policy, not an IAM policy, an aws_iam_policy_document, in the form that designates a principal, can be used. For more information about building policy documents with Terraform, see the AWS IAM Policy Document Guide."
-  default     = ""
+  default     = null
   type        = string
 }
 

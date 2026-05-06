@@ -1,4 +1,5 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
@@ -9,6 +10,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -75,7 +77,6 @@ module "example_aws_config" {
   password_reuse_prevention = 24
   password_max_age          = 45
 
-  enable_encrypted_volumes_rule     = true
   enable_ebs_encryption_rule        = true
   enable_s3_public_access_rules     = true
   enable_mfa_for_iam_console_rule   = true
@@ -107,6 +108,7 @@ module "example_aws_config" {
   }
 }
 ```
+
 ## Compliance Reporter Account Name Logic
 
 By default, the compliance reporter Lambda will attempt to display the AWS account's display name at the top of each report. The logic for determining the account name is as follows:
@@ -114,6 +116,7 @@ By default, the compliance reporter Lambda will attempt to display the AWS accou
 1. **AWS Organizations Account Name:**
    - If the Lambda function has access to the Organizations API, it will use the display name from AWS Organizations (the friendly name you see in the AWS SSO/Access Portal).
 2. **Environment Variable Override:**
+
    - If the Organizations API is not accessible (e.g., due to permissions or SCPs), you can set the `account_display_name` variable in this module. This value will be passed to the Lambda as the `ACCOUNT_DISPLAY_NAME` environment variable and used in the report.
    - Example:
 
@@ -123,6 +126,7 @@ By default, the compliance reporter Lambda will attempt to display the AWS accou
        account_display_name = "example-account-display-name"
      }
      ```
+
 3. **IAM Account Alias Fallback:**
    - If neither of the above is available, the Lambda will fall back to using the IAM account alias (if set).
 4. **N/A:**
@@ -143,30 +147,32 @@ module "aws_config" {
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 # AWS Config Module
 
 This Terraform module configures AWS Config to record and evaluate the configuration of your AWS resources. It establishes continuous monitoring, resource inventory, and configuration history tracking, storing data in an S3 bucket.
 
 ## Features
 
-*   Sets up AWS Config Configuration Recorder and Delivery Channel.
-*   Creates an S3 bucket for storing configuration snapshots and history.
-*   Records specific resource types (`AWS::EC2::Volume`, `AWS::IAM::User`) required for the optional rules, including global IAM types.
-*   Optionally enables AWS Managed Config rules:
-    *   `IAM_PASSWORD_POLICY`: Ensures the AWS account password policy for IAM users meets specified complexity requirements including minimum length, character types, and password reuse prevention.
-    *   `ENCRYPTED_VOLUMES`: Checks whether Amazon EBS volumes that are attached to EC2 instances are encrypted to ensure data at rest is protected.
-    *   `S3_BUCKET_PUBLIC_READ_PROHIBITED`: Checks that your Amazon S3 buckets do not allow public read access through bucket policies or ACLs to prevent unauthorized data exposure.
-    *   `S3_BUCKET_PUBLIC_WRITE_PROHIBITED`: Checks that your Amazon S3 buckets do not allow public write access through bucket policies or ACLs to prevent unauthorized data modification.
-    *   `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS`: Checks whether Multi-Factor Authentication (MFA) is enabled for all IAM users that have a console password to enhance account security.
-    *   `EC2_VOLUME_INUSE_CHECK`: Checks whether Amazon EBS volumes are attached to EC2 instances to identify unused volumes that may incur unnecessary costs.
-    *   `EIP_ATTACHED`: Checks whether Elastic IP addresses allocated to your account are attached to EC2 instances or in-use network interfaces to avoid charges for unused EIPs.
-    *   `RDS_STORAGE_ENCRYPTED`: Checks whether storage encryption is enabled for Amazon RDS DB instances to ensure database data at rest is encrypted and protected.
-    *   `ACCESS_KEYS_ROTATED`: Checks whether all active IAM user access keys are rotated within the specified number of days (default 90) to reduce the risk of compromised credentials.
-*   Optionally deploys a Lambda function to generate scheduled PDF compliance reports summarizing the status of Config Rules and storing them in the Config S3 bucket.
+- Sets up AWS Config Configuration Recorder and Delivery Channel.
+- Creates an S3 bucket for storing configuration snapshots and history.
+- Records specific resource types (`AWS::EC2::Volume`, `AWS::IAM::User`) required for the optional rules, including global IAM types.
+- Optionally enables AWS Managed Config rules:
+  - `IAM_PASSWORD_POLICY`: Ensures the AWS account password policy for IAM users meets specified complexity requirements including minimum length, character types, and password reuse prevention.
+  - `ENCRYPTED_VOLUMES`: Checks whether Amazon EBS volumes that are attached to EC2 instances are encrypted to ensure data at rest is protected.
+  - `S3_BUCKET_PUBLIC_READ_PROHIBITED`: Checks that your Amazon S3 buckets do not allow public read access through bucket policies or ACLs to prevent unauthorized data exposure.
+  - `S3_BUCKET_PUBLIC_WRITE_PROHIBITED`: Checks that your Amazon S3 buckets do not allow public write access through bucket policies or ACLs to prevent unauthorized data modification.
+  - `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS`: Checks whether Multi-Factor Authentication (MFA) is enabled for all IAM users that have a console password to enhance account security.
+  - `EC2_VOLUME_INUSE_CHECK`: Checks whether Amazon EBS volumes are attached to EC2 instances to identify unused volumes that may incur unnecessary costs.
+  - `EIP_ATTACHED`: Checks whether Elastic IP addresses allocated to your account are attached to EC2 instances or in-use network interfaces to avoid charges for unused EIPs.
+  - `RDS_STORAGE_ENCRYPTED`: Checks whether storage encryption is enabled for Amazon RDS DB instances to ensure database data at rest is encrypted and protected.
+  - `ACCESS_KEYS_ROTATED`: Checks whether all active IAM user access keys are rotated within the specified number of days (default 90) to reduce the risk of compromised credentials.
+- Optionally deploys a Lambda function to generate scheduled PDF compliance reports summarizing the status of Config Rules and storing them in the Config S3 bucket.
 
 ## Architecture
 
 The module follows an opt-in architecture where:
+
 - Basic AWS Config recording to S3 is enabled by default.
 - Additional features like AWS Config Rules and S3 lifecycle management are disabled by default and can be enabled via input variables.
 - Resources are only created when explicitly enabled.
@@ -266,7 +272,7 @@ module "aws_config_all_rules" {
   config_recorder_name = "my-org-recorder"
 
   # Enable specific rules (Explicitly setting defaults for clarity)
-  enable_encrypted_volumes_rule    = true
+  enable_ebs_encryption_rule       = true
   enable_iam_password_policy_rule  = true
   enable_s3_public_access_rules    = true
   enable_mfa_for_iam_console_rule  = true
@@ -291,119 +297,114 @@ _For detailed variable and output descriptions, please refer to the Inputs and O
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|---------------|
-| [aws_config_configuration_recorder.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_configuration_recorder) | resource | [AWS Config Recorder Docs](https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#config-recorder) |
-| [aws_config_config_rule.ebs_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule) | resource | [AWS Config Rules Docs](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html) |
-| [aws_config_config_rule.iam_password_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule) | resource | [AWS Config Rules Docs](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html) |
-| [aws_config_delivery_channel.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_delivery_channel) | resource | [AWS Config Delivery Channel Docs](https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#delivery-channel) |
-| [aws_config_configuration_recorder_status.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_configuration_recorder_status) | resource | [AWS Config Recorder Status Docs](https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html) |
-| [aws_iam_role.config_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | [AWS IAM Roles Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) |
-| [aws_iam_role_policy_attachment.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource | [AWS IAM Policy Attachment Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage-attach-detach.html#add-policies-console) |
-| [aws_s3_bucket.config_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource | [AWS S3 Bucket Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-buckets.html) |
-| [aws_s3_bucket_lifecycle_configuration.config_lifecycle](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource | [AWS S3 Lifecycle Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html) |
-| [aws_s3_bucket_policy.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource | [AWS S3 Policy Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html) |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source | [AWS STS Caller Identity Docs](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html) |
-| [aws_iam_policy_document.config_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
-| [aws_iam_policy_document.config_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
-| [aws_iam_policy_document.reporter_lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | *(conditional)* [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
-| [aws_iam_policy_document.reporter_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source | *(conditional)* [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
-| [aws_iam_role.reporter_lambda_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | *(conditional)* [AWS IAM Roles Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) |
-| [aws_iam_role_policy.reporter_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource | *(conditional)* [AWS IAM Role Policy Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) |
-| [aws_lambda_function.compliance_reporter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource | *(conditional)* [AWS Lambda Function Docs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-functions.html) |
-| [aws_cloudwatch_event_rule.reporter_schedule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource | *(conditional)* [CloudWatch Event Rule Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html) |
-| [aws_cloudwatch_event_target.reporter_lambda_target](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource | *(conditional)* [CloudWatch Event Target Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html) |
-| [aws_lambda_permission.allow_cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource | *(conditional)* [Lambda Permission Docs](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html) |
-| [archive_file.lambda_compliance_reporter_zip](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file) | data source | *(conditional)* [Archive File Data Source Docs](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file) |
+| Name                                                                                                                                                                    | Type        | Documentation                                                                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [aws_config_configuration_recorder.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_configuration_recorder)                   | resource    | [AWS Config Recorder Docs](https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#config-recorder)                         |
+| [aws_config_config_rule.ebs_encryption](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule)                                 | resource    | [AWS Config Rules Docs](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html)                          |
+| [aws_config_config_rule.iam_password_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_config_rule)                            | resource    | [AWS Config Rules Docs](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html)                          |
+| [aws_config_delivery_channel.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_delivery_channel)                               | resource    | [AWS Config Delivery Channel Docs](https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#delivery-channel)                |
+| [aws_config_configuration_recorder_status.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/config_configuration_recorder_status)     | resource    | [AWS Config Recorder Status Docs](https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html)                              |
+| [aws_iam_role.config_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                                        | resource    | [AWS IAM Roles Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html)                                                              |
+| [aws_iam_role_policy_attachment.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment)                         | resource    | [AWS IAM Policy Attachment Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage-attach-detach.html#add-policies-console) |
+| [aws_s3_bucket.config_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)                                                    | resource    | [AWS S3 Bucket Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-buckets.html)                                                 |
+| [aws_s3_bucket_lifecycle_configuration.config_lifecycle](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource    | [AWS S3 Lifecycle Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html)                                         |
+| [aws_s3_bucket_policy.config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)                                             | resource    | [AWS S3 Policy Docs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html)                                  |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity)                                           | data source | [AWS STS Caller Identity Docs](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html)                                    |
+| [aws_iam_policy_document.config_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                        | data source | [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                    |
+| [aws_iam_policy_document.config_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                      | data source | [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                    |
+| [aws_iam_policy_document.reporter_lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)               | data source | _(conditional)_ [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)    |
+| [aws_iam_policy_document.reporter_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                    | data source | _(conditional)_ [IAM Policy Document Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)    |
+| [aws_iam_role.reporter_lambda_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                               | resource    | _(conditional)_ [AWS IAM Roles Docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html)                                              |
+| [aws_iam_role_policy.reporter_lambda_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy)                               | resource    | _(conditional)_ [AWS IAM Role Policy Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy)           |
+| [aws_lambda_function.compliance_reporter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function)                                  | resource    | _(conditional)_ [AWS Lambda Function Docs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-functions.html)                                    |
+| [aws_cloudwatch_event_rule.reporter_schedule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule)                        | resource    | _(conditional)_ [CloudWatch Event Rule Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html)              |
+| [aws_cloudwatch_event_target.reporter_lambda_target](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target)               | resource    | _(conditional)_ [CloudWatch Event Target Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html)            |
+| [aws_lambda_permission.allow_cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission)                                 | resource    | _(conditional)_ [Lambda Permission Docs](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html)                         |
+| [archive_file.lambda_compliance_reporter_zip](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file)                          | data source | _(conditional)_ [Archive File Data Source Docs](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/archive_file)  |
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 5.0   |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| Name                                             | Version |
+| ------------------------------------------------ | ------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 5.0  |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_config_bucket_prefix"></a> [config\_bucket\_prefix](#input\_config\_bucket\_prefix) | The prefix for the S3 bucket name where AWS Config delivers configuration snapshots and history files | `string` | `"aws-config-"` | no |
-| <a name="input_config_iam_role_name"></a> [config\_iam\_role\_name](#input\_config\_iam\_role\_name) | The name of the IAM role that AWS Config will use to make read or write requests to the delivery channel and to call AWS Config API operations | `string` | `"aws-config-role"` | no |
-| <a name="input_config_recorder_name"></a> [config\_recorder\_name](#input\_config\_recorder\_name) | The name of the AWS Config recorder | `string` | `"aws-config-recorder"` | no |
-| <a name="input_enable_config_rules"></a> [enable\_config\_rules](#input\_enable\_config\_rules) | Whether to enable AWS Config rules | `bool` | `false` | no |
-| <a name="input_password_max_age"></a> [password\_max\_age](#input\_password\_max\_age) | The maximum age in days for IAM user passwords | `number` | `90` | no |
-| <a name="input_password_min_length"></a> [password\_min\_length](#input\_password\_min\_length) | The minimum length for IAM user passwords | `number` | `14` | no |
-| <a name="input_password_require_lowercase"></a> [password\_require\_lowercase](#input\_password\_require\_lowercase) | Whether IAM user passwords must contain at least one lowercase letter | `bool` | `true` | no |
-| <a name="input_password_require_numbers"></a> [password\_require\_numbers](#input\_password\_require\_numbers) | Whether IAM user passwords must contain at least one number | `bool` | `true` | no |
-| <a name="input_password_require_symbols"></a> [password\_require\_symbols](#input\_password\_require\_symbols) | Whether IAM user passwords must contain at least one symbol | `bool` | `true` | no |
-| <a name="input_password_require_uppercase"></a> [password\_require\_uppercase](#input\_password\_require\_uppercase) | Whether IAM user passwords must contain at least one uppercase letter | `bool` | `true` | no |
-| <a name="input_password_reuse_prevention"></a> [password\_reuse\_prevention](#input\_password\_reuse\_prevention) | The number of previous passwords that IAM users are prevented from reusing | `number` | `24` | no |
-| <a name="input_recording_frequency"></a> [recording\_frequency](#input\_recording\_frequency) | The frequency with which AWS Config records configuration changes (CONTINUOUS or DAILY) | `string` | `"CONTINUOUS"` | no |
-| <a name="input_s3_key_prefix"></a> [s3\_key\_prefix](#input\_s3\_key\_prefix) | The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files | `string` | `"config"` | no |
-| <a name="input_enable_s3_lifecycle_rules"></a> [enable\_s3\_lifecycle\_rules](#input\_enable\_s3\_lifecycle\_rules) | Whether to enable S3 lifecycle rules for config reports | `bool` | `false` | no |
-| <a name="input_report_retention_days"></a> [report\_retention\_days](#input\_report\_retention\_days) | Number of days to retain config reports in S3 before deletion (set to 0 to disable deletion) | `number` | `365` | no |
-| <a name="input_enable_glacier_transition"></a> [enable\_glacier\_transition](#input\_enable\_glacier\_transition) | Whether to transition config reports to Glacier storage class | `bool` | `false` | no |
-| <a name="input_glacier_transition_days"></a> [glacier\_transition\_days](#input\_glacier\_transition\_days) | Number of days after which to transition config reports to Glacier storage class | `number` | `90` | no |
-| <a name="input_glacier_retention_days"></a> [glacier\_retention\_days](#input\_glacier\_retention\_days) | Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion) | `number` | `730` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all resources | `map(string)` | `{}` | no |
-| <a name="input_enable_compliance_reporter"></a> [enable\_compliance\_reporter](#input\_enable\_compliance\_reporter) | Set to true to enable the scheduled Lambda function that generates PDF compliance reports | `bool` | `false` | no |
-| <a name="input_reporter_schedule_expression"></a> [reporter\_schedule\_expression](#input\_reporter\_schedule\_expression) | Cron expression for triggering the compliance report Lambda | `string` | `"cron(0 6 ? * MON *)" | no |
-| <a name="input_reporter_output_s3_prefix"></a> [reporter\_output\_s3\_prefix](#input\_reporter\_output\_s3\_prefix) | S3 key prefix within the Config bucket where PDF compliance reports will be stored | `string` | `"compliance-reports/"` | no |
-| <a name="input_reporter_lambda_memory_size"></a> [reporter\_lambda\_memory\_size](#input\_reporter\_lambda\_memory\_size) | Memory size (MB) allocated to the compliance reporter Lambda function | `number` | `256` | no |
-| <a name="input_reporter_lambda_timeout"></a> [reporter\_lambda\_timeout](#input\_reporter\_lambda\_timeout) | Timeout (seconds) for the compliance reporter Lambda function | `number` | `120` | no |
-| <a name="input_enable_encrypted_volumes_rule"></a> [enable\_encrypted\_volumes\_rule](#input\_enable\_encrypted\_volumes\_rule) | Enable the `ENCRYPTED_VOLUMES` managed rule | `bool` | `true` | no |
-| <a name="input_enable_iam_password_policy_rule"></a> [enable\_iam\_password\_policy\_rule](#input\_enable\_iam\_password\_policy\_rule) | Enable the `IAM_PASSWORD_POLICY` managed rule | `bool` | `true` | no |
-| <a name="input_enable_s3_public_access_rules"></a> [enable\_s3\_public\_access\_rules](#input\_enable\_s3\_public\_access\_rules) | Enable `S3_BUCKET_PUBLIC_READ_PROHIBITED` and `S3_BUCKET_PUBLIC_WRITE_PROHIBITED` rules | `bool` | `true` | no |
-| <a name="input_enable_mfa_for_iam_console_rule"></a> [enable\_mfa\_for\_iam\_console\_rule](#input\_enable\_mfa\_for\_iam\_console\_rule) | Enable the `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS` rule | `bool` | `true` | no |
-| <a name="input_enable_ec2_volume_inuse_rule"></a> [enable\_ec2\_volume\_inuse\_rule](#input\_enable\_ec2\_volume\_inuse\_rule) | Enable the `EC2_VOLUME_INUSE_CHECK` rule | `bool` | `true` | no |
-| <a name="input_enable_eip_attached_rule"></a> [enable\_eip\_attached\_rule](#input\_enable\_eip\_attached\_rule) | Enable the `EIP_ATTACHED` rule | `bool` | `true` | no |
-| <a name="input_enable_rds_storage_encrypted_rule"></a> [enable\_rds\_storage\_encrypted\_rule](#input\_enable\_rds\_storage\_encrypted\_rule) | Enable the `RDS_STORAGE_ENCRYPTED` rule | `bool` | `true` | no |
+| Name                                                                                                                                 | Description                                                                                                                                    | Type          | Default                 | Required |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------------- | :------: |
+| <a name="input_config_bucket_prefix"></a> [config_bucket_prefix](#input_config_bucket_prefix)                                        | The prefix for the S3 bucket name where AWS Config delivers configuration snapshots and history files                                          | `string`      | `"aws-config-"`         |    no    |
+| <a name="input_config_iam_role_name"></a> [config_iam_role_name](#input_config_iam_role_name)                                        | The name of the IAM role that AWS Config will use to make read or write requests to the delivery channel and to call AWS Config API operations | `string`      | `"aws-config-role"`     |    no    |
+| <a name="input_config_recorder_name"></a> [config_recorder_name](#input_config_recorder_name)                                        | The name of the AWS Config recorder                                                                                                            | `string`      | `"aws-config-recorder"` |    no    |
+| <a name="input_enable_config_rules"></a> [enable_config_rules](#input_enable_config_rules)                                           | Whether to enable AWS Config rules                                                                                                             | `bool`        | `false`                 |    no    |
+| <a name="input_password_max_age"></a> [password_max_age](#input_password_max_age)                                                    | The maximum age in days for IAM user passwords                                                                                                 | `number`      | `90`                    |    no    |
+| <a name="input_password_min_length"></a> [password_min_length](#input_password_min_length)                                           | The minimum length for IAM user passwords                                                                                                      | `number`      | `14`                    |    no    |
+| <a name="input_password_require_lowercase"></a> [password_require_lowercase](#input_password_require_lowercase)                      | Whether IAM user passwords must contain at least one lowercase letter                                                                          | `bool`        | `true`                  |    no    |
+| <a name="input_password_require_numbers"></a> [password_require_numbers](#input_password_require_numbers)                            | Whether IAM user passwords must contain at least one number                                                                                    | `bool`        | `true`                  |    no    |
+| <a name="input_password_require_symbols"></a> [password_require_symbols](#input_password_require_symbols)                            | Whether IAM user passwords must contain at least one symbol                                                                                    | `bool`        | `true`                  |    no    |
+| <a name="input_password_require_uppercase"></a> [password_require_uppercase](#input_password_require_uppercase)                      | Whether IAM user passwords must contain at least one uppercase letter                                                                          | `bool`        | `true`                  |    no    |
+| <a name="input_password_reuse_prevention"></a> [password_reuse_prevention](#input_password_reuse_prevention)                         | The number of previous passwords that IAM users are prevented from reusing                                                                     | `number`      | `24`                    |    no    |
+| <a name="input_recording_frequency"></a> [recording_frequency](#input_recording_frequency)                                           | The frequency with which AWS Config records configuration changes (CONTINUOUS or DAILY)                                                        | `string`      | `"CONTINUOUS"`          |    no    |
+| <a name="input_s3_key_prefix"></a> [s3_key_prefix](#input_s3_key_prefix)                                                             | The prefix for the S3 bucket where AWS Config delivers configuration snapshots and history files                                               | `string`      | `"config"`              |    no    |
+| <a name="input_enable_s3_lifecycle_rules"></a> [enable_s3_lifecycle_rules](#input_enable_s3_lifecycle_rules)                         | Whether to enable S3 lifecycle rules for config reports                                                                                        | `bool`        | `false`                 |    no    |
+| <a name="input_report_retention_days"></a> [report_retention_days](#input_report_retention_days)                                     | Number of days to retain config reports in S3 before deletion (set to 0 to disable deletion)                                                   | `number`      | `365`                   |    no    |
+| <a name="input_enable_glacier_transition"></a> [enable_glacier_transition](#input_enable_glacier_transition)                         | Whether to transition config reports to Glacier storage class                                                                                  | `bool`        | `false`                 |    no    |
+| <a name="input_glacier_transition_days"></a> [glacier_transition_days](#input_glacier_transition_days)                               | Number of days after which to transition config reports to Glacier storage class                                                               | `number`      | `90`                    |    no    |
+| <a name="input_glacier_retention_days"></a> [glacier_retention_days](#input_glacier_retention_days)                                  | Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion)                                              | `number`      | `730`                   |    no    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                                                        | A map of tags to add to all resources                                                                                                          | `map(string)` | `{}`                    |    no    |
+| <a name="input_enable_compliance_reporter"></a> [enable_compliance_reporter](#input_enable_compliance_reporter)                      | Set to true to enable the scheduled Lambda function that generates PDF compliance reports                                                      | `bool`        | `false`                 |    no    |
+| <a name="input_reporter_schedule_expression"></a> [reporter_schedule_expression](#input_reporter_schedule_expression)                | Cron expression for triggering the compliance report Lambda                                                                                    | `string`      | `"cron(0 6 ? _ MON _)"  |    no    |
+| <a name="input_reporter_output_s3_prefix"></a> [reporter_output_s3_prefix](#input_reporter_output_s3_prefix)                         | S3 key prefix within the Config bucket where PDF compliance reports will be stored                                                             | `string`      | `"compliance-reports/"` |    no    |
+| <a name="input_reporter_lambda_memory_size"></a> [reporter_lambda_memory_size](#input_reporter_lambda_memory_size)                   | Memory size (MB) allocated to the compliance reporter Lambda function                                                                          | `number`      | `256`                   |    no    |
+| <a name="input_reporter_lambda_timeout"></a> [reporter_lambda_timeout](#input_reporter_lambda_timeout)                               | Timeout (seconds) for the compliance reporter Lambda function                                                                                  | `number`      | `120`                   |    no    |
+| <a name="input_enable_ebs_encryption_rule"></a> [enable_ebs_encryption_rule](#input_enable_ebs_encryption_rule)                      | Enable the `ENCRYPTED_VOLUMES` managed rule to check if EBS volumes are encrypted                                                              | `bool`        | `false`                 |    no    |
+| <a name="input_enable_iam_password_policy_rule"></a> [enable_iam_password_policy_rule](#input_enable_iam_password_policy_rule)       | Enable the `IAM_PASSWORD_POLICY` managed rule                                                                                                  | `bool`        | `true`                  |    no    |
+| <a name="input_enable_s3_public_access_rules"></a> [enable_s3_public_access_rules](#input_enable_s3_public_access_rules)             | Enable `S3_BUCKET_PUBLIC_READ_PROHIBITED` and `S3_BUCKET_PUBLIC_WRITE_PROHIBITED` rules                                                        | `bool`        | `true`                  |    no    |
+| <a name="input_enable_mfa_for_iam_console_rule"></a> [enable_mfa_for_iam_console_rule](#input_enable_mfa_for_iam_console_rule)       | Enable the `MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS` rule                                                                                           | `bool`        | `true`                  |    no    |
+| <a name="input_enable_ec2_volume_inuse_rule"></a> [enable_ec2_volume_inuse_rule](#input_enable_ec2_volume_inuse_rule)                | Enable the `EC2_VOLUME_INUSE_CHECK` rule                                                                                                       | `bool`        | `true`                  |    no    |
+| <a name="input_enable_eip_attached_rule"></a> [enable_eip_attached_rule](#input_enable_eip_attached_rule)                            | Enable the `EIP_ATTACHED` rule                                                                                                                 | `bool`        | `true`                  |    no    |
+| <a name="input_enable_rds_storage_encrypted_rule"></a> [enable_rds_storage_encrypted_rule](#input_enable_rds_storage_encrypted_rule) | Enable the `RDS_STORAGE_ENCRYPTED` rule                                                                                                        | `bool`        | `true`                  |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_config_bucket_arn"></a> [config\_bucket\_arn](#output\_config\_bucket\_arn) | The ARN of the S3 bucket used for AWS Config recordings |
-| <a name="output_config_bucket_id"></a> [config\_bucket\_id](#output\_config\_bucket\_id) | The ID of the S3 bucket used for AWS Config recordings |
-| <a name="output_config_iam_role_arn"></a> [config\_iam\_role\_arn](#output\_config\_iam\_role\_arn) | The ARN of the IAM role used for AWS Config |
-| <a name="output_config_recorder_id"></a> [config\_recorder\_id](#output\_config\_recorder\_id) | The ID of the AWS Config recorder |
-| <a name="output_config_rules_arns"></a> [config\_rules\_arns](#output\_config\_rules\_arns) | Map of all Config rules ARNs |
-| <a name="output_delivery_channel_id"></a> [delivery\_channel\_id](#output\_delivery\_channel\_id) | The ID of the AWS Config delivery channel |
-| <a name="output_ebs_encryption_rule_arn"></a> [ebs\_encryption\_rule\_arn](#output\_ebs\_encryption\_rule\_arn) | The ARN of the EBS encryption Config rule |
-| <a name="output_password_policy_rule_arn"></a> [password\_policy\_rule\_arn](#output\_password\_policy\_rule\_arn) | The ARN of the IAM password policy Config rule |
-| <a name="output_compliance_reporter_lambda_arn"></a> [compliance\_reporter\_lambda\_arn](#output\_compliance\_reporter\_lambda\_arn) | The ARN of the compliance reporter Lambda function (only if enabled) |
-| <a name="output_compliance_reporter_lambda_role_arn"></a> [compliance\_reporter\_lambda\_role\_arn](#output\_compliance\_reporter\_lambda\_role\_arn) | The ARN of the IAM role for the compliance reporter Lambda function (only if enabled) |
+| Name                                                                                                                                         | Description                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| <a name="output_config_bucket_arn"></a> [config_bucket_arn](#output_config_bucket_arn)                                                       | The ARN of the S3 bucket used for AWS Config recordings                               |
+| <a name="output_config_bucket_id"></a> [config_bucket_id](#output_config_bucket_id)                                                          | The ID of the S3 bucket used for AWS Config recordings                                |
+| <a name="output_config_iam_role_arn"></a> [config_iam_role_arn](#output_config_iam_role_arn)                                                 | The ARN of the IAM role used for AWS Config                                           |
+| <a name="output_config_recorder_id"></a> [config_recorder_id](#output_config_recorder_id)                                                    | The ID of the AWS Config recorder                                                     |
+| <a name="output_config_rules_arns"></a> [config_rules_arns](#output_config_rules_arns)                                                       | Map of all Config rules ARNs                                                          |
+| <a name="output_delivery_channel_id"></a> [delivery_channel_id](#output_delivery_channel_id)                                                 | The ID of the AWS Config delivery channel                                             |
+| <a name="output_ebs_encryption_rule_arn"></a> [ebs_encryption_rule_arn](#output_ebs_encryption_rule_arn)                                     | The ARN of the EBS encryption Config rule                                             |
+| <a name="output_password_policy_rule_arn"></a> [password_policy_rule_arn](#output_password_policy_rule_arn)                                  | The ARN of the IAM password policy Config rule                                        |
+| <a name="output_compliance_reporter_lambda_arn"></a> [compliance_reporter_lambda_arn](#output_compliance_reporter_lambda_arn)                | The ARN of the compliance reporter Lambda function (only if enabled)                  |
+| <a name="output_compliance_reporter_lambda_role_arn"></a> [compliance_reporter_lambda_role_arn](#output_compliance_reporter_lambda_role_arn) | The ARN of the IAM role for the compliance reporter Lambda function (only if enabled) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 +## Optional Compliance Reporter
-+
-+This module includes an optional feature to automatically generate PDF compliance reports on a schedule.
-+
-+**How it works:**
-+
-+1.  If `enable_compliance_reporter` is set to `true`, a Lambda function is deployed.
-+2.  A CloudWatch Event Rule triggers this Lambda function based on the `reporter_schedule_expression` (defaults to the 1st of every month at 6 AM UTC).
-+3.  The Lambda function uses the AWS SDK (`boto3`) to query the AWS Config service for the current compliance status of all Config Rules in the account and region.
-+4.  It generates a PDF report summarizing:
-+    *   Overall compliance status (Counts of Compliant/Non-Compliant rules).
-+    *   A list of Non-Compliant rules.
-+    *   For each Non-Compliant rule, a list of associated Non-Compliant resources (Resource Type and ID).
-+    *   The AWS Account ID.
-+5.  The generated PDF report is uploaded to the main Config S3 bucket under the prefix specified by `reporter_output_s3_prefix` (defaults to `compliance-reports/`). The filename includes the date and time of generation.
-+
-+**Note:** This reporter queries the *live* compliance status from the AWS Config service API. It does not parse the historical logs stored in the S3 bucket.
-+
-+<p align="right">(<a href="#readme-top">back to top</a>)</p>
-+
- <!-- CONTACT -->
- ## Contact
+
+- +This module includes an optional feature to automatically generate PDF compliance reports on a schedule.
+- +**How it works:**
+- +1. If `enable_compliance_reporter` is set to `true`, a Lambda function is deployed.
+  +2. A CloudWatch Event Rule triggers this Lambda function based on the `reporter_schedule_expression` (defaults to the 1st of every month at 6 AM UTC).
+  +3. The Lambda function uses the AWS SDK (`boto3`) to query the AWS Config service for the current compliance status of all Config Rules in the account and region.
+  +4. It generates a PDF report summarizing:
+- - Overall compliance status (Counts of Compliant/Non-Compliant rules).
+- - A list of Non-Compliant rules.
+- - For each Non-Compliant rule, a list of associated Non-Compliant resources (Resource Type and ID).
+- - The AWS Account ID.
+    +5. The generated PDF report is uploaded to the main Config S3 bucket under the prefix specified by `reporter_output_s3_prefix` (defaults to `compliance-reports/`). The filename includes the date and time of generation.
+- +**Note:** This reporter queries the _live_ compliance status from the AWS Config service API. It does not parse the historical logs stored in the S3 bucket.
+- +<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- <!-- CONTACT -->
+  ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
 
@@ -412,14 +413,16 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
+- [Wesley Bey](https://github.com/beywesley)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

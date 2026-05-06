@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -54,6 +55,7 @@
 This Terraform module creates and manages AWS Backup plans with comprehensive scheduling options and disaster recovery capabilities. The module features a powerful prefix-based naming system that allows you to create unlimited variations of backup plans with clear identification and organization.
 
 Key features:
+
 - **Multiple Schedule Types**: Hourly, daily, weekly, monthly, and yearly backup schedules
 - **Disaster Recovery**: Built-in DR replication support with configurable retention
 - **Flexible Resource Selection**: Tag-based and resource-specific backup selection
@@ -64,6 +66,7 @@ Key features:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Hourly Backup Example
@@ -815,128 +818,131 @@ See the [Inputs](#inputs) section for a complete list of available arguments.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_backup_plan.individual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html) |
-| [aws_backup_plan.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html) |
-| [aws_backup_plan.dr_individual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html) |
-| [aws_backup_selection.individual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html) |
-| [aws_backup_selection.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html) |
-| [aws_iam_role.backup_selection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/iam-service-roles.html) |
-| [aws_iam_role_policy_attachment.backup_selection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/iam-service-roles.html) |
+| Name                                                                                                                                                      | Type     | Documentation                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| [aws_backup_plan.individual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan)                                     | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html) |
+| [aws_backup_plan.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan)                                       | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html) |
+| [aws_backup_plan.dr_individual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_plan)                                  | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html) |
+| [aws_backup_selection.individual](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection)                           | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html)    |
+| [aws_backup_selection.combined](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/backup_selection)                             | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/assigning-resources.html)    |
+| [aws_iam_role.backup_selection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                     | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/iam-service-roles.html)      |
+| [aws_iam_role_policy_attachment.backup_selection](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource | [AWS Documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/iam-service-roles.html)      |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
 ### Core Configuration
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | Base name for the backup plan (prefix will be prepended) | `string` | n/a | yes |
-| plan_prefix | Prefix to prepend to all resource names for identification | `string` | `""` | no |
-| server_selection_tag | Tag key to look for on servers/resources | `string` | `null` | no |
-| server_selection_value | Tag value to match | `string` | `"true"` | no |
-| use_individual_plans | Create separate plans per schedule or one combined plan | `bool` | `false` | no |
-| create_separate_dr_plans | Create DR as separate plans instead of copy actions | `bool` | `false` | no |
-| create_backup_selection | Create backup selection resources | `bool` | `false` | no |
-| enable_s3_backup | Enable S3 backup capabilities | `bool` | `false` | no |
-| tags | Tags to apply to all resources | `map(string)` | `{}` | no |
+| Name                     | Description                                                | Type          | Default  | Required |
+| ------------------------ | ---------------------------------------------------------- | ------------- | -------- | :------: |
+| name                     | Base name for the backup plan (prefix will be prepended)   | `string`      | n/a      |   yes    |
+| plan_prefix              | Prefix to prepend to all resource names for identification | `string`      | `""`     |    no    |
+| server_selection_tag     | Tag key to look for on servers/resources                   | `string`      | `null`   |    no    |
+| server_selection_value   | Tag value to match                                         | `string`      | `"true"` |    no    |
+| use_individual_plans     | Create separate plans per schedule or one combined plan    | `bool`        | `false`  |    no    |
+| create_separate_dr_plans | Create DR as separate plans instead of copy actions        | `bool`        | `false`  |    no    |
+| create_backup_selection  | Create backup selection resources                          | `bool`        | `false`  |    no    |
+| enable_s3_backup         | Enable S3 backup capabilities                              | `bool`        | `false`  |    no    |
+| tags                     | Tags to apply to all resources                             | `map(string)` | `{}`     |    no    |
 
 ### Schedule Enable Flags
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| enable_hourly_plan | Enable hourly backup schedule | `bool` | `false` | no |
-| enable_daily_plan | Enable daily backup schedule | `bool` | `false` | no |
-| enable_weekly_plan | Enable weekly backup schedule | `bool` | `false` | no |
-| enable_monthly_plan | Enable monthly backup schedule | `bool` | `false` | no |
-| enable_yearly_plan | Enable yearly backup schedule | `bool` | `false` | no |
+| Name                | Description                    | Type   | Default | Required |
+| ------------------- | ------------------------------ | ------ | ------- | :------: |
+| enable_hourly_plan  | Enable hourly backup schedule  | `bool` | `false` |    no    |
+| enable_daily_plan   | Enable daily backup schedule   | `bool` | `false` |    no    |
+| enable_weekly_plan  | Enable weekly backup schedule  | `bool` | `false` |    no    |
+| enable_monthly_plan | Enable monthly backup schedule | `bool` | `false` |    no    |
+| enable_yearly_plan  | Enable yearly backup schedule  | `bool` | `false` |    no    |
 
 ### Schedule Configuration
 
 For each schedule type (hourly, daily, weekly, monthly, yearly):
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| `<schedule>_schedule` | Custom cron expression | `string` | See defaults | no |
-| `<schedule>_retention_days` | Days to retain backups | `number` | Varies | no |
-| `<schedule>_vault_name` | Target vault name | `string` | `<schedule>` | no |
-| `<schedule>_enable_continuous_backup` | Enable continuous backup | `bool` | `false` | no |
-| `<schedule>_start_window` | Start window in minutes | `number` | `60` | no |
-| `<schedule>_completion_window` | Completion window in minutes | `number` | Varies | no |
-| `<schedule>_cold_storage_after` | Days before cold storage | `number` | `null` | no |
+| Name                                  | Description                  | Type     | Default      | Required |
+| ------------------------------------- | ---------------------------- | -------- | ------------ | :------: |
+| `<schedule>_schedule`                 | Custom cron expression       | `string` | See defaults |    no    |
+| `<schedule>_retention_days`           | Days to retain backups       | `number` | Varies       |    no    |
+| `<schedule>_vault_name`               | Target vault name            | `string` | `<schedule>` |    no    |
+| `<schedule>_enable_continuous_backup` | Enable continuous backup     | `bool`   | `false`      |    no    |
+| `<schedule>_start_window`             | Start window in minutes      | `number` | `60`         |    no    |
+| `<schedule>_completion_window`        | Completion window in minutes | `number` | Varies       |    no    |
+| `<schedule>_cold_storage_after`       | Days before cold storage     | `number` | `null`       |    no    |
 
 ### DR Configuration
 
 For each schedule type:
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| enable_`<schedule>`_dr_copy | Enable DR copy for schedule | `bool` | `false` | no |
-| `<schedule>_dr_vault_arn` | ARN of DR vault | `string` | `null` | no |
-| `<schedule>_dr_vault_name` | Name of DR vault | `string` | `null` | no |
-| `<schedule>_dr_retention_days` | DR retention period | `number` | `null` | no |
-| `<schedule>_dr_cold_storage_after` | Days before DR cold storage | `number` | `null` | no |
+| Name                               | Description                 | Type     | Default | Required |
+| ---------------------------------- | --------------------------- | -------- | ------- | :------: |
+| enable\_`<schedule>`\_dr_copy      | Enable DR copy for schedule | `bool`   | `false` |    no    |
+| `<schedule>_dr_vault_arn`          | ARN of DR vault             | `string` | `null`  |    no    |
+| `<schedule>_dr_vault_name`         | Name of DR vault            | `string` | `null`  |    no    |
+| `<schedule>_dr_retention_days`     | DR retention period         | `number` | `null`  |    no    |
+| `<schedule>_dr_cold_storage_after` | Days before DR cold storage | `number` | `null`  |    no    |
 
 ### Resource Selection
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| backup_selection_tags | Tags to select resources for backup | `list(object({type = string, key = string, value = string}))` | `[]` | no |
-| backup_selection_resources | Specific resource ARNs to include | `list(string)` | `[]` | no |
-| backup_selection_not_resources | Resource ARNs to exclude | `list(string)` | `[]` | no |
-| backup_selection_conditions | Advanced selection conditions | `list(object)` | `[]` | no |
+| Name                           | Description                         | Type                                                          | Default | Required |
+| ------------------------------ | ----------------------------------- | ------------------------------------------------------------- | ------- | :------: |
+| backup_selection_tags          | Tags to select resources for backup | `list(object({type = string, key = string, value = string}))` | `[]`    |    no    |
+| backup_selection_resources     | Specific resource ARNs to include   | `list(string)`                                                | `[]`    |    no    |
+| backup_selection_not_resources | Resource ARNs to exclude            | `list(string)`                                                | `[]`    |    no    |
+| backup_selection_conditions    | Advanced selection conditions       | `list(object)`                                                | `[]`    |    no    |
 
 ### Backup Exclusions
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| enable_backup_exclusions | Enable backup exclusions based on tags | `bool` | `false` | no |
-| backup_exclusion_tag_key | Tag key to use for excluding resources from backups | `string` | `"BackupExclude"` | no |
-| backup_exclusion_tag_value | Tag value to match for excluding resources from backups | `string` | `"true"` | no |
-| additional_exclusion_tags | Additional tag conditions to exclude resources from backups | `list(object({key = string, value = string}))` | `[]` | no |
+| Name                       | Description                                                 | Type                                           | Default           | Required |
+| -------------------------- | ----------------------------------------------------------- | ---------------------------------------------- | ----------------- | :------: |
+| enable_backup_exclusions   | Enable backup exclusions based on tags                      | `bool`                                         | `false`           |    no    |
+| backup_exclusion_tag_key   | Tag key to use for excluding resources from backups         | `string`                                       | `"BackupExclude"` |    no    |
+| backup_exclusion_tag_value | Tag value to match for excluding resources from backups     | `string`                                       | `"true"`          |    no    |
+| additional_exclusion_tags  | Additional tag conditions to exclude resources from backups | `list(object({key = string, value = string}))` | `[]`              |    no    |
 
 ### Per-Schedule Selection Tags
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| `<schedule>_selection_tag_key` | Tag key for schedule selection | `string` | Smart default | no |
-| `<schedule>_selection_tag_value` | Tag value for schedule selection | `string` | `"true"` | no |
+| Name                             | Description                      | Type     | Default       | Required |
+| -------------------------------- | -------------------------------- | -------- | ------------- | :------: |
+| `<schedule>_selection_tag_key`   | Tag key for schedule selection   | `string` | Smart default |    no    |
+| `<schedule>_selection_tag_value` | Tag value for schedule selection | `string` | `"true"`      |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| plan_prefix | The prefix used for all plan names |
-| plan_base_name | The base name used for all plans (includes prefix) |
-| individual_plan_ids | Map of plan IDs by schedule type |
-| individual_plan_arns | Map of plan ARNs by schedule type |
-| dr_plan_ids | Map of DR plan IDs (if using separate DR plans) |
-| dr_plan_arns | Map of DR plan ARNs (if using separate DR plans) |
-| backup_selection_role_arn | ARN of the IAM role for selections |
-| enabled_schedules | List of enabled schedule types |
-| enabled_dr_schedules | List of enabled DR schedule types |
+| Name                      | Description                                        |
+| ------------------------- | -------------------------------------------------- |
+| plan_prefix               | The prefix used for all plan names                 |
+| plan_base_name            | The base name used for all plans (includes prefix) |
+| individual_plan_ids       | Map of plan IDs by schedule type                   |
+| individual_plan_arns      | Map of plan ARNs by schedule type                  |
+| dr_plan_ids               | Map of DR plan IDs (if using separate DR plans)    |
+| dr_plan_arns              | Map of DR plan ARNs (if using separate DR plans)   |
+| backup_selection_role_arn | ARN of the IAM role for selections                 |
+| enabled_schedules         | List of enabled schedule types                     |
+| enabled_dr_schedules      | List of enabled DR schedule types                  |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -944,6 +950,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - <info@thinkstack.co>
@@ -953,16 +960,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

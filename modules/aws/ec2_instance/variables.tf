@@ -41,7 +41,7 @@ variable "disable_api_termination" {
 variable "ebs_optimized" {
   type        = bool
   description = "If true, the launched EC2 instance will be EBS-optimized"
-  default     = false
+  default     = true
   validation {
     condition     = can(regex("^(true|false)$", var.ebs_optimized))
     error_message = "The value must be either true or false."
@@ -91,9 +91,9 @@ variable "key_name" {
   default     = ""
 }
 
-variable "monitoring" {
+variable "enable_detailed_monitoring" {
   type        = bool
-  description = "If true, the launched EC2 instance will have detailed monitoring enabled"
+  description = "(Optional) Enables detailed monitoring (1-min intervals, ~$2.10/month/instance). When false, uses basic monitoring (5-min intervals, free). Default: false"
   default     = false
 }
 
@@ -183,6 +183,18 @@ variable "tags" {
   default     = {}
 }
 
+variable "exclude_root_volume_snapshot" {
+  type        = bool
+  description = "(Optional) When true, exclude selected tag keys from the root EBS volume tags to prevent the root volume from being selected separately by tag-based backup workflows. Instance tags are unchanged."
+  default     = false
+}
+
+variable "root_volume_excluded_tag_keys" {
+  type        = list(string)
+  description = "(Optional) Tag keys to remove from root EBS volume tags when exclude_root_volume_snapshot is true."
+  default     = []
+}
+
 variable "tenancy" {
   type        = string
   description = "The tenancy of the instance (if the instance is running in a VPC). Available values: default, dedicated, host."
@@ -222,63 +234,18 @@ variable "root_volume_throughput" {
   default     = 125
 }
 
-######################################
-# Performance Optimization Variables
-######################################
-# These variables are optional performance optimizations to reduce redundant AWS API calls.
-# When multiple module instances are deployed, each module traditionally queries AWS for
-# region and account information independently, resulting in hundreds of duplicate API calls.
-# 
-# By passing these values as variables from the root module (which queries once), we can:
-# - Reduce API calls by 99% in large deployments (e.g., 458 calls → 2 calls)
-# - Improve terraform plan/apply speed by 10-15%
-# - Reduce risk of AWS API rate limiting
-# - Decrease network latency during Terraform operations
-#
-# These variables are OPTIONAL and maintain backward compatibility:
-# - If provided: Uses the passed values (fast, no API call)
-# - If null: Falls back to querying AWS directly (slow, but works with old code)
-
-variable "aws_region" {
-  type        = string
-  description = <<-EOT
-    (Optional) AWS region name to use instead of querying via data source.
-    
-    PERFORMANCE OPTIMIZATION: Pass this value from the root module to avoid redundant 
-    AWS API calls. In deployments with many module instances, this can reduce plan time 
-    by 10-15% and eliminate hundreds of duplicate API calls.
-    
-    Example in root module:
-      data "aws_region" "current" {}
-      
-      module "ec2" {
-        source     = "..."
-        aws_region = data.aws_region.current.name  # Pass once, reuse everywhere
-      }
-    
-    If not provided, the module will query AWS directly (backward compatible).
-  EOT
+variable "enable_recover_action" {
+  type        = bool
+  description = "(Optional) Whether to attach the EC2 recover action to the system status check alarm. When null (default), auto-detected from the instance type. Set to false to explicitly disable for instances where the recover action is not valid."
   default     = null
 }
 
-variable "aws_account_id" {
-  type        = string
-  description = <<-EOT
-    (Optional) AWS account ID to use instead of querying via data source.
-    
-    PERFORMANCE OPTIMIZATION: Pass this value from the root module to avoid redundant 
-    AWS API calls. In deployments with many module instances, this can reduce plan time 
-    by 10-15% and eliminate hundreds of duplicate API calls.
-    
-    Example in root module:
-      data "aws_caller_identity" "current" {}
-      
-      module "ec2" {
-        source         = "..."
-        aws_account_id = data.aws_caller_identity.current.account_id  # Pass once, reuse everywhere
-      }
-    
-    If not provided, the module will query AWS directly (backward compatible).
-  EOT
-  default     = null
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create CloudWatch status check alarms for the instance. Set to false to reduce CloudWatch costs. Default: true"
+  default     = true
+  validation {
+    condition     = can(regex("^(true|false)$", var.create_cloudwatch_alarms))
+    error_message = "The value must be either true or false."
+  }
 }

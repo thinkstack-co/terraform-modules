@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,8 +58,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -79,18 +78,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -98,36 +98,37 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                                                                            | Type     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | [aws_lambda_event_source_mapping.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_batch_size"></a> [batch\_size](#input\_batch\_size) | (Optional) The largest number of records that Lambda will retrieve from your event source at the time of invocation. Defaults to 100 for DynamoDB and Kinesis, 10 for SQS. | `string` | `10` | no |
-| <a name="input_enabled"></a> [enabled](#input\_enabled) | (Optional) Determines if the mapping will be enabled on creation. Defaults to true. | `string` | `true` | no |
-| <a name="input_event_source_arn"></a> [event\_source\_arn](#input\_event\_source\_arn) | (Required) The event source ARN - can either be a Kinesis, DynamoDB stream, or SQS queue. | `string` | n/a | yes |
-| <a name="input_function_name"></a> [function\_name](#input\_function\_name) | (Required) The name or the ARN of the Lambda function that will be subscribing to events. | `string` | n/a | yes |
-| <a name="input_starting_position"></a> [starting\_position](#input\_starting\_position) | Optional) The position in the stream where AWS Lambda should start reading. Must be one of AT\_TIMESTAMP (Kinesis only), LATEST or TRIM\_HORIZON if getting events from Kinesis or DynamoDB. Must not be provided if getting events from SQS. More information about these positions can be found in the AWS DynamoDB Streams API Reference and AWS Kinesis API Reference. | `string` | `""` | no |
-| <a name="input_starting_position_timestamp"></a> [starting\_position\_timestamp](#input\_starting\_position\_timestamp) | (Optional) A timestamp in RFC3339 format of the data record which to start reading when using starting\_position set to AT\_TIMESTAMP. If a record with this exact timestamp does not exist, the next later record is chosen. If the timestamp is older than the current trim horizon, the oldest available record is chosen. | `string` | `""` | no |
+| Name                                                                                                               | Description                                                                                                                                                                                                                                                                                                                                                              | Type     | Default | Required |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------- | :------: |
+| <a name="input_batch_size"></a> [batch_size](#input_batch_size)                                                    | (Optional) The largest number of records that Lambda will retrieve from your event source at the time of invocation. Defaults to 100 for DynamoDB and Kinesis, 10 for SQS.                                                                                                                                                                                               | `string` | `10`    |    no    |
+| <a name="input_enabled"></a> [enabled](#input_enabled)                                                             | (Optional) Determines if the mapping will be enabled on creation. Defaults to true.                                                                                                                                                                                                                                                                                      | `string` | `true`  |    no    |
+| <a name="input_event_source_arn"></a> [event_source_arn](#input_event_source_arn)                                  | (Required) The event source ARN - can either be a Kinesis, DynamoDB stream, or SQS queue.                                                                                                                                                                                                                                                                                | `string` | n/a     |   yes    |
+| <a name="input_function_name"></a> [function_name](#input_function_name)                                           | (Required) The name or the ARN of the Lambda function that will be subscribing to events.                                                                                                                                                                                                                                                                                | `string` | n/a     |   yes    |
+| <a name="input_starting_position"></a> [starting_position](#input_starting_position)                               | Optional) The position in the stream where AWS Lambda should start reading. Must be one of AT_TIMESTAMP (Kinesis only), LATEST or TRIM_HORIZON if getting events from Kinesis or DynamoDB. Must not be provided if getting events from SQS. More information about these positions can be found in the AWS DynamoDB Streams API Reference and AWS Kinesis API Reference. | `string` | `""`    |    no    |
+| <a name="input_starting_position_timestamp"></a> [starting_position_timestamp](#input_starting_position_timestamp) | (Optional) A timestamp in RFC3339 format of the data record which to start reading when using starting_position set to AT_TIMESTAMP. If a record with this exact timestamp does not exist, the next later record is chosen. If the timestamp is older than the current trim horizon, the oldest available record is chosen.                                              | `string` | `""`    |    no    |
 
 ## Outputs
 
 No outputs.
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -136,19 +137,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

@@ -1,3 +1,16 @@
+"""AWS Config compliance report generator (Lambda handler).
+
+Walks every AWS Config rule in the account, collects compliance status and
+non-compliant resources, renders a PDF report, and uploads it to S3.
+Triggered on a CloudWatch Events schedule.
+
+Inputs:  Lambda event/context are unused. Configuration via env vars
+         (REPORT_BUCKET, ACCOUNT_DISPLAY_NAME, etc.).
+Outputs: PDF written to s3://${REPORT_BUCKET}/<account>/<timestamp>.pdf.
+Side effects: AWS Config, IAM, STS, Organizations, S3, Resource Groups
+              Tagging API reads; one S3 PutObject per invocation.
+"""
+
 import io
 import os
 from datetime import datetime, timezone
@@ -8,6 +21,37 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+
+def build_table_style(
+    header_background,
+    row_backgrounds,
+    header_align="CENTER",
+    body_align="LEFT",
+):
+    """Return a ReportLab table style list parameterised by header/body colors.
+
+    Centralised so every table in the report shares the same look.
+    """
+    return [
+        ("BACKGROUND", (0, 0), (-1, 0), header_background),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("ALIGN", (0, 0), (-1, -1), body_align),
+        ("ALIGN", (0, 0), (-1, 0), header_align),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+        (
+            "ROWBACKGROUNDS",
+            (0, 1),
+            (-1, -1),
+            row_backgrounds,
+        ),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOX", (0, 0), (-1, -1), 1, colors.gray),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+    ]
 
 
 def lookup_iam_username_by_id(user_id):
@@ -26,8 +70,11 @@ def lookup_iam_username_by_id(user_id):
 
 
 def get_account_info():
-    import os
+    """Return (account_display_name, account_id) for the current account.
 
+    Tries Organizations first (works for member accounts in an Org), falls
+    back to the ACCOUNT_DISPLAY_NAME env var, then to the IAM account alias.
+    """
     sts = boto3.client("sts")
     org = boto3.client("organizations")
     account_id = sts.get_caller_identity()["Account"]
@@ -36,7 +83,7 @@ def get_account_info():
         response = org.describe_account(AccountId=account_id)
         account_name = response["Account"]["Name"]
         return account_name, account_id
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"ERROR: Failed to fetch Organizations account name: {e}")
     # 2. Try environment variable
     account_env = os.environ.get("ACCOUNT_DISPLAY_NAME")
@@ -47,12 +94,13 @@ def get_account_info():
     try:
         aliases = iam.list_account_aliases().get("AccountAliases", [])
         alias = aliases[0] if aliases else "N/A"
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         alias = "N/A"
     return alias, account_id
 
 
 def get_config_rules():
+    """Return every AWS Config rule defined in this account."""
     config = boto3.client("config")
     rules = []
     paginator = config.get_paginator("describe_config_rules")
@@ -62,6 +110,7 @@ def get_config_rules():
 
 
 def get_compliance_status():
+    """Return {rule_name: compliance_type} for every Config rule."""
     config = boto3.client("config")
     status = {}
     paginator = config.get_paginator("describe_compliance_by_config_rule")
@@ -72,12 +121,18 @@ def get_compliance_status():
 
 
 def get_non_compliant_resources(rule_name):
+    """Return non-compliant resources for a given Config rule, with friendly names.
+
+    For IAM users we resolve the internal AIDA UserId back to the console
+    UserName so the report is human-readable.
+    """
     config = boto3.client("config")
     resources = []
     paginator = config.get_paginator("get_compliance_details_by_config_rule")
 
     for page in paginator.paginate(
-        ConfigRuleName=rule_name, ComplianceTypes=["NON_COMPLIANT"]
+        ConfigRuleName=rule_name,
+        ComplianceTypes=["NON_COMPLIANT"],
     ):
         for result in page["EvaluationResults"]:
             res = result["EvaluationResultIdentifier"]["EvaluationResultQualifier"]
@@ -119,6 +174,7 @@ def get_non_compliant_resources(rule_name):
 
 
 def get_resource_name_from_tag(arn_or_id):
+    """Return the value of the resource's `Name` tag, or the ARN if not tagged."""
     client = boto3.client("resourcegroupstaggingapi")
     try:
         response = client.get_resources(ResourceARNList=[arn_or_id])
@@ -126,21 +182,24 @@ def get_resource_name_from_tag(arn_or_id):
             for tag in resource.get("Tags", []):
                 if tag["Key"] == "Name":
                     return tag["Value"]
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
     return arn_or_id
 
 
 def get_iam_user_name(user_id):
+    """Return the IAM UserName for a given user identifier, or the input on miss."""
     iam = boto3.client("iam")
     try:
         response = iam.get_user(UserName=user_id)
         return response["User"]["UserName"]
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         return user_id
 
 
-def lambda_handler(event, context):
+# Pylint: Lambda handler is intentionally monolithic for report layout.
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def lambda_handler(_event, _context):
     """
     AWS Lambda entry point to generate a compliance report for AWS Config rules
     and upload the report as a PDF to S3.
@@ -193,9 +252,7 @@ def lambda_handler(event, context):
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
-    insufficient_data_count = sum(
-        1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
-    )
+    insufficient_data_count = sum(1 for v in compliance.values() if v == "INSUFFICIENT_DATA")
 
     # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
     for rule_name, status in compliance.items():
@@ -220,9 +277,7 @@ def lambda_handler(event, context):
                         # For other resources, try to use the Name tag if present
                         display_name = get_resource_name_from_tag(arn)
 
-                    non_compliant_section.append(
-                        [display_name, res["ResourceType"], arn]
-                    )
+                    non_compliant_section.append([display_name, res["ResourceType"], arn])
 
     # ── DEBUG FINAL ROWS ──
     print("DEBUG final non_compliant_section:", non_compliant_section)
@@ -301,7 +356,8 @@ def lambda_handler(event, context):
                     Paragraph(rule_name, small_style),
                     Paragraph(description, desc_style),
                     Paragraph(
-                        status, small_style
+                        status,
+                        small_style,
                     ),  # Status will be styled separately below
                 ]
             )
@@ -311,22 +367,15 @@ def lambda_handler(event, context):
         rules_summary_table.setStyle(
             TableStyle(
                 [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#4a5568")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("ALIGN", (0, 0), (-1, 0), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 0), (-1, -1), 10),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                    (
-                        "ROWBACKGROUNDS",
-                        (0, 1),
-                        (-1, -1),
-                        [colors.whitesmoke, colors.HexColor("#edf2f7")],
+                    *build_table_style(
+                        header_background=colors.HexColor("#4a5568"),
+                        row_backgrounds=[colors.whitesmoke, colors.HexColor("#edf2f7")],
+                        header_align="CENTER",
+                        body_align="LEFT",
                     ),
                     ("ALIGN", (0, 1), (1, -1), "LEFT"),
                     ("ALIGN", (2, 1), (2, -1), "CENTER"),  # Center-align status column
-                    # Add special styling for status cells
+                    # Special styling for status cells
                     *[
                         ("BACKGROUND", (2, i + 1), (2, i + 1), colors.lightgreen)
                         for i, row in enumerate(rules_summary_data[1:])
@@ -342,16 +391,16 @@ def lambda_handler(event, context):
                         for i, row in enumerate(rules_summary_data[1:])
                         if row[2].text == "N/A"
                     ],
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("BOX", (0, 0), (-1, -1), 1, colors.gray),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
                 ]
             )
         )
         elements.append(rules_summary_table)
     else:
         elements.append(
-            Paragraph("<i>No AWS Config rules configured.</i>", normal_style)
+            Paragraph(
+                "<i>No AWS Config rules configured.</i>",
+                normal_style,
+            )
         )
     elements.append(Spacer(1, 18))
 
@@ -368,37 +417,27 @@ def lambda_handler(event, context):
             ]
         ]
         for name, rtype, arn in non_compliant_section:
-            table_data.append(
-                [Paragraph(name, normal_style), Paragraph(rtype, normal_style)]
-            )
+            table_data.append([Paragraph(name, normal_style), Paragraph(rtype, normal_style)])
 
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(
             TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#b71c1c")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 0), (-1, -1), 10),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
-                    (
-                        "ROWBACKGROUNDS",
-                        (0, 1),
-                        (-1, -1),
-                        [colors.whitesmoke, colors.HexColor("#ffeaea")],
-                    ),
-                    ("BOX", (0, 0), (-1, -1), 1, colors.gray),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
-                ]
+                build_table_style(
+                    header_background=colors.HexColor("#b71c1c"),
+                    row_backgrounds=[colors.whitesmoke, colors.HexColor("#ffeaea")],
+                    header_align="CENTER",
+                    body_align="LEFT",
+                )
             )
         )
         elements.append(noncomp_table)
 
     else:
         elements.append(
-            Paragraph("<i>No non-compliant resources found.</i>", normal_style)
+            Paragraph(
+                "<i>No non-compliant resources found.</i>",
+                normal_style,
+            )
         )
 
     doc.build(elements)
@@ -417,7 +456,10 @@ def lambda_handler(event, context):
         f"compliance-report-{now_dt.strftime('%Y%m%d-%H%M%S')}.pdf"
     )
     s3.put_object(
-        Bucket=bucket, Key=key, Body=buffer.getvalue(), ContentType="application/pdf"
+        Bucket=bucket,
+        Key=key,
+        Body=buffer.getvalue(),
+        ContentType="application/pdf",
     )
 
     return {

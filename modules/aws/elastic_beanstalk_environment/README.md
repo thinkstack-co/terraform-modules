@@ -1,7 +1,7 @@
 <!-- Blank module readme template: Do a search and replace with your text editor for the following: `module_name`, `module_description` -->
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
 
+<a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -11,13 +11,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -41,7 +41,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -59,8 +58,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -78,18 +77,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <!-- terraform-docs output will be input automatically below-->
 <!-- terraform-docs markdown table --output-file README.md --output-mode inject .-->
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -97,43 +97,44 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                                                                                | Type     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | [aws_elastic_beanstalk_environment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elastic_beanstalk_environment) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_application"></a> [application](#input\_application) | (Required) Name of the application that contains the version to be deployed | `string` | n/a | yes |
-| <a name="input_cname_prefix"></a> [cname\_prefix](#input\_cname\_prefix) | (Optional) Prefix to use for the fully qualified DNS name of the Environment | `string` | `""` | no |
-| <a name="input_description"></a> [description](#input\_description) | (Optional) Short description of the Environment | `string` | `""` | no |
-| <a name="input_name"></a> [name](#input\_name) | (Required) A unique name for this Environment. This name is used in the application URL | `string` | n/a | yes |
-| <a name="input_platform_arn"></a> [platform\_arn](#input\_platform\_arn) | (Optional) The ARN of the Elastic Beanstalk Platform to use in deployment | `string` | `""` | no |
-| <a name="input_poll_interval"></a> [poll\_interval](#input\_poll\_interval) | The time between polling the AWS API to check if changes have been applied. Use this to adjust the rate of API calls for any create or update action. Minimum 10s, maximum 180s. Omit this to use the default behavior, which is an exponential backoff | `string` | `""` | no |
-| <a name="input_setting"></a> [setting](#input\_setting) | (Optional) Option settings to configure the new Environment. These override specific values that are set as defaults. The format is detailed below in Option Settings | `string` | `""` | no |
-| <a name="input_solution_stack_name"></a> [solution\_stack\_name](#input\_solution\_stack\_name) | (Optional) A solution stack to base your environment off of. Example stacks can be found in the Amazon API documentation | `string` | `""` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A set of tags to apply to the Environment. | `map(any)` | `{}` | no |
-| <a name="input_template_name"></a> [template\_name](#input\_template\_name) | (Optional) The name of the Elastic Beanstalk Configuration template to use in deployment | `string` | `""` | no |
-| <a name="input_tier"></a> [tier](#input\_tier) | (Optional) Elastic Beanstalk Environment tier. Valid values are Worker or WebServer. If tier is left blank WebServer will be used. | `string` | `""` | no |
-| <a name="input_version_label"></a> [version\_label](#input\_version\_label) | (Optional) The name of the Elastic Beanstalk Application Version to use in deployment. | `string` | `""` | no |
-| <a name="input_wait_for_ready_timeout"></a> [wait\_for\_ready\_timeout](#input\_wait\_for\_ready\_timeout) | (Default: 20m) The maximum duration that Terraform should wait for an Elastic Beanstalk Environment to be in a ready state before timing out. | `string` | `20` | no |
+| Name                                                                                                | Description                                                                                                                                                                                                                                             | Type       | Default | Required |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------- | :------: |
+| <a name="input_application"></a> [application](#input_application)                                  | (Required) Name of the application that contains the version to be deployed                                                                                                                                                                             | `string`   | n/a     |   yes    |
+| <a name="input_cname_prefix"></a> [cname_prefix](#input_cname_prefix)                               | (Optional) Prefix to use for the fully qualified DNS name of the Environment                                                                                                                                                                            | `string`   | `""`    |    no    |
+| <a name="input_description"></a> [description](#input_description)                                  | (Optional) Short description of the Environment                                                                                                                                                                                                         | `string`   | `""`    |    no    |
+| <a name="input_name"></a> [name](#input_name)                                                       | (Required) A unique name for this Environment. This name is used in the application URL                                                                                                                                                                 | `string`   | n/a     |   yes    |
+| <a name="input_platform_arn"></a> [platform_arn](#input_platform_arn)                               | (Optional) The ARN of the Elastic Beanstalk Platform to use in deployment                                                                                                                                                                               | `string`   | `""`    |    no    |
+| <a name="input_poll_interval"></a> [poll_interval](#input_poll_interval)                            | The time between polling the AWS API to check if changes have been applied. Use this to adjust the rate of API calls for any create or update action. Minimum 10s, maximum 180s. Omit this to use the default behavior, which is an exponential backoff | `string`   | `""`    |    no    |
+| <a name="input_setting"></a> [setting](#input_setting)                                              | (Optional) Option settings to configure the new Environment. These override specific values that are set as defaults. The format is detailed below in Option Settings                                                                                   | `string`   | `""`    |    no    |
+| <a name="input_solution_stack_name"></a> [solution_stack_name](#input_solution_stack_name)          | (Optional) A solution stack to base your environment off of. Example stacks can be found in the Amazon API documentation                                                                                                                                | `string`   | `""`    |    no    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                       | (Optional) A set of tags to apply to the Environment.                                                                                                                                                                                                   | `map(any)` | `{}`    |    no    |
+| <a name="input_template_name"></a> [template_name](#input_template_name)                            | (Optional) The name of the Elastic Beanstalk Configuration template to use in deployment                                                                                                                                                                | `string`   | `""`    |    no    |
+| <a name="input_tier"></a> [tier](#input_tier)                                                       | (Optional) Elastic Beanstalk Environment tier. Valid values are Worker or WebServer. If tier is left blank WebServer will be used.                                                                                                                      | `string`   | `""`    |    no    |
+| <a name="input_version_label"></a> [version_label](#input_version_label)                            | (Optional) The name of the Elastic Beanstalk Application Version to use in deployment.                                                                                                                                                                  | `string`   | `""`    |    no    |
+| <a name="input_wait_for_ready_timeout"></a> [wait_for_ready_timeout](#input_wait_for_ready_timeout) | (Default: 20m) The maximum duration that Terraform should wait for an Elastic Beanstalk Environment to be in a ready state before timing out.                                                                                                           | `string`   | `20`    |    no    |
 
 ## Outputs
 
 No outputs.
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -142,19 +143,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

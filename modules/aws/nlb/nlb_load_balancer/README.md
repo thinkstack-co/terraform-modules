@@ -1,5 +1,7 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 <a name="readme-top"></a>
+
 <!--
 *** Thanks for checking out the Best-README-Template. If you have a suggestion
 *** that would make this better, please fork the repo and create a pull request
@@ -7,8 +9,6 @@
 *** Don't forget to give the project a star!
 *** Thanks again! Now go create something AMAZING! :D
 -->
-
-
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -18,13 +18,13 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 <!-- PROJECT LOGO -->
 <br />
@@ -48,7 +48,6 @@
   </p>
 </div>
 
-
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -66,8 +65,8 @@
   </ol>
 </details>
 
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```
@@ -86,18 +85,19 @@ _For more examples, please refer to the [Documentation](https://github.com/think
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0.0 |
+| Name                                             | Version  |
+| ------------------------------------------------ | -------- |
+| <a name="provider_aws"></a> [aws](#provider_aws) | >= 4.0.0 |
 
 ## Modules
 
@@ -105,46 +105,47 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
+| Name                                                                                          | Type     |
+| --------------------------------------------------------------------------------------------- | -------- |
 | [aws_lb.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_access_logs_bucket"></a> [access\_logs\_bucket](#input\_access\_logs\_bucket) | (Required) The S3 bucket name to store the logs in. | `string` | n/a | yes |
-| <a name="input_access_logs_enabled"></a> [access\_logs\_enabled](#input\_access\_logs\_enabled) | (Optional) Boolean to enable / disable access\_logs. Defaults to false, even when bucket is specified. | `bool` | `false` | no |
-| <a name="input_access_logs_prefix"></a> [access\_logs\_prefix](#input\_access\_logs\_prefix) | (Optional) The S3 bucket prefix. Logs are stored in the root if not configured. | `string` | `"alb-log"` | no |
-| <a name="input_drop_invalid_header_fields"></a> [drop\_invalid\_header\_fields](#input\_drop\_invalid\_header\_fields) | (Optional) Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer (true) or routed to targets (false). The default is false. Elastic Load Balancing requires that message header names contain only alphanumeric characters and hyphens. Only valid for Load Balancers of type application. | `bool` | `true` | no |
-| <a name="input_enable_cross_zone_load_balancing"></a> [enable\_cross\_zone\_load\_balancing](#input\_enable\_cross\_zone\_load\_balancing) | (Optional) If true, cross-zone load balancing of the load balancer will be enabled. This is a network load balancer feature. Defaults to false. | `bool` | `false` | no |
-| <a name="input_enable_deletion_protection"></a> [enable\_deletion\_protection](#input\_enable\_deletion\_protection) | (Optional) If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false. | `bool` | `false` | no |
-| <a name="input_idle_timeout"></a> [idle\_timeout](#input\_idle\_timeout) | (Optional) The time in seconds that the connection is allowed to be idle. Only valid for Load Balancers of type application. Default: 60. | `number` | `60` | no |
-| <a name="input_internal"></a> [internal](#input\_internal) | (Optional) If true, the LB will be internal. | `bool` | `false` | no |
-| <a name="input_ip_address_type"></a> [ip\_address\_type](#input\_ip\_address\_type) | (Optional) The type of IP addresses used by the subnets for your load balancer. The possible values are ipv4 and dualstack | `string` | `"ipv4"` | no |
-| <a name="input_load_balancer_type"></a> [load\_balancer\_type](#input\_load\_balancer\_type) | (Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application. | `string` | `"network"` | no |
-| <a name="input_nlb_name"></a> [nlb\_name](#input\_nlb\_name) | (Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb. | `string` | n/a | yes |
-| <a name="input_subnets"></a> [subnets](#input\_subnets) | (Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource. | `list(string)` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
+| Name                                                                                                                              | Description                                                                                                                                                                                                                                                                                                                                | Type           | Default     | Required |
+| --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- | ----------- | :------: |
+| <a name="input_access_logs_bucket"></a> [access_logs_bucket](#input_access_logs_bucket)                                           | (Required) The S3 bucket name to store the logs in.                                                                                                                                                                                                                                                                                        | `string`       | n/a         |   yes    |
+| <a name="input_access_logs_enabled"></a> [access_logs_enabled](#input_access_logs_enabled)                                        | (Optional) Boolean to enable / disable access_logs. Defaults to false, even when bucket is specified.                                                                                                                                                                                                                                      | `bool`         | `false`     |    no    |
+| <a name="input_access_logs_prefix"></a> [access_logs_prefix](#input_access_logs_prefix)                                           | (Optional) The S3 bucket prefix. Logs are stored in the root if not configured.                                                                                                                                                                                                                                                            | `string`       | `"alb-log"` |    no    |
+| <a name="input_drop_invalid_header_fields"></a> [drop_invalid_header_fields](#input_drop_invalid_header_fields)                   | (Optional) Indicates whether HTTP headers with header fields that are not valid are removed by the load balancer (true) or routed to targets (false). The default is false. Elastic Load Balancing requires that message header names contain only alphanumeric characters and hyphens. Only valid for Load Balancers of type application. | `bool`         | `true`      |    no    |
+| <a name="input_enable_cross_zone_load_balancing"></a> [enable_cross_zone_load_balancing](#input_enable_cross_zone_load_balancing) | (Optional) If true, cross-zone load balancing of the load balancer will be enabled. This is a network load balancer feature. Defaults to false.                                                                                                                                                                                            | `bool`         | `false`     |    no    |
+| <a name="input_enable_deletion_protection"></a> [enable_deletion_protection](#input_enable_deletion_protection)                   | (Optional) If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false.                                                                                                                                                                        | `bool`         | `false`     |    no    |
+| <a name="input_idle_timeout"></a> [idle_timeout](#input_idle_timeout)                                                             | (Optional) The time in seconds that the connection is allowed to be idle. Only valid for Load Balancers of type application. Default: 60.                                                                                                                                                                                                  | `number`       | `60`        |    no    |
+| <a name="input_internal"></a> [internal](#input_internal)                                                                         | (Optional) If true, the LB will be internal.                                                                                                                                                                                                                                                                                               | `bool`         | `false`     |    no    |
+| <a name="input_ip_address_type"></a> [ip_address_type](#input_ip_address_type)                                                    | (Optional) The type of IP addresses used by the subnets for your load balancer. The possible values are ipv4 and dualstack                                                                                                                                                                                                                 | `string`       | `"ipv4"`    |    no    |
+| <a name="input_load_balancer_type"></a> [load_balancer_type](#input_load_balancer_type)                                           | (Optional) The type of load balancer to create. Possible values are application, gateway, or network. The default value is application.                                                                                                                                                                                                    | `string`       | `"network"` |    no    |
+| <a name="input_nlb_name"></a> [nlb_name](#input_nlb_name)                                                                         | (Required) The name of the LB. This name must be unique within your AWS account, can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen. If not specified, Terraform will autogenerate a name beginning with tf-lb.                                            | `string`       | n/a         |   yes    |
+| <a name="input_subnets"></a> [subnets](#input_subnets)                                                                            | (Optional) A list of subnet IDs to attach to the LB. Subnets cannot be updated for Load Balancers of type network. Changing this value for load balancers of type network will force a recreation of the resource.                                                                                                                         | `list(string)` | n/a         |   yes    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                                                     | A mapping of tags to assign to the resource                                                                                                                                                                                                                                                                                                | `map(string)`  | `{}`        |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_lb_arn"></a> [lb\_arn](#output\_lb\_arn) | The ARN of the Load Balancer |
-| <a name="output_lb_dns_name"></a> [lb\_dns\_name](#output\_lb\_dns\_name) | The DNS name of the Load Balancer |
+| Name                                                                 | Description                       |
+| -------------------------------------------------------------------- | --------------------------------- |
+| <a name="output_lb_arn"></a> [lb_arn](#output_lb_arn)                | The ARN of the Load Balancer      |
+| <a name="output_lb_dns_name"></a> [lb_dns_name](#output_lb_dns_name) | The DNS name of the Load Balancer |
+
 <!-- END_TF_DOCS -->
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -153,19 +154,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

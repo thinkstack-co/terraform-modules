@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -66,6 +67,7 @@ This module simplifies the process of setting up secure, role-based access to AW
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ```hcl
@@ -102,90 +104,94 @@ module "azure_ad_sso" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_iam_policy.role_reading_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_user.role_reading_user](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user) | resource |
-| [aws_iam_user_policy_attachment.reading_user_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy_attachment) | resource |
-| [aws_iam_access_key.read_user_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key) | resource |
-| [aws_iam_saml_provider.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_saml_provider) | resource |
-| [aws_iam_role.role_admins](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.admin_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role.role_sysadmins](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.sysadmins_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role.role_read_only](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.read_only_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_policy_document.thinkstack_azure_ad_assume_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| Name                                                                                                                                                             | Type        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| [aws_iam_policy.role_reading_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy)                                     | resource    |
+| [aws_iam_user.role_reading_user](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user)                                           | resource    |
+| [aws_iam_user_policy_attachment.reading_user_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy_attachment)     | resource    |
+| [aws_iam_access_key.read_user_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_access_key)                                   | resource    |
+| [aws_iam_saml_provider.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_saml_provider)                                      | resource    |
+| [aws_iam_role.role_admins](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                                 | resource    |
+| [aws_iam_role_policy_attachment.admin_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment)     | resource    |
+| [aws_iam_role.role_sysadmins](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                              | resource    |
+| [aws_iam_role_policy_attachment.sysadmins_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource    |
+| [aws_iam_role.role_read_only](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                              | resource    |
+| [aws_iam_role_policy_attachment.read_only_policy_attach](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource    |
+| [aws_iam_policy_document.thinkstack_azure_ad_assume_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)  | data source |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| policy_name | Name of the policy | `string` | `"azure_ad_sso_user_role_policy"` | no |
-| policy_description | Description of the policy | `string` | `"This policy will allow to fetch the roles from AWS accounts."` | no |
-| user_force_destroy | When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices | `string` | `false` | no |
-| user_name | The user's name for the role reading user | `string` | `"azure_ad_role_manager"` | no |
-| user_path | Path in which to create the user | `string` | `"/"` | no |
-| user_permissions_boundary | The ARN of the policy that is used to set the permissions boundary for the user | `string` | `null` | no |
-| pgp_key | Either a base-64 encoded PGP public key, or a keybase username in the form keybase:some_person_that_exists | `string` | `"keybase:thinkstack"` | no |
-| saml_name | The name of the provider to create | `string` | `"thinkstack_azure_ad"` | no |
-| saml_metadata_document | An XML document generated by an identity provider that supports SAML 2.0 | `string` | n/a | yes |
-| role_admins_description | The description of the admin role | `string` | `"ThinkStack Azure AD SSO - Admins role"` | no |
-| role_admins_force_detach_policies | Specifies to force detaching any policies the role has before destroying it | `string` | `false` | no |
-| role_admins_max_session_duration | The maximum session duration (in seconds) for the admin role | `string` | `7200` | no |
-| role_admins_name | The friendly IAM role name for admins | `string` | `"thinkstack_admins"` | no |
-| role_admins_permissions_boundary | The ARN of the policy that is used to set the permissions boundary for the admin role | `string` | `null` | no |
-| admin_policy_arn | The ARN of the policy to apply to the admin role | `string` | `"arn:aws:iam::aws:policy/AdministratorAccess"` | no |
-| role_sysadmins_description | The description of the sysadmin role | `string` | `"ThinkStack Azure AD SSO - Sysadmins role"` | no |
-| role_sysadmins_force_detach_policies | Specifies to force detaching any policies the role has before destroying it | `string` | `false` | no |
-| role_sysadmins_max_session_duration | The maximum session duration (in seconds) for the sysadmin role | `string` | `7200` | no |
-| role_sysadmins_name | The friendly IAM role name for sysadmins | `string` | `"thinkstack_sysadmins"` | no |
-| role_sysadmins_permissions_boundary | The ARN of the policy that is used to set the permissions boundary for the sysadmin role | `string` | `null` | no |
-| sysadmins_policy_arn | The ARN of the policy to apply to the sysadmin role | `string` | `"arn:aws:iam::aws:policy/job-function/SystemAdministrator"` | no |
-| role_read_only_description | The description of the read-only role | `string` | `"ThinkStack Azure AD SSO - Read only role"` | no |
-| role_read_only_force_detach_policies | Specifies to force detaching any policies the role has before destroying it | `string` | `false` | no |
-| role_read_only_max_session_duration | The maximum session duration (in seconds) for the read-only role | `string` | `7200` | no |
-| role_read_only_name | The friendly IAM role name for read-only access | `string` | `"thinkstack_read_only"` | no |
-| role_read_only_permissions_boundary | The ARN of the policy that is used to set the permissions boundary for the read-only role | `string` | `null` | no |
-| read_only_policy_arn | The ARN of the policy to apply to the read-only role | `string` | `"arn:aws:iam::aws:policy/ReadOnlyAccess"` | no |
+| Name                                 | Description                                                                                                           | Type     | Default                                                          | Required |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------- | :------: |
+| policy_name                          | Name of the policy                                                                                                    | `string` | `"azure_ad_sso_user_role_policy"`                                |    no    |
+| policy_description                   | Description of the policy                                                                                             | `string` | `"This policy will allow to fetch the roles from AWS accounts."` |    no    |
+| user_force_destroy                   | When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices | `string` | `false`                                                          |    no    |
+| user_name                            | The user's name for the role reading user                                                                             | `string` | `"azure_ad_role_manager"`                                        |    no    |
+| user_path                            | Path in which to create the user                                                                                      | `string` | `"/"`                                                            |    no    |
+| user_permissions_boundary            | The ARN of the policy that is used to set the permissions boundary for the user                                       | `string` | `null`                                                           |    no    |
+| pgp_key                              | Either a base-64 encoded PGP public key, or a keybase username in the form keybase:some_person_that_exists            | `string` | `"keybase:thinkstack"`                                           |    no    |
+| saml_name                            | The name of the provider to create                                                                                    | `string` | `"thinkstack_azure_ad"`                                          |    no    |
+| saml_metadata_document               | An XML document generated by an identity provider that supports SAML 2.0                                              | `string` | n/a                                                              |   yes    |
+| role_admins_description              | The description of the admin role                                                                                     | `string` | `"ThinkStack Azure AD SSO - Admins role"`                        |    no    |
+| role_admins_force_detach_policies    | Specifies to force detaching any policies the role has before destroying it                                           | `string` | `false`                                                          |    no    |
+| role_admins_max_session_duration     | The maximum session duration (in seconds) for the admin role                                                          | `string` | `7200`                                                           |    no    |
+| role_admins_name                     | The friendly IAM role name for admins                                                                                 | `string` | `"thinkstack_admins"`                                            |    no    |
+| role_admins_permissions_boundary     | The ARN of the policy that is used to set the permissions boundary for the admin role                                 | `string` | `null`                                                           |    no    |
+| admin_policy_arn                     | The ARN of the policy to apply to the admin role                                                                      | `string` | `"arn:aws:iam::aws:policy/AdministratorAccess"`                  |    no    |
+| role_sysadmins_description           | The description of the sysadmin role                                                                                  | `string` | `"ThinkStack Azure AD SSO - Sysadmins role"`                     |    no    |
+| role_sysadmins_force_detach_policies | Specifies to force detaching any policies the role has before destroying it                                           | `string` | `false`                                                          |    no    |
+| role_sysadmins_max_session_duration  | The maximum session duration (in seconds) for the sysadmin role                                                       | `string` | `7200`                                                           |    no    |
+| role_sysadmins_name                  | The friendly IAM role name for sysadmins                                                                              | `string` | `"thinkstack_sysadmins"`                                         |    no    |
+| role_sysadmins_permissions_boundary  | The ARN of the policy that is used to set the permissions boundary for the sysadmin role                              | `string` | `null`                                                           |    no    |
+| sysadmins_policy_arn                 | The ARN of the policy to apply to the sysadmin role                                                                   | `string` | `"arn:aws:iam::aws:policy/job-function/SystemAdministrator"`     |    no    |
+| role_read_only_description           | The description of the read-only role                                                                                 | `string` | `"ThinkStack Azure AD SSO - Read only role"`                     |    no    |
+| role_read_only_force_detach_policies | Specifies to force detaching any policies the role has before destroying it                                           | `string` | `false`                                                          |    no    |
+| role_read_only_max_session_duration  | The maximum session duration (in seconds) for the read-only role                                                      | `string` | `7200`                                                           |    no    |
+| role_read_only_name                  | The friendly IAM role name for read-only access                                                                       | `string` | `"thinkstack_read_only"`                                         |    no    |
+| role_read_only_permissions_boundary  | The ARN of the policy that is used to set the permissions boundary for the read-only role                             | `string` | `null`                                                           |    no    |
+| read_only_policy_arn                 | The ARN of the policy to apply to the read-only role                                                                  | `string` | `"arn:aws:iam::aws:policy/ReadOnlyAccess"`                       |    no    |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- OUTPUTS -->
+
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| policy_id | The ID of the role reading policy |
-| policy_arn | The ARN of the role reading policy |
-| policy_name | The name of the role reading policy |
-| reading_user_arn | The ARN of the role reading user |
-| reading_user_unique_id | The unique ID of the role reading user |
-| encrypted_secret | The encrypted secret of the role reading user's access key |
-| read_user_id | The ID of the role reading user's access key |
-| identity_provider_arn | The ARN of the SAML identity provider |
+| Name                   | Description                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| policy_id              | The ID of the role reading policy                          |
+| policy_arn             | The ARN of the role reading policy                         |
+| policy_name            | The name of the role reading policy                        |
+| reading_user_arn       | The ARN of the role reading user                           |
+| reading_user_unique_id | The unique ID of the role reading user                     |
+| encrypted_secret       | The encrypted secret of the role reading user's access key |
+| read_user_id           | The ID of the role reading user's access key               |
+| identity_provider_arn  | The ARN of the SAML identity provider                      |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -193,6 +199,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -202,16 +209,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

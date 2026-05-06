@@ -80,6 +80,20 @@ variable "transit_gateway_id" {
   default     = null
 }
 
+# Route tables to enable propagation into when using a VPN gateway attachment.
+variable "route_table_ids" {
+  type        = list(string)
+  description = "(Optional) Route table IDs that should receive VPN gateway route propagation."
+  default     = []
+}
+
+# Toggle to enable/disable VPN gateway route propagation resources.
+variable "enable_vpn_gateway_route_propagation" {
+  type        = bool
+  description = "Enable or disable VPN gateway route propagation for the provided route_table_ids."
+  default     = true
+}
+
 variable "tunnel_ike_versions" {
   type        = list(string)
   description = "(Optional) The IKE versions that are permitted for the first VPN tunnel. Valid values are ikev1 | ikev2."

@@ -6,7 +6,7 @@ variable "access_logs_bucket" {
 variable "access_logs_enabled" {
   type        = bool
   description = "(Optional) Boolean to enable / disable access_logs. Defaults to false, even when bucket is specified."
-  default     = false
+  default     = true
   validation {
     condition     = can(regex("^true|false$", var.access_logs_enabled))
     error_message = "The value of access_logs_enabled must be true or false."
@@ -42,7 +42,7 @@ variable "enable_cross_zone_load_balancing" {
 variable "enable_deletion_protection" {
   type        = bool
   description = "(Optional) If true, deletion of the load balancer will be disabled via the AWS API. This will prevent Terraform from deleting the load balancer. Defaults to false."
-  default     = false
+  default     = true
   validation {
     condition     = can(regex("^true|false$", var.enable_deletion_protection))
     error_message = "The value of enable_deletion_protection must be true or false."

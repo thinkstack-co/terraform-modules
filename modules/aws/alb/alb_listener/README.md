@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -54,6 +55,7 @@
 This Terraform module creates and manages AWS Application Load Balancer Listeners. Listeners check for connection requests from clients, using the protocol and port that you configure, and forward requests to one or more target groups based on the rules you define.
 
 The module supports:
+
 - HTTP and HTTPS listeners
 - Multiple action types (forward, redirect, fixed-response)
 - SSL certificate configuration
@@ -63,6 +65,7 @@ The module supports:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### HTTP Listener Example
@@ -120,67 +123,70 @@ module "http_redirect_listener" {
 
 ### Argument Reference
 
-* `load_balancer_arn` - (Required) The ARN of the load balancer.
-* `port` - (Required) The port on which the load balancer is listening.
-* `protocol` - (Required) The protocol for connections from clients to the load balancer. Valid values are HTTP and HTTPS.
-* `ssl_policy` - (Optional) The name of the SSL Policy for the listener. Required if protocol is HTTPS.
-* `certificate_arn` - (Optional) The ARN of the default SSL server certificate. Required if protocol is HTTPS.
-* `default_action` - (Required) An action block. Action blocks are documented below.
+- `load_balancer_arn` - (Required) The ARN of the load balancer.
+- `port` - (Required) The port on which the load balancer is listening.
+- `protocol` - (Required) The protocol for connections from clients to the load balancer. Valid values are HTTP and HTTPS.
+- `ssl_policy` - (Optional) The name of the SSL Policy for the listener. Required if protocol is HTTPS.
+- `certificate_arn` - (Optional) The ARN of the default SSL server certificate. Required if protocol is HTTPS.
+- `default_action` - (Required) An action block. Action blocks are documented below.
 
 #### Default Action Blocks
 
-* `type` - (Required) The type of routing action. Valid values are forward, redirect, fixed-response.
-* `target_group_arn` - (Optional) The ARN of the Target Group to which to route traffic. Required if type is forward.
-* `redirect` - (Optional) Information for creating a redirect action. Required if type is redirect.
-* `fixed_response` - (Optional) Information for creating a fixed-response action. Required if type is fixed-response.
+- `type` - (Required) The type of routing action. Valid values are forward, redirect, fixed-response.
+- `target_group_arn` - (Optional) The ARN of the Target Group to which to route traffic. Required if type is forward.
+- `redirect` - (Optional) Information for creating a redirect action. Required if type is redirect.
+- `fixed_response` - (Optional) Information for creating a fixed-response action. Required if type is fixed-response.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
+| Name                                                                                                            | Type     | Documentation                                                                                                         |
+| --------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | [aws_lb_listener.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource | [AWS Documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html) |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- INPUTS -->
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| load_balancer_arn | The ARN of the load balancer | `string` | n/a | yes |
-| port | The port on which the load balancer is listening | `number` | n/a | yes |
-| protocol | The protocol for connections from clients to the load balancer | `string` | n/a | yes |
-| ssl_policy | The name of the SSL Policy for the listener | `string` | `null` | no |
-| certificate_arn | The ARN of the default SSL server certificate | `string` | `null` | no |
-| default_action | An action block containing action configuration | `map(any)` | n/a | yes |
-| tags | A mapping of tags to assign to the resource | `map(string)` | `{}` | no |
+| Name              | Description                                                    | Type          | Default | Required |
+| ----------------- | -------------------------------------------------------------- | ------------- | ------- | :------: |
+| load_balancer_arn | The ARN of the load balancer                                   | `string`      | n/a     |   yes    |
+| port              | The port on which the load balancer is listening               | `number`      | n/a     |   yes    |
+| protocol          | The protocol for connections from clients to the load balancer | `string`      | n/a     |   yes    |
+| ssl_policy        | The name of the SSL Policy for the listener                    | `string`      | `null`  |    no    |
+| certificate_arn   | The ARN of the default SSL server certificate                  | `string`      | `null`  |    no    |
+| default_action    | An action block containing action configuration                | `map(any)`    | n/a     |   yes    |
+| tags              | A mapping of tags to assign to the resource                    | `map(string)` | `{}`    |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
+| Name         | Description             |
+| ------------ | ----------------------- |
 | listener_arn | The ARN of the listener |
-| listener_id | The ID of the listener |
+| listener_id  | The ID of the listener  |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -188,6 +194,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
+
 ## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
@@ -197,16 +204,18 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* [Wesley Bey](https://github.com/beywesley)
-* [Zachary Hill](https://zacharyhill.co)
-* [Jake Jones](https://github.com/jakeasarus)
+- [Wesley Bey](https://github.com/beywesley)
+- [Zachary Hill](https://zacharyhill.co)
+- [Jake Jones](https://github.com/jakeasarus)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge
