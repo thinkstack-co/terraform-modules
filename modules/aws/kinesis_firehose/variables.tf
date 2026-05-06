@@ -173,7 +173,7 @@ variable "iam_role_name_prefix" {
 variable "iam_role_permissions_boundary" {
   description = "(Optional) The ARN of the policy that is used to set the permissions boundary for the role."
   type        = string
-  default     = ""
+  default     = null
 }
 
 

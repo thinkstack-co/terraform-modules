@@ -37,8 +37,8 @@ variable "memory_size" {
 
 variable "runtime" {
   type        = string
-  description = "(Required) See Runtimes for valid values."
-  default     = "python3.6"
+  description = "(Required) Identifier of the Lambda runtime. See AWS Lambda runtimes documentation for valid values."
+  default     = "python3.12"
 }
 
 variable "timeout" {

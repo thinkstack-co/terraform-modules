@@ -1,3 +1,16 @@
+"""AWS Config compliance report generator (Lambda handler).
+
+Walks every AWS Config rule in the account, collects compliance status and
+non-compliant resources, renders a PDF report, and uploads it to S3.
+Triggered on a CloudWatch Events schedule.
+
+Inputs:  Lambda event/context are unused. Configuration via env vars
+         (REPORT_BUCKET, ACCOUNT_DISPLAY_NAME, etc.).
+Outputs: PDF written to s3://${REPORT_BUCKET}/<account>/<timestamp>.pdf.
+Side effects: AWS Config, IAM, STS, Organizations, S3, Resource Groups
+              Tagging API reads; one S3 PutObject per invocation.
+"""
+
 import io
 import os
 from datetime import datetime, timezone
@@ -16,7 +29,10 @@ def build_table_style(
     header_align="CENTER",
     body_align="LEFT",
 ):
-    # Helper to keep common ReportLab table styling in one place (reduces duplication).
+    """Return a ReportLab table style list parameterised by header/body colors.
+
+    Centralised so every table in the report shares the same look.
+    """
     return [
         ("BACKGROUND", (0, 0), (-1, 0), header_background),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
@@ -54,6 +70,11 @@ def lookup_iam_username_by_id(user_id):
 
 
 def get_account_info():
+    """Return (account_display_name, account_id) for the current account.
+
+    Tries Organizations first (works for member accounts in an Org), falls
+    back to the ACCOUNT_DISPLAY_NAME env var, then to the IAM account alias.
+    """
     sts = boto3.client("sts")
     org = boto3.client("organizations")
     account_id = sts.get_caller_identity()["Account"]
@@ -79,6 +100,7 @@ def get_account_info():
 
 
 def get_config_rules():
+    """Return every AWS Config rule defined in this account."""
     config = boto3.client("config")
     rules = []
     paginator = config.get_paginator("describe_config_rules")
@@ -88,6 +110,7 @@ def get_config_rules():
 
 
 def get_compliance_status():
+    """Return {rule_name: compliance_type} for every Config rule."""
     config = boto3.client("config")
     status = {}
     paginator = config.get_paginator("describe_compliance_by_config_rule")
@@ -98,6 +121,11 @@ def get_compliance_status():
 
 
 def get_non_compliant_resources(rule_name):
+    """Return non-compliant resources for a given Config rule, with friendly names.
+
+    For IAM users we resolve the internal AIDA UserId back to the console
+    UserName so the report is human-readable.
+    """
     config = boto3.client("config")
     resources = []
     paginator = config.get_paginator("get_compliance_details_by_config_rule")
@@ -146,6 +174,7 @@ def get_non_compliant_resources(rule_name):
 
 
 def get_resource_name_from_tag(arn_or_id):
+    """Return the value of the resource's `Name` tag, or the ARN if not tagged."""
     client = boto3.client("resourcegroupstaggingapi")
     try:
         response = client.get_resources(ResourceARNList=[arn_or_id])
@@ -159,6 +188,7 @@ def get_resource_name_from_tag(arn_or_id):
 
 
 def get_iam_user_name(user_id):
+    """Return the IAM UserName for a given user identifier, or the input on miss."""
     iam = boto3.client("iam")
     try:
         response = iam.get_user(UserName=user_id)
@@ -222,9 +252,7 @@ def lambda_handler(_event, _context):
     # Prepare data for tables
     compliant_count = sum(1 for v in compliance.values() if v == "COMPLIANT")
     non_compliant_count = sum(1 for v in compliance.values() if v == "NON_COMPLIANT")
-    insufficient_data_count = sum(
-        1 for v in compliance.values() if v == "INSUFFICIENT_DATA"
-    )
+    insufficient_data_count = sum(1 for v in compliance.values() if v == "INSUFFICIENT_DATA")
 
     # Convert INSUFFICIENT_DATA to N/A in the compliance dictionary
     for rule_name, status in compliance.items():
@@ -249,9 +277,7 @@ def lambda_handler(_event, _context):
                         # For other resources, try to use the Name tag if present
                         display_name = get_resource_name_from_tag(arn)
 
-                    non_compliant_section.append(
-                        [display_name, res["ResourceType"], arn]
-                    )
+                    non_compliant_section.append([display_name, res["ResourceType"], arn])
 
     # ── DEBUG FINAL ROWS ──
     print("DEBUG final non_compliant_section:", non_compliant_section)
@@ -391,9 +417,7 @@ def lambda_handler(_event, _context):
             ]
         ]
         for name, rtype, arn in non_compliant_section:
-            table_data.append(
-                [Paragraph(name, normal_style), Paragraph(rtype, normal_style)]
-            )
+            table_data.append([Paragraph(name, normal_style), Paragraph(rtype, normal_style)])
 
         noncomp_table = Table(table_data, colWidths=[300, 120])
         noncomp_table.setStyle(

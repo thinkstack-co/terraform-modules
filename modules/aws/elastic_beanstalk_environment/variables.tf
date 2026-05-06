@@ -6,7 +6,7 @@ variable "application" {
 variable "cname_prefix" {
   type        = string
   description = "(Optional) Prefix to use for the fully qualified DNS name of the Environment"
-  default     = ""
+  default     = null
 }
 
 variable "description" {
@@ -53,7 +53,7 @@ variable "tags" {
 variable "template_name" {
   type        = string
   description = "(Optional) The name of the Elastic Beanstalk Configuration template to use in deployment"
-  default     = ""
+  default     = null
 }
 
 variable "tier" {
@@ -65,7 +65,7 @@ variable "tier" {
 variable "version_label" {
   type        = string
   description = "(Optional) The name of the Elastic Beanstalk Application Version to use in deployment."
-  default     = ""
+  default     = null
 }
 
 variable "wait_for_ready_timeout" {

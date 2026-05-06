@@ -1,3 +1,15 @@
+"""AWS monthly cost report generator (Lambda handler).
+
+Pulls per-tag, per-usage-type cost data from the Cost Explorer API for the
+prior month, renders a PDF report, and uploads it to S3 under a per-customer
+key prefix. Triggered on a CloudWatch Events schedule.
+
+Inputs:  Reads configuration from environment variables — see the ENV VARS
+         block below. Lambda event/context are unused.
+Outputs: Writes a PDF to s3://${REPORT_BUCKET}/<customer>/YYYY/MM/.
+Side effects: S3 PutObject, Cost Explorer reads, STS GetCallerIdentity.
+"""
+
 import datetime
 import os
 import tempfile
@@ -20,6 +32,11 @@ sts = boto3.client("sts")
 
 
 def get_time_period():
+    """Return the (start, end) date strings to query Cost Explorer for.
+
+    Honours REPORT_TIME_PERIOD_START / _END env vars when both are set;
+    otherwise defaults to the previous calendar month (first → last day).
+    """
     if REPORT_TIME_PERIOD_START and REPORT_TIME_PERIOD_END:
         return REPORT_TIME_PERIOD_START, REPORT_TIME_PERIOD_END
     today = datetime.date.today()
@@ -98,6 +115,7 @@ USAGE_TYPE_TO_RESOURCE_TYPE = {
 
 
 def get_resource_type(usage_type):
+    """Map a Cost Explorer usage_type string to a friendly AWS resource label."""
     for prefix, resource in USAGE_TYPE_TO_RESOURCE_TYPE.items():
         if usage_type.startswith(prefix) or prefix in usage_type:
             return resource
@@ -107,6 +125,14 @@ def get_resource_type(usage_type):
 # Pylint: PDF rendering is intentionally monolithic for layout clarity.
 # pylint: disable=too-many-locals,too-many-statements
 def generate_pdf(cost_data, start, end, outfile):
+    """Render the cost report PDF to outfile.
+
+    Args:
+        cost_data: nested dict {tag_value: {usage_type: cost}} from
+                   fetch_detailed_costs().
+        start, end: date strings used for the report header.
+        outfile: filesystem path to write the PDF to.
+    """
     pdf = FPDF()
     # patch missing attribute
     pdf.unifontsubset = False
@@ -196,6 +222,7 @@ def generate_pdf(cost_data, start, end, outfile):
 # Pylint: Lambda handler is intentionally monolithic for report layout.
 # pylint: disable=too-many-locals,too-many-statements
 def lambda_handler(_event, _context):
+    """Lambda entry point. Generates the monthly PDF and uploads it to S3."""
     start, end = get_time_period()
     detailed_costs = fetch_detailed_costs(start, end)
 

@@ -1,0 +1,1417 @@
+{
+  "statistics": {
+    "detectionDate": "2026-05-06T13:40:30.437Z",
+    "formats": {
+      "bash": {
+        "sources": {
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/09-intune/scripts/remove-intune-policies.sh": {
+            "lines": 154,
+            "tokens": 805,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/09-intune/scripts/deploy-intune-policies.sh": {
+            "lines": 782,
+            "tokens": 3579,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/seed-gateway.sh": {
+            "lines": 203,
+            "tokens": 597,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/seed-controller.sh": {
+            "lines": 27,
+            "tokens": 173,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/provision-appgate.sh": {
+            "lines": 126,
+            "tokens": 888,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/enable-full-tunnel-default-site.sh": {
+            "lines": 85,
+            "tokens": 397,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 54,
+            "duplicatedTokens": 348,
+            "percentage": 63.53,
+            "percentageTokens": 87.66,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-tunnel-policy.sh": {
+            "lines": 142,
+            "tokens": 527,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 116,
+            "percentage": 12.68,
+            "percentageTokens": 22.01,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-oidc-idp.sh": {
+            "lines": 140,
+            "tokens": 403,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-full-tunnel-entitlement.sh": {
+            "lines": 126,
+            "tokens": 402,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 116,
+            "percentage": 14.29,
+            "percentageTokens": 28.86,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-client-profile.sh": {
+            "lines": 66,
+            "tokens": 293,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 116,
+            "percentage": 27.27,
+            "percentageTokens": 39.59,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/thinkstack/siem/snypr_centos_script.sh": {
+            "lines": 63,
+            "tokens": 378,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/run-superlinter.sh": {
+            "lines": 63,
+            "tokens": 109,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 1977,
+          "tokens": 8551,
+          "sources": 12,
+          "clones": 3,
+          "duplicatedLines": 54,
+          "duplicatedTokens": 348,
+          "percentage": 2.73,
+          "percentageTokens": 4.07,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "yaml": {
+        "sources": {
+          "/tmp/lint/modules/azure/terraform_modules/cmmc-enclave-template/.github/workflows/validate.yml": {
+            "lines": 119,
+            "tokens": 877,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/.github/workflows/super-linter.yml": {
+            "lines": 80,
+            "tokens": 332,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/.terraform-docs.yml": {
+            "lines": 8,
+            "tokens": 33,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/.pre-commit-config.yaml": {
+            "lines": 97,
+            "tokens": 537,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 304,
+          "tokens": 1779,
+          "sources": 4,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "json": {
+        "sources": {
+          "/tmp/lint/global/iam/iam_groups/iam_policies/system_admins/system-admins-policy.json": {
+            "lines": 69,
+            "tokens": 285,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/azure/arm_templates/avd_hostpool_workspace/avd_hostpool_workspace.json": {
+            "lines": 312,
+            "tokens": 1718,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260506_092107/super-linter-output/super-linter/super-linter-worker-results-TERRAGRUNT.json": {
+            "lines": 100,
+            "tokens": 7977,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260506_092107/super-linter-output/super-linter/super-linter-worker-results-BASH_EXEC.json": {
+            "lines": 11,
+            "tokens": 946,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260506_092107/super-linter-output/super-linter/super-linter-results.json": {
+            "lines": 98,
+            "tokens": 7819,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260506_091212/super-linter-output/super-linter/super-linter-worker-results-TERRAGRUNT.json": {
+            "lines": 100,
+            "tokens": 7977,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260506_091212/super-linter-output/super-linter/super-linter-worker-results-BASH_EXEC.json": {
+            "lines": 11,
+            "tokens": 946,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260506_091212/super-linter-output/super-linter/super-linter-results.json": {
+            "lines": 98,
+            "tokens": 7819,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260505_142232/super-linter-output/super-linter/super-linter-worker-results-TERRAGRUNT.json": {
+            "lines": 100,
+            "tokens": 7977,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260505_142232/super-linter-output/super-linter/super-linter-worker-results-BASH_EXEC.json": {
+            "lines": 10,
+            "tokens": 867,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260505_142232/super-linter-output/super-linter/super-linter-results.json": {
+            "lines": 98,
+            "tokens": 7819,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260505_121507/super-linter-output/super-linter/super-linter-worker-results-TERRAGRUNT.json": {
+            "lines": 100,
+            "tokens": 7977,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260505_121507/super-linter-output/super-linter/super-linter-worker-results-BASH_EXEC.json": {
+            "lines": 10,
+            "tokens": 867,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/lint-reports/20260505_121507/super-linter-output/super-linter/super-linter-results.json": {
+            "lines": 98,
+            "tokens": 7819,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_roles/ebs_backup_role/ebs-backup-trust-policy.json": {
+            "lines": 12,
+            "tokens": 60,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_roles/cloudcraft_role/cloudcraft-trust-policy.json": {
+            "lines": 16,
+            "tokens": 78,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_roles/aws_backup/aws_backup_trust_policy.json": {
+            "lines": 12,
+            "tokens": 60,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_policies/s3_put_object/s3_put_object.json": {
+            "lines": 16,
+            "tokens": 93,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_policies/mfa_self_serv/mfa_enforcement_policy.json": {
+            "lines": 95,
+            "tokens": 480,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_policies/ebs_backup/ebs-backup-role-policy.json": {
+            "lines": 42,
+            "tokens": 188,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_policies/aws_backup_cleanup_search/aws-backup-cleanup-search-policy.json": {
+            "lines": 15,
+            "tokens": 69,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/global/iam/iam_policies/aws_backup_cleanup_delete/aws-backup-cleanup-delete-policy.json": {
+            "lines": 51,
+            "tokens": 213,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/aws/azure_ad_sso/azure-ad-sso-policy.json": {
+            "lines": 10,
+            "tokens": 51,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/.markdownlint.json": {
+            "lines": 5,
+            "tokens": 29,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/.jscpd.json": {
+            "lines": 38,
+            "tokens": 177,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 1527,
+          "tokens": 70311,
+          "sources": 25,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "python": {
+        "sources": {
+          "/tmp/lint/modules/aws/network_diagram_generator/lambda/main.py": {
+            "lines": 120,
+            "tokens": 520,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/aws/config/lambda_compliance_reporter/lambda_function.py": {
+            "lines": 467,
+            "tokens": 3519,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/tmp/lint/modules/aws/aws_cost_report/cost_reporter/lambda_function.py": {
+            "lines": 247,
+            "tokens": 1906,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 834,
+          "tokens": 5945,
+          "sources": 3,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 4642,
+      "tokens": 86586,
+      "sources": 44,
+      "clones": 3,
+      "duplicatedLines": 54,
+      "duplicatedTokens": 348,
+      "percentage": 1.16,
+      "percentageTokens": 0.4,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "bash",
+      "lines": 19,
+      "fragment": "if [ \"$#\" -ne 2 ]; then\n\techo \"Usage: $0 <admin_password> <controller_dns_or_ip>\"\n\texit 1\nfi\n\nencodedpass=\"$1\"\nadminpass=$(echo \"$encodedpass\" | base64 -d)\nctlhost=\"$2\"\n\nDEVICE_ID_FILE=\"./appgate-device-id.txt\"\n\nif [ -f \"$DEVICE_ID_FILE\" ]; then\n\tdeviceid=$(cat \"$DEVICE_ID_FILE\")\nelse\n\tdeviceid=$(cat /proc/sys/kernel/random/uuid)\n\techo \"$deviceid\" >\"$DEVICE_ID_FILE\"\nfi\n\necho \"[6.1] Logging into Appgate controller...\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-tunnel-policy.sh",
+        "start": 4,
+        "end": 22,
+        "startLoc": {
+          "line": 4,
+          "column": 1,
+          "position": 5
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 43,
+          "position": 121
+        },
+        "blame": {
+          "4": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "4",
+            "rev": "251251d35"
+          },
+          "5": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "5",
+            "rev": "251251d35"
+          },
+          "6": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "6",
+            "rev": "251251d35"
+          },
+          "7": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "7",
+            "rev": "251251d35"
+          },
+          "8": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "8",
+            "rev": "251251d35"
+          },
+          "9": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "9",
+            "rev": "251251d35"
+          },
+          "10": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "10",
+            "rev": "251251d35"
+          },
+          "11": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "11",
+            "rev": "251251d35"
+          },
+          "12": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "12",
+            "rev": "251251d35"
+          },
+          "13": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "13",
+            "rev": "251251d35"
+          },
+          "14": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "14",
+            "rev": "251251d35"
+          },
+          "15": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "15",
+            "rev": "251251d35"
+          },
+          "16": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "16",
+            "rev": "251251d35"
+          },
+          "17": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "17",
+            "rev": "251251d35"
+          },
+          "18": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "18",
+            "rev": "251251d35"
+          },
+          "19": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "19",
+            "rev": "251251d35"
+          },
+          "20": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "20",
+            "rev": "251251d35"
+          },
+          "21": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "21",
+            "rev": "251251d35"
+          },
+          "22": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "22",
+            "rev": "251251d35"
+          }
+        }
+      },
+      "secondFile": {
+        "name": "modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/enable-full-tunnel-default-site.sh",
+        "start": 4,
+        "end": 22,
+        "startLoc": {
+          "line": 4,
+          "column": 1,
+          "position": 5
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 26,
+          "position": 121
+        },
+        "blame": {
+          "4": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "4",
+            "rev": "251251d35"
+          },
+          "5": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "5",
+            "rev": "251251d35"
+          },
+          "6": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "6",
+            "rev": "251251d35"
+          },
+          "7": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "7",
+            "rev": "251251d35"
+          },
+          "8": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "8",
+            "rev": "251251d35"
+          },
+          "9": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "9",
+            "rev": "251251d35"
+          },
+          "10": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "10",
+            "rev": "251251d35"
+          },
+          "11": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "11",
+            "rev": "251251d35"
+          },
+          "12": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "12",
+            "rev": "251251d35"
+          },
+          "13": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "13",
+            "rev": "251251d35"
+          },
+          "14": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "14",
+            "rev": "251251d35"
+          },
+          "15": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "15",
+            "rev": "251251d35"
+          },
+          "16": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "16",
+            "rev": "251251d35"
+          },
+          "17": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "17",
+            "rev": "251251d35"
+          },
+          "18": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "18",
+            "rev": "251251d35"
+          },
+          "19": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "19",
+            "rev": "251251d35"
+          },
+          "20": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "20",
+            "rev": "251251d35"
+          },
+          "21": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "21",
+            "rev": "251251d35"
+          },
+          "22": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "22",
+            "rev": "251251d35"
+          }
+        }
+      }
+    },
+    {
+      "format": "bash",
+      "lines": 19,
+      "fragment": "if [ \"$#\" -ne 2 ]; then\n\techo \"Usage: $0 <admin_password> <controller_dns_or_ip>\"\n\texit 1\nfi\n\nencodedpass=\"$1\"\nadminpass=$(echo \"$encodedpass\" | base64 -d)\nctlhost=\"$2\"\n\nDEVICE_ID_FILE=\"./appgate-device-id.txt\"\n\nif [ -f \"$DEVICE_ID_FILE\" ]; then\n\tdeviceid=$(cat \"$DEVICE_ID_FILE\")\nelse\n\tdeviceid=$(cat /proc/sys/kernel/random/uuid)\n\techo \"$deviceid\" >\"$DEVICE_ID_FILE\"\nfi\n\necho \"[5.1] Logging into Appgate controller...\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-full-tunnel-entitlement.sh",
+        "start": 4,
+        "end": 22,
+        "startLoc": {
+          "line": 4,
+          "column": 1,
+          "position": 5
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 43,
+          "position": 121
+        },
+        "blame": {
+          "4": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "4",
+            "rev": "251251d35"
+          },
+          "5": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "5",
+            "rev": "251251d35"
+          },
+          "6": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "6",
+            "rev": "251251d35"
+          },
+          "7": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "7",
+            "rev": "251251d35"
+          },
+          "8": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "8",
+            "rev": "251251d35"
+          },
+          "9": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "9",
+            "rev": "251251d35"
+          },
+          "10": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "10",
+            "rev": "251251d35"
+          },
+          "11": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "11",
+            "rev": "251251d35"
+          },
+          "12": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "12",
+            "rev": "251251d35"
+          },
+          "13": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "13",
+            "rev": "251251d35"
+          },
+          "14": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "14",
+            "rev": "251251d35"
+          },
+          "15": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "15",
+            "rev": "251251d35"
+          },
+          "16": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "16",
+            "rev": "251251d35"
+          },
+          "17": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "17",
+            "rev": "251251d35"
+          },
+          "18": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "18",
+            "rev": "251251d35"
+          },
+          "19": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "19",
+            "rev": "251251d35"
+          },
+          "20": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "20",
+            "rev": "251251d35"
+          },
+          "21": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "21",
+            "rev": "251251d35"
+          },
+          "22": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "22",
+            "rev": "251251d35"
+          }
+        }
+      },
+      "secondFile": {
+        "name": "modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/enable-full-tunnel-default-site.sh",
+        "start": 4,
+        "end": 22,
+        "startLoc": {
+          "line": 4,
+          "column": 1,
+          "position": 5
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 26,
+          "position": 121
+        },
+        "blame": {
+          "4": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "4",
+            "rev": "251251d35"
+          },
+          "5": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "5",
+            "rev": "251251d35"
+          },
+          "6": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "6",
+            "rev": "251251d35"
+          },
+          "7": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "7",
+            "rev": "251251d35"
+          },
+          "8": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "8",
+            "rev": "251251d35"
+          },
+          "9": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "9",
+            "rev": "251251d35"
+          },
+          "10": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "10",
+            "rev": "251251d35"
+          },
+          "11": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "11",
+            "rev": "251251d35"
+          },
+          "12": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "12",
+            "rev": "251251d35"
+          },
+          "13": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "13",
+            "rev": "251251d35"
+          },
+          "14": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "14",
+            "rev": "251251d35"
+          },
+          "15": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "15",
+            "rev": "251251d35"
+          },
+          "16": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "16",
+            "rev": "251251d35"
+          },
+          "17": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "17",
+            "rev": "251251d35"
+          },
+          "18": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "18",
+            "rev": "251251d35"
+          },
+          "19": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "19",
+            "rev": "251251d35"
+          },
+          "20": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "20",
+            "rev": "251251d35"
+          },
+          "21": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "21",
+            "rev": "251251d35"
+          },
+          "22": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "22",
+            "rev": "251251d35"
+          }
+        }
+      }
+    },
+    {
+      "format": "bash",
+      "lines": 19,
+      "fragment": "if [ \"$#\" -ne 2 ]; then\n\techo \"Usage: $0 <admin_password> <controller_dns_or_ip>\"\n\texit 1\nfi\n\nencodedpass=\"$1\"\nadminpass=$(echo \"$encodedpass\" | base64 -d)\nctlhost=\"$2\"\n\nDEVICE_ID_FILE=\"./appgate-device-id.txt\"\n\nif [ -f \"$DEVICE_ID_FILE\" ]; then\n\tdeviceid=$(cat \"$DEVICE_ID_FILE\")\nelse\n\tdeviceid=$(cat /proc/sys/kernel/random/uuid)\n\techo \"$deviceid\" >\"$DEVICE_ID_FILE\"\nfi\n\necho \"[7.1] Logging into Appgate controller...\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/create-client-profile.sh",
+        "start": 4,
+        "end": 22,
+        "startLoc": {
+          "line": 4,
+          "column": 1,
+          "position": 5
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 43,
+          "position": 121
+        },
+        "blame": {
+          "4": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "4",
+            "rev": "251251d35"
+          },
+          "5": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "5",
+            "rev": "251251d35"
+          },
+          "6": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "6",
+            "rev": "251251d35"
+          },
+          "7": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "7",
+            "rev": "251251d35"
+          },
+          "8": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "8",
+            "rev": "251251d35"
+          },
+          "9": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "9",
+            "rev": "251251d35"
+          },
+          "10": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "10",
+            "rev": "251251d35"
+          },
+          "11": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "11",
+            "rev": "251251d35"
+          },
+          "12": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "12",
+            "rev": "251251d35"
+          },
+          "13": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "13",
+            "rev": "251251d35"
+          },
+          "14": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "14",
+            "rev": "251251d35"
+          },
+          "15": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "15",
+            "rev": "251251d35"
+          },
+          "16": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "16",
+            "rev": "251251d35"
+          },
+          "17": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "17",
+            "rev": "251251d35"
+          },
+          "18": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "18",
+            "rev": "251251d35"
+          },
+          "19": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "19",
+            "rev": "251251d35"
+          },
+          "20": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "20",
+            "rev": "251251d35"
+          },
+          "21": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "21",
+            "rev": "251251d35"
+          },
+          "22": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "22",
+            "rev": "251251d35"
+          }
+        }
+      },
+      "secondFile": {
+        "name": "modules/azure/terraform_modules/cmmc-enclave-template/modules/04-appgate-sdp/Scripts/enable-full-tunnel-default-site.sh",
+        "start": 4,
+        "end": 22,
+        "startLoc": {
+          "line": 4,
+          "column": 1,
+          "position": 5
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 26,
+          "position": 121
+        },
+        "blame": {
+          "4": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "4",
+            "rev": "251251d35"
+          },
+          "5": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "5",
+            "rev": "251251d35"
+          },
+          "6": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "6",
+            "rev": "251251d35"
+          },
+          "7": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "7",
+            "rev": "251251d35"
+          },
+          "8": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "8",
+            "rev": "251251d35"
+          },
+          "9": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "9",
+            "rev": "251251d35"
+          },
+          "10": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "10",
+            "rev": "251251d35"
+          },
+          "11": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "11",
+            "rev": "251251d35"
+          },
+          "12": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "12",
+            "rev": "251251d35"
+          },
+          "13": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "13",
+            "rev": "251251d35"
+          },
+          "14": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "14",
+            "rev": "251251d35"
+          },
+          "15": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "15",
+            "rev": "251251d35"
+          },
+          "16": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "16",
+            "rev": "251251d35"
+          },
+          "17": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "17",
+            "rev": "251251d35"
+          },
+          "18": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "18",
+            "rev": "251251d35"
+          },
+          "19": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "19",
+            "rev": "251251d35"
+          },
+          "20": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "20",
+            "rev": "251251d35"
+          },
+          "21": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "21",
+            "rev": "251251d35"
+          },
+          "22": {
+            "author": "Ben Hoch  ",
+            "date": "2026-03-13 15:06:52 -0500",
+            "line": "22",
+            "rev": "251251d35"
+          }
+        }
+      }
+    }
+  ]
+}

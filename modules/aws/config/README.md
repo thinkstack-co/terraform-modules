@@ -116,6 +116,7 @@ By default, the compliance reporter Lambda will attempt to display the AWS accou
 1. **AWS Organizations Account Name:**
    - If the Lambda function has access to the Organizations API, it will use the display name from AWS Organizations (the friendly name you see in the AWS SSO/Access Portal).
 2. **Environment Variable Override:**
+
    - If the Organizations API is not accessible (e.g., due to permissions or SCPs), you can set the `account_display_name` variable in this module. This value will be passed to the Lambda as the `ACCOUNT_DISPLAY_NAME` environment variable and used in the report.
    - Example:
 

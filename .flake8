@@ -1,5 +1,7 @@
 # .flake8
+# Line length matches .python-black (line-length = 120). Keeping flake8
+# stricter than black causes false positives on lines black just produced.
 [flake8]
 exclude = .git,__pycache__,.terraform,package,.venv
-max-line-length = 88
+max-line-length = 120
 extend-ignore = E203
