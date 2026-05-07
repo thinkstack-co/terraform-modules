@@ -29,45 +29,45 @@ locals {
   # and S3 endpoint RT association tied to that AZ.
   private_subnets_map = {
     for idx, az in var.azs : az => var.private_subnets_list[idx]
-    if !var.private_subnet_disabled
-    && idx < length(var.private_subnets_list)
-    && !contains(var.disabled_azs, az)
-    && !contains(var.private_subnet_disabled_azs, az)
+    if !var.private_subnet_disabled &&
+    idx < length(var.private_subnets_list) &&
+    !contains(var.disabled_azs, az) &&
+    !contains(var.private_subnet_disabled_azs, az)
   }
   public_subnets_map = {
     for idx, az in var.azs : az => var.public_subnets_list[idx]
-    if !var.public_subnet_disabled
-    && idx < length(var.public_subnets_list)
-    && !contains(var.disabled_azs, az)
-    && !contains(var.public_subnet_disabled_azs, az)
+    if !var.public_subnet_disabled &&
+    idx < length(var.public_subnets_list) &&
+    !contains(var.disabled_azs, az) &&
+    !contains(var.public_subnet_disabled_azs, az)
   }
   dmz_subnets_map = {
     for idx, az in var.azs : az => var.dmz_subnets_list[idx]
-    if !var.dmz_subnet_disabled
-    && idx < length(var.dmz_subnets_list)
-    && !contains(var.disabled_azs, az)
-    && !contains(var.dmz_subnet_disabled_azs, az)
+    if !var.dmz_subnet_disabled &&
+    idx < length(var.dmz_subnets_list) &&
+    !contains(var.disabled_azs, az) &&
+    !contains(var.dmz_subnet_disabled_azs, az)
   }
   db_subnets_map = {
     for idx, az in var.azs : az => var.db_subnets_list[idx]
-    if !var.db_subnet_disabled
-    && idx < length(var.db_subnets_list)
-    && !contains(var.disabled_azs, az)
-    && !contains(var.db_subnet_disabled_azs, az)
+    if !var.db_subnet_disabled &&
+    idx < length(var.db_subnets_list) &&
+    !contains(var.disabled_azs, az) &&
+    !contains(var.db_subnet_disabled_azs, az)
   }
   mgmt_subnets_map = {
     for idx, az in var.azs : az => var.mgmt_subnets_list[idx]
-    if !var.mgmt_subnet_disabled
-    && idx < length(var.mgmt_subnets_list)
-    && !contains(var.disabled_azs, az)
-    && !contains(var.mgmt_subnet_disabled_azs, az)
+    if !var.mgmt_subnet_disabled &&
+    idx < length(var.mgmt_subnets_list) &&
+    !contains(var.disabled_azs, az) &&
+    !contains(var.mgmt_subnet_disabled_azs, az)
   }
   workspaces_subnets_map = {
     for idx, az in var.azs : az => var.workspaces_subnets_list[idx]
-    if !var.workspaces_subnet_disabled
-    && idx < length(var.workspaces_subnets_list)
-    && !contains(var.disabled_azs, az)
-    && !contains(var.workspaces_subnet_disabled_azs, az)
+    if !var.workspaces_subnet_disabled &&
+    idx < length(var.workspaces_subnets_list) &&
+    !contains(var.disabled_azs, az) &&
+    !contains(var.workspaces_subnet_disabled_azs, az)
   }
 
   # Group-level creation flags. True when the corresponding map has at least
@@ -83,9 +83,7 @@ locals {
   create_nat_gateway        = var.enable_nat_gateway && local.create_public_subnets
 
   # ─── NAT gateway placement ─────────────────────────────────────────────────
-  # NAT GWs live only in AZs that actually have a public subnet (corrects a
-  # latent bug in the count-based version that placed one per length(azs)
-  # regardless of whether public subnets existed in those AZs). With
+  # NAT GWs live only in AZs that have a public subnet. With
   # var.single_nat_gateway, a single NAT GW is placed in the alphabetically
   # first public AZ — sort() guarantees stable selection across plans.
   single_nat_gateway_az = (
@@ -136,6 +134,20 @@ resource "aws_vpc" "vpc" {
   tags                 = merge(tomap({ Name = var.name }), var.tags)
 }
 
+# Purpose:       Lock down the VPC's auto-created default security group so
+#                no resource can attach to it and inadvertently get
+#                intra-SG-allow-all traffic.
+# Referenced by: nothing — callers should never attach to the default SG
+# References:    aws_vpc.vpc
+# Why:           Managing the default SG with no ingress/egress blocks
+#                strips all rules (default SG normally allows all
+#                intra-SG traffic) and prevents AWS from recreating it
+#                with permissive defaults.
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.vpc.id
+  tags   = merge(var.tags, ({ "Name" = format("%s-default-sg-locked", var.name) }))
+}
+
 ###########################
 # VPC Endpoints
 ###########################
@@ -173,8 +185,6 @@ resource "aws_security_group" "security_group" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    # Allow SSM outbound traffic to SSM endpoint
-    #tfsec:ignore:aws-ec2-no-public-egress-sgr
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -185,9 +195,8 @@ resource "aws_security_group" "security_group" {
 # Referenced by: nothing in this module — consumed by SSM-managed instances
 # References:    aws_vpc.vpc, aws_security_group.security_group,
 #                aws_subnet.private_subnets (all enabled private AZs)
-# Why:           subnet_ids built via for-expression because aws_subnet
-#                resource is now keyed by AZ (for_each), so [*] splat would
-#                only return one element.
+# Why:           subnet_ids built via for-expression because aws_subnet is
+#                keyed by AZ (for_each), so [*] splat does not apply.
 resource "aws_vpc_endpoint" "ec2messages" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
@@ -303,12 +312,10 @@ resource "aws_subnet" "private_subnets" {
 # References:    aws_vpc.vpc, local.public_subnets_map
 # Why:           for_each keyed by AZ for selective AZ disable.
 resource "aws_subnet" "public_subnets" {
-  for_each          = local.public_subnets_map
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value
-  availability_zone = each.key
-  # Allow public IP assignment for public subnets and zone
-  #tfsec:ignore:aws-ec2-no-public-ip-subnet
+  for_each                = local.public_subnets_map
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = each.value
+  availability_zone       = each.key
   map_public_ip_on_launch = var.map_public_ip_on_launch
   tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, each.key) }))
 }
@@ -341,8 +348,7 @@ resource "aws_subnet" "db_subnets" {
 
 # Purpose:       Management subnets, one per enabled AZ. Reserved for jump
 #                hosts, agent infrastructure, or other operational tooling.
-# Referenced by: aws_route.mgmt_default_route_* (note: mgmt route table is
-#                NOT currently associated to mgmt subnets — separate issue)
+# Referenced by: aws_route.mgmt_default_route_*
 # References:    aws_vpc.vpc, local.mgmt_subnets_map
 resource "aws_subnet" "mgmt_subnets" {
   for_each          = local.mgmt_subnets_map
@@ -575,9 +581,6 @@ resource "aws_route" "dmz_default_route_fw" {
 #                aws_vpc_endpoint_route_table_association.mgmt_s3
 # References:    aws_vpc.vpc, local.mgmt_subnets_map,
 #                local.effective_mgmt_propagating_vgws
-# Why:           Note: mgmt subnets are NOT currently associated to this RT
-#                (no aws_route_table_association.mgmt resource exists). Pre-
-#                existing issue, not introduced by this refactor.
 resource "aws_route_table" "mgmt_route_table" {
   for_each         = local.mgmt_subnets_map
   propagating_vgws = local.effective_mgmt_propagating_vgws
@@ -678,10 +681,9 @@ resource "aws_vpc_endpoint_route_table_association" "private_s3" {
 # Purpose:       Bind the S3 gateway endpoint to the single public RT.
 # Referenced by: nothing
 # References:    aws_vpc_endpoint.s3, aws_route_table.public_route_table
-# Why:           Public RT is a single resource shared by all public subnets.
-#                Earlier versions of this module created one association per
-#                public subnet, which AWS rejects as a duplicate; collapsing
-#                to a single association corrects that.
+# Why:           One association per (endpoint, RT). Public RT is a single
+#                resource shared by all public subnets, so this is a single
+#                count regardless of how many public AZs exist.
 resource "aws_vpc_endpoint_route_table_association" "public_s3" {
   count           = var.enable_s3_endpoint && local.create_public_subnets ? 1 : 0
   vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
@@ -867,7 +869,6 @@ resource "aws_iam_policy" "policy" {
   name_prefix = var.iam_policy_name_prefix
   path        = var.iam_policy_path
   tags        = var.tags
-  #tfsec:ignore:aws-iam-no-policy-wildcards
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{

@@ -84,9 +84,9 @@ resource "aws_vpn_connection" "vpn_connection_vpn_gateway_attachment" {
 
 resource "aws_vpn_gateway_route_propagation" "route_propagation" {
   count = (
-    !var.enable_transit_gateway_attachment
-    && var.enable_vpn_gateway_route_propagation
-    && length(var.route_table_ids) > 0
+    !var.enable_transit_gateway_attachment &&
+    var.enable_vpn_gateway_route_propagation &&
+    length(var.route_table_ids) > 0
   ) ? length(var.route_table_ids) : 0
 
   route_table_id = element(var.route_table_ids, count.index)

@@ -97,7 +97,7 @@ output "default_security_group_id" {
 # ─── Route Tables ──────────────────────────────────────────────────────────
 
 output "public_route_table_ids" {
-  description = "List containing the single public route table ID. Returned as a list for backwards compatibility with the previous count-based output shape."
+  description = "List containing the single public route table ID. Returned as a list to match the shape of the other route-table outputs."
   value       = [aws_route_table.public_route_table.id]
 }
 
