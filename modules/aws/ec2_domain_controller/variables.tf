@@ -298,3 +298,17 @@ variable "number" {
     error_message = "The value must be greater than or equal to 1."
   }
 }
+
+# Why: Allows a specific DC to be skipped (e.g., one was terminated outside
+#      Terraform) without shifting the surviving DC's resource address. The
+#      module uses for_each keyed on dcN identifiers so disabling dc1 does not
+#      change dc2's state key.
+variable "disabled_dcs" {
+  type        = list(string)
+  description = "(Optional) List of DC identifiers to skip creating, e.g. [\"dc1\"] or [\"dc2\"]. Identifiers are 1-based and correspond to the same index in var.private_ip and var.subnet_id. Default is an empty list (create all DCs)."
+  default     = []
+  validation {
+    condition     = alltrue([for d in var.disabled_dcs : can(regex("^dc[1-9][0-9]*$", d))])
+    error_message = "Each entry must match the pattern 'dcN' where N is a positive integer (e.g., dc1, dc2)."
+  }
+}

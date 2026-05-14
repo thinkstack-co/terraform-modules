@@ -1,13 +1,15 @@
+# Outputs preserve list shape for backward compatibility with consumers. Iteration
+# over the for_each map produces values in alphabetical key order (dc1, dc2, ...).
 output "ec2_instance_id" {
-  value = aws_instance.ec2_instance[*].id
+  value = [for inst in aws_instance.ec2_instance : inst.id]
 }
 
 output "ec2_instance_priv_ip" {
-  value = aws_instance.ec2_instance[*].private_ip
+  value = [for inst in aws_instance.ec2_instance : inst.private_ip]
 }
 
 output "ec2_instance_pub_ip" {
-  value = aws_instance.ec2_instance[*].public_ip
+  value = [for inst in aws_instance.ec2_instance : inst.public_ip]
 }
 
 /*
@@ -17,11 +19,11 @@ output "ec2_instance_network_id" {
 }*/
 
 output "ec2_instance_subnet_id" {
-  value = aws_instance.ec2_instance[*].subnet_id
+  value = [for inst in aws_instance.ec2_instance : inst.subnet_id]
 }
 
 output "ec2_instance_security_groups" {
-  value = aws_instance.ec2_instance[*].security_groups
+  value = [for inst in aws_instance.ec2_instance : inst.security_groups]
 }
 
 output "dhcp_options_id" {
