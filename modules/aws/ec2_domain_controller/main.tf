@@ -85,6 +85,35 @@ resource "aws_instance" "ec2_instance" {
   }
 }
 
+# v2.10.0 re-keyed the DC instance from count to for_each ("dc1","dc2",...).
+# These moved blocks migrate existing count-indexed state in place (index N ->
+# "dc{N+1}") so the upgrade renames rather than destroys live domain controllers.
+# Static set covers up to 6 DCs; unmatched entries are no-ops.
+moved {
+  from = aws_instance.ec2_instance[0]
+  to   = aws_instance.ec2_instance["dc1"]
+}
+moved {
+  from = aws_instance.ec2_instance[1]
+  to   = aws_instance.ec2_instance["dc2"]
+}
+moved {
+  from = aws_instance.ec2_instance[2]
+  to   = aws_instance.ec2_instance["dc3"]
+}
+moved {
+  from = aws_instance.ec2_instance[3]
+  to   = aws_instance.ec2_instance["dc4"]
+}
+moved {
+  from = aws_instance.ec2_instance[4]
+  to   = aws_instance.ec2_instance["dc5"]
+}
+moved {
+  from = aws_instance.ec2_instance[5]
+  to   = aws_instance.ec2_instance["dc6"]
+}
+
 ###########################
 # VPC DHCP Options
 ###########################
@@ -153,7 +182,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
     if var.create_cloudwatch_alarms
   }
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
+  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.region}:ec2:recover"]
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
