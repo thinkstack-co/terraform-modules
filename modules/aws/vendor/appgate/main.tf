@@ -62,7 +62,7 @@ data "aws_ami" "appgate" {
 locals {
   region_short = replace(
     replace(
-      replace(data.aws_region.current.name, "north", "n"),
+      replace(data.aws_region.current.region, "north", "n"),
       "south", "s"
     ),
     "/([a-z]{2})-([a-z])[a-z]*-([0-9])/", "$1$2$3"
@@ -70,7 +70,7 @@ locals {
 
   az_short = replace(
     data.aws_subnet.this.availability_zone,
-    data.aws_region.current.name,
+    data.aws_region.current.region,
     local.region_short
   )
 

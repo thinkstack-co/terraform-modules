@@ -879,7 +879,7 @@ module "custom_backup_role" {
         Resource = "*"
         Condition = {
           StringEquals = {
-            "aws:RequestedRegion" = data.aws_region.current.name
+            "aws:RequestedRegion" = data.aws_region.current.region
           }
         }
       }

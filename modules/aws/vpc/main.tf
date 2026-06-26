@@ -15,7 +15,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
-  service_name = "com.amazonaws.${data.aws_region.current.id}.s3"
+  service_name = "com.amazonaws.${data.aws_region.current.region}.s3"
 
   # ─── Per-subnet-type AZ→CIDR maps ──────────────────────────────────────────
   # Zip var.azs with var.*_subnets_list to produce {az_name => cidr_block}
@@ -200,7 +200,7 @@ resource "aws_security_group" "security_group" {
 resource "aws_vpc_endpoint" "ec2messages" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.ec2messages"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.ec2messages"
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -216,7 +216,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
 resource "aws_vpc_endpoint" "kms" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.kms"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.kms"
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -231,7 +231,7 @@ resource "aws_vpc_endpoint" "kms" {
 resource "aws_vpc_endpoint" "ssm" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.ssm"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.ssm"
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -246,7 +246,7 @@ resource "aws_vpc_endpoint" "ssm" {
 resource "aws_vpc_endpoint" "ssm-contacts" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.ssm-contacts"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.ssm-contacts"
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -261,7 +261,7 @@ resource "aws_vpc_endpoint" "ssm-contacts" {
 resource "aws_vpc_endpoint" "ssm-incidents" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.ssm-incidents"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.ssm-incidents"
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -277,7 +277,7 @@ resource "aws_vpc_endpoint" "ssm-incidents" {
 resource "aws_vpc_endpoint" "ssmmessages" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.ssmmessages"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.ssmmessages"
   security_group_ids  = [aws_security_group.security_group.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -811,7 +811,7 @@ resource "aws_kms_key" "key" {
       {
         "Effect" = "Allow",
         "Principal" = {
-          "Service" = "logs.${data.aws_region.current.id}.amazonaws.com"
+          "Service" = "logs.${data.aws_region.current.region}.amazonaws.com"
         },
         "Action" = [
           "kms:Encrypt*",
@@ -823,7 +823,7 @@ resource "aws_kms_key" "key" {
         "Resource" = "*",
         "Condition" = {
           "ArnEquals" = {
-            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:log-group:*"
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:*"
           }
         }
       }

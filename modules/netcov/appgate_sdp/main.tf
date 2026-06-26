@@ -178,7 +178,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 resource "aws_cloudwatch_metric_alarm" "system" {
   count = var.create_cloudwatch_alarms ? 1 : 0
   # Auto-detected from instance type by default, or explicitly overridden via var.enable_recover_action.
-  alarm_actions = local.recover_action_enabled ? ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"] : []
+  alarm_actions = local.recover_action_enabled ? ["arn:aws:automate:${data.aws_region.current.region}:ec2:recover"] : []
 
   actions_enabled     = true
   alarm_description   = "AppGate SDP instance StatusCheckFailed_System alarm"
