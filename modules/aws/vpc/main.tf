@@ -142,8 +142,11 @@ resource "aws_vpc" "vpc" {
 # Why:           Managing the default SG with no ingress/egress blocks
 #                strips all rules (default SG normally allows all
 #                intra-SG traffic) and prevents AWS from recreating it
-#                with permissive defaults.
+#                with permissive defaults. Gated by var.manage_default_security_group
+#                (default true) so a caller that manages its default SG elsewhere,
+#                or intentionally leaves it unmanaged, can opt out.
 resource "aws_default_security_group" "default" {
+  count  = var.manage_default_security_group ? 1 : 0
   vpc_id = aws_vpc.vpc.id
   tags   = merge(var.tags, ({ "Name" = format("%s-default-sg-locked", var.name) }))
 }

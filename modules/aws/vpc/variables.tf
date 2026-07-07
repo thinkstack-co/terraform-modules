@@ -421,6 +421,12 @@ variable "enable_firewall" {
   type        = bool
 }
 
+variable "manage_default_security_group" {
+  description = "(Optional) Whether this module manages (adopts and locks down to zero rules) the VPC's auto-created default security group via aws_default_security_group. Set false to leave the default SG unmanaged, e.g. when it is managed elsewhere. Defaults True."
+  default     = true
+  type        = bool
+}
+
 variable "enable_nat_gateway" {
   description = "(Optional) A boolean flag to enable/disable the use of NAT gateways in the private subnets. Defaults True."
   default     = true
