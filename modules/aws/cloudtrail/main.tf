@@ -28,7 +28,7 @@ resource "aws_kms_key" "cloudtrail" {
   tags                     = var.tags
   policy = jsonencode({
     "Version" = "2012-10-17",
-    "Statement" = [
+    "Statement" = concat([
       {
         "Sid"    = "Enable IAM User Permissions",
         "Effect" = "Allow",
@@ -62,28 +62,29 @@ resource "aws_kms_key" "cloudtrail" {
             "aws:SourceArn" = "arn:aws:cloudtrail:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:trail/${var.name}"
           }
         }
-      },
-      #      {
-      #        "Sid"    = "Allow CloudWatch Logs to encrypt logs",
-      #        "Effect" = "Allow",
-      #        "Principal" = {
-      #          "Service" = "logs.${data.aws_region.current.region}.amazonaws.com"
-      #        },
-      #        "Action" = [
-      #          "kms:Encrypt*",
-      #          "kms:Decrypt*",
-      #          "kms:ReEncrypt*",
-      #          "kms:GenerateDataKey*",
-      #          "kms:Describe*"
-      #        ],
-      #        "Resource" = "*",
-      #        "Condition" = {
-      #          "ArnEquals" = {
-      #            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:*"
-      #          }
-      #        }
-      #      }
-    ]
+      }
+      ], var.enable_cloudwatch_logs ? [
+      {
+        "Sid"    = "Allow CloudWatch Logs to encrypt logs",
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "logs.${data.aws_region.current.region}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "ArnEquals" = {
+            "kms:EncryptionContext:aws:logs:arn" : "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:*"
+          }
+        }
+      }
+    ] : [])
   })
 }
 
@@ -96,58 +97,74 @@ resource "aws_kms_alias" "cloudtrail" {
 # CloudWatch Log Group
 ###########################
 
-#resource "aws_cloudwatch_log_group" "cloudtrail" {
-#  kms_key_id        = aws_kms_key.cloudtrail.arn
-#  name_prefix       = var.cloudwatch_name_prefix
-#  retention_in_days = var.cloudwatch_retention_in_days
-#  tags              = var.tags
-#}
+# Purpose:       Log group CloudTrail streams events into for near-real-time
+#                metric filters / alarms (the S3 trail is the archive). Gated by
+#                var.enable_cloudwatch_logs.
+# Referenced by: aws_iam_policy.cloudtrail, aws_cloudtrail.cloudtrail
+# References:    aws_kms_key.cloudtrail
+resource "aws_cloudwatch_log_group" "cloudtrail" {
+  count             = var.enable_cloudwatch_logs ? 1 : 0
+  kms_key_id        = aws_kms_key.cloudtrail.arn
+  name_prefix       = var.cloudwatch_name_prefix
+  retention_in_days = var.cloudwatch_retention_in_days
+  tags              = var.tags
+}
 
 ############################
 # IAM Policy
 ############################
-#resource "aws_iam_policy" "cloudtrail" {
-#  description = var.iam_policy_description
-#  name_prefix = var.iam_policy_name_prefix
-#  path        = var.iam_policy_path
-#  tags        = var.tags
-#  #tfsec:ignore:aws-iam-no-policy-wildcards
-#  policy = jsonencode({
-#    Version = "2012-10-17",
-#    Statement = [{
-#      Sid    = "AllowCloudTrailToWriteLogs"
-#      Effect = "Allow",
-#      Action = [
-#        "logs:CreateLogStream",
-#        "logs:PutLogEvents",
-#        "logs:DescribeLogGroups",
-#        "logs:DescribeLogStreams"
-#      ],
-#      Resource = [
-#        "aws_cloudwatch_log_group.cloudtrail.arn",
-#        "aws_cloudwatch_log_group.cloudtrail.arn:log-stream:*"
-#      ]
-#    }]
-#  })
-#}
+# Purpose:       Grants the CloudTrail role permission to write to the log group.
+# Referenced by: aws_iam_role_policy_attachment.role_attach
+# References:    aws_cloudwatch_log_group.cloudtrail
+resource "aws_iam_policy" "cloudtrail" {
+  count       = var.enable_cloudwatch_logs ? 1 : 0
+  description = var.iam_policy_description
+  name_prefix = var.iam_policy_name_prefix
+  path        = var.iam_policy_path
+  tags        = var.tags
+  #tfsec:ignore:aws-iam-no-policy-wildcards
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Sid    = "AllowCloudTrailToWriteLogs"
+      Effect = "Allow",
+      Action = [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams"
+      ],
+      Resource = [
+        "${aws_cloudwatch_log_group.cloudtrail[0].arn}",
+        "${aws_cloudwatch_log_group.cloudtrail[0].arn}:log-stream:*"
+      ]
+    }]
+  })
+}
 
 ###########################
 # IAM Role
 ###########################
 
-#resource "aws_iam_role" "cloudtrail" {
-#  assume_role_policy    = var.iam_role_assume_role_policy
-#  description           = var.iam_role_description
-#  force_detach_policies = var.iam_role_force_detach_policies
-#  max_session_duration  = var.iam_role_max_session_duration
-#  name_prefix           = var.iam_role_name_prefix
-#  permissions_boundary  = var.iam_role_permissions_boundary
-#}
+# Purpose:       Role CloudTrail assumes to write to the CloudWatch log group.
+# Referenced by: aws_iam_role_policy_attachment.role_attach, aws_cloudtrail.cloudtrail
+resource "aws_iam_role" "cloudtrail" {
+  count                 = var.enable_cloudwatch_logs ? 1 : 0
+  assume_role_policy    = var.iam_role_assume_role_policy
+  description           = var.iam_role_description
+  force_detach_policies = var.iam_role_force_detach_policies
+  max_session_duration  = var.iam_role_max_session_duration
+  name_prefix           = var.iam_role_name_prefix
+  permissions_boundary  = var.iam_role_permissions_boundary
+}
 
-#resource "aws_iam_role_policy_attachment" "role_attach" {
-#  role       = aws_iam_role.cloudtrail.name
-#  policy_arn = aws_iam_policy.cloudtrail.arn
-#}
+# Purpose:       Binds the write policy to the CloudTrail role.
+# References:    aws_iam_role.cloudtrail, aws_iam_policy.cloudtrail
+resource "aws_iam_role_policy_attachment" "role_attach" {
+  count      = var.enable_cloudwatch_logs ? 1 : 0
+  role       = aws_iam_role.cloudtrail[0].name
+  policy_arn = aws_iam_policy.cloudtrail[0].arn
+}
 
 ###########################
 # CloudTrail
@@ -161,8 +178,9 @@ resource "aws_cloudtrail" "cloudtrail" {
   name                          = var.name
   s3_bucket_name                = aws_s3_bucket.cloudtrail_s3_bucket.id
   s3_key_prefix                 = var.s3_key_prefix
-  #cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail.arn}:*" # CloudTrail requires the Log Stream wildcard
-  #cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail.arn
+  # Log Stream wildcard (:*) is required by CloudTrail. Both null when disabled.
+  cloud_watch_logs_group_arn = var.enable_cloudwatch_logs ? "${aws_cloudwatch_log_group.cloudtrail[0].arn}:*" : null
+  cloud_watch_logs_role_arn  = var.enable_cloudwatch_logs ? aws_iam_role.cloudtrail[0].arn : null
 }
 
 ###########################

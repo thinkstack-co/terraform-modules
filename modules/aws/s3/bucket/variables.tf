@@ -217,12 +217,6 @@ variable "bucket_policy" {
 # Access Guard Variables
 ######################
 
-# Why: An explicit Deny in a bucket policy overrides every Allow, including the
-#      AdministratorAccess managed policy. The guard does not "win" by allowing
-#      access — it wins because enabling it makes this module OWN the bucket
-#      policy, so any out-of-band Deny added later (e.g. in the console) shows up
-#      as drift and is reverted on the next apply. That is what prevents a repeat
-#      of the Terraform-user lockout.
 variable "enable_access_guard" {
   type        = bool
   description = "(Optional) When true, this module manages the bucket policy and always grants the account root (covers any AdministratorAccess identity) and the Terraform automation principal full access to the bucket. Defaults to true."
@@ -233,10 +227,6 @@ variable "enable_access_guard" {
   }
 }
 
-# Why: built from the caller's account id at plan time so the guard works in any
-#      account with no hardcoding. Override terraform_principal_arns when the
-#      automation identity is a role (e.g. TFC dynamic credentials) rather than
-#      the default 'terraform' IAM user.
 variable "terraform_principal_name" {
   type        = string
   description = "(Optional) IAM username of the Terraform automation principal, used to auto-build its ARN for the access guard when terraform_principal_arns is empty. Defaults to terraform."

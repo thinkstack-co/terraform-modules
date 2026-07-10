@@ -187,10 +187,6 @@ locals {
 #                Terraform automation principal full access to this bucket.
 # Referenced by: aws_s3_bucket_policy.this
 # References:    aws_s3_bucket.this, local.guard_principal_arns, var.bucket_policy
-# Why:           The caller's own var.bucket_policy is merged in as the base via
-#                source_policy_documents so existing statements (e.g. a data
-#                pipeline role) are preserved, not overwritten, when the guard is
-#                turned on for a bucket that already had a policy.
 data "aws_iam_policy_document" "access_guard" {
   count                   = var.enable_access_guard ? 1 : 0
   source_policy_documents = compact([var.bucket_policy])

@@ -36,10 +36,6 @@ variable "create_eip" {
   }
 }
 
-# Why: This is the public-subnet / public-facing toggle for the gateway. True assigns a public IP
-#      at launch (place it in a public subnet) and, via a precondition on aws_instance.appgate,
-#      requires private_ip to be set to an address within that public subnet. Set false to run
-#      the gateway private.
 variable "associate_public_ip_address" {
   type        = bool
   description = "(Optional) Whether to assign a public IP at launch so the gateway is public-facing in a public subnet. When true, private_ip must be provided. Default true."
@@ -92,8 +88,6 @@ variable "availability_zone" {
   default     = ""
 }
 
-# Why: Required at launch whenever associate_public_ip_address is true (enforced by a precondition
-#      on aws_instance.appgate) so a public-facing gateway lands on a stable, known address.
 variable "private_ip" {
   type        = string
   description = "(Optional) Static private IP to assign to the gateway within its subnet. Required when associate_public_ip_address is true, and must be an address within one of the public subnets."

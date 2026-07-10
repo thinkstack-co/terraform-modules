@@ -139,10 +139,6 @@ resource "aws_vpc" "vpc" {
 #                intra-SG-allow-all traffic.
 # Referenced by: nothing — callers should never attach to the default SG
 # References:    aws_vpc.vpc
-# Why:           Managing the default SG with no ingress/egress blocks
-#                strips all rules (default SG normally allows all
-#                intra-SG traffic) and prevents AWS from recreating it
-#                with permissive defaults. Gated by var.manage_default_security_group.
 resource "aws_default_security_group" "default" {
   count  = var.manage_default_security_group ? 1 : 0
   vpc_id = aws_vpc.vpc.id
@@ -196,8 +192,6 @@ resource "aws_security_group" "security_group" {
 # Referenced by: nothing in this module — consumed by SSM-managed instances
 # References:    aws_vpc.vpc, aws_security_group.security_group,
 #                aws_subnet.private_subnets (all enabled private AZs)
-# Why:           subnet_ids built via for-expression because aws_subnet is
-#                keyed by AZ (for_each), so [*] splat does not apply.
 resource "aws_vpc_endpoint" "ec2messages" {
   count               = local.create_ssm_vpc_endpoints ? 1 : 0
   vpc_id              = aws_vpc.vpc.id
@@ -296,8 +290,6 @@ resource "aws_vpc_endpoint" "ssmmessages" {
 #                aws_vpc_endpoint.* (SSM family),
 #                aws_route.private_default_route_*
 # References:    aws_vpc.vpc, local.private_subnets_map
-# Why:           for_each keyed by AZ so disabling an AZ removes only that
-#                AZ's subnet without recreating its peers.
 resource "aws_subnet" "private_subnets" {
   for_each          = local.private_subnets_map
   vpc_id            = aws_vpc.vpc.id
@@ -311,7 +303,6 @@ resource "aws_subnet" "private_subnets" {
 #                controlled by var.map_public_ip_on_launch.
 # Referenced by: aws_route_table_association.public, aws_nat_gateway.natgw
 # References:    aws_vpc.vpc, local.public_subnets_map
-# Why:           for_each keyed by AZ for selective AZ disable.
 resource "aws_subnet" "public_subnets" {
   for_each                = local.public_subnets_map
   vpc_id                  = aws_vpc.vpc.id
@@ -423,8 +414,6 @@ resource "aws_eip" "nateip" {
 #                type's NAT route)
 # References:    aws_eip.nateip, aws_subnet.public_subnets,
 #                local.nat_gateway_azs_set, aws_internet_gateway.igw
-# Why:           depends_on IGW because NAT GW creation fails if the IGW is
-#                still attaching at the same time.
 resource "aws_nat_gateway" "natgw" {
   depends_on = [aws_internet_gateway.igw]
 
@@ -459,10 +448,6 @@ resource "aws_route_table" "private_route_table" {
 #                GW; otherwise each points at the NAT GW in its own AZ.
 # Referenced by: nothing
 # References:    aws_route_table.private_route_table, aws_nat_gateway.natgw
-# Why:           for_each is filtered to private AZs that have a reachable
-#                NAT GW. In per-AZ mode that means the AZ must have its own
-#                public subnet + NAT GW; in single-NAT mode any private AZ
-#                qualifies as long as one NAT GW exists.
 resource "aws_route" "private_default_route_natgw" {
   for_each = {
     for az in keys(local.private_subnets_map) : az => az
@@ -482,9 +467,6 @@ resource "aws_route" "private_default_route_natgw" {
 # Referenced by: nothing
 # References:    aws_route_table.private_route_table,
 #                var.fw_network_interface_id, local.az_index
-# Why:           Firewall ENIs are a positional list indexed by var.azs
-#                position. Caller is responsible for ensuring the list has an
-#                entry at the index of every enabled private AZ.
 resource "aws_route" "private_default_route_fw" {
   for_each               = var.enable_firewall ? local.private_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
@@ -567,9 +549,6 @@ resource "aws_route" "dmz_default_route_natgw" {
 # Referenced by: nothing
 # References:    aws_route_table.dmz_route_table,
 #                var.fw_dmz_network_interface_id, local.az_index
-# Why:           DMZ uses a separate ENI list (fw_dmz_network_interface_id)
-#                because firewall data-plane interfaces are different from
-#                management/inside interfaces.
 resource "aws_route" "dmz_default_route_fw" {
   for_each               = var.enable_firewall ? local.dmz_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
@@ -682,9 +661,6 @@ resource "aws_vpc_endpoint_route_table_association" "private_s3" {
 # Purpose:       Bind the S3 gateway endpoint to the single public RT.
 # Referenced by: nothing
 # References:    aws_vpc_endpoint.s3, aws_route_table.public_route_table
-# Why:           One association per (endpoint, RT). Public RT is a single
-#                resource shared by all public subnets, so this is a single
-#                count regardless of how many public AZs exist.
 resource "aws_vpc_endpoint_route_table_association" "public_s3" {
   count           = var.enable_s3_endpoint && local.create_public_subnets ? 1 : 0
   vpc_endpoint_id = aws_vpc_endpoint.s3[0].id
@@ -785,9 +761,6 @@ resource "aws_route_table_association" "workspaces" {
 # Purpose:       KMS CMK for encrypting flow log CloudWatch log group at rest.
 # Referenced by: aws_kms_alias.alias, aws_cloudwatch_log_group.log_group
 # References:    data.aws_caller_identity.current, data.aws_region.current
-# Why:           Policy includes a logs.<region>.amazonaws.com grant scoped
-#                via kms:EncryptionContext to the log group ARN, so only
-#                CloudWatch Logs in this account/region can use the key.
 resource "aws_kms_key" "key" {
   count                    = (var.enable_vpc_flow_logs == true ? 1 : 0)
   customer_master_key_spec = var.key_customer_master_key_spec

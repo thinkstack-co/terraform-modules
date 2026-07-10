@@ -299,10 +299,6 @@ variable "number" {
   }
 }
 
-# Why: Allows a specific DC to be skipped (e.g., one was terminated outside
-#      Terraform) without shifting the surviving DC's resource address. The
-#      module uses for_each keyed on dcN identifiers so disabling dc1 does not
-#      change dc2's state key.
 variable "disabled_dcs" {
   type        = list(string)
   description = "(Optional) List of DC identifiers to skip creating, e.g. [\"dc1\"] or [\"dc2\"]. Identifiers are 1-based and correspond to the same index in var.private_ip and var.subnet_id. Default is an empty list (create all DCs)."

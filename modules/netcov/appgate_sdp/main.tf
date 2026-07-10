@@ -22,9 +22,6 @@ data "aws_ec2_instance_type" "this" {
 #                version/arch filters; used as the launch image for the gateway instance.
 # Referenced by: aws_instance.appgate (ami argument)
 # References:    var.ami_name_filter, var.ami_architecture, var.ami_virtualization_type
-# Why:           most_recent = true keeps the lookup current, but aws_instance.appgate
-#                ignores ami changes after launch (see its lifecycle block), so a running
-#                gateway never rebuilds just because a newer marketplace image appears.
 data "aws_ami" "appgate_sdp" {
   most_recent = true
   owners      = ["aws-marketplace"]
@@ -64,10 +61,6 @@ locals {
 # Purpose:       The AppGate SDP gateway EC2 instance, launched from the resolved marketplace AMI.
 # Referenced by: aws_eip.appgate, aws_cloudwatch_metric_alarm.instance/system, module outputs
 # References:    data.aws_ami.appgate_sdp, instance-shaping input variables, local.root_volume_tags
-# Why:           associate_public_ip_address is gated by var.associate_public_ip_address so the
-#                gateway can be deployed public-facing (default) or private when fronted by a load
-#                balancer / existing address. ami + user_data are ignored after launch so a running
-#                gateway is never replaced by a newer marketplace image.
 resource "aws_instance" "appgate" {
   ami                                  = data.aws_ami.appgate_sdp.id
   associate_public_ip_address          = var.associate_public_ip_address
@@ -111,9 +104,6 @@ resource "aws_instance" "appgate" {
   lifecycle {
     ignore_changes = [ami, user_data]
 
-    # Why: A public-facing gateway must land on a known, stable address inside a public
-    #      subnet. Requiring private_ip whenever associate_public_ip_address is true keeps
-    #      the gateway from being assigned a random in-subnet address on a public-subnet launch.
     precondition {
       condition     = var.associate_public_ip_address == false || (var.private_ip != null && var.private_ip != "")
       error_message = "When associate_public_ip_address is true, private_ip must be set to an address within one of the public subnets."
@@ -129,8 +119,6 @@ resource "aws_instance" "appgate" {
 #                public address survives stop/start and instance replacement.
 # Referenced by: module outputs (eip_id, eip_public_ip)
 # References:    aws_instance.appgate, var.create_eip, var.eip_associate_with_private_ip
-# Why:           Gated behind var.create_eip so the gateway can also run without a dedicated EIP
-#                (e.g. fronted by an NLB or a pre-existing address).
 resource "aws_eip" "appgate" {
   count = var.create_eip ? 1 : 0
 

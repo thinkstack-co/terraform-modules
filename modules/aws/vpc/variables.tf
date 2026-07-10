@@ -91,10 +91,6 @@ variable "workspaces_subnet_disabled" {
 # disabled_azs is the global cascade: any AZ listed here is fully removed
 # from the module. Every subnet, route table, NAT gateway, EIP, route, and
 # S3 endpoint association tied to that AZ will not be created.
-# Why:           Reduces total managed resource count when an AZ isn't
-#                actually needed (e.g. you deployed 3 AZs but only operate
-#                in 2). Cascades through every for_each in main.tf so a
-#                single change here removes ~6 resources per AZ.
 variable "disabled_azs" {
   type        = list(string)
   description = "List of availability zone names to fully disable. When an AZ name appears here, every subnet, route table, NAT gateway, EIP, route table association, and S3 endpoint association for that AZ is skipped across all subnet groups."
