@@ -422,7 +422,7 @@ variable "enable_firewall" {
 }
 
 variable "manage_default_security_group" {
-  description = "(Optional) Whether this module manages (adopts and locks down to zero rules) the VPC's auto-created default security group via aws_default_security_group. Set false to leave the default SG unmanaged, e.g. when it is managed elsewhere. Defaults True."
+  description = "(Optional) Adopt and lock down the VPC's default security group to zero rules. Set false to leave it unmanaged. Defaults True."
   default     = true
   type        = bool
 }
