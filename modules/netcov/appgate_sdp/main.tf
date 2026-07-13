@@ -14,10 +14,6 @@ terraform {
 
 data "aws_region" "current" {}
 
-data "aws_ec2_instance_type" "this" {
-  instance_type = var.instance_type
-}
-
 # Purpose:       Resolves the AppGate SDP BYOL marketplace AMI matching the configured
 #                version/arch filters; used as the launch image for the gateway instance.
 # Referenced by: aws_instance.appgate (ami argument)
@@ -48,10 +44,6 @@ locals {
   root_volume_tags = var.exclude_root_volume_snapshot ? {
     for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
   } : var.tags
-
-  # When var.enable_recover_action is null (default), auto-detect from the instance type
-  # data source. When explicitly set, use the caller's override.
-  recover_action_enabled = var.enable_recover_action != null ? var.enable_recover_action : data.aws_ec2_instance_type.this.auto_recovery_supported
 }
 
 #############################
@@ -159,14 +151,14 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   treat_missing_data        = "missing"
 }
 
-# Purpose:       Alarms when the system status check fails, optionally triggering the EC2 recover
-#                action when the instance type supports it.
+# Purpose:       Alarms when the system status check fails.
 # Referenced by: module outputs (system_alarm_id)
-# References:    aws_instance.appgate, local.recover_action_enabled, var.create_cloudwatch_alarms
+# References:    aws_instance.appgate, var.create_cloudwatch_alarms
 resource "aws_cloudwatch_metric_alarm" "system" {
   count = var.create_cloudwatch_alarms ? 1 : 0
-  # Auto-detected from instance type by default, or explicitly overridden via var.enable_recover_action.
-  alarm_actions = local.recover_action_enabled ? ["arn:aws:automate:${data.aws_region.current.region}:ec2:recover"] : []
+  # No EC2 'Recover' action: EC2 simplified automatic recovery is enabled by default
+  # on supported instances and needs no CloudWatch alarm. Alerting is handled by Datto.
+  alarm_actions = []
 
   actions_enabled     = true
   alarm_description   = "AppGate SDP instance StatusCheckFailed_System alarm"

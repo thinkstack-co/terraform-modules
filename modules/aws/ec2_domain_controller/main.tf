@@ -182,7 +182,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
     if var.create_cloudwatch_alarms
   }
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.region}:ec2:recover"]
+  alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"

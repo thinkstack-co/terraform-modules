@@ -142,12 +142,6 @@ variable "enable_detailed_monitoring" {
   default     = false
 }
 
-variable "enable_recover_action" {
-  type        = bool
-  description = "(Optional) Whether to attach the EC2 recover action to the system status-check alarm. Null (default) auto-detects from the instance type."
-  default     = null
-}
-
 variable "ipv6_addresses" {
   type        = list(string)
   description = "(Optional) One or more IPv6 addresses from the subnet range to associate with the primary network interface."

@@ -236,3 +236,9 @@ variable "ebs_volume_encrypted" {
     error_message = "The value must be either true or false."
   }
 }
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create the StatusCheckFailed CloudWatch alarms for the instance(s). Defaults true."
+  default     = true
+}

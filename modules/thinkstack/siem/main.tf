@@ -262,7 +262,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.instance_count
+  count               = var.create_cloudwatch_alarms ? var.instance_count : 0
   datapoints_to_alarm = 2
   dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
@@ -284,11 +284,11 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.region}:ec2:recover"]
+  alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  count               = var.instance_count
+  count               = var.create_cloudwatch_alarms ? var.instance_count : 0
   datapoints_to_alarm = 2
   dimensions = {
     InstanceId = aws_instance.ec2[count.index].id
