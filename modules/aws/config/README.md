@@ -359,7 +359,7 @@ _For detailed variable and output descriptions, please refer to the Inputs and O
 | <a name="input_glacier_retention_days"></a> [glacier_retention_days](#input_glacier_retention_days)                                  | Number of days to retain config reports in Glacier before deletion (set to 0 to disable deletion)                                              | `number`      | `730`                   |    no    |
 | <a name="input_tags"></a> [tags](#input_tags)                                                                                        | A map of tags to add to all resources                                                                                                          | `map(string)` | `{}`                    |    no    |
 | <a name="input_enable_compliance_reporter"></a> [enable_compliance_reporter](#input_enable_compliance_reporter)                      | Set to true to enable the scheduled Lambda function that generates PDF compliance reports                                                      | `bool`        | `false`                 |    no    |
-| <a name="input_reporter_schedule_expression"></a> [reporter_schedule_expression](#input_reporter_schedule_expression)                | Cron expression for triggering the compliance report Lambda                                                                                    | `string`      | `"cron(0 6 ? _ MON _)"  |    no    |
+| <a name="input_reporter_schedule_expression"></a> [reporter_schedule_expression](#input_reporter_schedule_expression)                | Cron expression for triggering the compliance report Lambda                                                                                    | `string`      | `"cron(0 6 ? _MON_)"    |    no    |
 | <a name="input_reporter_output_s3_prefix"></a> [reporter_output_s3_prefix](#input_reporter_output_s3_prefix)                         | S3 key prefix within the Config bucket where PDF compliance reports will be stored                                                             | `string`      | `"compliance-reports/"` |    no    |
 | <a name="input_reporter_lambda_memory_size"></a> [reporter_lambda_memory_size](#input_reporter_lambda_memory_size)                   | Memory size (MB) allocated to the compliance reporter Lambda function                                                                          | `number`      | `256`                   |    no    |
 | <a name="input_reporter_lambda_timeout"></a> [reporter_lambda_timeout](#input_reporter_lambda_timeout)                               | Timeout (seconds) for the compliance reporter Lambda function                                                                                  | `number`      | `120`                   |    no    |
@@ -404,7 +404,8 @@ _For detailed variable and output descriptions, please refer to the Inputs and O
 - +**Note:** This reporter queries the _live_ compliance status from the AWS Config service API. It does not parse the historical logs stored in the S3 bucket.
 - +<p align="right">(<a href="#readme-top">back to top</a>)</p>
 - <!-- CONTACT -->
-  ## Contact
+
+## Contact
 
 Think|Stack - [![LinkedIn][linkedin-shield]][linkedin-url] - info@thinkstack.co
 

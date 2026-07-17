@@ -64,12 +64,6 @@ resource "azurerm_windows_virtual_machine" "session_host" {
     type = "SystemAssigned"
   }
 
-  # Why: admin_password is set at VM creation but is expected to drift over
-  # time (rotated out of band via Azure's reset-password flow, manually, or
-  # by a separate rotation process). The azurerm provider treats any change
-  # to admin_password as forcing replacement, which would destroy the VM and
-  # all its extensions. Ignore drift so password rotation does not destroy
-  # session hosts.
   lifecycle {
     ignore_changes = [admin_password]
   }
@@ -94,10 +88,6 @@ resource "azurerm_virtual_machine_extension" "aad_login" {
 
   tags = var.tags
 
-  # Why: virtual_machine_id is occasionally re-evaluated as "Known after apply"
-  # in TFC plans even when the underlying VM is unchanged, which forces
-  # replacement of this extension and re-runs the Entra join on an already-
-  # joined device. Ignore drift on the parent VM ID to suppress that churn.
   lifecycle {
     ignore_changes = [virtual_machine_id]
   }
@@ -128,11 +118,6 @@ resource "azurerm_virtual_machine_extension" "avd_dsc" {
   depends_on = [azurerm_virtual_machine_extension.aad_login]
   tags       = var.tags
 
-  # Why: virtual_machine_id is occasionally re-evaluated as "Known after apply"
-  # in TFC plans even when the underlying VM is unchanged, which forces
-  # replacement of this extension and would briefly drop the host from the
-  # AVD host pool (kicking active users) while DSC re-registers it. Ignore
-  # drift on the parent VM ID to suppress that churn.
   lifecycle {
     ignore_changes = [virtual_machine_id]
   }
@@ -163,10 +148,6 @@ resource "azurerm_virtual_machine_extension" "fslogix" {
   depends_on = [azurerm_virtual_machine_extension.aad_login]
   tags       = var.tags
 
-  # Why: virtual_machine_id is occasionally re-evaluated as "Known after apply"
-  # in TFC plans even when the underlying VM is unchanged, which forces
-  # replacement of this extension and re-runs the FSLogix registry/network
-  # setup script. Ignore drift on the parent VM ID to suppress that churn.
   lifecycle {
     ignore_changes = [virtual_machine_id]
   }

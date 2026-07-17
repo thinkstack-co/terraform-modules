@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0"
+      version = ">= 4.0.0, < 7.0.0"
     }
   }
 }
@@ -156,10 +156,61 @@ resource "aws_s3_bucket_logging" "this" {
   target_prefix = var.logging_target_prefix
 }
 
+###########################
+# Access Guard — never lock out Terraform or admins
+###########################
+
+# Purpose:       Look up the current account id and partition so the guard policy
+#                can reference the account root and the Terraform user without the
+#                caller hardcoding an account id (works "in any account").
+# Referenced by: local.guard_principal_arns
+data "aws_caller_identity" "current" {
+  count = var.enable_access_guard ? 1 : 0
+}
+
+data "aws_partition" "current" {
+  count = var.enable_access_guard ? 1 : 0
+}
+
+# Principals the guard always grants full bucket access:
+#   - account root   -> delegates to IAM, so any AdministratorAccess identity is allowed
+#   - terraform user -> the CI/CD automation identity, named explicitly for clarity
+#   - any extra ARNs the caller passes (e.g. a TFC role instead of the IAM user)
+locals {
+  guard_principal_arns = var.enable_access_guard ? distinct(concat([
+    "arn:${data.aws_partition.current[0].partition}:iam::${data.aws_caller_identity.current[0].account_id}:root",
+    "arn:${data.aws_partition.current[0].partition}:iam::${data.aws_caller_identity.current[0].account_id}:user/${var.terraform_principal_name}",
+  ], var.terraform_principal_arns)) : []
+}
+
+# Purpose:       Bucket policy document that always allows the account root and the
+#                Terraform automation principal full access to this bucket.
+# Referenced by: aws_s3_bucket_policy.this
+# References:    aws_s3_bucket.this, local.guard_principal_arns, var.bucket_policy
+data "aws_iam_policy_document" "access_guard" {
+  count                   = var.enable_access_guard ? 1 : 0
+  source_policy_documents = compact([var.bucket_policy])
+
+  statement {
+    sid       = "GuardAccountRootAndTerraform"
+    effect    = "Allow"
+    actions   = ["s3:*"]
+    resources = [aws_s3_bucket.this.arn, "${aws_s3_bucket.this.arn}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = local.guard_principal_arns
+    }
+  }
+}
+
+# Purpose:       Attaches the bucket policy. With the guard on, uses the guard
+#                document (caller policy merged with the guard statement); with the
+#                guard off, falls back to the raw var.bucket_policy as before.
+# References:    data.aws_iam_policy_document.access_guard, var.bucket_policy
 resource "aws_s3_bucket_policy" "this" {
-  count  = var.bucket_policy == null ? 0 : 1
+  count  = var.enable_access_guard || var.bucket_policy != null ? 1 : 0
   bucket = aws_s3_bucket.this.id
-  policy = var.bucket_policy
+  policy = var.enable_access_guard ? data.aws_iam_policy_document.access_guard[0].json : var.bucket_policy
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {

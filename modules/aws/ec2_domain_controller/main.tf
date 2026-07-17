@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0"
+      version = ">= 4.0.0, < 7.0.0"
     }
   }
 }
@@ -14,6 +14,19 @@ terraform {
 data "aws_region" "current" {}
 
 locals {
+  # Build a map of DC keys ("dc1", "dc2", ...) to their per-instance attributes.
+  # for_each (rather than count) is used so that disabling one DC does not shift
+  # the other's resource address. var.disabled_dcs filters specific keys out.
+  dcs = {
+    for idx in range(var.number) :
+    format("dc%d", idx + 1) => {
+      private_ip = element(var.private_ip, idx)
+      subnet_id  = element(var.subnet_id, idx)
+      name       = format("%s%01d", var.name, idx + 1)
+    }
+    if !contains(var.disabled_dcs, format("dc%d", idx + 1))
+  }
+
   # Remove backup selection tags from root volume tags when exclude_root_volume_snapshot is enabled.
   root_volume_tags = var.exclude_root_volume_snapshot ? {
     for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
@@ -25,8 +38,8 @@ locals {
 ###########################
 
 resource "aws_instance" "ec2_instance" {
+  for_each                             = local.dcs
   ami                                  = var.ami
-  count                                = var.number
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
@@ -35,7 +48,7 @@ resource "aws_instance" "ec2_instance" {
   key_name                             = var.key_name
   monitoring                           = var.enable_detailed_monitoring
   placement_group                      = var.placement_group
-  private_ip                           = element(var.private_ip, count.index)
+  private_ip                           = each.value.private_ip
 
   maintenance_options {
     auto_recovery = var.auto_recovery
@@ -56,13 +69,13 @@ resource "aws_instance" "ec2_instance" {
   }
 
   source_dest_check = var.source_dest_check
-  subnet_id         = element(var.subnet_id, count.index)
+  subnet_id         = each.value.subnet_id
   tenancy           = var.tenancy
-  tags              = merge(var.tags, ({ "Name" = format("%s%01d", var.name, count.index + 1) }))
+  tags              = merge(var.tags, ({ "Name" = each.value.name }))
   user_data         = var.user_data
   volume_tags = merge(
     local.root_volume_tags, # Use filtered tags when excluding root volume backup tags.
-    ({ "Name" = format("%s%01d", var.name, count.index + 1) }),
+    ({ "Name" = each.value.name }),
     ({ "os_drive" = "c" })
   )
   vpc_security_group_ids = var.vpc_security_group_ids
@@ -72,14 +85,44 @@ resource "aws_instance" "ec2_instance" {
   }
 }
 
+# v2.10.0 re-keyed the DC instance from count to for_each ("dc1","dc2",...).
+# These moved blocks migrate existing count-indexed state in place (index N ->
+# "dc{N+1}") so the upgrade renames rather than destroys live domain controllers.
+# Static set covers up to 6 DCs; unmatched entries are no-ops.
+moved {
+  from = aws_instance.ec2_instance[0]
+  to   = aws_instance.ec2_instance["dc1"]
+}
+moved {
+  from = aws_instance.ec2_instance[1]
+  to   = aws_instance.ec2_instance["dc2"]
+}
+moved {
+  from = aws_instance.ec2_instance[2]
+  to   = aws_instance.ec2_instance["dc3"]
+}
+moved {
+  from = aws_instance.ec2_instance[3]
+  to   = aws_instance.ec2_instance["dc4"]
+}
+moved {
+  from = aws_instance.ec2_instance[4]
+  to   = aws_instance.ec2_instance["dc5"]
+}
+moved {
+  from = aws_instance.ec2_instance[5]
+  to   = aws_instance.ec2_instance["dc6"]
+}
+
 ###########################
 # VPC DHCP Options
 ###########################
 
 resource "aws_vpc_dhcp_options" "dc_dns" {
-  count               = var.enable_dhcp_options ? 1 : 0
-  domain_name         = var.domain_name
-  domain_name_servers = aws_instance.ec2_instance[*].private_ip
+  count       = var.enable_dhcp_options ? 1 : 0
+  domain_name = var.domain_name
+  # Iterate the for_each map; keys sort alphabetically so dc1's IP comes before dc2's.
+  domain_name_servers = [for inst in aws_instance.ec2_instance : inst.private_ip]
   # Optional custom NTP servers; when the list is empty, no NTP servers are set in DHCP options
   ntp_servers = var.ntp_servers
   tags        = merge(var.tags, ({ "Name" = format("%s-dhcp-options", var.name) }))
@@ -103,15 +146,19 @@ resource "aws_vpc_dhcp_options_association" "dc_dns" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
-  count               = var.create_cloudwatch_alarms ? var.number : 0
+  # Alarm per DC; skip entirely when create_cloudwatch_alarms is false.
+  for_each = {
+    for k, v in aws_instance.ec2_instance : k => v
+    if var.create_cloudwatch_alarms
+  }
   actions_enabled     = true
   alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
-  alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2_instance[*].id, count.index))
+  alarm_name          = format("%s-instance-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = element(aws_instance.ec2_instance[*].id, count.index)
+    InstanceId = each.value.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []
@@ -129,15 +176,19 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 #####################
 
 resource "aws_cloudwatch_metric_alarm" "system" {
-  count               = var.create_cloudwatch_alarms ? var.number : 0
+  # Alarm per DC; skip entirely when create_cloudwatch_alarms is false.
+  for_each = {
+    for k, v in aws_instance.ec2_instance : k => v
+    if var.create_cloudwatch_alarms
+  }
   actions_enabled     = true
-  alarm_actions       = ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"]
+  alarm_actions       = []
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
-  alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance[*].id, count.index))
+  alarm_name          = format("%s-system-alarm", each.value.id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 2
   dimensions = {
-    InstanceId = element(aws_instance.ec2_instance[*].id, count.index)
+    InstanceId = each.value.id
   }
   evaluation_periods        = "2"
   insufficient_data_actions = []

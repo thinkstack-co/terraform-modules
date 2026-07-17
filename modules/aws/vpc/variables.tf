@@ -46,7 +46,11 @@ variable "azs" {
   default     = ["us-east-2a", "us-east-2b", "us-east-2c"]
 }
 
-# Subnet disable flags
+# ─── Whole-group subnet disable flags ──────────────────────────────────────
+# Setting any of these to true skips creation of every resource (subnet,
+# route table, route, association, S3 endpoint association) for the matching
+# subnet group across every AZ. Use *_subnet_disabled_azs (below) for finer
+# per-AZ control.
 variable "private_subnet_disabled" {
   type        = bool
   description = "Disable creation of private subnets when true."
@@ -81,6 +85,56 @@ variable "workspaces_subnet_disabled" {
   type        = bool
   description = "Disable creation of workspaces subnets when true."
   default     = false
+}
+
+# ─── Per-AZ disable flags ──────────────────────────────────────────────────
+# disabled_azs is the global cascade: any AZ listed here is fully removed
+# from the module. Every subnet, route table, NAT gateway, EIP, route, and
+# S3 endpoint association tied to that AZ will not be created.
+variable "disabled_azs" {
+  type        = list(string)
+  description = "List of availability zone names to fully disable. When an AZ name appears here, every subnet, route table, NAT gateway, EIP, route table association, and S3 endpoint association for that AZ is skipped across all subnet groups."
+  default     = []
+}
+
+# Per-subnet-type-per-AZ disable. Use these when you want to keep an AZ
+# enabled for some subnet types but skip it for others (e.g. public + private
+# in all 3 AZs but db only in 2). Independent of disabled_azs — being listed
+# in either is enough to disable an AZ for that subnet type.
+variable "private_subnet_disabled_azs" {
+  type        = list(string)
+  description = "List of AZ names where private subnets (and their route table, route table association, NAT/firewall routes, and S3 endpoint association) should be skipped. Independent of disabled_azs."
+  default     = []
+}
+
+variable "public_subnet_disabled_azs" {
+  type        = list(string)
+  description = "List of AZ names where public subnets (and their route table association, NAT gateway, and EIP) should be skipped. Independent of disabled_azs."
+  default     = []
+}
+
+variable "dmz_subnet_disabled_azs" {
+  type        = list(string)
+  description = "List of AZ names where DMZ subnets (and their route table, route table association, NAT/firewall routes, and S3 endpoint association) should be skipped. Independent of disabled_azs."
+  default     = []
+}
+
+variable "db_subnet_disabled_azs" {
+  type        = list(string)
+  description = "List of AZ names where database subnets (and their route table, route table association, NAT/firewall routes, and S3 endpoint association) should be skipped. Independent of disabled_azs."
+  default     = []
+}
+
+variable "mgmt_subnet_disabled_azs" {
+  type        = list(string)
+  description = "List of AZ names where management subnets (and their route table, NAT/firewall routes, and S3 endpoint association) should be skipped. Independent of disabled_azs."
+  default     = []
+}
+
+variable "workspaces_subnet_disabled_azs" {
+  type        = list(string)
+  description = "List of AZ names where Workspaces subnets (and their route table, route table association, NAT/firewall routes, and S3 endpoint association) should be skipped. Independent of disabled_azs."
+  default     = []
 }
 
 variable "db_subnets_list" {
@@ -360,6 +414,12 @@ variable "flow_traffic_type" {
 variable "enable_firewall" {
   description = "(Optional) A boolean flag to enable/disable the use of a firewall instance within the VPC. Defaults False."
   default     = false
+  type        = bool
+}
+
+variable "manage_default_security_group" {
+  description = "(Optional) Adopt and lock down the VPC's default security group to zero rules. Set false to leave it unmanaged. Defaults True."
+  default     = true
   type        = bool
 }
 

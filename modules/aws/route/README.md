@@ -62,7 +62,7 @@
 
 ## Usage
 
-#### Route to a EC2 instance
+### Route to a EC2 instance
 
 ```
 module "sdwan_route_branches" {

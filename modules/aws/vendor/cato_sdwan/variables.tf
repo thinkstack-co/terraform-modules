@@ -194,3 +194,9 @@ variable "number" {
   default     = 1
   type        = number
 }
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create the StatusCheckFailed CloudWatch alarms for the instance(s). Defaults true."
+  default     = true
+}

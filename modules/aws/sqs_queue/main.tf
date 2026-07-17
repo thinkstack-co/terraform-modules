@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0"
+      version = ">= 4.0.0, < 7.0.0"
     }
   }
 }
@@ -53,7 +53,7 @@ resource "aws_kms_key" "sqs" {
             ]
           },
           "StringEquals" = {
-            "aws:SourceArn" = "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:queue/${var.name}"
+            "aws:SourceArn" = "arn:aws:sqs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:queue/${var.name}"
           }
         }
       },

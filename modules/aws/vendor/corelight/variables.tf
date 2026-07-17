@@ -221,3 +221,9 @@ variable "user_data" {
   type        = string
   description = "(Required) Input the Customer ID from Corelight. Example: '57ee000-1214-999e-hfij-1827417d7421'"
 }
+
+variable "create_cloudwatch_alarms" {
+  type        = bool
+  description = "(Optional) Whether to create the StatusCheckFailed CloudWatch alarms for the instance(s). Defaults true."
+  default     = true
+}

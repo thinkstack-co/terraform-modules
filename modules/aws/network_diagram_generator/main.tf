@@ -7,7 +7,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0" # AWS provider version constraint
+      version = ">= 4.0, < 7.0.0" # AWS provider version constraint
     }
     random = {
       source  = "hashicorp/random"
@@ -75,7 +75,7 @@ resource "aws_lambda_function" "diagram" {
   function_name    = "${var.name}-network-diagram"                        # Lambda name
   role             = aws_iam_role.lambda.arn                              # Execution role ARN
   handler          = "main.lambda_handler"                                # Python module.function
-  runtime          = "python3.11"                                         # Must match packaged Python version
+  runtime          = "python3.12"                                         # Must match packaged Python version
   timeout          = 900                                                  # Up to 15 minutes; diagrams/Graphviz can take time
   memory_size      = 512                                                  # Increase if Graphviz needs more memory
   filename         = data.archive_file.lambda_package.output_path         # Zip from lambda/ directory

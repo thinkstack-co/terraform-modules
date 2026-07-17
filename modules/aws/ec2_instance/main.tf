@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0"
+      version = ">= 4.0.0, < 7.0.0"
     }
   }
 }
@@ -17,19 +17,11 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
-data "aws_ec2_instance_type" "this" {
-  instance_type = var.instance_type
-}
-
 locals {
   # Exclude specific tag keys from the root volume to avoid selecting the root EBS volume separately in tag-based backup workflows.
   root_volume_tags = var.exclude_root_volume_snapshot ? {
     for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
   } : var.tags
-
-  # When var.enable_recover_action is null (default), auto-detect from the instance type data source.
-  # When explicitly set to true/false, use the caller's override.
-  recover_action_enabled = var.enable_recover_action != null ? var.enable_recover_action : data.aws_ec2_instance_type.this.auto_recovery_supported
 }
 
 #############################
@@ -113,8 +105,9 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   count = var.create_cloudwatch_alarms ? 1 : 0
-  # Auto-detected from instance type by default, or explicitly overridden via var.enable_recover_action.
-  alarm_actions = local.recover_action_enabled ? ["arn:aws:automate:${data.aws_region.current.id}:ec2:recover"] : []
+  # No EC2 'Recover' action: EC2 simplified automatic recovery is enabled by default
+  # on supported instances and needs no CloudWatch alarm. Alerting is handled by Datto.
+  alarm_actions = []
 
   actions_enabled     = true
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"

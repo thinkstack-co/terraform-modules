@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+# Least-privilege default for the entire workflow; the job below grants only the
+# scopes it needs. Satisfies checkov CKV2_GHA_1 (no top-level write-all).
+permissions: {}
+
 jobs:
   super-lint:
     name: Lint Code Base
@@ -51,6 +55,11 @@ jobs:
           PYTHON_FLAKE8_CONFIG_FILE: .flake8
           PYTHON_MYPY_CONFIG_FILE: .mypy.ini
           POWERSHELL_CONFIG_FILE: .powershell-psscriptanalyzer.psd1
+          # super-linter's markdownlint default is .markdown-lint.yml and its
+          # checkov run always passes --config-file; point both at our configs
+          # or they are silently ignored (MD013 fires, checkov skip-list unused).
+          MARKDOWN_CONFIG_FILE: .markdownlint.json
+          CHECKOV_CONFIG_FILE: .checkov.yaml
 
           # Optional: Disable specific linters if needed (uncomment to disable)
           # VALIDATE_JSCPD: false  # Copy-paste detection can be noisy
@@ -68,6 +77,12 @@ jobs:
           # coverage; consuming repos run their own scans on the assembled
           # root config.
           VALIDATE_TERRAFORM_TERRASCAN: false
+          #
+          # Why: NATURAL_LANGUAGE (textlint) lints English prose — weasel words,
+          # passive voice, sentence spacing — which is noise on 130+ technical
+          # module READMEs generated from a shared template. markdownlint (with
+          # our .markdownlint.json) already covers markdown structure.
+          VALIDATE_NATURAL_LANGUAGE: false
 
           # Output settings
           LOG_LEVEL: NOTICE
@@ -78,4 +93,11 @@ jobs:
           # is where local runs of run-superlinter.sh write artefacts;
           # examples/ holds illustrative snippets that may reference modules
           # outside this repo and shouldn't gate the build.
-          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports|examples)/.*|^examples/.*|.*super-linter\.log$|.*\.log$'
+          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports|jscpd-report|examples)/.*|^examples/.*|.*super-linter\.log$|.*\.log$'
+
+          # Exempt this one preview-API AVD ARM template from arm-ttk best-practice
+          # checks (recent-apiVersions, location-parameter, resourceId, dependsOn,
+          # and the intentional null() RDP-property idiom on line 207). The
+          # 2024-01-16-preview AVD APIs are deliberate; all other ARM templates
+          # stay linted, and the file is still JSON-linted for well-formedness.
+          ARM_FILTER_REGEX_EXCLUDE: ".*/avd_hostpool_workspace/.*"

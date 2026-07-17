@@ -3,6 +3,8 @@
 # docker run --platform linux/amd64 --rm -v "$PWD":/var/task public.ecr.aws/sam/build-python3.12 pip install -r requirements.txt -t ./package
 
 FROM public.ecr.aws/sam/build-python3.12:1.138.0
+# checkov:skip=CKV_DOCKER_2: build-only image that packages a Lambda zip; never run as a container, so HEALTHCHECK is inapplicable
+# checkov:skip=CKV_DOCKER_3: build-only image; runs only at build time to produce lambda_package.zip, no long-running process to de-privilege
 
 WORKDIR /build
 

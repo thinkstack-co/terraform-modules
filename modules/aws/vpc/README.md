@@ -130,6 +130,72 @@ module "vpc" {
 }
 ```
 
+### Disabling an Availability Zone
+
+`disabled_azs` is a global cascade. Any AZ name listed here is fully removed from the module — every subnet, route table, NAT gateway, EIP, route table association, and S3 endpoint association tied to that AZ is skipped across all subnet groups. The AZ stays in `azs` (so positional alignment with the `*_subnets_list` variables and `fw_network_interface_id` is preserved), it just produces no resources. CIDR slots for disabled AZs are still consumed positionally; do not remove them from the `*_subnets_list` variables.
+
+```
+module "vpc" {
+    source = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc"
+
+    name         = "client_prod_vpc"
+    vpc_cidr     = "10.11.0.0/16"
+    azs          = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    disabled_azs = ["us-east-1c"]
+    tags = {
+        terraform   = "true"
+        created_by  = "Zachary Hill"
+        environment = "prod"
+        project     = "core_infrastructure"
+    }
+}
+```
+
+### Disabling an Entire Subnet Group
+
+The `*_subnet_disabled` flags skip a whole subnet category across every AZ. Use these when a customer doesn't need a tier (e.g. no Workspaces deployment, no DMZ for firewall inspection). Disabling a group also skips its route tables, route table associations, default routes, and S3 endpoint associations.
+
+```
+module "vpc" {
+    source = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc"
+
+    name                       = "client_prod_vpc"
+    vpc_cidr                   = "10.11.0.0/16"
+    azs                        = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    dmz_subnet_disabled        = true
+    workspaces_subnet_disabled = true
+    tags = {
+        terraform   = "true"
+        created_by  = "Zachary Hill"
+        environment = "prod"
+        project     = "core_infrastructure"
+    }
+}
+```
+
+### Disabling Subnets in Specific AZs
+
+The per-subnet-type `*_subnet_disabled_azs` lists give finer control than `disabled_azs`. Use them when you want to keep an AZ enabled for some subnet types but skip it for others — for example, public + private in all three AZs but db only in two. An AZ is skipped for a given subnet type if it appears in either `disabled_azs` or that type's `*_subnet_disabled_azs`.
+
+```
+module "vpc" {
+    source = "github.com/thinkstack-co/terraform-modules//modules/aws/vpc"
+
+    name                           = "client_prod_vpc"
+    vpc_cidr                       = "10.11.0.0/16"
+    azs                            = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    db_subnet_disabled_azs         = ["us-east-1c"]
+    mgmt_subnet_disabled_azs       = ["us-east-1c"]
+    workspaces_subnet_disabled_azs = ["us-east-1c"]
+    tags = {
+        terraform   = "true"
+        created_by  = "Zachary Hill"
+        environment = "prod"
+        project     = "core_infrastructure"
+    }
+}
+```
+
 _For more examples, please refer to the [Documentation](https://github.com/thinkstack-co/terraform-modules)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

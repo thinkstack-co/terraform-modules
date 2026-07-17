@@ -139,6 +139,12 @@ variable "target_prefix" {
 # CloudWatch Log Group Variables
 ###########################
 
+variable "enable_cloudwatch_logs" {
+  description = "(Optional) Whether to deliver CloudTrail events to a CloudWatch log group (with its IAM role/policy and KMS grant) for near-real-time metric filters and alarms. The S3 trail is unaffected either way. Defaults true."
+  default     = true
+  type        = bool
+}
+
 variable "cloudwatch_name_prefix" {
   description = "(Optional, Forces new resource) Creates a unique name beginning with the specified prefix."
   default     = "cloudtrail_"

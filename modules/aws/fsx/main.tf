@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0"
+      version = ">= 4.0.0, < 7.0.0"
     }
   }
 }
@@ -42,7 +42,7 @@ resource "aws_kms_key" "fsx" {
       {
         "Effect" = "Allow",
         "Principal" = {
-          "Service" = "fsx.${data.aws_region.current.id}.amazonaws.com"
+          "Service" = "fsx.${data.aws_region.current.region}.amazonaws.com"
         },
         "Action" = [
           "kms:Encrypt*",
