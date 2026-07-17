@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+# Least-privilege default for the entire workflow; the job below grants only the
+# scopes it needs. Satisfies checkov CKV2_GHA_1 (no top-level write-all).
+permissions: {}
+
 jobs:
   super-lint:
     name: Lint Code Base
@@ -79,3 +83,10 @@ jobs:
           # examples/ holds illustrative snippets that may reference modules
           # outside this repo and shouldn't gate the build.
           FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports|examples)/.*|^examples/.*|.*super-linter\.log$|.*\.log$'
+
+          # Exempt this one preview-API AVD ARM template from arm-ttk best-practice
+          # checks (recent-apiVersions, location-parameter, resourceId, dependsOn,
+          # and the intentional null() RDP-property idiom on line 207). The
+          # 2024-01-16-preview AVD APIs are deliberate; all other ARM templates
+          # stay linted, and the file is still JSON-linted for well-formedness.
+          ARM_FILTER_REGEX_EXCLUDE: '.*/avd_hostpool_workspace/.*'

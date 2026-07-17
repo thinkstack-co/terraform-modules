@@ -17,6 +17,8 @@
 # WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8)
 
 FROM amazonlinux:2023
+# checkov:skip=CKV_DOCKER_2: build-only image that packages a Lambda zip; never run as a container, so HEALTHCHECK is inapplicable
+# checkov:skip=CKV_DOCKER_3: build-only image; runs only at build time to produce lambda_package.zip, no long-running process to de-privilege
 
 # Install Python 3.13, pip, and zip
 # hadolint ignore=DL3041
