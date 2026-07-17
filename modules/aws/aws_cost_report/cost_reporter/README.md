@@ -14,6 +14,7 @@ This directory contains the Lambda function source code and build instructions f
    This will produce `lambda_package.zip` in this directory, ready for upload via Terraform.
 
 2. **Manual (if you have Python 3.12 and pip):**
+
    ```sh
    pip install --target . -r requirements.txt
    zip -r lambda_package.zip .

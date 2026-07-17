@@ -3,6 +3,7 @@
 <a name="readme-top"></a>
 
 <!-- PROJECT SHIELDS -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -75,6 +76,7 @@ Two behaviours are intentional and worth calling out:
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 ### Basic Example
@@ -149,88 +151,89 @@ module "appgate_sdp" {
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- REQUIREMENTS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
+| Name      | Version  |
+| --------- | -------- |
 | terraform | >= 1.0.0 |
-| aws | >= 4.0.0 |
+| aws       | >= 4.0.0 |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| aws | >= 4.0.0 |
+| Name | Version  |
+| ---- | -------- |
+| aws  | >= 4.0.0 |
 
 ## Resources
 
-| Name | Type | Documentation |
-|------|------|--------------|
-| [aws_instance.appgate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html) |
-| [aws_eip.appgate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) |
-| [aws_cloudwatch_metric_alarm.instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource | [AWS Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) |
-| [aws_cloudwatch_metric_alarm.system](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource | [AWS Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html) |
-| [aws_ami.appgate_sdp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) |
-| [aws_ec2_instance_type.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type) | data source | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html) |
+| Name                                                                                                                                        | Type        | Documentation                                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
+| [aws_instance.appgate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance)                                | resource    | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html)                         |
+| [aws_eip.appgate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip)                                          | resource    | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html)         |
+| [aws_cloudwatch_metric_alarm.instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource    | [AWS Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html)   |
+| [aws_cloudwatch_metric_alarm.system](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm)   | resource    | [AWS Docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html)   |
+| [aws_ami.appgate_sdp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami)                                   | data source | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)                             |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region)                                 | data source | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) |
+| [aws_ec2_instance_type.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ec2_instance_type)              | data source | [AWS Docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html)                   |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| name | Name applied to the gateway instance, EIP, and alarms. | `string` | n/a | yes |
-| instance_type | EC2 instance type for the gateway. | `string` | n/a | yes |
-| subnet_id | Subnet to launch in. Use a public subnet when associate_public_ip_address is true. | `string` | n/a | yes |
-| vpc_security_group_ids | Security group IDs to associate with the gateway. | `list(any)` | n/a | yes |
-| create_eip | Allocate and associate an Elastic IP with the gateway. | `bool` | `true` | no |
-| associate_public_ip_address | Assign a public IP at launch (public-subnet placement). Requires private_ip when true. | `bool` | `true` | no |
-| create_cloudwatch_alarms | Create CloudWatch status-check alarms for the instance. | `bool` | `true` | no |
-| ami_name_filter | Name filter used to select the AppGate SDP marketplace AMI. | `string` | `"Appgate-SDP-6.5.6-BYOL*"` | no |
-| ami_architecture | CPU architecture of the AppGate SDP AMI. | `string` | `"x86_64"` | no |
-| ami_virtualization_type | Virtualization type of the AppGate SDP AMI. | `string` | `"hvm"` | no |
-| availability_zone | Availability zone in which to launch the gateway. | `string` | `""` | no |
-| private_ip | Static private IP within the subnet. Required when associate_public_ip_address is true. | `string` | `null` | no |
-| key_name | Name of the EC2 key pair to associate with the instance. | `string` | `""` | no |
-| iam_instance_profile | IAM instance profile to attach. | `string` | `"AmazonSSMRoleForInstancesQuickSetup"` | no |
-| ebs_optimized | Whether the instance is EBS-optimized. | `bool` | `true` | no |
-| disable_api_termination | Enable EC2 instance termination protection. | `bool` | `false` | no |
-| instance_initiated_shutdown_behavior | Shutdown behavior: stop or terminate. | `string` | `"stop"` | no |
-| enable_detailed_monitoring | Enable detailed (1-min) monitoring. | `bool` | `false` | no |
-| enable_recover_action | Attach the EC2 recover action to the system alarm. Null auto-detects. | `bool` | `null` | no |
-| ipv6_addresses | IPv6 addresses to associate with the primary network interface. | `list(string)` | `[]` | no |
-| placement_group | Placement group to start the instance in. | `string` | `""` | no |
-| source_dest_check | Controls source/destination checking on the instance. | `bool` | `true` | no |
-| tenancy | Instance tenancy: default, dedicated, or host. | `string` | `"default"` | no |
-| user_data | User data to provide at launch. | `string` | `""` | no |
-| user_data_base64 | Base64-encoded user data to provide at launch. | `string` | `""` | no |
-| http_endpoint | Whether the instance metadata service is available. | `string` | `"enabled"` | no |
-| http_tokens | Whether IMDSv2 session tokens are required. | `string` | `"required"` | no |
-| encrypted | Whether the root volume is encrypted. | `bool` | `true` | no |
-| root_delete_on_termination | Destroy the root volume on instance termination. | `bool` | `true` | no |
-| root_volume_size | Size in GiB of the root EBS volume. | `string` | `"100"` | no |
-| root_volume_type | Root volume type. | `string` | `"gp3"` | no |
-| root_volume_iops | IOPS for the root volume. | `number` | `3000` | no |
-| root_volume_throughput | Throughput for the root volume. | `number` | `125` | no |
-| exclude_root_volume_snapshot | Exclude selected tag keys from the root volume tags. | `bool` | `false` | no |
-| root_volume_excluded_tag_keys | Tag keys to remove from the root volume when excluding. | `list(string)` | `[]` | no |
-| eip_associate_with_private_ip | Private IP to associate the EIP with. | `string` | `""` | no |
-| tags | Tags applied to the gateway instance, root volume, and EIP. | `map(string)` | see variables.tf | no |
+| Name                                 | Description                                                                             | Type           | Default                                 | Required |
+| ------------------------------------ | --------------------------------------------------------------------------------------- | -------------- | --------------------------------------- | :------: |
+| name                                 | Name applied to the gateway instance, EIP, and alarms.                                  | `string`       | n/a                                     |   yes    |
+| instance_type                        | EC2 instance type for the gateway.                                                      | `string`       | n/a                                     |   yes    |
+| subnet_id                            | Subnet to launch in. Use a public subnet when associate_public_ip_address is true.      | `string`       | n/a                                     |   yes    |
+| vpc_security_group_ids               | Security group IDs to associate with the gateway.                                       | `list(any)`    | n/a                                     |   yes    |
+| create_eip                           | Allocate and associate an Elastic IP with the gateway.                                  | `bool`         | `true`                                  |    no    |
+| associate_public_ip_address          | Assign a public IP at launch (public-subnet placement). Requires private_ip when true.  | `bool`         | `true`                                  |    no    |
+| create_cloudwatch_alarms             | Create CloudWatch status-check alarms for the instance.                                 | `bool`         | `true`                                  |    no    |
+| ami_name_filter                      | Name filter used to select the AppGate SDP marketplace AMI.                             | `string`       | `"Appgate-SDP-6.5.6-BYOL*"`             |    no    |
+| ami_architecture                     | CPU architecture of the AppGate SDP AMI.                                                | `string`       | `"x86_64"`                              |    no    |
+| ami_virtualization_type              | Virtualization type of the AppGate SDP AMI.                                             | `string`       | `"hvm"`                                 |    no    |
+| availability_zone                    | Availability zone in which to launch the gateway.                                       | `string`       | `""`                                    |    no    |
+| private_ip                           | Static private IP within the subnet. Required when associate_public_ip_address is true. | `string`       | `null`                                  |    no    |
+| key_name                             | Name of the EC2 key pair to associate with the instance.                                | `string`       | `""`                                    |    no    |
+| iam_instance_profile                 | IAM instance profile to attach.                                                         | `string`       | `"AmazonSSMRoleForInstancesQuickSetup"` |    no    |
+| ebs_optimized                        | Whether the instance is EBS-optimized.                                                  | `bool`         | `true`                                  |    no    |
+| disable_api_termination              | Enable EC2 instance termination protection.                                             | `bool`         | `false`                                 |    no    |
+| instance_initiated_shutdown_behavior | Shutdown behavior: stop or terminate.                                                   | `string`       | `"stop"`                                |    no    |
+| enable_detailed_monitoring           | Enable detailed (1-min) monitoring.                                                     | `bool`         | `false`                                 |    no    |
+| enable_recover_action                | Attach the EC2 recover action to the system alarm. Null auto-detects.                   | `bool`         | `null`                                  |    no    |
+| ipv6_addresses                       | IPv6 addresses to associate with the primary network interface.                         | `list(string)` | `[]`                                    |    no    |
+| placement_group                      | Placement group to start the instance in.                                               | `string`       | `""`                                    |    no    |
+| source_dest_check                    | Controls source/destination checking on the instance.                                   | `bool`         | `true`                                  |    no    |
+| tenancy                              | Instance tenancy: default, dedicated, or host.                                          | `string`       | `"default"`                             |    no    |
+| user_data                            | User data to provide at launch.                                                         | `string`       | `""`                                    |    no    |
+| user_data_base64                     | Base64-encoded user data to provide at launch.                                          | `string`       | `""`                                    |    no    |
+| http_endpoint                        | Whether the instance metadata service is available.                                     | `string`       | `"enabled"`                             |    no    |
+| http_tokens                          | Whether IMDSv2 session tokens are required.                                             | `string`       | `"required"`                            |    no    |
+| encrypted                            | Whether the root volume is encrypted.                                                   | `bool`         | `true`                                  |    no    |
+| root_delete_on_termination           | Destroy the root volume on instance termination.                                        | `bool`         | `true`                                  |    no    |
+| root_volume_size                     | Size in GiB of the root EBS volume.                                                     | `string`       | `"100"`                                 |    no    |
+| root_volume_type                     | Root volume type.                                                                       | `string`       | `"gp3"`                                 |    no    |
+| root_volume_iops                     | IOPS for the root volume.                                                               | `number`       | `3000`                                  |    no    |
+| root_volume_throughput               | Throughput for the root volume.                                                         | `number`       | `125`                                   |    no    |
+| exclude_root_volume_snapshot         | Exclude selected tag keys from the root volume tags.                                    | `bool`         | `false`                                 |    no    |
+| root_volume_excluded_tag_keys        | Tag keys to remove from the root volume when excluding.                                 | `list(string)` | `[]`                                    |    no    |
+| eip_associate_with_private_ip        | Private IP to associate the EIP with.                                                   | `string`       | `""`                                    |    no    |
+| tags                                 | Tags applied to the gateway instance, root volume, and EIP.                             | `map(string)`  | see variables.tf                        |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| instance_id | ID of the AppGate gateway EC2 instance. |
-| availability_zone | Availability zone of the gateway instance. |
-| private_ip | Private IP address of the gateway instance. |
-| public_ip | Public IP assigned at launch (if associate_public_ip_address is true). |
-| ami_id | ID of the AppGate SDP AMI the gateway was launched from. |
-| eip_id | Allocation ID of the gateway's Elastic IP. Null if create_eip is false. |
-| eip_public_ip | Public IP address of the gateway's Elastic IP. Null if create_eip is false. |
+| Name              | Description                                                                       |
+| ----------------- | --------------------------------------------------------------------------------- |
+| instance_id       | ID of the AppGate gateway EC2 instance.                                           |
+| availability_zone | Availability zone of the gateway instance.                                        |
+| private_ip        | Private IP address of the gateway instance.                                       |
+| public_ip         | Public IP assigned at launch (if associate_public_ip_address is true).            |
+| ami_id            | ID of the AppGate SDP AMI the gateway was launched from.                          |
+| eip_id            | Allocation ID of the gateway's Elastic IP. Null if create_eip is false.           |
+| eip_public_ip     | Public IP address of the gateway's Elastic IP. Null if create_eip is false.       |
 | instance_alarm_id | ID of the instance status-check alarm. Null if create_cloudwatch_alarms is false. |
-| system_alarm_id | ID of the system status-check alarm. Null if create_cloudwatch_alarms is false. |
+| system_alarm_id   | ID of the system status-check alarm. Null if create_cloudwatch_alarms is false.   |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -257,6 +260,7 @@ Project Link: [https://github.com/thinkstack-co/terraform-modules](https://githu
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/thinkstack-co/terraform-modules.svg?style=for-the-badge
 [contributors-url]: https://github.com/thinkstack-co/terraform-modules/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/thinkstack-co/terraform-modules.svg?style=for-the-badge

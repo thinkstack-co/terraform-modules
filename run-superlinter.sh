@@ -37,14 +37,18 @@ docker run --rm \
 	-e PYTHON_FLAKE8_CONFIG_FILE=.flake8 \
 	-e PYTHON_MYPY_CONFIG_FILE=.mypy.ini \
 	-e POWERSHELL_CONFIG_FILE=.powershell-psscriptanalyzer.psd1 \
+	-e MARKDOWN_CONFIG_FILE=.markdownlint.json \
+	-e CHECKOV_CONFIG_FILE=.checkov.yaml \
+	-e ARM_FILTER_REGEX_EXCLUDE='.*/avd_hostpool_workspace/.*' \
 	-e VALIDATE_PYTHON_PYINK=false \
 	-e VALIDATE_TERRAFORM_TERRASCAN=false \
+	-e VALIDATE_NATURAL_LANGUAGE=false \
 	-e LOG_LEVEL=NOTICE \
 	-e CREATE_LOG_FILE=true \
 	-e LOG_FILE="lint-reports/${TIMESTAMP}/super-linter.log" \
 	-e SAVE_SUPER_LINTER_OUTPUT=true \
 	-e SUPER_LINTER_OUTPUT_DIRECTORY_NAME="lint-reports/${TIMESTAMP}/super-linter-output" \
-	-e FILTER_REGEX_EXCLUDE='.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports|examples)/.*|^examples/.*|.*super-linter\.log$|.*\.log$' \
+	-e FILTER_REGEX_EXCLUDE='.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports|jscpd-report|examples)/.*|^examples/.*|.*super-linter\.log$|.*\.log$' \
 	-v "${REPO_ROOT}":/tmp/lint \
 	ghcr.io/super-linter/super-linter:v7 \
 	2>&1 | tee "${REPORT_DIR}/console.log"

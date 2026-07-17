@@ -15,6 +15,10 @@
     ExcludeRules = @(
         'PSAvoidUsingWriteHost',
         'PSAvoidTrailingWhitespace',
-        'PSUseDeclaredVarsMoreThanAssignments'
+        'PSUseDeclaredVarsMoreThanAssignments',
+        # Scripts use em-dashes / smart quotes in comments (UTF-8, no BOM).
+        # A BOM can break shebangs and downstream tooling; UTF-8 without BOM is
+        # the correct encoding on the Linux hosts these run on.
+        'PSUseBOMForUnicodeEncodedFile'
     )
 }

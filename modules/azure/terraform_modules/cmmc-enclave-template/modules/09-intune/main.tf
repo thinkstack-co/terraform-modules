@@ -771,7 +771,6 @@ resource "msgraph_resource_action" "lock_screen_assign" {
 resource "msgraph_resource" "device_config_password_policy" {
   url         = "deviceManagement/deviceConfigurations"
   api_version = "beta"
-  # checkov:skip=CKV_SECRET_6: false positive — Intune password-policy config values, not a secret
 
   response_export_values = { id = "id" }
 

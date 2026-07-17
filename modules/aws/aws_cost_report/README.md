@@ -137,7 +137,7 @@ module "aws_cost_report" {
 | enable_glacier_transition| Enable transition to Glacier storage | bool | false |
 | glacier_transition_days | Days before transitioning to Glacier | number | 30 |
 | glacier_retention_days | Days to retain in Glacier before deletion | number | 365 |
-| schedule_expression | CloudWatch schedule expression for Lambda | string | "cron(0 1 1 * ? \_)" |
+| schedule_expression | CloudWatch schedule expression for Lambda | string | "cron(0 1 1* ? \_)" |
 | tags | Tags to apply to all resources | map | {} |
 
 ## Outputs

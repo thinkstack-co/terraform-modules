@@ -56,7 +56,7 @@
 
 This Terraform module creates and manages AWS Backup resources with a flexible, opt-in architecture. AWS Backup is a fully managed backup service that makes it easy to centralize and automate the backup of data across AWS services.
 
-### Key Features:
+### Key Features
 
 - **Flexible Backup Schedules**: Hourly, daily, weekly, monthly, and yearly backup plans
 - **Smart Tag-Based Selection**: Automatically includes resources in backups based on tags
