@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.10.0, < 7.0.0"
     }
   }
 }
@@ -119,9 +119,10 @@ resource "aws_instance" "ec2_instance" {
     http_tokens   = var.http_tokens
   }
 
-  network_interface {
+  # Public/WAN ENI as the primary (device 0) interface. Replaces the deprecated
+  # inline network_interface block; requires AWS provider >= 6.10.0.
+  primary_network_interface {
     network_interface_id = element(aws_network_interface.fw_public_nic[*].id, count.index)
-    device_index         = 0
   }
 
   root_block_device {
@@ -137,8 +138,11 @@ resource "aws_instance" "ec2_instance" {
     encrypted   = var.ebs_volume_encrypted
   }
 
+  # prevent_destroy guards the firewall from replacement (a plan that would
+  # recreate it errors instead of destroying).
   lifecycle {
-    ignore_changes = [ami, ebs_block_device]
+    ignore_changes  = [ami, ebs_block_device]
+    prevent_destroy = true
   }
 }
 
