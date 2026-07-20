@@ -468,11 +468,11 @@ resource "aws_route" "private_default_route_natgw" {
 #                Mutually exclusive with the NAT route (caller chooses one).
 # Referenced by: nothing
 # References:    aws_route_table.private_route_table,
-#                var.fw_network_interface_id (indexed by the ordinal each.key)
+#                var.fw_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "private_default_route_fw" {
   for_each               = var.enable_firewall ? local.private_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[tonumber(each.key)]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.private_route_table[each.key].id
 }
 
@@ -509,11 +509,11 @@ resource "aws_route" "db_default_route_natgw" {
 # Purpose:       Firewall default route on each db RT.
 # Referenced by: nothing
 # References:    aws_route_table.db_route_table, var.fw_network_interface_id
-#                (indexed by the ordinal each.key)
+#                (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "db_default_route_fw" {
   for_each               = var.enable_firewall ? local.db_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[tonumber(each.key)]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.db_route_table[each.key].id
 }
 
@@ -550,11 +550,11 @@ resource "aws_route" "dmz_default_route_natgw" {
 # Purpose:       Firewall default route on each DMZ RT.
 # Referenced by: nothing
 # References:    aws_route_table.dmz_route_table,
-#                var.fw_dmz_network_interface_id (indexed by the ordinal each.key)
+#                var.fw_dmz_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "dmz_default_route_fw" {
   for_each               = var.enable_firewall ? local.dmz_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_dmz_network_interface_id[tonumber(each.key)]
+  network_interface_id   = element(var.fw_dmz_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.dmz_route_table[each.key].id
 }
 
@@ -590,11 +590,11 @@ resource "aws_route" "mgmt_default_route_natgw" {
 # Purpose:       Firewall default route on each mgmt RT.
 # Referenced by: nothing
 # References:    aws_route_table.mgmt_route_table,
-#                var.fw_network_interface_id (indexed by the ordinal each.key)
+#                var.fw_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "mgmt_default_route_fw" {
   for_each               = var.enable_firewall ? local.mgmt_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[tonumber(each.key)]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.mgmt_route_table[each.key].id
 }
 
@@ -631,11 +631,11 @@ resource "aws_route" "workspaces_default_route_natgw" {
 # Purpose:       Firewall default route on each Workspaces RT.
 # Referenced by: nothing
 # References:    aws_route_table.workspaces_route_table,
-#                var.fw_network_interface_id (indexed by the ordinal each.key)
+#                var.fw_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "workspaces_default_route_fw" {
   for_each               = var.enable_firewall ? local.workspaces_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[tonumber(each.key)]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.workspaces_route_table[each.key].id
 }
 
