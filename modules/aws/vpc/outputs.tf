@@ -12,7 +12,7 @@ output "private_subnet_ids" {
 
 output "private_subnets_by_az" {
   description = "Map of AZ name to private subnet ID."
-  value       = { for az, s in aws_subnet.private_subnets : az => s.id }
+  value       = { for k, s in aws_subnet.private_subnets : s.availability_zone => s.id }
 }
 
 output "public_subnet_ids" {
@@ -22,7 +22,7 @@ output "public_subnet_ids" {
 
 output "public_subnets_by_az" {
   description = "Map of AZ name to public subnet ID."
-  value       = { for az, s in aws_subnet.public_subnets : az => s.id }
+  value       = { for k, s in aws_subnet.public_subnets : s.availability_zone => s.id }
 }
 
 output "db_subnet_ids" {
@@ -32,7 +32,7 @@ output "db_subnet_ids" {
 
 output "db_subnets_by_az" {
   description = "Map of AZ name to database subnet ID."
-  value       = { for az, s in aws_subnet.db_subnets : az => s.id }
+  value       = { for k, s in aws_subnet.db_subnets : s.availability_zone => s.id }
 }
 
 output "dmz_subnet_ids" {
@@ -42,7 +42,7 @@ output "dmz_subnet_ids" {
 
 output "dmz_subnets_by_az" {
   description = "Map of AZ name to DMZ subnet ID."
-  value       = { for az, s in aws_subnet.dmz_subnets : az => s.id }
+  value       = { for k, s in aws_subnet.dmz_subnets : s.availability_zone => s.id }
 }
 
 output "mgmt_subnet_ids" {
@@ -52,7 +52,7 @@ output "mgmt_subnet_ids" {
 
 output "mgmt_subnets_by_az" {
   description = "Map of AZ name to management subnet ID."
-  value       = { for az, s in aws_subnet.mgmt_subnets : az => s.id }
+  value       = { for k, s in aws_subnet.mgmt_subnets : s.availability_zone => s.id }
 }
 
 output "workspaces_subnet_ids" {
@@ -62,7 +62,7 @@ output "workspaces_subnet_ids" {
 
 output "workspaces_subnets_by_az" {
   description = "Map of AZ name to Workspaces subnet ID."
-  value       = { for az, s in aws_subnet.workspaces_subnets : az => s.id }
+  value       = { for k, s in aws_subnet.workspaces_subnets : s.availability_zone => s.id }
 }
 
 # ─── Subnet CIDRs ──────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ output "private_route_table_ids" {
 
 output "private_route_tables_by_az" {
   description = "Map of AZ name to private route table ID."
-  value       = { for az, r in aws_route_table.private_route_table : az => r.id }
+  value       = { for ord, v in local.private_subnets_map : v.az => aws_route_table.private_route_table[ord].id }
 }
 
 output "db_route_table_ids" {
@@ -118,7 +118,7 @@ output "db_route_table_ids" {
 
 output "db_route_tables_by_az" {
   description = "Map of AZ name to database route table ID."
-  value       = { for az, r in aws_route_table.db_route_table : az => r.id }
+  value       = { for ord, v in local.db_subnets_map : v.az => aws_route_table.db_route_table[ord].id }
 }
 
 output "dmz_route_table_ids" {
@@ -128,7 +128,7 @@ output "dmz_route_table_ids" {
 
 output "dmz_route_tables_by_az" {
   description = "Map of AZ name to DMZ route table ID."
-  value       = { for az, r in aws_route_table.dmz_route_table : az => r.id }
+  value       = { for ord, v in local.dmz_subnets_map : v.az => aws_route_table.dmz_route_table[ord].id }
 }
 
 output "mgmt_route_table_ids" {
@@ -138,7 +138,7 @@ output "mgmt_route_table_ids" {
 
 output "mgmt_route_tables_by_az" {
   description = "Map of AZ name to management route table ID."
-  value       = { for az, r in aws_route_table.mgmt_route_table : az => r.id }
+  value       = { for ord, v in local.mgmt_subnets_map : v.az => aws_route_table.mgmt_route_table[ord].id }
 }
 
 output "workspaces_route_table_ids" {
@@ -148,7 +148,7 @@ output "workspaces_route_table_ids" {
 
 output "workspaces_route_tables_by_az" {
   description = "Map of AZ name to Workspaces route table ID."
-  value       = { for az, r in aws_route_table.workspaces_route_table : az => r.id }
+  value       = { for ord, v in local.workspaces_subnets_map : v.az => aws_route_table.workspaces_route_table[ord].id }
 }
 
 # ─── NAT / IGW ─────────────────────────────────────────────────────────────
@@ -170,7 +170,7 @@ output "natgw_ids" {
 
 output "natgws_by_az" {
   description = "Map of AZ name to NAT gateway ID."
-  value       = { for az, n in aws_nat_gateway.natgw : az => n.id }
+  value       = { for ord, az in local.nat_gateway_map : az => aws_nat_gateway.natgw[ord].id }
 }
 
 output "igw_id" {
