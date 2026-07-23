@@ -25,6 +25,16 @@ reports/python-black/
 reports/hadolint/
 reports/bash/
 reports/jscpd/
+jscpd-report/
+
+# Linting config + tooling — kept local only, not tracked in GitHub
+run-superlinter.sh
+.tflint.hcl
+.pre-commit-config.yaml
+.checkov.yaml
+.markdownlint.json
+.jscpd.json
+.github/workflows/super-linter.yml
 
 # mypy cache
 .mypy_cache

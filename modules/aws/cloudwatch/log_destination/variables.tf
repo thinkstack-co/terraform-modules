@@ -60,10 +60,5 @@ variable "destination_name" {
 
 variable "destination_target_arn" {
   type        = string
-  description = "The target ARN for the destination"
-}
-
-variable "iam_for_cloudwatch" {
-  type        = string
-  description = "The IAM role for CloudWatch"
+  description = "The ARN of the Kinesis Firehose delivery stream that CloudWatch Logs forwards records to."
 }

@@ -112,6 +112,7 @@ variable "domain_name" {
 variable "password" {
   description = "(Required) The password for the service account on your self-managed AD domain that Amazon FSx will use to join to your AD domain."
   type        = string
+  sensitive   = true
 }
 
 variable "username" {

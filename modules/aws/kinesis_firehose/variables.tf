@@ -25,9 +25,9 @@ variable "firehose_key_type" {
 }
 
 variable "firehose_key_arn" {
-  description = "(Optional) Amazon Resource Name (ARN) of the encryption key. Required when key_type is CUSTOMER_MANAGED_CMK."
+  description = "(Optional) Amazon Resource Name (ARN) of the encryption key. Required when key_type is CUSTOMER_MANAGED_CMK. Leave empty for AWS_OWNED_CMK."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "firehose_prefix" {
@@ -52,18 +52,12 @@ variable "firehose_error_output_prefix" {
 variable "firehose_kms_key_arn" {
   description = "(Optional) Specifies the KMS key ARN the stream will use to encrypt data. If not set, no encryption will be used."
   type        = string
-  default     = ""
+  default     = null
 }
 
 #################################
 # S3
 #################################
-
-variable "s3_acl" {
-  description = "(Optional) The canned ACL to apply. Defaults to private."
-  type        = string
-  default     = "private"
-}
 
 variable "s3_bucket_prefix" {
   description = "(Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
