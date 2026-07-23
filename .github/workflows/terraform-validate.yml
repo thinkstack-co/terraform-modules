@@ -1,0 +1,115 @@
+---
+# Workflow: Terraform Validate
+# Trigger:  push to main and v* branches; pull_request to main
+# Purpose:  Runs `terraform fmt -check` and `terraform init -backend=false && terraform validate`
+#           on every module directory under modules/aws so malformed or non-initializable
+#           modules (undeclared data sources, stray/duplicate resources, bad references) are
+#           caught in CI instead of by consumers.
+# Secrets:  none — validate uses -backend=false and never contacts a cloud account.
+# Notes:    Providers download once per run via TF_PLUGIN_CACHE_DIR and are reused across every
+#           module init. No apply/plan against real infrastructure is ever run. To extend coverage
+#           to the whole library, change MODULE_ROOT below from "modules/aws" to "modules".
+name: Terraform Validate
+
+on:
+  push:
+    branches:
+      - main
+      - v*
+  pull_request:
+    branches:
+      - main
+
+# Least-privilege default for the whole workflow; jobs opt into only what they need.
+# Satisfies checkov CKV2_GHA_1 (no top-level write-all).
+permissions: {}
+
+# Only the newest run per ref needs to finish; cancel superseded runs to save minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MODULE_ROOT: modules/aws
+  # Shared provider cache so each provider downloads once for the entire job.
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.tfplugincache
+
+jobs:
+  # Fails if any module file is not canonically formatted (terraform fmt).
+  fmt:
+    name: fmt -check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: terraform fmt -check
+        run: terraform fmt -check -recursive -diff "$MODULE_ROOT"
+
+  # Inits (backend-less) and validates every module directory, then fails if any did not validate.
+  validate:
+    name: validate modules
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Validate each module
+        run: |
+          set -uo pipefail
+          mkdir -p "$TF_PLUGIN_CACHE_DIR"
+
+          # Every directory that contains at least one .tf file (excludes provider
+          # caches and illustrative examples that may reference external modules).
+          mapfile -t dirs < <(
+            find "$MODULE_ROOT" -type f -name '*.tf' \
+              -not -path '*/.terraform/*' \
+              -not -path '*/examples/*' \
+              -exec dirname {} \; | sort -u
+          )
+
+          echo "Discovered ${#dirs[@]} module directories under $MODULE_ROOT"
+          echo "| Module | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|--------|" >> "$GITHUB_STEP_SUMMARY"
+
+          failed=0
+          for dir in "${dirs[@]}"; do
+            echo "::group::validate $dir"
+            ok=1
+            terraform -chdir="$dir" init -backend=false -input=false -no-color >/dev/null 2>&1 || ok=0
+            if [ "$ok" = "1" ]; then
+              terraform -chdir="$dir" validate -no-color || ok=0
+            fi
+
+            if [ "$ok" = "1" ]; then
+              echo "| \`$dir\` | ✅ pass |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "| \`$dir\` | ❌ FAIL |" >> "$GITHUB_STEP_SUMMARY"
+              echo "::error::terraform validate failed in $dir"
+              # Re-run without suppression so the failure detail is visible in the log group.
+              terraform -chdir="$dir" init -backend=false -input=false -no-color || true
+              terraform -chdir="$dir" validate -no-color || true
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+
+          if [ "$failed" = "1" ]; then
+            echo "One or more modules failed validation. See the job summary and the ::error:: lines above."
+            exit 1
+          fi
+          echo "All ${#dirs[@]} modules passed terraform validate."

@@ -1,0 +1,103 @@
+---
+name: Super-Linter
+
+# Run on push to any branch and on pull requests
+on:
+  push:
+    branches:
+      - main
+      - v*
+  pull_request:
+    branches:
+      - main
+
+# Least-privilege default for the entire workflow; the job below grants only the
+# scopes it needs. Satisfies checkov CKV2_GHA_1 (no top-level write-all).
+permissions: {}
+
+jobs:
+  super-lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Full git history needed for super-linter
+          fetch-depth: 0
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter@v7
+        env:
+          # GitHub token for API access
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Validate all code by default - runs ALL available linters
+          VALIDATE_ALL_CODEBASE: true
+
+          # Set default branch
+          DEFAULT_BRANCH: main
+
+          # Where super-linter resolves *_CONFIG_FILE filenames from. Default
+          # is .github/linters/; we keep linter configs at repo root so they
+          # double as the source of truth for local tooling.
+          LINTER_RULES_PATH: .
+
+          # Configuration files for specific linters (resolved relative to
+          # LINTER_RULES_PATH above).
+          TERRAFORM_TFLINT_CONFIG_FILE: .tflint.hcl
+          PYTHON_FLAKE8_CONFIG_FILE: .flake8
+          PYTHON_MYPY_CONFIG_FILE: .mypy.ini
+          POWERSHELL_CONFIG_FILE: .powershell-psscriptanalyzer.psd1
+          # super-linter's markdownlint default is .markdown-lint.yml and its
+          # checkov run always passes --config-file; point both at our configs
+          # or they are silently ignored (MD013 fires, checkov skip-list unused).
+          MARKDOWN_CONFIG_FILE: .markdownlint.json
+          CHECKOV_CONFIG_FILE: .checkov.yaml
+
+          # Optional: Disable specific linters if needed (uncomment to disable)
+          # VALIDATE_JSCPD: false  # Copy-paste detection can be noisy
+          #
+          # Why: super-linter warns that black + pyink can conflict (they did,
+          # on lambda_function.py). Keeping black, disabling pyink — black is
+          # the broader-community standard and reads our .python-black config.
+          VALIDATE_PYTHON_PYINK: false
+          #
+          # Why: this repo is a module library — modules are evaluated when
+          # consumed in a root configuration, not in isolation. Terrascan
+          # produces lots of false positives here ("module doesn't enforce
+          # CMK / VPC / S3 versioning") because those are consumer decisions
+          # made by the caller. Checkov is still enabled and gives us policy
+          # coverage; consuming repos run their own scans on the assembled
+          # root config.
+          VALIDATE_TERRAFORM_TERRASCAN: false
+          #
+          # Why: NATURAL_LANGUAGE (textlint) lints English prose — weasel words,
+          # passive voice, sentence spacing — which is noise on 130+ technical
+          # module READMEs generated from a shared template. markdownlint (with
+          # our .markdownlint.json) already covers markdown structure.
+          VALIDATE_NATURAL_LANGUAGE: false
+
+          # Output settings
+          LOG_LEVEL: NOTICE
+          CREATE_LOG_FILE: true
+
+          # Filter settings - exclude vendor/runtime artefacts.
+          # super-linter.log is super-linter's own runtime log; lint-reports/
+          # is where local runs of run-superlinter.sh write artefacts;
+          # examples/ holds illustrative snippets that may reference modules
+          # outside this repo and shouldn't gate the build.
+          FILTER_REGEX_EXCLUDE: '.*/(\.terraform|\.venv|venv|node_modules|package|lint-reports|jscpd-report|examples)/.*|^examples/.*|.*super-linter\.log$|.*\.log$'
+
+          # Exempt this one preview-API AVD ARM template from arm-ttk best-practice
+          # checks (recent-apiVersions, location-parameter, resourceId, dependsOn,
+          # and the intentional null() RDP-property idiom on line 207). The
+          # 2024-01-16-preview AVD APIs are deliberate; all other ARM templates
+          # stay linted, and the file is still JSON-linted for well-formedness.
+          ARM_FILTER_REGEX_EXCLUDE: ".*/avd_hostpool_workspace/.*"
