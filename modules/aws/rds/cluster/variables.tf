@@ -14,7 +14,7 @@ variable "key_customer_master_key_spec" {
 
 variable "key_description" {
   description = "(Optional) The description of the key as viewed in AWS console."
-  default     = "CloudTrail kms key used to encrypt audit logs"
+  default     = "RDS kms key used to encrypt the database cluster"
   type        = string
 }
 
@@ -92,9 +92,27 @@ variable "cluster_identifier" {
   description = "(Optional, Forces new resources) The cluster identifier. If omitted, Terraform will assign a random, unique identifier."
 }
 
+variable "copy_tags_to_snapshot" {
+  type        = bool
+  description = "(Optional) Copy all cluster tags to snapshots. Defaults to true."
+  default     = true
+}
+
 variable "database_name" {
   type        = string
   description = "(Optional) Name for an automatically created database on cluster creation. There are different naming restrictions per database engine: RDS Naming Constraints"
+}
+
+variable "deletion_protection" {
+  type        = bool
+  description = "(Optional) If true, the DB cluster cannot be deleted until deletion_protection is disabled. Defaults to true."
+  default     = true
+}
+
+variable "enabled_cloudwatch_logs_exports" {
+  type        = list(string)
+  description = "(Optional) Set of log types to export to CloudWatch. Aurora MySQL: audit, error, general, slowquery. Aurora PostgreSQL: postgresql. Defaults to none."
+  default     = []
 }
 
 variable "db_subnet_group_name" {
@@ -146,9 +164,23 @@ variable "kms_key_id" {
   default     = ""
 }
 
+variable "manage_master_user_password" {
+  type        = bool
+  description = "(Optional) When true, RDS creates and manages the master user password in AWS Secrets Manager (username + password) with automatic RDS-managed rotation. Mutually exclusive with master_password. Defaults to false."
+  default     = false
+}
+
 variable "master_password" {
   type        = string
-  description = "(Required unless a snapshot_identifier is provided) Password for the master DB user. Note that this may show up in logs, and it will be stored in the state file. Please refer to the RDS Naming Constraints"
+  sensitive   = true
+  default     = null
+  description = "(Required unless manage_master_user_password or a snapshot_identifier is provided) Password for the master DB user. Stored in the state file. Prefer manage_master_user_password. Please refer to the RDS Naming Constraints"
+}
+
+variable "master_user_secret_kms_key_id" {
+  type        = string
+  description = "(Optional) KMS key ID or ARN used to encrypt the managed master user secret. Only used when manage_master_user_password is true. Defaults to the AWS-managed aws/secretsmanager key."
+  default     = null
 }
 
 variable "master_username" {
