@@ -67,6 +67,12 @@ variable "acl" {
   default     = "private"
 }
 
+variable "enable_bucket_lifecycle" {
+  type        = bool
+  description = "(Optional) Whether to create the lifecycle configuration on the CloudTrail S3 bucket. Consumed by aws_s3_bucket_lifecycle_configuration.cloudtrail_bucket_lifecycle. Defaults true."
+  default     = true
+}
+
 variable "bucket_lifecycle_rule_id" {
   type        = string
   description = "(Required) Unique identifier for the rule. The value cannot be longer than 255 characters."
