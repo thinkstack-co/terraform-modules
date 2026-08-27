@@ -33,6 +33,18 @@ variable "sg_name" {
   type        = string
 }
 
+variable "ingress_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) CIDR blocks allowed inbound to the Fortigate security group. Defaults to all sources because the firewall terminates VPN and internet traffic; narrow this where the peer ranges are known."
+  default     = ["0.0.0.0/0"]
+}
+
+variable "egress_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) CIDR blocks the Fortigate security group may send traffic to. Defaults to all destinations."
+  default     = ["0.0.0.0/0"]
+}
+
 variable "vpc_id" {
   description = "The VPC id to add the security group"
   type        = string
@@ -241,4 +253,16 @@ variable "create_cloudwatch_alarms" {
   type        = bool
   description = "(Optional) Whether to create the StatusCheckFailed CloudWatch alarms for the instance(s). Defaults true."
   default     = true
+}
+
+variable "alarm_actions" {
+  type        = list(string)
+  description = "(Optional) List of ARNs, normally SNS topics, notified when a StatusCheckFailed alarm enters the ALARM state. Defaults to an empty list, which creates the alarms without notifying anyone."
+  default     = []
+}
+
+variable "ok_actions" {
+  type        = list(string)
+  description = "(Optional) List of ARNs, normally SNS topics, notified when a StatusCheckFailed alarm returns to the OK state. Defaults to an empty list."
+  default     = []
 }

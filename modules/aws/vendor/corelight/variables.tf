@@ -26,6 +26,12 @@ variable "mgmt_cidr_blocks" {
   default     = []
 }
 
+variable "egress_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) CIDR blocks the Corelight security group may send traffic to. Defaults to all destinations because the sensor reaches the Corelight cloud over the internet."
+  default     = ["0.0.0.0/0"]
+}
+
 variable "tags" {
   type        = map(any)
   description = "(Optional) A mapping of tags to assign to the resource."
@@ -226,4 +232,16 @@ variable "create_cloudwatch_alarms" {
   type        = bool
   description = "(Optional) Whether to create the StatusCheckFailed CloudWatch alarms for the instance(s). Defaults true."
   default     = true
+}
+
+variable "alarm_actions" {
+  type        = list(string)
+  description = "(Optional) List of ARNs, normally SNS topics, notified when a StatusCheckFailed alarm enters the ALARM state. Defaults to an empty list, which creates the alarms without notifying anyone."
+  default     = []
+}
+
+variable "ok_actions" {
+  type        = list(string)
+  description = "(Optional) List of ARNs, normally SNS topics, notified when a StatusCheckFailed alarm returns to the OK state. Defaults to an empty list."
+  default     = []
 }

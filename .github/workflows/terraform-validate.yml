@@ -90,7 +90,12 @@ jobs:
           for dir in "${dirs[@]}"; do
             echo "::group::validate $dir"
             ok=1
-            terraform -chdir="$dir" init -backend=false -input=false -no-color >/dev/null 2>&1 || ok=0
+            # -upgrade ignores each module's committed .terraform.lock.hcl and re-resolves
+            # within the module's own constraints. Those locks are inert for consumers
+            # (Terraform reads the lock of the ROOT module only) but are read here because
+            # each module dir is init'd as a root, so a lock left behind at an older version
+            # than the module's floor fails init outright.
+            terraform -chdir="$dir" init -upgrade -backend=false -input=false -no-color >/dev/null 2>&1 || ok=0
             if [ "$ok" = "1" ]; then
               terraform -chdir="$dir" validate -no-color || ok=0
             fi
@@ -101,7 +106,7 @@ jobs:
               echo "| \`$dir\` | ❌ FAIL |" >> "$GITHUB_STEP_SUMMARY"
               echo "::error::terraform validate failed in $dir"
               # Re-run without suppression so the failure detail is visible in the log group.
-              terraform -chdir="$dir" init -backend=false -input=false -no-color || true
+              terraform -chdir="$dir" init -upgrade -backend=false -input=false -no-color || true
               terraform -chdir="$dir" validate -no-color || true
               failed=1
             fi

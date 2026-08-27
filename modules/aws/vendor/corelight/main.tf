@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.10.0, < 7.0.0"
     }
   }
 }
@@ -48,7 +48,7 @@ resource "aws_security_group" "corelight_sg" {
     protocol    = "-1"
     # Corelight communicates with the internet
     #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.egress_cidr_blocks
   }
 
   tags = merge(var.tags, ({ "Name" = format("%s", var.sg_name) }))
@@ -98,6 +98,9 @@ resource "aws_network_interface" "mgmt_nic" {
 #######################
 # EC2 instance Module
 #######################
+# Purpose:       Corelight sensors; listener_nic is the primary (device 0) NIC.
+# Referenced by: aws_network_interface.mgmt_nic (attaches as device 1), aws_cloudwatch_metric_alarm.*
+# References:    aws_network_interface.listener_nic, var.ami, var.instance_type
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   availability_zone                    = element(var.availability_zones, count.index)
@@ -116,9 +119,8 @@ resource "aws_instance" "ec2" {
     http_tokens   = var.http_tokens
   }
 
-  network_interface {
+  primary_network_interface {
     network_interface_id = aws_network_interface.listener_nic[count.index].id
-    device_index         = 0
   }
 
   root_block_device {
@@ -146,9 +148,11 @@ resource "aws_instance" "ec2" {
 # Status Check Failed Instance Metric
 #####################
 
+# Purpose:       StatusCheckFailed_Instance alarm per Corelight sensor.
+# References:    aws_instance.ec2, var.alarm_actions, var.ok_actions
 resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = var.alarm_actions
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name          = format("%s-instance-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -161,7 +165,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   insufficient_data_actions = []
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
-  ok_actions                = []
+  ok_actions                = var.ok_actions
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "1"
@@ -172,9 +176,11 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 # Status Check Failed System Metric
 #####################
 
+# Purpose:       StatusCheckFailed_System alarm per Corelight sensor.
+# References:    aws_instance.ec2, var.alarm_actions, var.ok_actions
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = var.alarm_actions
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", aws_instance.ec2[count.index].id)
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -187,7 +193,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   insufficient_data_actions = []
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
-  ok_actions                = []
+  ok_actions                = var.ok_actions
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "1"

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.10.0, < 7.0.0"
     }
   }
 }
@@ -31,7 +31,7 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     protocol    = "TCP"
     # CATO Cloud requires this port to be open to the internet
     #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.egress_cidr_blocks
   }
 
   egress {
@@ -41,7 +41,7 @@ resource "aws_security_group" "cato_wan_mgmt_sg" {
     protocol    = "UDP"
     # CATO Cloud requires this port to be open to the internet
     #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.egress_cidr_blocks
   }
 
   tags = merge(var.tags, ({ "Name" = format("%s", var.wan_mgmt_sg_name) }))
@@ -67,7 +67,7 @@ resource "aws_security_group" "cato_lan_sg" {
     protocol    = "-1"
     # CATO Cloud requires this port to be open to the internet
     #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.egress_cidr_blocks
   }
 
   tags = merge(var.tags, ({ "Name" = format("%s", var.lan_sg_name) }))
@@ -134,6 +134,9 @@ resource "aws_network_interface" "private_nic" {
 # EC2 Instance
 ############################################
 
+# Purpose:       Cato SDWAN appliances; mgmt_nic is the primary (device 0) NIC.
+# Referenced by: aws_network_interface.public_nic, .private_nic (attach as devices 1 and 2)
+# References:    aws_network_interface.mgmt_nic, var.ami, var.instance_type
 resource "aws_instance" "ec2_instance" {
   ami                  = var.ami
   count                = var.number
@@ -151,9 +154,8 @@ resource "aws_instance" "ec2_instance" {
     http_tokens   = var.http_tokens
   }
 
-  network_interface {
+  primary_network_interface {
     network_interface_id = element(aws_network_interface.mgmt_nic[*].id, count.index)
-    device_index         = 0
   }
 
   root_block_device {
@@ -171,9 +173,11 @@ resource "aws_instance" "ec2_instance" {
 # Status Check Failed Instance Metric
 #####################
 
+# Purpose:       StatusCheckFailed_Instance alarm per Cato appliance.
+# References:    aws_instance.ec2_instance, var.alarm_actions, var.ok_actions
 resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = var.alarm_actions
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -186,7 +190,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   insufficient_data_actions = []
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
-  ok_actions                = []
+  ok_actions                = var.ok_actions
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "1"
@@ -198,9 +202,11 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 # Status Check Failed System Metric
 #####################
 
+# Purpose:       StatusCheckFailed_System alarm per Cato appliance.
+# References:    aws_instance.ec2_instance, var.alarm_actions, var.ok_actions
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = var.alarm_actions
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -213,7 +219,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   insufficient_data_actions = []
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
-  ok_actions                = []
+  ok_actions                = var.ok_actions
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "1"
