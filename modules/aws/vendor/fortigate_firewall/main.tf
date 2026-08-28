@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.10.0, < 7.0.0"
     }
   }
 }
@@ -20,7 +20,7 @@ resource "aws_security_group" "fortigate_fw_sg" {
     protocol    = "-1"
     # Fortigate Firewall requires communication from all devices
     #tfsec:ignore:aws-ec2-no-public-ingress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.ingress_cidr_blocks
   }
 
   egress {
@@ -30,7 +30,7 @@ resource "aws_security_group" "fortigate_fw_sg" {
     protocol    = "-1"
     # Fortigate Firewall requires communication to the internet
     #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.egress_cidr_blocks
   }
 
   tags = merge(var.tags, ({ "Name" = format("%s", var.sg_name) }))
@@ -119,9 +119,10 @@ resource "aws_instance" "ec2_instance" {
     http_tokens   = var.http_tokens
   }
 
-  network_interface {
+  # Public/WAN ENI as the primary (device 0) interface. Replaces the deprecated
+  # inline network_interface block; requires AWS provider >= 6.10.0.
+  primary_network_interface {
     network_interface_id = element(aws_network_interface.fw_public_nic[*].id, count.index)
-    device_index         = 0
   }
 
   root_block_device {
@@ -137,8 +138,11 @@ resource "aws_instance" "ec2_instance" {
     encrypted   = var.ebs_volume_encrypted
   }
 
+  # prevent_destroy guards the firewall from replacement (a plan that would
+  # recreate it errors instead of destroying).
   lifecycle {
-    ignore_changes = [ami, ebs_block_device]
+    ignore_changes  = [ami, ebs_block_device]
+    prevent_destroy = true
   }
 }
 
@@ -152,7 +156,7 @@ resource "aws_instance" "ec2_instance" {
 
 resource "aws_cloudwatch_metric_alarm" "instance" {
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = var.alarm_actions
   alarm_description   = "EC2 instance StatusCheckFailed_Instance alarm"
   alarm_name          = format("%s-instance-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -165,7 +169,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   insufficient_data_actions = []
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
-  ok_actions                = []
+  ok_actions                = var.ok_actions
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "1"
@@ -179,7 +183,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
 
 resource "aws_cloudwatch_metric_alarm" "system" {
   actions_enabled     = true
-  alarm_actions       = []
+  alarm_actions       = var.alarm_actions
   alarm_description   = "EC2 instance StatusCheckFailed_System alarm"
   alarm_name          = format("%s-system-alarm", element(aws_instance.ec2_instance[*].id, count.index))
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -192,7 +196,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   insufficient_data_actions = []
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
-  ok_actions                = []
+  ok_actions                = var.ok_actions
   period                    = "60"
   statistic                 = "Maximum"
   threshold                 = "1"

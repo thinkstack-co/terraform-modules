@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.0.0, < 7.0.0"
     }
   }
 }
@@ -205,7 +205,11 @@ resource "aws_s3_bucket_public_access_block" "cloudtrail_bucket_public_access_bl
   restrict_public_buckets = true
 }
 
+# Purpose:       Expiration rule on the CloudTrail log bucket. Gated by
+#                var.enable_bucket_lifecycle.
+# References:    aws_s3_bucket.cloudtrail_s3_bucket
 resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_bucket_lifecycle" {
+  count  = var.enable_bucket_lifecycle ? 1 : 0
   bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
 
   rule {
@@ -279,4 +283,37 @@ resource "aws_s3_bucket_logging" "cloudtrail_s3_bucket" {
   target_bucket         = var.target_bucket
   target_prefix         = var.target_prefix
   expected_bucket_owner = var.expected_bucket_owner != "" ? var.expected_bucket_owner : null
+}
+
+###########################
+# State Moves
+###########################
+# Purpose: Maps the pre-count resource addresses to their indexed equivalents.
+#          Terraform reads these during plan so an upgrade from a module version
+#          that had no count adopts the existing state entry instead of planning
+#          destroy/create.
+
+moved {
+  from = aws_cloudwatch_log_group.cloudtrail
+  to   = aws_cloudwatch_log_group.cloudtrail[0]
+}
+
+moved {
+  from = aws_iam_policy.cloudtrail
+  to   = aws_iam_policy.cloudtrail[0]
+}
+
+moved {
+  from = aws_iam_role.cloudtrail
+  to   = aws_iam_role.cloudtrail[0]
+}
+
+moved {
+  from = aws_iam_role_policy_attachment.role_attach
+  to   = aws_iam_role_policy_attachment.role_attach[0]
+}
+
+moved {
+  from = aws_s3_bucket_lifecycle_configuration.cloudtrail_bucket_lifecycle
+  to   = aws_s3_bucket_lifecycle_configuration.cloudtrail_bucket_lifecycle[0]
 }

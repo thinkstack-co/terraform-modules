@@ -14,7 +14,7 @@ variable "key_customer_master_key_spec" {
 
 variable "key_description" {
   description = "(Optional) The description of the key as viewed in AWS console."
-  default     = "CloudTrail kms key used to encrypt audit logs"
+  default     = "SQS kms key used to encrypt queue messages"
   type        = string
 }
 
@@ -113,6 +113,12 @@ variable "tags" {
   type        = map(any)
   description = "(Optional) A mapping of tags to assign to the queue."
   default     = {}
+}
+
+variable "enforce_ssl" {
+  type        = bool
+  description = "(Optional) When true, attaches a queue policy denying any request made over a non-TLS (aws:SecureTransport=false) connection. Defaults to true."
+  default     = true
 }
 
 variable "visibility_timeout_seconds" {

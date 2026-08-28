@@ -15,11 +15,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 5.0, < 7.0.0"
+      version = ">= 6.0.0, < 7.0.0"
     }
     appgatesdp = {
       source  = "appgate/appgatesdp"
-      version = ">= 2.0"
+      version = ">= 1.24.0, < 2.0.0"
     }
   }
 }
@@ -332,10 +332,6 @@ resource "appgatesdp_appliance" "this" {
 
   site = var.appgate_site_id
   tags = var.appgate_tags
-
-  lifecycle {
-    ignore_changes = [seed]
-  }
 }
 
 ###############################################################################

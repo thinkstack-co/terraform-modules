@@ -20,6 +20,10 @@ resource "aws_cloudwatch_log_destination_policy" "this" {
 ###########################
 # IAM Policy
 ###########################
+
+# Purpose:    Grants the log-destination role permission to deliver records to
+#             the Firehose delivery stream that CloudWatch Logs forwards to.
+# References: var.destination_target_arn
 resource "aws_iam_policy" "firehose_policy" {
   description = var.iam_policy_description
   name_prefix = var.iam_policy_name_prefix
@@ -30,11 +34,11 @@ resource "aws_iam_policy" "firehose_policy" {
     Statement = [{
       Effect = "Allow",
       Action = [
-        "s3:AbortMultipartUpload",
+        "firehose:PutRecord",
+        "firehose:PutRecordBatch"
       ],
       Resource = [
-        aws_s3_bucket.firehose_bucket.arn,
-        format("%s/*", aws_s3_bucket.firehose_bucket.arn)
+        var.destination_target_arn
       ]
     }]
   })
@@ -66,6 +70,6 @@ resource "aws_iam_role_policy_attachment" "role_attach" {
 
 resource "aws_cloudwatch_log_destination" "this" {
   name       = var.destination_name
-  role_arn   = aws_iam_role.iam_for_cloudwatch.arn
+  role_arn   = aws_iam_role.firehose_role.arn
   target_arn = var.destination_target_arn
 }

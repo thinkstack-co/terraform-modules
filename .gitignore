@@ -25,6 +25,11 @@ reports/python-black/
 reports/hadolint/
 reports/bash/
 reports/jscpd/
+jscpd-report/
+
+# Local-only lint tooling (not used by the CI super-linter workflow)
+run-superlinter.sh
+.pre-commit-config.yaml
 
 # mypy cache
 .mypy_cache

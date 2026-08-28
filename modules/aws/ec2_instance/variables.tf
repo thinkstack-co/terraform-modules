@@ -126,7 +126,7 @@ variable "http_endpoint" {
 
 variable "http_tokens" {
   type        = string
-  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional."
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to required, which enforces IMDSv2. Set to optional only for instances running software that cannot use IMDSv2."
   default     = "required"
   validation {
     condition     = can(regex("^(optional|required)$", var.http_tokens))
@@ -241,5 +241,46 @@ variable "create_cloudwatch_alarms" {
   validation {
     condition     = can(regex("^(true|false)$", var.create_cloudwatch_alarms))
     error_message = "The value must be either true or false."
+  }
+}
+
+######################################
+# Deprecated Variables
+######################################
+# Accepted so pre-v3 callers upgrade without editing their module blocks.
+# Each defaults to null; a non-null value is consumed by the fallback locals in
+# main.tf or rejected by validation. Removed once no consumer passes them.
+
+variable "monitoring" {
+  type        = bool
+  description = "(Deprecated) Superseded by enable_detailed_monitoring. When set, takes precedence over enable_detailed_monitoring."
+  default     = null
+}
+
+variable "root_iops" {
+  type        = number
+  description = "(Deprecated) Superseded by root_volume_iops. When set, takes precedence over root_volume_iops."
+  default     = null
+}
+
+variable "auto_recovery" {
+  type        = bool
+  description = "(Deprecated) Accepted and ignored. EC2 simplified automatic recovery is enabled by default on supported instances; status check alarms are controlled by create_cloudwatch_alarms."
+  default     = null
+}
+
+variable "region" {
+  type        = string
+  description = "(Deprecated) Accepted and ignored. The instance is created in the region supplied by the aws provider configuration."
+  default     = null
+}
+
+variable "number" {
+  type        = number
+  description = "(Deprecated) Accepted and ignored when set to 1. This module creates exactly one instance; callers needing more must use one module block per instance."
+  default     = null
+  validation {
+    condition     = var.number == null || var.number == 1
+    error_message = "The 'number' variable is removed in v3 and this module creates exactly one instance. A value greater than 1 would destroy the instances at index 1 and above. Split this module block into one call per instance before upgrading."
   }
 }

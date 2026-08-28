@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.0.0, < 7.0.0"
     }
   }
 }
@@ -17,53 +17,58 @@ data "aws_region" "current" {}
 locals {
   service_name = "com.amazonaws.${data.aws_region.current.region}.s3"
 
-  # ─── Per-subnet-type AZ→CIDR maps ──────────────────────────────────────────
-  # Zip var.azs with var.*_subnets_list to produce {az_name => cidr_block}
-  # maps. An AZ is included in a map only when:
+  # ─── Per-subnet-type ordinal→{az,cidr} maps ────────────────────────────────
+  # Zip var.azs with var.*_subnets_list to produce
+  # {ordinal_string => { az = az_name, cidr = cidr_block }} maps, keyed by the
+  # AZ's 0-based position in var.azs rendered as a string ("0","1",...). An AZ
+  # is included in a map only when:
   #   1. the subnet group is not globally disabled (var.*_subnet_disabled)
   #   2. a CIDR exists at the AZ's index in var.*_subnets_list
   #   3. the AZ is not in var.disabled_azs (global cascade)
   #   4. the AZ is not in var.*_subnet_disabled_azs (per-type override)
-  # These maps drive every for_each below — disabling an AZ here cascades
-  # into every dependent subnet, route table, NAT GW, EIP, association,
-  # and S3 endpoint RT association tied to that AZ.
+  # These maps drive every for_each below — disabling an AZ here cascades into
+  # every dependent subnet, route table, NAT GW, EIP, association, and S3
+  # endpoint RT association tied to that AZ. Keying on the ORIGINAL ordinal
+  # (not the AZ name) lets the module ship static moved blocks that migrate
+  # count-indexed (<=v2.9.2) state in place, and preserves the disable feature:
+  # dropping a middle AZ removes key "1" and leaves "0"/"2" intact.
   private_subnets_map = {
-    for idx, az in var.azs : az => var.private_subnets_list[idx]
+    for idx, az in var.azs : tostring(idx) => { az = az, cidr = var.private_subnets_list[idx] }
     if !var.private_subnet_disabled &&
     idx < length(var.private_subnets_list) &&
     !contains(var.disabled_azs, az) &&
     !contains(var.private_subnet_disabled_azs, az)
   }
   public_subnets_map = {
-    for idx, az in var.azs : az => var.public_subnets_list[idx]
+    for idx, az in var.azs : tostring(idx) => { az = az, cidr = var.public_subnets_list[idx] }
     if !var.public_subnet_disabled &&
     idx < length(var.public_subnets_list) &&
     !contains(var.disabled_azs, az) &&
     !contains(var.public_subnet_disabled_azs, az)
   }
   dmz_subnets_map = {
-    for idx, az in var.azs : az => var.dmz_subnets_list[idx]
+    for idx, az in var.azs : tostring(idx) => { az = az, cidr = var.dmz_subnets_list[idx] }
     if !var.dmz_subnet_disabled &&
     idx < length(var.dmz_subnets_list) &&
     !contains(var.disabled_azs, az) &&
     !contains(var.dmz_subnet_disabled_azs, az)
   }
   db_subnets_map = {
-    for idx, az in var.azs : az => var.db_subnets_list[idx]
+    for idx, az in var.azs : tostring(idx) => { az = az, cidr = var.db_subnets_list[idx] }
     if !var.db_subnet_disabled &&
     idx < length(var.db_subnets_list) &&
     !contains(var.disabled_azs, az) &&
     !contains(var.db_subnet_disabled_azs, az)
   }
   mgmt_subnets_map = {
-    for idx, az in var.azs : az => var.mgmt_subnets_list[idx]
+    for idx, az in var.azs : tostring(idx) => { az = az, cidr = var.mgmt_subnets_list[idx] }
     if !var.mgmt_subnet_disabled &&
     idx < length(var.mgmt_subnets_list) &&
     !contains(var.disabled_azs, az) &&
     !contains(var.mgmt_subnet_disabled_azs, az)
   }
   workspaces_subnets_map = {
-    for idx, az in var.azs : az => var.workspaces_subnets_list[idx]
+    for idx, az in var.azs : tostring(idx) => { az = az, cidr = var.workspaces_subnets_list[idx] }
     if !var.workspaces_subnet_disabled &&
     idx < length(var.workspaces_subnets_list) &&
     !contains(var.disabled_azs, az) &&
@@ -83,28 +88,24 @@ locals {
   create_nat_gateway        = var.enable_nat_gateway && local.create_public_subnets
 
   # ─── NAT gateway placement ─────────────────────────────────────────────────
-  # NAT GWs live only in AZs that have a public subnet. With
-  # var.single_nat_gateway, a single NAT GW is placed in the alphabetically
-  # first public AZ — sort() guarantees stable selection across plans.
-  single_nat_gateway_az = (
+  # NAT GWs live only in AZs that have a public subnet, keyed by ordinal. With
+  # var.single_nat_gateway, a single NAT GW is placed in the lowest-ordinal
+  # public AZ — sort() over the ordinal keys ("0".."5") guarantees stable
+  # selection across plans.
+  single_nat_gateway_ordinal = (
     var.single_nat_gateway && local.create_public_subnets
     ? sort(keys(local.public_subnets_map))[0]
     : null
   )
-  nat_gateway_azs_set = local.create_nat_gateway ? (
+  # NAT gateways to create, keyed by ordinal => AZ name. The AZ name value
+  # feeds the EIP/NAT GW Name tags so they stay human-readable.
+  nat_gateway_map = local.create_nat_gateway ? (
     var.single_nat_gateway
-    ? toset([local.single_nat_gateway_az])
-    : toset(keys(local.public_subnets_map))
-  ) : toset([])
-
-  # ─── Positional AZ index lookup ────────────────────────────────────────────
-  # Maps each AZ name to its 0-based position in var.azs. Used only to look
-  # up firewall network interface IDs from the positional
-  # var.fw_network_interface_id and var.fw_dmz_network_interface_id lists
-  # (kept positional to preserve the existing variable interface). Customers
-  # passing fewer ENIs than AZs must ensure the index for every enabled AZ
-  # exists in their ENI list.
-  az_index = { for idx, az in var.azs : az => idx }
+    ? { (local.single_nat_gateway_ordinal) = local.public_subnets_map[local.single_nat_gateway_ordinal].az }
+    : { for ord, v in local.public_subnets_map : ord => v.az }
+  ) : {}
+  # Ordinal set used by the per-RT NAT route filters (contains() needs a set).
+  nat_gateway_azs_set = toset(keys(local.nat_gateway_map))
 
   # ─── Route table propagation ───────────────────────────────────────────────
   # Apply route propagation only when explicitly enabled at the module level.
@@ -293,9 +294,9 @@ resource "aws_vpc_endpoint" "ssmmessages" {
 resource "aws_subnet" "private_subnets" {
   for_each          = local.private_subnets_map
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value
-  availability_zone = each.key
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, each.key) }))
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-private-%s", var.name, each.value.az) }))
 }
 
 # Purpose:       Public subnets, one per enabled AZ. Hosts NAT gateways and
@@ -306,10 +307,10 @@ resource "aws_subnet" "private_subnets" {
 resource "aws_subnet" "public_subnets" {
   for_each                = local.public_subnets_map
   vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = each.value
-  availability_zone       = each.key
+  cidr_block              = each.value.cidr
+  availability_zone       = each.value.az
   map_public_ip_on_launch = var.map_public_ip_on_launch
-  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, each.key) }))
+  tags                    = merge(var.tags, ({ "Name" = format("%s-subnet-public-%s", var.name, each.value.az) }))
 }
 
 # Purpose:       DMZ subnets, one per enabled AZ. Used for firewall data-plane
@@ -320,9 +321,9 @@ resource "aws_subnet" "public_subnets" {
 resource "aws_subnet" "dmz_subnets" {
   for_each          = local.dmz_subnets_map
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value
-  availability_zone = each.key
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, each.key) }))
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-dmz-%s", var.name, each.value.az) }))
 }
 
 # Purpose:       Database subnets, one per enabled AZ. Typically consumed by
@@ -333,9 +334,9 @@ resource "aws_subnet" "dmz_subnets" {
 resource "aws_subnet" "db_subnets" {
   for_each          = local.db_subnets_map
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value
-  availability_zone = each.key
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, each.key) }))
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-db-%s", var.name, each.value.az) }))
 }
 
 # Purpose:       Management subnets, one per enabled AZ. Reserved for jump
@@ -345,9 +346,9 @@ resource "aws_subnet" "db_subnets" {
 resource "aws_subnet" "mgmt_subnets" {
   for_each          = local.mgmt_subnets_map
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value
-  availability_zone = each.key
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, each.key) }))
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-mgmt-%s", var.name, each.value.az) }))
 }
 
 # Purpose:       Workspaces subnets, one per enabled AZ. Sized for AWS
@@ -358,9 +359,9 @@ resource "aws_subnet" "mgmt_subnets" {
 resource "aws_subnet" "workspaces_subnets" {
   for_each          = local.workspaces_subnets_map
   vpc_id            = aws_vpc.vpc.id
-  cidr_block        = each.value
-  availability_zone = each.key
-  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, each.key) }))
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
+  tags              = merge(var.tags, ({ "Name" = format("%s-subnet-workspaces-%s", var.name, each.value.az) }))
 }
 
 ###########################
@@ -398,11 +399,12 @@ resource "aws_route" "public_default_route" {
 }
 
 # Purpose:       Elastic IPs for NAT gateways. One per AZ that hosts a NAT
-#                GW (or one total, in single-NAT mode).
+#                GW (or one total, in single-NAT mode). Keyed by ordinal;
+#                each.value is the AZ name (feeds the Name tag).
 # Referenced by: aws_nat_gateway.natgw
-# References:    local.nat_gateway_azs_set
+# References:    local.nat_gateway_map
 resource "aws_eip" "nateip" {
-  for_each = local.nat_gateway_azs_set
+  for_each = local.nat_gateway_map
   domain   = "vpc"
   tags     = merge(var.tags, ({ "Name" = format("%s-eip-natgw-%s", var.name, each.value) }))
 }
@@ -413,11 +415,11 @@ resource "aws_eip" "nateip" {
 # Referenced by: aws_route.*_default_route_natgw (every non-public subnet
 #                type's NAT route)
 # References:    aws_eip.nateip, aws_subnet.public_subnets,
-#                local.nat_gateway_azs_set, aws_internet_gateway.igw
+#                local.nat_gateway_map, aws_internet_gateway.igw
 resource "aws_nat_gateway" "natgw" {
   depends_on = [aws_internet_gateway.igw]
 
-  for_each      = local.nat_gateway_azs_set
+  for_each      = local.nat_gateway_map
   allocation_id = aws_eip.nateip[each.key].id
   subnet_id     = aws_subnet.public_subnets[each.key].id
   tags          = merge(var.tags, ({ "Name" = format("%s-natgw-%s", var.name, each.value) }))
@@ -439,7 +441,7 @@ resource "aws_nat_gateway" "natgw" {
 resource "aws_route_table" "private_route_table" {
   for_each         = local.private_subnets_map
   propagating_vgws = local.effective_private_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, each.key) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-private-%s", var.name, each.value.az) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -457,7 +459,7 @@ resource "aws_route" "private_default_route_natgw" {
   }
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.natgw[
-    var.single_nat_gateway ? local.single_nat_gateway_az : each.key
+    var.single_nat_gateway ? local.single_nat_gateway_ordinal : each.key
   ].id
   route_table_id = aws_route_table.private_route_table[each.key].id
 }
@@ -466,11 +468,11 @@ resource "aws_route" "private_default_route_natgw" {
 #                Mutually exclusive with the NAT route (caller chooses one).
 # Referenced by: nothing
 # References:    aws_route_table.private_route_table,
-#                var.fw_network_interface_id, local.az_index
+#                var.fw_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "private_default_route_fw" {
   for_each               = var.enable_firewall ? local.private_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[local.az_index[each.key]]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.private_route_table[each.key].id
 }
 
@@ -483,7 +485,7 @@ resource "aws_route" "private_default_route_fw" {
 resource "aws_route_table" "db_route_table" {
   for_each         = local.db_subnets_map
   propagating_vgws = local.effective_db_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-db-%s", var.name, each.key) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-db-%s", var.name, each.value.az) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -499,19 +501,19 @@ resource "aws_route" "db_default_route_natgw" {
   }
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.natgw[
-    var.single_nat_gateway ? local.single_nat_gateway_az : each.key
+    var.single_nat_gateway ? local.single_nat_gateway_ordinal : each.key
   ].id
   route_table_id = aws_route_table.db_route_table[each.key].id
 }
 
 # Purpose:       Firewall default route on each db RT.
 # Referenced by: nothing
-# References:    aws_route_table.db_route_table, var.fw_network_interface_id,
-#                local.az_index
+# References:    aws_route_table.db_route_table, var.fw_network_interface_id
+#                (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "db_default_route_fw" {
   for_each               = var.enable_firewall ? local.db_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[local.az_index[each.key]]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.db_route_table[each.key].id
 }
 
@@ -524,7 +526,7 @@ resource "aws_route" "db_default_route_fw" {
 resource "aws_route_table" "dmz_route_table" {
   for_each         = local.dmz_subnets_map
   propagating_vgws = local.effective_dmz_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, each.key) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-dmz-%s", var.name, each.value.az) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -540,7 +542,7 @@ resource "aws_route" "dmz_default_route_natgw" {
   }
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.natgw[
-    var.single_nat_gateway ? local.single_nat_gateway_az : each.key
+    var.single_nat_gateway ? local.single_nat_gateway_ordinal : each.key
   ].id
   route_table_id = aws_route_table.dmz_route_table[each.key].id
 }
@@ -548,11 +550,11 @@ resource "aws_route" "dmz_default_route_natgw" {
 # Purpose:       Firewall default route on each DMZ RT.
 # Referenced by: nothing
 # References:    aws_route_table.dmz_route_table,
-#                var.fw_dmz_network_interface_id, local.az_index
+#                var.fw_dmz_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "dmz_default_route_fw" {
   for_each               = var.enable_firewall ? local.dmz_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_dmz_network_interface_id[local.az_index[each.key]]
+  network_interface_id   = element(var.fw_dmz_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.dmz_route_table[each.key].id
 }
 
@@ -564,7 +566,7 @@ resource "aws_route" "dmz_default_route_fw" {
 resource "aws_route_table" "mgmt_route_table" {
   for_each         = local.mgmt_subnets_map
   propagating_vgws = local.effective_mgmt_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, each.key) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-mgmt-%s", var.name, each.value.az) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -580,7 +582,7 @@ resource "aws_route" "mgmt_default_route_natgw" {
   }
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.natgw[
-    var.single_nat_gateway ? local.single_nat_gateway_az : each.key
+    var.single_nat_gateway ? local.single_nat_gateway_ordinal : each.key
   ].id
   route_table_id = aws_route_table.mgmt_route_table[each.key].id
 }
@@ -588,11 +590,11 @@ resource "aws_route" "mgmt_default_route_natgw" {
 # Purpose:       Firewall default route on each mgmt RT.
 # Referenced by: nothing
 # References:    aws_route_table.mgmt_route_table,
-#                var.fw_network_interface_id, local.az_index
+#                var.fw_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "mgmt_default_route_fw" {
   for_each               = var.enable_firewall ? local.mgmt_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[local.az_index[each.key]]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.mgmt_route_table[each.key].id
 }
 
@@ -605,7 +607,7 @@ resource "aws_route" "mgmt_default_route_fw" {
 resource "aws_route_table" "workspaces_route_table" {
   for_each         = local.workspaces_subnets_map
   propagating_vgws = local.effective_workspaces_propagating_vgws
-  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, each.key) }))
+  tags             = merge(var.tags, ({ "Name" = format("%s-rt-workspaces-%s", var.name, each.value.az) }))
   vpc_id           = aws_vpc.vpc.id
 }
 
@@ -621,7 +623,7 @@ resource "aws_route" "workspaces_default_route_natgw" {
   }
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.natgw[
-    var.single_nat_gateway ? local.single_nat_gateway_az : each.key
+    var.single_nat_gateway ? local.single_nat_gateway_ordinal : each.key
   ].id
   route_table_id = aws_route_table.workspaces_route_table[each.key].id
 }
@@ -629,11 +631,11 @@ resource "aws_route" "workspaces_default_route_natgw" {
 # Purpose:       Firewall default route on each Workspaces RT.
 # Referenced by: nothing
 # References:    aws_route_table.workspaces_route_table,
-#                var.fw_network_interface_id, local.az_index
+#                var.fw_network_interface_id (element()-indexed by ordinal each.key; wraps if fewer ENIs than AZs)
 resource "aws_route" "workspaces_default_route_fw" {
   for_each               = var.enable_firewall ? local.workspaces_subnets_map : {}
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = var.fw_network_interface_id[local.az_index[each.key]]
+  network_interface_id   = element(var.fw_network_interface_id, tonumber(each.key))
   route_table_id         = aws_route_table.workspaces_route_table[each.key].id
 }
 

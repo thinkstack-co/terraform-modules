@@ -1,6 +1,7 @@
 # Setting the required version of Terraform and AWS provider
+# required_version is >= 1.1.0 for moved block support; see moved.tf
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -22,6 +23,11 @@ locals {
   root_volume_tags = var.exclude_root_volume_snapshot ? {
     for k, v in var.tags : k => v if !contains(var.root_volume_excluded_tag_keys, k)
   } : var.tags
+
+  # Effective values for variables that have a deprecated predecessor; the
+  # deprecated variable wins when a caller still sets it. See variables.tf.
+  detailed_monitoring = var.monitoring != null ? var.monitoring : var.enable_detailed_monitoring
+  root_volume_iops    = var.root_iops != null ? var.root_iops : var.root_volume_iops
 }
 
 #############################
@@ -40,7 +46,7 @@ resource "aws_instance" "ec2" {
   instance_type                        = var.instance_type
   ipv6_addresses                       = var.ipv6_addresses
   key_name                             = var.key_name
-  monitoring                           = var.enable_detailed_monitoring
+  monitoring                           = local.detailed_monitoring
   placement_group                      = var.placement_group
   private_ip                           = var.private_ip
 
@@ -55,7 +61,7 @@ resource "aws_instance" "ec2" {
     tags                  = merge(local.root_volume_tags, ({ "Name" = var.name }))
     volume_type           = var.root_volume_type
     volume_size           = var.root_volume_size
-    iops                  = var.root_volume_iops
+    iops                  = local.root_volume_iops
     throughput            = var.root_volume_throughput
   }
 
@@ -97,7 +103,7 @@ resource "aws_cloudwatch_metric_alarm" "instance" {
   metric_name               = "StatusCheckFailed_Instance"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
+  period                    = local.detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"
@@ -122,7 +128,7 @@ resource "aws_cloudwatch_metric_alarm" "system" {
   metric_name               = "StatusCheckFailed_System"
   namespace                 = "AWS/EC2"
   ok_actions                = []
-  period                    = var.enable_detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
+  period                    = local.detailed_monitoring ? "60" : "300" # 60s for detailed, 300s for basic (free)
   statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "missing"

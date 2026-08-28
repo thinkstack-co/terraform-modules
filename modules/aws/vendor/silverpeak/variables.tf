@@ -9,9 +9,9 @@ variable "availability_zone" {
   default     = ""
 }
 
-variable "count" {
+variable "instance_count" {
   type        = number
-  description = "The total number of resources to create"
+  description = "(Optional) The number of Silverpeak appliances to create. Each appliance gets its own wan0, lan0, and mgmt0 network interface."
   default     = 1
 }
 
@@ -30,6 +30,19 @@ variable "ebs_block_device" {
   type        = any
   description = "Additional EBS block devices to attach to the instance"
   default     = []
+}
+
+# Security group rules
+variable "ingress_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) CIDR blocks allowed inbound to the Silverpeak security group. Defaults to all sources because Silverpeak peers with SDWAN devices over the internet; narrow this to the known peer ranges where the deployment allows it."
+  default     = ["0.0.0.0/0"]
+}
+
+variable "egress_cidr_blocks" {
+  type        = list(string)
+  description = "(Optional) CIDR blocks the Silverpeak security group may send traffic to. Defaults to all destinations."
+  default     = ["0.0.0.0/0"]
 }
 
 variable "ebs_optimized" {
@@ -190,8 +203,8 @@ variable "sg_name" {
 }
 
 variable "source_dest_check" {
-  type        = string
-  description = "(Optional) Whether to enable source destination checking for the ENI. Default true."
+  type        = bool
+  description = "(Optional) Whether to enable source/destination checking on the appliance network interfaces. Defaults to false so the appliance can route traffic that is not addressed to it."
   default     = false
 }
 

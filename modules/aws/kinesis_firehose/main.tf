@@ -20,7 +20,8 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   server_side_encryption {
     enabled  = var.firehose_server_side_encryption_enabled
     key_type = var.firehose_key_type
-    key_arn  = var.firehose_key_arn
+    # Omitted for AWS_OWNED_CMK; only set when a customer-managed key ARN is supplied.
+    key_arn = var.firehose_key_arn != "" ? var.firehose_key_arn : null
   }
 
   extended_s3_configuration {
@@ -29,7 +30,8 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
     prefix              = var.firehose_prefix
     compression_format  = var.firehose_compression_format
     error_output_prefix = var.firehose_error_output_prefix
-    kms_key_arn         = var.firehose_kms_key_arn
+    # Omitted when no key is supplied; an empty string is not a valid ARN.
+    kms_key_arn = var.firehose_kms_key_arn != "" ? var.firehose_kms_key_arn : null
   }
 }
 
@@ -40,11 +42,6 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
 resource "aws_s3_bucket" "firehose_bucket" {
   bucket_prefix = var.s3_bucket_prefix
   tags          = var.tags
-}
-
-resource "aws_s3_bucket_acl" "firehose_bucket_acl" {
-  bucket = aws_s3_bucket.firehose_bucket.id
-  acl    = var.s3_acl
 }
 
 resource "aws_s3_bucket_public_access_block" "firehose_bucket_public_access_block" {
@@ -65,7 +62,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "firehose_bucket_lifecycle" {
 
   rule {
     id     = var.s3_lifecycle_id
-    status = var.s3_lifecycle_enabled
+    status = var.s3_lifecycle_enabled ? "Enabled" : "Disabled"
 
     filter {
       prefix = var.s3_lifecycle_prefix

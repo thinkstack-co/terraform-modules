@@ -1,19 +1,16 @@
 variable "name" {
-  description = "Name of the Direct Connect connection"
+  description = "(Required) Name of the Direct Connect connection."
   type        = string
-  default     = "tf-dx-connection"
 }
 
 variable "bandwidth" {
-  description = "Bandwidth of the Direct Connect connection"
+  description = "(Required) Bandwidth of the Direct Connect connection (e.g. 1Gbps, 10Gbps)."
   type        = string
-  default     = "1Gbps"
 }
 
 variable "location" {
-  description = "Location of the Direct Connect connection"
+  description = "(Required) AWS Direct Connect location code where the connection terminates (e.g. EqDC2)."
   type        = string
-  default     = "EqDC2"
 }
 
 variable "tags" {

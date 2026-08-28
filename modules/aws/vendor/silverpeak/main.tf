@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0.0, < 7.0.0"
+      version = ">= 6.10.0, < 7.0.0"
     }
   }
 }
@@ -12,6 +12,9 @@ terraform {
 # Security Group
 #################
 
+# Purpose:       Security group applied to every Silverpeak appliance NIC.
+# Referenced by: aws_network_interface.wan0_nic, .lan0_nic, .mgmt0_nic
+# References:    var.vpc_id, var.ingress_cidr_blocks, var.egress_cidr_blocks
 resource "aws_security_group" "silverpeak_sg" {
   name        = var.sg_name
   description = var.sg_description
@@ -24,7 +27,7 @@ resource "aws_security_group" "silverpeak_sg" {
     protocol    = "-1"
     # Silverpeak is a SDWAN device and requires communication from other SDWAN devices
     #tfsec:ignore:aws-ec2-no-public-ingress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.ingress_cidr_blocks
   }
 
   egress {
@@ -34,7 +37,7 @@ resource "aws_security_group" "silverpeak_sg" {
     protocol    = "-1"
     # Silverpeak is a SDWAN device and requires communication from other SDWAN devices
     #tfsec:ignore:aws-ec2-no-public-egress-sgr
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.egress_cidr_blocks
   }
 
   tags = merge(var.tags, ({ "Name" = format("%s", var.sg_name) }))
@@ -45,7 +48,7 @@ resource "aws_security_group" "silverpeak_sg" {
 #######################
 
 resource "aws_network_interface" "wan0_nic" {
-  count             = var.count
+  count             = var.instance_count
   description       = var.wan0_description
   private_ips       = var.wan0_private_ips
   security_groups   = [aws_security_group.silverpeak_sg.id]
@@ -60,7 +63,7 @@ resource "aws_network_interface" "wan0_nic" {
 }
 
 resource "aws_network_interface" "lan0_nic" {
-  count             = var.count
+  count             = var.instance_count
   description       = var.lan0_description
   private_ips       = var.lan0_private_ips
   security_groups   = [aws_security_group.silverpeak_sg.id]
@@ -75,7 +78,7 @@ resource "aws_network_interface" "lan0_nic" {
 }
 
 resource "aws_network_interface" "mgmt0_nic" {
-  count             = var.count
+  count             = var.instance_count
   description       = var.mgmt0_description
   private_ips       = var.mgmt0_private_ips
   security_groups   = [aws_security_group.silverpeak_sg.id]
@@ -87,10 +90,13 @@ resource "aws_network_interface" "mgmt0_nic" {
 #######################
 # EC2 instance Module
 #######################
+# Purpose:       Silverpeak SDWAN appliances; mgmt0 is the primary (device 0) NIC.
+# Referenced by: aws_network_interface.wan0_nic, .lan0_nic (attach as devices 1 and 2)
+# References:    aws_network_interface.mgmt0_nic, var.ami, var.instance_type
 resource "aws_instance" "ec2" {
   ami                                  = var.ami
   availability_zone                    = var.availability_zone
-  count                                = var.count
+  count                                = var.instance_count
   disable_api_termination              = var.disable_api_termination
   ebs_optimized                        = var.ebs_optimized
   iam_instance_profile                 = var.iam_instance_profile
@@ -104,9 +110,8 @@ resource "aws_instance" "ec2" {
     http_tokens   = var.http_tokens
   }
 
-  network_interface {
-    network_interface_id = aws_network_interface.mgmt0_nic.id
-    device_index         = 0
+  primary_network_interface {
+    network_interface_id = aws_network_interface.mgmt0_nic[count.index].id
   }
 
   placement_group = var.placement_group

@@ -9,6 +9,14 @@ terraform {
 }
 
 ###########################
+# Data Sources
+###########################
+
+# Purpose: Account ID + region used to scope the KMS key policy conditions below.
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+###########################
 # KMS Encryption Key
 ###########################
 
@@ -79,4 +87,32 @@ resource "aws_sqs_queue" "queue" {
   name                              = var.name
   tags                              = var.tags
   visibility_timeout_seconds        = var.visibility_timeout_seconds
+}
+
+###########################
+# TLS Enforcement Policy
+###########################
+
+# Purpose:    Denies all SQS actions over non-TLS connections. Gated by var.enforce_ssl.
+# References: aws_sqs_queue.queue
+resource "aws_sqs_queue_policy" "enforce_ssl" {
+  count     = var.enforce_ssl ? 1 : 0
+  queue_url = aws_sqs_queue.queue.id
+  policy = jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+      {
+        "Sid"       = "DenyNonTLS",
+        "Effect"    = "Deny",
+        "Principal" = "*",
+        "Action"    = "sqs:*",
+        "Resource"  = aws_sqs_queue.queue.arn,
+        "Condition" = {
+          "Bool" = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
 }

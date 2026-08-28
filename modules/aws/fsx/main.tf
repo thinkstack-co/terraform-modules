@@ -61,7 +61,7 @@ resource "aws_kms_key" "fsx" {
 
 resource "aws_kms_alias" "fsx_alias" {
   name          = var.fsx_key_name
-  target_key_id = aws_kms_key.cloudwatch.key_id
+  target_key_id = aws_kms_key.fsx.key_id
 }
 
 ####################
@@ -74,7 +74,42 @@ resource "aws_kms_key" "cloudwatch" {
   key_usage               = var.key_usage
   is_enabled              = var.is_enabled
   tags                    = var.tags
-  policy                  = var.policy
+  # Default policy grants the CloudWatch Logs service use of the key so the
+  # audit log group can be encrypted; var.policy overrides it when supplied.
+  policy = var.policy != null ? var.policy : jsonencode({
+    "Version" = "2012-10-17",
+    "Statement" = [
+      {
+        "Sid"    = "Enable IAM User Permissions",
+        "Effect" = "Allow",
+        "Principal" = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        "Action"   = "kms:*",
+        "Resource" = "*"
+      },
+      {
+        "Sid"    = "AllowCloudWatchLogs",
+        "Effect" = "Allow",
+        "Principal" = {
+          "Service" = "logs.${data.aws_region.current.region}.amazonaws.com"
+        },
+        "Action" = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ],
+        "Resource" = "*",
+        "Condition" = {
+          "ArnLike" = {
+            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:*"
+          }
+        }
+      }
+    ]
+  })
 }
 
 resource "aws_kms_alias" "cloudwatch_alias" {
@@ -103,10 +138,15 @@ resource "aws_fsx_windows_file_system" "fsx" {
   weekly_maintenance_start_time     = var.weekly_maintenance_start_time
   deployment_type                   = var.deployment_type
   preferred_subnet_id               = var.preferred_subnet_id
-  audit_log_configuration {
-    audit_log_destination             = aws_cloudwatch_log_group.log_group[0].arn
-    file_access_audit_log_level       = var.file_access_audit_log_level
-    file_share_access_audit_log_level = var.file_share_access_audit_log_level
+  # Only emitted when audit logging is enabled; the log group is count-gated on
+  # the same flag, so referencing [0] outside this block would fail when disabled.
+  dynamic "audit_log_configuration" {
+    for_each = var.enable_audit_logs ? [1] : []
+    content {
+      audit_log_destination             = aws_cloudwatch_log_group.log_group[0].arn
+      file_access_audit_log_level       = var.file_access_audit_log_level
+      file_share_access_audit_log_level = var.file_share_access_audit_log_level
+    }
   }
   storage_type = var.storage_type
   # Active Directory Settings

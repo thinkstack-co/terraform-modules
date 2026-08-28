@@ -5,8 +5,9 @@ variable "actions_enabled" {
 }
 
 variable "alarm_actions" {
-  type        = string
+  type        = list(string)
   description = "(Optional) The list of actions to execute when this alarm transitions into an ALARM state from any other state. Each action is specified as an Amazon Resource Number (ARN)."
+  default     = []
 }
 
 variable "alarm_description" {
@@ -40,8 +41,9 @@ variable "evaluation_periods" {
 }
 
 variable "insufficient_data_actions" {
-  type        = string
+  type        = list(string)
   description = "(Optional) The list of actions to execute when this alarm transitions into an INSUFFICIENT_DATA state from any other state. Each action is specified as an Amazon Resource Number (ARN)."
+  default     = []
 }
 
 variable "metric_name" {
@@ -55,8 +57,9 @@ variable "namespace" {
 }
 
 variable "ok_actions" {
-  type        = string
+  type        = list(string)
   description = "(Optional) The list of actions to execute when this alarm transitions into an OK state from any other state. Each action is specified as an Amazon Resource Number (ARN)."
+  default     = []
 }
 
 variable "period" {
