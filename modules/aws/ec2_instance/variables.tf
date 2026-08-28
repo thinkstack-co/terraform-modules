@@ -126,8 +126,8 @@ variable "http_endpoint" {
 
 variable "http_tokens" {
   type        = string
-  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to optional, which accepts both IMDSv1 and IMDSv2 calls. Set to required to enforce IMDSv2."
-  default     = "optional"
+  description = "(Optional) Whether or not the metadata service requires session tokens, also referred to as Instance Metadata Service Version 2 (IMDSv2). Valid values include optional or required. Defaults to required, which enforces IMDSv2. Set to optional only for instances running software that cannot use IMDSv2."
+  default     = "required"
   validation {
     condition     = can(regex("^(optional|required)$", var.http_tokens))
     error_message = "The value must be either optional or required."

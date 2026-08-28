@@ -1,6 +1,6 @@
 # v3 Release Notes & Deferred Work
 
-Status as of 2026-08-27. This file records what v3 changed, what was deliberately
+Status as of 2026-08-28. This file records what v3 changed, what was deliberately
 left undone, and the traps a maintainer will hit if they don't know about them.
 
 ---
@@ -45,6 +45,38 @@ review them before applying.
 Caveat: only 19 of ~110 Terraform repos commit a lock file, so the table above is a
 **floor, not a ceiling**. Repos not checked out locally, or whose provider version is
 resolved at TFC run time, could not be assessed.
+
+### `vpc`: per-AZ resources re-keyed — repos on v2.10.0 need a state migration
+
+v3 keys every per-AZ VPC resource by its ordinal in `var.azs` (`["0"]`) instead of the
+AZ name (`["us-east-1a"]`) that v2.10.0 used. The module ships `moved` blocks covering
+the **count-based** (`<= v2.9.2`) path, so those repos upgrade with no action.
+
+Repos genuinely on **v2.10.0** are not covered and must run a one-time
+`terraform state mv` first, plus delete their consumer-side `vpc_moved.tf` (its blocks
+share a `from` address with the shipped `moved.tf` and cause _"Ambiguous move
+statements"_). Full procedure: [`docs/MIGRATION-v3.md`](docs/MIGRATION-v3.md), with
+`modules/aws/vpc/v3-state-migrate.sh` to generate and run the moves.
+
+Skipping it is expensive and measured, not theoretical: on a repo whose VPC layer is 42
+resources, the plan came out at **89 to add, 8 to change, 82 to destroy**. Replaced
+subnets make their IDs unknown, which forces replacement of every EC2 instance, ENI and
+attachment sitting in them.
+
+Determine which band a repo is in from `terraform state list`, **not** from the `?ref=`
+in its `.tf` files — an uncommitted or never-applied bump makes the working tree lie.
+
+### `ec2_instance`: `http_tokens` now defaults to `"required"` (IMDSv2 enforced)
+
+Was `"optional"`, which accepted IMDSv1. Every other instance module in the repo
+(`ec2_domain_controller`, `launch_template`, `siem`, `netcov/appgate_sdp`, all four
+vendor appliance modules) already defaulted to `"required"`; this is the last one, and
+it is the fleet's most-used instance module.
+
+The change applies per repo as it bumps its ref, and is an **in-place update, not a
+replacement**. It will break anything still calling IMDSv1 — older AWS SDKs and some
+monitoring agents. Set `http_tokens = "optional"` on the specific module call if a host
+genuinely needs it.
 
 ### `vendor/silverpeak`: `count` variable renamed
 
@@ -110,14 +142,6 @@ to watch the rollout. Also worth fixing while in there: the role and instance pr
 names are hardcoded to `ssm-service-role` (so two deployments in one account collide),
 the module accepts no variables, and it sets no tags — violating the repo tagging
 standard.
-
-### `ec2_instance` defaults to IMDSv1
-
-`http_tokens` defaults to `"optional"`. Every other instance module in the repo
-(`ec2_domain_controller`, `launch_template`, all four vendor appliance modules)
-defaults to `"required"`. This is the fleet's most-used instance module, so it leaves
-IMDSv1 enabled by default. Flipping a default is a breaking change and belongs in a
-major version — v3 was the natural window and it was not taken.
 
 ### S3 legacy modules block lifting the `< 7.0.0` ceiling
 
