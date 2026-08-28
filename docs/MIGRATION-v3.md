@@ -11,10 +11,10 @@ your **live state** looks like, not on what your `.tf` files say.
 
 Two bands, and picking the wrong one is the only way to cause damage.
 
-| Band                                         | Live state keys look like                  | What you do                                                                 |
-| -------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
-| **B — count-based** (module ref `<= v2.9.2`) | `aws_subnet.private_subnets[0]`            | Nothing. v3 ships `moved` blocks that migrate you automatically.            |
-| **A — AZ-name keyed** (module ref `v2.10.0`) | `aws_subnet.private_subnets["us-east-1a"]` | A one-time `terraform state mv`, plus delete your consumer-side moved file. |
+| Band                              | Live state keys look like       | What you do                                                               |
+| --------------------------------- | ------------------------------- | ------------------------------------------------------------------------- |
+| **B** — count-based (`<= v2.9.2`) | `private_subnets[0]`            | Nothing. v3 ships `moved` blocks that migrate you automatically.          |
+| **A** — AZ-name keyed (`v2.10.0`) | `private_subnets["us-east-1a"]` | One-time `terraform state mv`, plus delete your consumer-side moved file. |
 
 Determine it from state, which is authoritative:
 
@@ -205,6 +205,22 @@ unchanged.
 ```bash
 terraform state push v3-state-backup.tfstate
 ```
+
+**7b. Get a second pair of eyes before merging.**
+
+Do not self-merge this one. The plan is the entire safety argument, and it is easy to
+skim a large plan and see what you expect to see. Ask a reviewer to confirm, from the
+PR's plan output rather than from your description of it:
+
+- **Zero destroys and zero replacements.** Any `-` or `-/+` is a stop.
+- **Zero `module.vpc` actions.** Not "only a few" — none.
+- **The plan matches the control** taken before the migration, action for action.
+- **`vpc_moved.tf` is deleted** in the diff, and the `?ref=` bump is the only other change.
+- **No other module refs moved** in the same PR.
+
+Have them say which of those they actually checked. "Looks good" on a 100-line plan is
+not a review, and the failure mode here — a destroy that reads as routine because
+everything else in the plan is routine — is exactly what a careless skim misses.
 
 **8. Merge promptly — there is an open window.**
 
